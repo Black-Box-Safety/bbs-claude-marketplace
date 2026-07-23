@@ -2,6 +2,7 @@
 name: bbs-product-page
 description: Use when changing BBS storefront product cards, PDPs, collection grids, pricing display, brand logos, lead times, compliance chips, contract vehicles, quote/RFQ flow, or product metafields — or when a card/PDP renders wrong (missing logo, wrong price mode, absent contract block).
 ---
+> **BBS Ops pipeline — stage: Storefront.** See `site-wiring-map` for how this fits the whole flow.
 
 # BBS Product Card + PDP System
 

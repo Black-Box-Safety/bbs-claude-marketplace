@@ -2,6 +2,7 @@
 name: obs-form-filler
 description: Fill out the CDCR OBS 4007(B) "RFQ Packet-B" California state compliance forms for Black Box Safety (BBS). Use this skill whenever a BBS rep needs to respond to a CDCR (Department of Corrections and Rehabilitation) informal competitive RFQ — i.e. whenever they upload or mention a blank OBS 4007(B) packet, "Packet B", "OBS 4007", a CDCR RFQ, or ask to fill out the bid forms / compliance packet for a CDCR quote. Also trigger when a rep provides a quote (product, price, quantity) plus a solicitation number and asks to "fill the OBS form", "redo this on the new forms", "complete the bid packet", or "fill out the CDCR forms". The rep supplies the quote line items, the dates, the agency contact info, and their own rep info (name/title/email); this skill merges in BBS's fixed vendor profile, fills all 9 sub-forms, embeds signatures, and produces a submission-ready PDF. Do NOT use for non-CDCR bid packets, NASPO/Grainger-routed quotes, or generic California state forms unrelated to the OBS 4007(B) packet.
 ---
+> **BBS Ops pipeline — stage: Quote bot.** See `site-wiring-map` for how this fits the whole flow.
 
 # OBS 4007(B) Packet-B Filler — Black Box Safety
 

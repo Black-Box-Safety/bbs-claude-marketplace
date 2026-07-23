@@ -12,6 +12,7 @@ description: >-
   proven path (used to roll ~300 non-apparel families); do NOT hand-build family products or hand-write
   Shopify mutations for this.
 ---
+> **BBS Ops pipeline — stage: Enrichment.** See `site-wiring-map` for how this fits the whole flow.
 
 # BBS Family Rollup
 
@@ -21,8 +22,9 @@ edge function rolls each family** (create-new-then-delete-old + 301 redirects). 
 `manufacturer_family_rules` row (config, not code) + the reusable generator — you author/tune the rule, the
 machinery does the rest.
 
-**Governing law:** `~/bbs-shopify/docs/plans/rollup-standard.md` (the 6-rule legality gate, approved axes,
-naming canon). Read it before authoring a rule for a new manufacturer.
+**Governing law:** `docs/plans/rollup-standard.md` in the bbs-shopify repo (locate it via
+`site-wiring-map`; do not assume an absolute path) — the 6-rule legality gate, approved axes,
+naming canon. Read it before authoring a rule for a new manufacturer.
 
 ## Guardrails (non-negotiable)
 - **TEST store only** (`bbs-supabase-test`). Supabase project `oaqkueputgaweojcpaim`.
@@ -34,7 +36,8 @@ naming canon). Read it before authoring a rule for a new manufacturer.
 - **Do NOT touch** the 282 apparel families or their drained queue.
 
 ## Prerequisites (verify once)
-- `cd ~/bbs-database && source venv/bin/activate` (supabase-py, python-dotenv). `.env` has `SUPABASE_URL`
+- In the bbs-database repo (locate it via `site-wiring-map`; do not assume an absolute path),
+  `source venv/bin/activate` (supabase-py, python-dotenv). `.env` has `SUPABASE_URL`
   + `SUPABASE_SERVICE_KEY`. Generator: `etl/nonapparel_family_rollup.py`. Drivers:
   `etl/nonapparel_roll_driver.sh` (commit + targeted-roll one vendor), `etl/nonapparel_roll_chain.sh`.
 - Migrations 022 (config/triage tables) + 023 (widened `variant_dimensions` constraint) applied.
@@ -134,7 +137,7 @@ each variant's SKU + price + option value correct. Check `family_review_queue` f
 ## References
 - `references/rule-authoring.md` — the `manufacturer_family_rules` schema, per-vendor worked examples
   (name-peel, SKU-suffix, Length×Finish grids, Fitment/Mount), canonicalization, and the per-vendor subagent brief.
-- `~/bbs-shopify/docs/plans/rollup-standard.md` — the legality gate + approved axes + naming canon (THE LAW).
-- `~/bbs-database/docs/plans/nonapparel-dryruns/HANDOFF-2026-07-22-nonapparel-RESUME.md` — the reference rollout
-  (9 vendors, ~300 families) with real per-vendor rules and outcomes.
+- `docs/plans/rollup-standard.md` in the bbs-shopify repo — the legality gate + approved axes + naming canon (THE LAW).
+- `docs/plans/nonapparel-dryruns/HANDOFF-2026-07-22-nonapparel-RESUME.md` in the bbs-database repo — the reference rollout
+  (9 vendors, ~300 families) with real per-vendor rules and outcomes. (Locate both repos via `site-wiring-map`; do not assume an absolute path.)
 </content>

@@ -2,6 +2,7 @@
 name: supply-lane-tuning
 description: Tune the BBS Supply channel (Grainger MRO resale; internal track "supply", pricing vehicle NASPO MRO LPA) of the BBS quote bot — system prompt, product surfacing, sourcing/pricing guardrails, voice, and cost. Use whenever the ask is about the Supply lane's chat behavior — "it shows too many products", "limit the options", "recommend one", "the Grainger chat isn't smooth", pricing/facility rules, "make it cheaper to run", or aligning the model with the channel's goals. Covers where the tuning levers live, the grounding rules, and how to verify with the scripted eval.
 ---
+> **BBS Ops pipeline — stage: Quote bot.** See `site-wiring-map` for how this fits the whole flow.
 
 # Supply Lane Tuning — BBS Quote Bot
 

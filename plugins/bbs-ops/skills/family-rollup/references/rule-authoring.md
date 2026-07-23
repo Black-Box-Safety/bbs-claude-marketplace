@@ -38,7 +38,8 @@ goods. `Fitment` = firearm/device fitted. `Mount` = attachment/hardware config (
 - **Streamlight (name peel + leading fitment parenthetical):** peel trailing Color + a leading `(gun rail)`
   Fitment parenthetical; keep packaging/voltage/TAA INSIDE style_key so twins don't merge.
 
-Full rules + counts for all 9 vendors: `~/bbs-database/docs/plans/nonapparel-dryruns/dryrun-<vendor>.md`.
+Full rules + counts for all 9 vendors: `docs/plans/nonapparel-dryruns/dryrun-<vendor>.md` in the
+bbs-database repo (locate it via `site-wiring-map`; do not assume an absolute path).
 
 ## Known generator gaps (route to review, never corrupt — extend the generator to recover)
 - **No default-axis-value:** a base SKU with no color token meant to = "Black" (SureFire `-BK` absent,

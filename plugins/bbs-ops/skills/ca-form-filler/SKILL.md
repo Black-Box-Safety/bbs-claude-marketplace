@@ -13,6 +13,7 @@ description: >
   signature lines, and produces filled PDFs ready for rep review and submission.
 compatibility: claude-code
 ---
+> **BBS Ops pipeline — stage: Quote bot.** See `site-wiring-map` for how this fits the whole flow.
 
 # California State Compliance Form Filler
 

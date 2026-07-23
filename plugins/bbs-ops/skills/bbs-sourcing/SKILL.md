@@ -2,6 +2,7 @@
 name: bbs-sourcing
 description: Source pricing from vendors for a competitive bid RFQ at Black Box Safety. Use this skill whenever a BBS sales rep needs to turn an inbound competitive RFQ from a California state agency into vendor outreach — including when they say "source this RFQ," "get me pricing on these items," "reach out to vendors for this bid," "help me quote this," or paste/upload an RFQ worksheet and ask what to do next. Also use when the rep wants to follow up with non-responding vendors or leverage one vendor's quote against another's. Always use this skill for competitive, SB/DVBE, or Fair-and-Reasonable bids. DO NOT use when the RFQ is NASPO-routed or every item is available on grainger.com — those go through Provision Connect instead. Output is a sourcing brief plus vendor emails drafted in BBS's voice, rendered inline with pop-out buttons for Outlook.
 ---
+> **BBS Ops pipeline — stage: Quote bot.** See `site-wiring-map` for how this fits the whole flow.
 
 # BBS Sourcing Skill
 
