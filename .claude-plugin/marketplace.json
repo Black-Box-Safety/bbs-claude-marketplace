@@ -1,6 +1,8 @@
 {
-  "name": "bbs-claude-plugin",
-  "owner": { "name": "Black Box Safety, Inc." },
+  "name": "bbs-claude-marketplace",
+  "owner": {
+    "name": "Black Box Safety, Inc."
+  },
   "metadata": {
     "description": "Black Box Safety internal Claude plugins — site operations and AI foundations.",
     "version": "0.1.0"
@@ -11,8 +13,17 @@
       "source": "./plugins/bbs-ops",
       "description": "Maintain the BBS website end to end — price list to product page. Skills, agents, and commands for catalog intake, pricing, enrichment, storefront, quote bot, QA, and cross-sell.",
       "version": "0.1.0",
-      "author": { "name": "Black Box Safety, Inc." },
-      "keywords": ["bbs", "shopify", "supabase", "quote-bot", "catalog", "operations"],
+      "author": {
+        "name": "Black Box Safety, Inc."
+      },
+      "keywords": [
+        "bbs",
+        "shopify",
+        "supabase",
+        "quote-bot",
+        "catalog",
+        "operations"
+      ],
       "category": "operations"
     }
   ]
