@@ -141,7 +141,7 @@ Client tools are defined in `BBSQuoteFormsBot.jsx` (`callClaude` tool list, disp
 - Evals are the regression gate, not an afterthought: `src/lib/*.eval.test.js` (the scripted
   Supply-lane eval) and the `*.test.js` suite beside each `src/lib` module. Treat a drop in
   green count as a regression before calling anything done.
-- `/api/log` → Supabase is the observability surface; the response-tuner agent mines it for
+- `/api/log` → Supabase is the observability surface; the quote-bot agent mines it for
   failure patterns. There is no separate metrics/cost stack — if cost-per-session or
   quality-drift tracking becomes a requirement, say plainly that it is new architecture to
   build, not something already instrumented.

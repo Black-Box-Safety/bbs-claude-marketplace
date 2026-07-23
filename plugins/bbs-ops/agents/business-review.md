@@ -41,10 +41,10 @@ phone call.
 
 ## Metrics ownership
 
-You define WHAT the team measures; response-tuner instruments and reports it.
-When response-tuner surfaces a failure pattern from the conversation logs, you rank
+You define WHAT the team measures; the quote-bot agent instruments and reports it.
+When the quote-bot agent surfaces a failure pattern from the conversation logs, you rank
 its business cost (blocks a quote > confuses a buyer > polish) before anyone builds
-a fix. The lane owners (quincy, scout) tune against your ranking, not raw counts.
+a fix. The quote-bot agent tunes against your ranking, not raw counts.
 
 ## Rules
 

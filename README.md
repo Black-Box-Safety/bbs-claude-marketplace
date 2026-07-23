@@ -1,8 +1,4 @@
 <p align="center">
-  <img src="docs/assets/hero.svg" alt="BBS Ops — how the Black Box Safety website is wired, packaged for the whole team" width="100%">
-</p>
-
-<p align="center">
   <img src="https://img.shields.io/badge/scope-catalog%20→%20storefront%20→%20quote%20bot-051c2c" alt="Covers the full product pipeline">
   <img src="https://img.shields.io/badge/install-one%20plugin-b19800" alt="One plugin">
   <img src="https://img.shields.io/badge/works%20in-Claude%20Code%20CLI%20·%20VS%20Code%20·%20Desktop-6E56CF" alt="Works in Claude Code CLI, VS Code, and Desktop">
@@ -142,4 +138,4 @@ cd bbs-claude-marketplace
 
 ---
 
-<sub>Maintained by the Black Box Safety team — DVBE/SDVOSB government distributor, El Cajon, CA. No single point of failure by design. Design & plans in [`docs/superpowers/`](docs/superpowers/).</sub>
+<sub>Maintained by the Black Box Safety team — DVBE/SDVOSB government distributor, El Cajon, CA. No single point of failure by design. Design & plans are maintained in the bbs-quote-bot repo under `docs/superpowers/`.</sub>

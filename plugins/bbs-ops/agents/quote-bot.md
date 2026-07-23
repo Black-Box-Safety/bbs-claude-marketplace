@@ -51,17 +51,25 @@ live Grainger search → a priced quote → the complete CA bid packet (quote pa
 204 + PD 843 + GSPD + Darfur + STD 1000 + CalRecycle 74 when physical goods). This is
 money-bearing code — carry the same discipline an architect would demand:
 
-1. **Prices, stock, and ship dates come only from tool results** (the BBS Grainger
-   gateway at grainger-api.blackboxsafety.com). The model never invents, adjusts, or
-   arithmetically derives a price. Money math lives in `src/lib/quoteDoc.js`
-   (`quoteTotals`) and nowhere else.
-2. **Sell price = BBS cost** (the gateway's `unitPrice`) for State of CA accounts. Never
+1. **Prices, stock, and ship dates come only from tool results.** The live source is
+   **Anthropic's native Grainger MCP connector**, injected server-side by `api/anthropic.js`
+   (`injectGraingerMcp`, which adds `mcp_servers` plus the `mcp-client-2025-11-20` beta) when
+   the client sets `graingerMcp: true` — never a client-side call, never a hardcoded
+   credential. Anthropic executes `grainger_search` / `grainger_price` / `grainger_availability`
+   directly; results arrive as `mcp_tool_result` blocks and are mapped to product cards by
+   `mapGraingerResult` in `src/lib/graingerResult.js`. The model never invents, adjusts, or
+   arithmetically derives a price. Money math lives in `src/lib/quoteDoc.js` (`quoteTotals`)
+   and nowhere else.
+2. **Sell price = BBS cost** (the connector's `unitPrice`) for State of CA accounts. Never
    mark up — there must be no code path that could.
-3. **Sandbox guard, fail closed**: verify gateway `GET /health` reports `env === "prod"`
-   before serving results; drop any row carrying `env !== "prod"` or `sandbox: true`. A
-   sandbox price must never reach a customer.
-4. **No mock data to customers.** Upstream failure → the 502 "Product source
-   temporarily unavailable" path, never a fabricated row.
+3. **Sandbox guard, fail closed, per row**: `mapGraingerResult` in `src/lib/graingerResult.js`
+   inspects every returned row and drops any whose `env !== "prod"` or that carries
+   `sandbox: true` — a sandbox/non-prod price must never reach a customer. This is a per-row
+   code check, not a `GET /health` gate; there is no REST gateway or health endpoint to poll
+   (that REST path — `api/products/_grainger.js`, an `X-API-Key` header, a `q` body param —
+   was retired 2026-07-21).
+4. **No mock data to customers.** Upstream/connector failure → the mapped result's error path
+   (`isError`), never a fabricated row.
 5. **Signature lines are flagged, never filled.** Vendor-profile statics come from the
    `VP` constant only (Parker approves changes to it).
 6. Facility account is a server-side default (887895160, Cal Fire Sacramento HQ); never
@@ -69,17 +77,20 @@ money-bearing code — carry the same discipline an architect would demand:
    mapping lands (887895111 CMC / 887895116 Calipatria / 887895140 Porterville /
    887895160).
 
-Adapter seam: `SOURCE_REGISTRY` in `api/products/search.js`; gateway client
-`api/products/_grainger.js` (REST, `X-API-Key`, body param `q`). Quote/PDF:
-`src/lib/quoteDoc.js`, `src/forms/bidPackage.js`, filled via `fillPacket`. New network
-code ships with tests for happy path, guard trips, upstream failure, and missing
-config — house style is exported pure helpers, vitest with
-`vi.spyOn(globalThis, "fetch")`, env save/restore. Keep tool results lean (the chat loop
-rides `max_tokens: 450`); zero new runtime dependencies in `/api` unless truly
-justified. Verify with the Playwright harness (serve `dist/`, stub the gateway with
-fixture rows) before calling anything done, and state plainly what you verified versus
-what you could not (e.g., no live gateway key in the sandbox). Keep `CLAUDE.md` and
-`api/CLAUDE.md` current in the same change — the living-doc rule is real.
+Adapter seam: the Grainger MCP connector is injected in `api/anthropic.js`
+(`injectGraingerMcp`) — there is no REST gateway client in `api/products/search.js`'s
+`SOURCE_REGISTRY` to adapt. Card display is capped to `GRAINGER_MAX_CARDS` (5) in
+`src/lib/graingerResult.js`; the model still receives every row in its tool result, so
+capping the display never hides a match from its reasoning. Quote/PDF: `src/lib/quoteDoc.js`,
+`src/forms/bidPackage.js`, filled via `fillPacket`. New code ships with tests for happy path,
+guard trips, upstream/connector failure, and missing config — house style is exported pure
+helpers, vitest with `vi.spyOn(globalThis, "fetch")` for REST paths, env save/restore. Keep
+tool results lean (the chat loop rides `max_tokens: 450`); zero new runtime dependencies in
+`/api` unless truly justified. Verify with the Playwright harness per `supply-lane-tuning`
+(local only — the deployed `*.vercel.app` is egress-blocked from the sandbox) before calling
+anything done, and state plainly what you verified versus what you could not (e.g., no live
+Grainger MCP token in the sandbox). Keep `CLAUDE.md` and `api/CLAUDE.md` current in the same
+change — the living-doc rule is real.
 
 ## Shared platform
 

@@ -1,8 +1,4 @@
 <p align="center">
-  <img src="docs/assets/pipeline.svg" alt="bbs-ops — the Black Box Safety site-maintenance pipeline" width="100%">
-</p>
-
-<p align="center">
   <img src="https://img.shields.io/badge/pipeline-price%20list%20→%20product%20page-051c2c" alt="Price list to product page">
   <img src="https://img.shields.io/badge/agents-10-b19800" alt="10 agents">
   <img src="https://img.shields.io/badge/access-advisory%20·%20read--mostly-2dd4bf" alt="Advisory, read-mostly">

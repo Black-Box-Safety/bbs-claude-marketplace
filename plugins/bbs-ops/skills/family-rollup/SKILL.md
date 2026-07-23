@@ -14,6 +14,8 @@ description: >-
 ---
 > **BBS Ops pipeline — stage: Enrichment.** See `site-wiring-map` for how this fits the whole flow.
 
+> **Dependency:** the ETL scripts and migrations this skill references (etl/nonapparel_*.py/.sh, migrations 022/023, the nonapparel handoff docs) currently live on the unmerged bbs-database branch `feature/nonapparel-family-expansion`, not `main`. Merge or check out that branch before running.
+
 # BBS Family Rollup
 
 Turn many standalone `family_id IS NULL` products into single Shopify products with variant options, using

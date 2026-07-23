@@ -4,7 +4,7 @@ description: >
   Use this skill whenever a Black Box Safety sales rep needs to fill out California
   state compliance forms for a bid or RFQ response. Triggers include: any mention
   of "state forms", "bid packet", "compliance forms", "STD 204", "STD 205",
-  "DGS PD 843", "CV 012", "DGS PD 1", "OBS 1000", "CalRecycle 74", "form packet",
+  "DGS PD 843", "CV 012", "DGS PD 1", "STD 1000", "CalRecycle 74", "form packet",
   "fill out the forms", "bid submission forms", or any upload of a PDF that appears
   to contain blank California state government forms. Also trigger when the rep says
   "I need to respond to this RFQ" alongside a form packet upload. The skill reads
@@ -14,6 +14,8 @@ description: >
 compatibility: claude-code
 ---
 > **BBS Ops pipeline — stage: Quote bot.** See `site-wiring-map` for how this fits the whole flow.
+
+> **Note:** the vendor-profile JSON this skill reads from `references/` is created on first-run setup (see the setup section); it is not shipped in the package.
 
 # California State Compliance Form Filler
 
@@ -183,7 +185,7 @@ python3 ~/.bbs/pdf_scripts/extract_form_field_info.py /path/to/forms.pdf /tmp/fi
 
 ```bash
 # Extract text structure to identify which forms are present and on which pages
-pdftotext /path/to/forms.pdf - | grep -n "STD 204\|STD 205\|PD 843\|CV 012\|Darfur\|CalRecycle\|OBS 1000\|GenAI\|GSPD"
+pdftotext /path/to/forms.pdf - | grep -n "STD 204\|STD 205\|PD 843\|CV 012\|Darfur\|CalRecycle\|STD 1000\|GenAI\|GSPD"
 ```
 
 **Canonical form detection:**
@@ -193,9 +195,9 @@ pdftotext /path/to/forms.pdf - | grep -n "STD 204\|STD 205\|PD 843\|CV 012\|Darf
 | STD 204       | "PAYEE DATA RECORD" / "STD 204"               |
 | STD 205       | "PAYEE DATA SUPPLEMENT" / "STD 205"           |
 | DGS PD 843    | "DISABLED VETERAN BUSINESS ENTERPRISE" / "843"|
-| GSPD-05-105   | "BIDDER DECLARATION" / "GSPD-05-105"          |
+| GSPD-05-106   | "BIDDER DECLARATION" / "GSPD-05-106"          |
 | DGS PD 1      | "DARFUR" / "PD 1"                             |
-| OBS 1000      | "GENERATIVE AI" / "OBS 1000"                  |
+| STD 1000      | "GENERATIVE AI" / "STD 1000"                  |
 | CalRecycle 74 | "CALRECYCLE" / "RECYCLED CONTENT" / "SABRC"   |
 | CV 012        | "COMMERCIALLY USEFUL FUNCTION" / "CV 012"     |
 
@@ -253,7 +255,7 @@ pdftoppm -jpeg -r 150 -f 1 -l 1 /path/to/forms.pdf /tmp/std204_verify
 | All signatures | ⚑ SIG | Leave blank — perjury certification |
 | All dates | ⚑ SIG | Leave blank |
 
-### GSPD-05-105 — Bidder Declaration
+### GSPD-05-106 — Bidder Declaration
 | Field | Source | Value |
 |-------|--------|-------|
 | Certification(s) | VP | "DVBE" |
@@ -276,7 +278,7 @@ pdftoppm -jpeg -r 150 -f 1 -l 1 /path/to/forms.pdf /tmp/std204_verify
 | Signature | ⚑ SIG | Leave blank |
 | Date | ⚑ SIG | Leave blank |
 
-### OBS 1000 — GenAI Disclosure
+### STD 1000 — GenAI Disclosure
 | Field | Source | Value |
 |-------|--------|-------|
 | Company Name | VP | `legal_name` |
@@ -366,10 +368,10 @@ Do not deliver until visual inspection confirms correct placement.
 ~/bbs_forms/YYYYMMDD_[AgencyShortName]/
   BBS_STD204_[Agency]_[SolNum]_[YYYYMMDD].pdf
   BBS_PD843_[Agency]_[SolNum]_[YYYYMMDD].pdf
-  BBS_GSPD05105_[Agency]_[SolNum]_[YYYYMMDD].pdf
+  BBS_GSPD05106_[Agency]_[SolNum]_[YYYYMMDD].pdf
   BBS_Darfur_[Agency]_[SolNum]_[YYYYMMDD].pdf
   BBS_CalRecycle74_[Agency]_[SolNum]_[YYYYMMDD].pdf
-  BBS_OBS1000_[Agency]_[SolNum]_[YYYYMMDD].pdf
+  BBS_STD1000_[Agency]_[SolNum]_[YYYYMMDD].pdf
   cover_summary.md
 ```
 

@@ -4,6 +4,8 @@ description: Source pricing from vendors for a competitive bid RFQ at Black Box 
 ---
 > **BBS Ops pipeline — stage: Quote bot.** See `site-wiring-map` for how this fits the whole flow.
 
+> **Known gap:** this skill references companion files under `references/` (vendor directory, email templates, triage, input-handling) that are not yet included in the package. Until they are added, follow the inline guidance and flag the gap via `/bbs-review`.
+
 # BBS Sourcing Skill
 
 This skill converts a competitive-bid RFQ into a sourcing brief plus vendor outreach emails. It works for Black Box Safety sales reps responding to California state government RFQs where pricing has to come from direct accounts, wholesalers, or retail — not from NASPO/Grainger.

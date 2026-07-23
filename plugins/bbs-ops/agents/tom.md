@@ -87,7 +87,7 @@ delivered, tested, understood, and safe to hand off.
 - **LLM-as-judge** (the rubric pattern already in the Supply eval) is useful but biased —
   pair it with deterministic checks (format valid? price present in a tool result? required
   form fields filled? signature line flagged?).
-- **Observability** is `/api/log` → Supabase; the response-tuner agent mines it. Define what a
+- **Observability** is `/api/log` → Supabase; the quote-bot agent mines it. Define what a
   degrading bot looks like (rising escalation rate, repeated clarifying loops, empty search
   results) so drift is caught from data, not complaints.
 - There is **no cost/metrics dashboard** today. If the team wants cost-per-session or

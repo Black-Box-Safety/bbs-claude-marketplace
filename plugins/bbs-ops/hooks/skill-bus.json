@@ -54,11 +54,6 @@
       "when": "pre"
     },
     {
-      "insert": "bbs-storefront-doctrine",
-      "on": "bbs-ops:cross-sell",
-      "when": "pre"
-    },
-    {
       "insert": "bbs-catalog-doctrine",
       "on": "bbs-ops:price-list-cleaner",
       "when": "pre"
