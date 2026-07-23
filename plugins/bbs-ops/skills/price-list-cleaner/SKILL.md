@@ -1,5 +1,5 @@
 ---
-name: bbs-price-list-cleaner
+name: price-list-cleaner
 description: Clean and convert manufacturer price lists into the BBS (Black Box Safety) standard import template. Use this skill whenever the user provides a raw manufacturer price list file (Excel, CSV, or PDF) and needs it prepared for import into the BBS product database. Also trigger when the user mentions cleaning, prepping, formatting, or converting a price list, price sheet, or product catalog for Black Box Safety, BBS, or import. This includes any file from a manufacturer containing SKUs, product descriptions, and pricing columns that needs to be standardized.
 ---
 > **BBS Ops pipeline — stage: Intake.** See `site-wiring-map` for how this fits the whole flow.

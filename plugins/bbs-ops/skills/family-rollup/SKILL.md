@@ -1,5 +1,5 @@
 ---
-name: bbs-family-rollup
+name: family-rollup
 description: >-
   Roll a manufacturer's standalone Shopify product cards up into single products with variant options
   (Color/Finish/Model/Fitment/Mount/Size/Length/Width) for Black Box Safety. Use this WHENEVER the task

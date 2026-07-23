@@ -1,5 +1,5 @@
 ---
-name: bbs-contract-discount-loader
+name: contract-discount-loader
 description: Load or update a cooperative/government contract whose pricing is a discount off MSRP by manufacturer into the BBS (Black Box Safety) product database contract-pricing subsystem. Use this skill whenever the user wants to apply a new contract, refresh contract pricing, or load a manufacturer discount schedule — e.g. "apply our NPPGov contract", "load the new Sourcewell discounts", "update the PS25650 pricing", "here's the June discount sheet for <contract>", or hands over an Excel/CSV of brands and percent-off values tied to a contract. Also trigger for any request about contract eligibility (which manufacturers are/aren't on a contract) or making non-contracted products show as unavailable under a contract. This is the right skill any time a contract's per-manufacturer discount-off-MSRP schedule needs to land in the database.
 ---
 > **BBS Ops pipeline — stage: Pricing.** See `site-wiring-map` for how this fits the whole flow.
