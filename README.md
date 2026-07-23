@@ -138,4 +138,4 @@ cd bbs-claude-marketplace
 
 ---
 
-<sub>Maintained by the Black Box Safety team — DVBE/SDVOSB government distributor, El Cajon, CA. No single point of failure by design. Design & plans are maintained in the bbs-quote-bot repo under `docs/superpowers/`.</sub>
+<sub>Maintained by the Black Box Safety team — DVBE/SDVOSB government distributor, El Cajon, CA. No single point of failure by design. Design & plans in `docs/superpowers/`.</sub>

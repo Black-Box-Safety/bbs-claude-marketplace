@@ -48,7 +48,7 @@ Per-skill, one commit each — never en masse. For each moved skill, replace the
 bbs-sourcing, ca-form-filler, obs-form-filler (global `~/.claude/skills`) → price-list-cleaner,
 contract-discount-loader, family-rollup (bbs-database) → product-page, brand-page-builder
 (bbs-shopify) → le-lane-tuning, supply-lane-tuning (bbs-quote-bot). See plan Task 20 in
-`bbs-quote-bot/docs/superpowers/plans/2026-07-22-bbs-ops-plugin.md`.
+`docs/superpowers/plans/2026-07-22-bbs-ops-plugin.md` (this repo).
 
 Any skill that turns out to belong to `bbs-foundations` (company-wide, not site-only) stays
 put and is flagged for the foundations plan — do not point it here.
