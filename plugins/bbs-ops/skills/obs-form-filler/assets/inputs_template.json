@@ -1,0 +1,39 @@
+{
+  "solicitation_number": "BSP-05-26-002",
+  "release_date": "05/28/2026",
+  "due_date": "06/01/2026",
+  "signature_date": "5.28.26",
+  "delivery_days_aro": "30",
+  "product_summary": "Water bottles - purified drinking water 16.9 fl oz 24/case",
+  "shipping_handling": 0.0,
+
+  "rep": {
+    "name": "Parker Marshall",
+    "title": "Sales Manager",
+    "email": "parker@blackboxsafety.com",
+    "signature": "Parker Marshall"
+  },
+
+  "agency": {
+    "requestor_name": "Tiffany Ortiz",
+    "requestor_email": "Tiffany.Ortiz@cdcr.ca.gov",
+    "requestor_phone": "805-547-7981",
+    "ship_to_line1": "HWY 1 North",
+    "ship_to_line2": "P.O Box 8101",
+    "ship_to_line3": "San Luis Obispo, CA 93409"
+  },
+
+  "calrecycle_pcrc": "NA",
+  "calrecycle_sabrc": "NA",
+
+  "line_items": [
+    {
+      "qty": 10,
+      "unit": "CASE",
+      "description": "Water, purified drinking, 16.9 fl oz 24 bottles per case",
+      "part_number": "TRC05L24PSPCHN",
+      "pcrc": "n/a",
+      "unit_price": 14.22
+    }
+  ]
+}

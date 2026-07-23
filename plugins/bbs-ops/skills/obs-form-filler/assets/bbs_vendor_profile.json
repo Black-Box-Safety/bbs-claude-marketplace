@@ -1,0 +1,28 @@
+{
+  "legal_name": "Black Box Safety, Inc.",
+  "short_name": "Black Box Safety",
+  "address_line": "1950 Cordell CT Ste 103",
+  "city": "El Cajon",
+  "state": "CA",
+  "zip": "92020",
+  "city_state_zip": "El Cajon, CA 92020",
+  "phone": "(619) 499-7943",
+  "fein": "82-1125133",
+  "fein_digits": "821125133",
+  "seller_permit": "103213178",
+  "dvbe_cert": "2009473",
+  "dvbe_cert_exp": "12/31/2027",
+  "website": "www.blackboxsafety.com",
+  "product_type": "Safety Equipment, MRO, PPE",
+  "dvbe_owner": {
+    "name": "Jackson Dalton",
+    "title": "President",
+    "email": "jackson@blackboxsafety.com"
+  },
+  "accounting_contact": {
+    "name": "Amy Leath",
+    "title": "Accounting",
+    "phone": "(619) 499-7943",
+    "email": "accounting@blackboxsafety.com"
+  }
+}
