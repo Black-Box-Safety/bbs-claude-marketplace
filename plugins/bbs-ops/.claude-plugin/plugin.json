@@ -4,6 +4,5 @@
   "version": "0.1.0",
   "author": { "name": "Black Box Safety, Inc." },
   "keywords": ["bbs", "shopify", "supabase", "quote-bot", "catalog", "operations"],
-  "skills": "./skills/",
-  "hooks": { "paths": ["./hooks/skill-bus.json"] }
+  "skills": "./skills/"
 }
