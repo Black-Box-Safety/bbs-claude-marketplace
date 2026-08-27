@@ -12,7 +12,7 @@ last quarter's solicitation number or an unsigned perjury declaration gets the
 whole quote set aside. This skill keeps both halves in step.
 
 Work in the buyer's folder under
-`Customers/State of CA Agencies/<Agency>/<Institution or Buyer>/<Item M.D.YY>/`.
+`Customers/State of CA Agencies/All RFQ's by Agency/<Agency>/<Institution or Buyer>/<Item M.D.YY>/`.
 That folder is the document store; Supabase `rep_cockpit` is the tracker.
 
 ## 1. Read the buyer folder before asking anything
