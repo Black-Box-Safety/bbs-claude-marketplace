@@ -4,7 +4,7 @@
     "name": "Black Box Safety, Inc."
   },
   "metadata": {
-    "description": "Black Box Safety internal Claude plugins — site operations and AI foundations.",
+    "description": "Black Box Safety internal Claude plugins — site operations, state sales, and AI foundations.",
     "version": "0.1.0"
   },
   "plugins": [
@@ -25,6 +25,25 @@
         "operations"
       ],
       "category": "operations"
+    },
+    {
+      "name": "bbs-sales",
+      "source": "./plugins/bbs-sales",
+      "description": "The inbound quote desk for California state business — log a state RFQ into the right customer folder, price it at cost on the institution's own contract account, and return a signed, responsive cert packet.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Black Box Safety, Inc."
+      },
+      "keywords": [
+        "bbs",
+        "sales",
+        "rfq",
+        "naspo",
+        "state-of-california",
+        "quoting",
+        "dvbe"
+      ],
+      "category": "sales"
     }
   ]
 }
