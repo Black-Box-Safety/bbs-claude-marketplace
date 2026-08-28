@@ -29,19 +29,23 @@
     {
       "name": "bbs-sales",
       "source": "./plugins/bbs-sales",
-      "description": "The inbound quote desk for California state business — log a state RFQ into the right customer folder, price it at cost on the institution's own contract account, and return a signed, responsive cert packet.",
-      "version": "0.1.0",
+      "description": "California state sales: log an inbound RFQ, price it and fill the CA compliance packet, and turn a Grainger negotiated price sheet into an agency promotion page with SCPRS buyer segments and the brand compliance gate.",
+      "version": "0.2.0",
       "author": {
         "name": "Black Box Safety, Inc."
       },
       "keywords": [
         "bbs",
-        "sales",
-        "rfq",
+        "campaign",
+        "dvbe",
+        "grainger",
+        "landing-page",
         "naspo",
-        "state-of-california",
         "quoting",
-        "dvbe"
+        "rfq",
+        "sales",
+        "scprs",
+        "state-of-california"
       ],
       "category": "sales"
     }

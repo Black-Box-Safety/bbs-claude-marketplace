@@ -1,8 +1,22 @@
 {
   "name": "bbs-sales",
-  "description": "The inbound quote desk: log a state or prime RFQ into the right customer folder, price it on the right contract account, and return a signed, responsive packet. Carries the CA state intake SOP and the NASPO quoting workflow mined from the State of CA Agencies corpus.",
-  "version": "0.1.0",
-  "author": { "name": "Black Box Safety, Inc." },
-  "keywords": ["bbs", "sales", "rfq", "naspo", "state-of-california", "quoting", "dvbe"],
+  "description": "California state sales: log an inbound RFQ, price it and fill the CA compliance packet, and turn a Grainger negotiated price sheet into an agency promotion page with SCPRS buyer segments and the brand compliance gate. Carries ca-rfq-intake, naspo-quote, and grainger-promo-page.",
+  "version": "0.2.0",
+  "author": {
+    "name": "Black Box Safety, Inc."
+  },
+  "keywords": [
+    "bbs",
+    "campaign",
+    "dvbe",
+    "grainger",
+    "landing-page",
+    "naspo",
+    "quoting",
+    "rfq",
+    "sales",
+    "scprs",
+    "state-of-california"
+  ],
   "skills": "./skills/"
 }
