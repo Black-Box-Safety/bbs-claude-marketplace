@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>H2 2026 contract sheet, Black Box Safety</title>
+<meta name="description" content="Ninety-one line items on the California MRO Statewide LPA, priced and ready to order through a California DVBE.">
+<link rel="canonical" href="https://bbs-contract-sheet.vercel.app/">
+<link rel="icon" href="/assets/icon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/icon-180.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Black Box Safety, Inc.">
+<meta property="og:url" content="https://bbs-contract-sheet.vercel.app/">
+<meta property="og:title" content="H2 2026 contract sheet, 91 line items priced">
+<meta property="og:description" content="Shelters, line tools, helmets, batteries, station sanitation and apparatus care. Priced on the California MRO Statewide LPA 7-25-51-02.03, so there is no solicitation to run.">
+<meta property="og:image" content="https://bbs-contract-sheet.vercel.app/assets/og-contract-sheet.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Contract sheet H2 2026, ninety-one line items, Black Box Safety">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="H2 2026 contract sheet, 91 line items priced">
+<meta name="twitter:description" content="Priced on the California MRO Statewide LPA. No solicitation to run.">
+<meta name="twitter:image" content="https://bbs-contract-sheet.vercel.app/assets/og-contract-sheet.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--crimson:#9E1B1E;--crimson-deep:#6F1214;--ember:#C8242C;
+--charcoal:#14181D;--charcoal-2:#1E242C;--ash:#3A4049;
+--line:#2A2F36;--line-soft:#D9D2C4;
+--cream:#F4EFE6;--paper:#FBF8F2;--paper-warm:#EFE7D6;
+--hivis:#FFC42E;--ink:#14181D;--ink-2:#2A2F36;--muted:#5A5F68;
+--font-display:"Oswald","Barlow Condensed",Impact,sans-serif;
+--font-body:"Inter","Source Sans 3",system-ui,sans-serif;
+--font-mono:"JetBrains Mono",ui-monospace,monospace;
+--max:1280px;--gutter:clamp(1.5rem,5vw,4.5rem);
+--ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);
+ font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--gutter)}
+.mono{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.13em;text-transform:uppercase}
+
+/* ---- top bar ---- */
+.bar{position:sticky;top:0;z-index:60;background:var(--charcoal);color:var(--cream);
+ border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;align-items:center;gap:1.5rem;height:58px}
+.mark{font-family:var(--font-display);font-weight:600;font-size:1.02rem;letter-spacing:.04em;
+ text-transform:uppercase;white-space:nowrap}
+.mark b{color:var(--ember);font-weight:600}
+.markimg{height:26px;width:auto;display:block;flex:none}
+.footmark{height:26px;width:auto;display:block;margin-bottom:.4rem}
+.brchip{display:inline-flex;align-items:center;background:#fff;border-radius:2px;padding:2px 5px;margin-left:.45rem;vertical-align:middle}
+.brchip img{max-height:14px;width:auto;display:block}
+.barnav{display:flex;gap:1rem}
+.barnav a{color:#9AA1AB;text-decoration:none;padding:.35rem 0}
+.barnav a:hover{color:var(--hivis)}
+@media(max-width:700px){.barnav{display:none}}
+.barchips{display:flex;gap:1.15rem;margin-left:auto;color:#9AA1AB}
+.barchips span{white-space:nowrap}
+.barchips b{color:var(--cream);font-weight:500}
+.barcta{background:var(--crimson);color:#fff;text-decoration:none;padding:.62rem 1.05rem;
+ font-family:var(--font-display);font-size:.82rem;letter-spacing:.09em;text-transform:uppercase;
+ transition:background .2s var(--ease)}
+.barcta:hover{background:var(--ember)}
+@media(max-width:1080px){.barchips{display:none}}
+
+/* ---- hero ---- */
+.hero{background:var(--charcoal);color:var(--cream);position:relative;overflow:hidden;
+ border-bottom:3px solid var(--crimson)}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+ background:repeating-linear-gradient(90deg,transparent 0 39px,rgba(255,255,255,.022) 39px 40px)}
+.heroart{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.heroart .col{position:absolute;top:-4%;height:108%;display:flex;flex-direction:column;
+ gap:1.4rem;animation:drift 60s linear infinite alternate}
+.heroart .col:nth-child(1){right:20%;width:190px;transform:rotate(6deg)}
+.heroart .col:nth-child(2){right:2%;width:230px;transform:rotate(6deg);animation-duration:75s}
+.heroart figure{margin:0;background:#fff;border-radius:3px;padding:14px;flex:none;
+ box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.heroart figure.photo{padding:0;overflow:hidden;background:var(--charcoal-2)}
+.heroart figure.photo img{aspect-ratio:4/5;object-fit:cover}
+.heroart img{width:100%;aspect-ratio:1;object-fit:contain}
+@keyframes drift{from{margin-top:0}to{margin-top:-70px}}
+.heroart::after{content:"";position:absolute;inset:0;
+ background:linear-gradient(90deg,var(--charcoal) 34%,rgba(20,24,29,.88) 55%,rgba(20,24,29,.45) 75%,rgba(20,24,29,.62) 100%)}
+@media(max-width:900px){.heroart .col:nth-child(1){display:none}.heroart .col:nth-child(2){right:-70px;opacity:.35}
+ .heroart::after{background:linear-gradient(90deg,var(--charcoal) 52%,rgba(20,24,29,.94) 72%,rgba(20,24,29,.8) 100%)}}
+@media(prefers-reduced-motion:reduce){.heroart .col{animation:none}}
+.hero .wrap{position:relative;z-index:2;padding-block:clamp(2.5rem,7vw,5rem)}
+.filetag{display:flex;gap:1.6rem;flex-wrap:wrap;color:#7F8791;
+ padding-bottom:1.4rem;margin-bottom:2.2rem;border-bottom:1px solid var(--line)}
+.filetag b{color:var(--hivis);font-weight:500}
+h1{font-family:var(--font-display);font-weight:500;text-transform:uppercase;
+ font-size:clamp(2.7rem,7.4vw,5.2rem);line-height:.94;letter-spacing:-.005em;margin:0 0 1.4rem}
+h1 em{font-style:normal;color:var(--ember)}
+.dek{max-width:56ch;font-size:1.06rem;color:#C6C9CE;margin:0 0 2.2rem}
+.dek b{color:var(--cream);font-weight:600}
+.ctarow{display:flex;gap:.85rem;flex-wrap:wrap;align-items:center}
+.btn{display:inline-block;text-decoration:none;font-family:var(--font-display);
+ font-size:.94rem;letter-spacing:.09em;text-transform:uppercase;padding:.92rem 1.7rem;
+ transition:transform .2s var(--ease),background .2s var(--ease)}
+.btn-p{background:var(--crimson);color:#fff}
+.btn-p:hover{background:var(--ember)}
+.btn-s{border:1px solid #454C55;color:var(--cream)}
+.btn-s:hover{border-color:var(--hivis);color:var(--hivis)}
+.vehicles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1px;
+ background:var(--line);border:1px solid var(--line);margin-top:2.8rem}
+.veh{background:var(--charcoal-2);padding:1rem 1.15rem}
+.veh span{display:block;color:#7F8791;margin-bottom:.4rem}
+.veh b{font-family:var(--font-mono);font-size:.98rem;color:var(--cream);font-weight:500;letter-spacing:.02em}
+.credchips{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1rem}
+.credchip{background:#fff;border-radius:3px;padding:.45rem .75rem;display:flex;align-items:center}
+.credchip img{height:44px;width:auto}
+.credchip-dvbe{gap:.75rem;padding:.55rem .9rem}
+.credchip-dvbe img{height:64px}
+.credchip-dvbe .credtext{font-family:var(--font-mono);color:var(--ink);font-size:.74rem;letter-spacing:.06em;font-weight:600}
+
+.herotop{display:flex;align-items:flex-start;gap:2rem}
+.herotop .filetag{flex:1}
+.chipset{display:flex;gap:.6rem;flex:none;margin-top:-.2rem}
+.cobrand{height:52px;width:auto;background:#fff;padding:.45rem .7rem;border-radius:2px}
+.agencymark{height:52px;width:auto;background:#fff;padding:.3rem .55rem;border-radius:2px}
+@media(max-width:760px){.chipset{display:none}}
+@media(max-width:760px){.cobrand{display:none}}
+
+/* ---- brand banner ---- */
+.brands{background:#fff;border-bottom:1px solid var(--line-soft)}
+.brands .wrap{padding-block:1.6rem}
+.brandlabel{color:var(--muted);margin:0 0 1.1rem}
+.brandrow{display:flex;align-items:center;gap:clamp(1.3rem,3.2vw,2.8rem);flex-wrap:wrap;row-gap:1.1rem}
+.brandrow img{width:auto;max-width:150px;object-fit:contain}
+.bh22{height:22px}.bh26{height:26px}.bh30{height:30px}.bh36{height:36px}.bh40{height:40px}
+@media(max-width:520px){.bh22{height:18px}.bh26{height:21px}.bh30{height:24px}.bh36{height:29px}.bh40{height:32px}}
+
+/* ---- stats ---- */
+.stats{background:var(--paper-warm);border-bottom:1px solid var(--line-soft)}
+.stats .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+ gap:2rem;padding-block:1.9rem}
+.stat b{display:block;font-family:var(--font-display);font-size:2.15rem;line-height:1;
+ font-weight:600;margin-bottom:.3rem}
+.stat span{color:var(--muted);font-size:.85rem}
+
+/* ---- sections ---- */
+section{padding-block:clamp(3rem,7vw,5.5rem)}
+.eyebrow{color:var(--crimson);margin-bottom:1rem}
+h2{font-family:var(--font-display);font-weight:500;text-transform:uppercase;
+ font-size:clamp(1.9rem,4vw,3rem);line-height:1;margin:0 0 1rem;letter-spacing:-.005em}
+.lede{max-width:62ch;color:var(--ink-2);margin:0 0 2.6rem;font-size:1.02rem}
+
+/* ---- hero cards ---- */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:1px;
+ background:var(--line-soft);border:1px solid var(--line-soft)}
+.card{background:#fff;display:flex;flex-direction:column}
+.ph{aspect-ratio:1;background:#fff;padding:1.1rem;display:grid;place-items:center}
+.ph img{max-height:100%;width:auto;object-fit:contain;mix-blend-mode:multiply}
+.cb{padding:.95rem 1.05rem 1.15rem;border-top:1px solid var(--line-soft);flex:1;
+ display:flex;flex-direction:column}
+.cbrand{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.13em;
+ text-transform:uppercase;color:var(--crimson);margin-bottom:.42rem}
+.card h3{font-size:.86rem;font-weight:600;line-height:1.32;margin:0 0 .8rem;color:var(--ink)}
+.cp{margin-top:auto;display:flex;align-items:baseline;gap:.55rem}
+.cnum{font-family:var(--font-display);font-size:1.5rem;font-weight:600;line-height:1}
+.cwas{font-family:var(--font-mono);font-size:.66rem;color:var(--muted)}
+.csku{font-family:var(--font-mono);font-size:.62rem;color:var(--muted);
+ letter-spacing:.06em;margin-top:.5rem}
+.cardadd{margin-top:.7rem;width:100%;min-height:44px;background:var(--crimson);color:#fff;
+ border:0;cursor:pointer;font-family:var(--font-display);font-size:.8rem;letter-spacing:.09em;
+ text-transform:uppercase;transition:background .2s var(--ease)}
+.cardadd:hover{background:var(--ember)}
+.cardadd:focus-visible{outline:2px solid var(--hivis);outline-offset:2px}
+.cardadd.added{background:var(--charcoal-2)}
+
+/* ---- the sheet ---- */
+.sheet{background:var(--charcoal);color:var(--cream)}
+.sheet h2,.sheet .lede{color:var(--cream)}
+.sheet .lede{color:#C6C9CE}
+.sheet .eyebrow{color:var(--hivis)}
+.tools{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center;margin-bottom:1.3rem}
+#q{flex:1;min-width:230px;background:var(--charcoal-2);border:1px solid var(--line);
+ color:var(--cream);padding:.78rem 1rem;font-family:var(--font-mono);font-size:.8rem;
+ letter-spacing:.04em}
+#q:focus{outline:2px solid var(--hivis);outline-offset:-2px}
+#q::placeholder{color:#6B727C}
+.jump{display:flex;gap:.3rem;flex-wrap:wrap}
+.jump a{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;
+ text-decoration:none;color:#9AA1AB;border:1px solid var(--line);padding:.5rem .7rem}
+.jump a:hover{border-color:var(--hivis);color:var(--hivis)}
+.tblwrap{overflow-x:auto;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;min-width:660px}
+tr.cat th{background:var(--crimson-deep);text-align:left;padding:0;
+ position:sticky;top:58px;z-index:5}
+tr.cat.shut th{position:static}
+.catbtn{display:flex;align-items:center;gap:.9rem;width:100%;min-height:44px;
+ background:none;border:0;cursor:pointer;color:#fff;text-align:left;
+ font:inherit;padding:.6rem 1rem}
+.catbtn:hover{background:rgba(255,255,255,.06)}
+.catbtn:focus-visible{outline:2px solid var(--hivis);outline-offset:-2px}
+.chev{flex:none;width:.5rem;height:.5rem;border-right:2px solid #fff;border-bottom:2px solid #fff;
+ transform:rotate(45deg) translate(-1px,-1px);transition:transform .2s var(--ease)}
+.catbtn[aria-expanded="false"] .chev{transform:rotate(-45deg)}
+.catname{font-family:var(--font-display);font-size:1rem;letter-spacing:.09em;
+ text-transform:uppercase;color:#fff}
+.catnote{font-size:.78rem;color:#E7C9CA}
+.catcount{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.1em;color:#E7C9CA;margin-left:auto}
+@media(max-width:640px){.catnote{display:none}}
+tbody td{padding:.62rem 1rem;border-top:1px solid var(--line);vertical-align:top}
+tbody tr:hover td{background:var(--charcoal-2)}
+.sku{font-family:var(--font-mono);font-size:.76rem;color:var(--hivis);white-space:nowrap;width:1%}
+.dn{display:block;font-size:.88rem}
+.br{display:block;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.11em;
+ text-transform:uppercase;color:#8B9299;margin-top:.18rem}
+.brchip{display:inline-flex;align-items:center;vertical-align:middle;margin-left:.45rem;
+ background:#fff;border-radius:2px;padding:2px 5px}
+.brchip img{height:10px;width:auto}
+td.im{width:1%;padding:.42rem .65rem;vertical-align:middle}
+.thumb{display:block;width:56px;height:42px;background:#fff;border-radius:4px;padding:3px}
+.thumb img{width:100%;height:100%;object-fit:contain}
+@media(max-width:520px){.thumb{width:44px;height:34px}}
+.l{text-align:right;white-space:nowrap;width:1%}
+.l s{font-family:var(--font-mono);font-size:.76rem;color:#8B9299}
+.p{text-align:right;white-space:nowrap;width:1%;font-family:var(--font-mono);
+ font-size:.92rem;font-weight:500}
+.o{text-align:right;white-space:nowrap;width:1%}
+.off{font-family:var(--font-mono);font-size:.72rem;color:var(--hivis)}
+.off.na,.na{color:#9AA1AB}
+.note{margin-top:1.1rem;font-size:.82rem;color:#A9B0B8;max-width:70ch}
+
+/* ---- how ---- */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;
+ background:var(--line-soft);border:1px solid var(--line-soft)}
+.step{background:var(--paper);padding:1.7rem 1.5rem}
+.step .n{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;
+ color:var(--crimson);margin-bottom:.85rem}
+.step h3{font-family:var(--font-display);font-size:1.24rem;text-transform:uppercase;
+ font-weight:500;margin:0 0 .55rem;letter-spacing:.02em}
+.step p{margin:0;font-size:.94rem;color:var(--ink-2)}
+
+/* ---- wedge ---- */
+.wedge{background:var(--cream);border-block:1px solid var(--line-soft)}
+.wedge .wrap{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(2rem,5vw,4rem);align-items:start}
+@media(max-width:800px){.wedge .wrap{grid-template-columns:1fr}}
+.wedge p{font-size:1.02rem;color:var(--ink-2)}
+.credbox{border:1px solid var(--line-soft);background:#fff}
+.credbox div{padding:.95rem 1.15rem;border-bottom:1px solid var(--line-soft);
+ display:flex;justify-content:space-between;gap:1rem;align-items:baseline}
+.credbox div:last-child{border-bottom:0}
+.credbox span{color:var(--muted);font-family:var(--font-mono);font-size:.64rem;
+ letter-spacing:.11em;text-transform:uppercase}
+.credbox b{font-family:var(--font-mono);font-size:.88rem;text-align:right}
+
+/* ---- contact ---- */
+.contact{background:var(--charcoal);color:var(--cream)}
+.contact h2{color:var(--cream)}
+.contact .lede{color:#C6C9CE}
+.rep{display:flex;gap:1.4rem;align-items:flex-start;flex-wrap:wrap;
+ border:1px solid var(--line);background:var(--charcoal-2);padding:1.5rem 1.6rem;max-width:640px}
+.rep .who b{display:block;font-family:var(--font-display);font-size:1.35rem;
+ text-transform:uppercase;letter-spacing:.03em;font-weight:500}
+.rep .who span{color:#8B9299;font-size:.86rem}
+.rep .lines{font-family:var(--font-mono);font-size:.82rem;line-height:1.9;margin-left:auto}
+.rep .lines a{color:var(--hivis);text-decoration:none}
+.rep .lines a:hover{text-decoration:underline}
+.fwd-note{margin-top:1.4rem;color:#C6C9CE;font-size:.95rem;max-width:640px}
+.fwd-note a{color:var(--hivis)}
+
+/* ---- footer ---- */
+footer{background:#0D1116;color:#C9CED4;padding-block:2.6rem;font-size:.8rem}
+footer .wrap{display:grid;gap:1.5rem}
+.disclaim{color:#F1F3F5;max-width:78ch;line-height:1.65}
+.legal{display:flex;gap:1.6rem;flex-wrap:wrap;padding-top:1.4rem;border-top:1px solid var(--line);color:#C9CED4}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* ---- quote builder ---- */
+.addbtn{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+ background:none;border:1px solid var(--line);color:#9AA1AB;padding:.34rem .6rem;cursor:pointer;
+ transition:border-color .2s var(--ease),color .2s var(--ease)}
+.addbtn:hover{border-color:var(--hivis);color:var(--hivis)}
+.addbtn:focus-visible{outline:2px solid var(--hivis);outline-offset:2px}
+.addbtn.done{border-color:var(--hivis);color:var(--hivis)}
+td.ac{text-align:right;white-space:nowrap;width:1%}
+.qb-pill{position:fixed;right:1.1rem;bottom:1.1rem;z-index:90;background:var(--crimson);color:#fff;
+ border:0;cursor:pointer;font-family:var(--font-display);font-size:.88rem;letter-spacing:.08em;
+ text-transform:uppercase;padding:.85rem 1.25rem;display:flex;gap:.8rem;align-items:baseline;
+ box-shadow:0 8px 26px rgba(0,0,0,.35);transition:background .2s var(--ease)}
+.qb-pill:hover{background:var(--ember)}
+.qb-pill:focus-visible{outline:3px solid var(--hivis);outline-offset:2px}
+.qb-pill b{font-family:var(--font-mono);font-size:.76rem;font-weight:500;letter-spacing:.04em}
+.qb-panel{position:fixed;right:1.1rem;bottom:4.6rem;z-index:91;width:min(420px,calc(100vw - 2.2rem));
+ max-height:min(74vh,660px);overflow:auto;background:var(--charcoal);color:var(--cream);
+ border:1px solid var(--line);box-shadow:0 14px 44px rgba(0,0,0,.5);padding:1.15rem 1.2rem 1.3rem}
+.qb-title{font-family:var(--font-display);font-size:1.15rem;font-weight:500;text-transform:uppercase;
+ letter-spacing:.04em;margin:0 0 .9rem}
+.qb-addrow{display:flex;gap:.45rem}
+.qb-panel input,.qb-panel textarea{background:var(--charcoal-2);border:1px solid var(--line);
+ color:var(--cream);padding:.58rem .7rem;font-family:var(--font-mono);font-size:.76rem;width:100%}
+.qb-panel input:focus,.qb-panel textarea:focus,.qb-panel button:focus-visible{outline:2px solid var(--hivis);outline-offset:-2px}
+.qb-panel input::placeholder,.qb-panel textarea::placeholder{color:#6B727C}
+#qb-item{flex:1;text-transform:uppercase}
+#qb-qty{width:4.2rem;flex:none}
+.qb-addbtn{flex:none;background:var(--crimson);color:#fff;border:0;cursor:pointer;
+ font-family:var(--font-display);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;padding:0 .95rem}
+.qb-addbtn:hover{background:var(--ember)}
+.qb-suggest{border:1px solid var(--line);border-top:0;background:var(--charcoal-2)}
+.qb-suggest button{display:block;width:100%;text-align:left;background:none;border:0;cursor:pointer;
+ color:var(--cream);font-family:var(--font-mono);font-size:.72rem;padding:.5rem .7rem;
+ border-bottom:1px solid var(--line)}
+.qb-suggest button:last-child{border-bottom:0}
+.qb-suggest button:hover,.qb-suggest button:focus-visible{background:var(--ash);outline:none}
+.qb-suggest .s-sku{color:var(--hivis);margin-right:.6rem}
+.qb-lines{margin-top:.9rem;border-top:1px solid var(--line)}
+.qb-line{display:flex;gap:.55rem;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--line)}
+.qb-li{flex:1;min-width:0}
+.qb-sku{display:block;font-family:var(--font-mono);font-size:.7rem;color:var(--hivis)}
+.qb-desc{display:block;font-size:.78rem;color:#C6C9CE;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qb-line input{width:3.9rem;flex:none;padding:.4rem .45rem}
+.qb-ext{flex:none;font-family:var(--font-mono);font-size:.78rem;min-width:5.2rem;text-align:right}
+.qb-rm{flex:none;background:none;border:1px solid var(--line);color:#9AA1AB;cursor:pointer;
+ font-family:var(--font-mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;padding:.34rem .5rem}
+.qb-rm:hover{border-color:var(--ember);color:var(--ember)}
+.qb-empty{padding:.8rem 0;font-size:.8rem;color:#8B9299;border-bottom:1px solid var(--line);margin:0}
+.qb-totalrow{display:flex;justify-content:space-between;align-items:baseline;padding:.7rem 0 .2rem;
+ font-family:var(--font-mono);font-size:.82rem}
+.qb-totalrow b{font-size:1.02rem;color:var(--hivis);font-weight:500}
+.qb-form{display:grid;gap:.45rem;margin-top:.9rem}
+.qb-form textarea{resize:vertical;min-height:3.2rem}
+.qb-actions{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.95rem}
+.qb-actions button{cursor:pointer;font-family:var(--font-display);font-size:.76rem;letter-spacing:.08em;
+ text-transform:uppercase;padding:.62rem .95rem;border:1px solid #454C55;background:none;color:var(--cream)}
+.qb-actions button:hover{border-color:var(--hivis);color:var(--hivis)}
+.qb-actions .qb-primary{background:var(--crimson);border-color:var(--crimson);color:#fff}
+.qb-actions .qb-primary:hover{background:var(--ember);border-color:var(--ember);color:#fff}
+.qb-note{margin:.7rem 0 0;font-size:.72rem;color:#A9B0B8}
+
+/* ---- small screens ---- */
+@media(max-width:700px){
+ .addbtn{min-height:44px;min-width:44px}
+ .jump a{min-height:44px;display:inline-flex;align-items:center}
+ .qb-line input,#qb-qty,#qb-item,.qb-addbtn{min-height:44px}
+ .qb-rm{min-height:44px}
+}
+.qb-pill{min-height:44px}
+@media(max-width:560px){
+ .qb-panel{left:0;right:0;bottom:0;width:100%;max-width:100%;
+  border-left:0;border-right:0;border-bottom:0;max-height:78vh}
+}
+
+/* ---- print quote view ---- */
+#printquote{display:none}
+@media print{
+ @page{size:letter;margin:.6in}
+ html,body{background:#fff!important;color:#000!important}
+ body>*:not(#printquote){display:none!important}
+ #printquote{display:block!important;color:#000;font-family:var(--font-body)}
+ .pq-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;
+  border-bottom:3px solid #000;padding-bottom:.7rem}
+ .pq-mark{font-family:var(--font-display);font-size:1.5rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
+ .pq-addr,.pq-cred{font-size:.78rem;line-height:1.5}
+ .pq-meta{text-align:right;flex:none}
+ .pq-label{font-family:var(--font-display);font-size:1rem;text-transform:uppercase;letter-spacing:.06em}
+ .pq-date{font-family:var(--font-mono);font-size:.78rem;margin-top:.25rem}
+ .pq-fields{margin:.9rem 0;font-size:.82rem;line-height:1.7}
+ .pq-fields span{display:inline-block;min-width:9.5rem;font-family:var(--font-mono);
+  font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:#000}
+ .pq-tbl{width:100%;border-collapse:collapse;margin-top:.4rem;font-size:.8rem}
+ .pq-tbl th{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;
+  text-align:left;border-bottom:2px solid #000;padding:.35rem .4rem}
+ .pq-tbl td{border-bottom:1px solid #999;padding:.4rem;vertical-align:top}
+ .pq-tbl th.r,.pq-tbl td.r{text-align:right;white-space:nowrap}
+ .pq-tbl tfoot td{border-bottom:0;border-top:2px solid #000;font-weight:700}
+ .pq-legal{font-size:.72rem;line-height:1.55;margin-top:1.1rem}
+}
+</style>
+</head>
+<body>
+
+<div class="bar"><div class="wrap">
+ <img class="markimg" src="assets/bbs-logo-white.png" alt="Black Box Safety">
+ <nav class="barnav mono" aria-label="Sections">
+  <a href="#sheet">Sheet</a><a href="#how">How it works</a><a href="#why">Why</a>
+ </nav>
+ <div class="barchips mono">
+  <span>MRO LPA <b>7-25-51-02.03</b></span>
+  <span>CA DVBE <b>2009473</b></span>
+ </div>
+ <a class="barcta" href="#contact">Request a quote</a>
+</div></div>
+
+<header class="hero"><div class="heroart" aria-hidden="true">
+  <div class="col">
+   <figure class="photo"><img src="assets/life-counciltool-fireline-crew.jpg" alt=""></figure>
+   <figure class="photo"><img src="assets/life-ess-firepro-1977-wildland.jpg" alt=""></figure>
+   <figure class="photo"><img src="assets/life-anchor-shelter.webp" alt=""></figure>
+  </div>
+  <div class="col">
+   <figure class="photo"><img src="assets/life-firedex-h41-hood-worn.jpg" alt=""></figure>
+   <figure class="photo"><img src="assets/life-bullard-wildfire-helmet.jpg" alt=""></figure>
+   <figure class="photo"><img src="assets/life-camelbak-pro-worksite.jpg" alt=""></figure>
+  </div>
+ </div>
+<div class="wrap">
+ <div class="herotop">
+ <div class="filetag mono">
+  <span>Contract sheet <b>H2 2026</b></span>
+  <span>Effective <b>24 Aug 2026</b></span>
+  <span>Line items <b>{{COUNT}}</b></span>
+  <span>Vehicle <b>NASPO ValuePoint</b></span>
+ </div>
+ <div class="chipset">
+  <img class="cobrand" src="assets/cobrand-lockup.png" alt="Black Box Safety and Grainger alliance lockup">
+  <img class="agencymark" src="assets/calfire-decal.png" alt="CAL FIRE, California Department of Forestry and Fire Protection">
+ </div>
+ </div>
+ <h1>The items your unit<br>reorders, <em>already priced.</em></h1>
+ <p class="dek">Ninety-one line items covering shelters, line tools, helmets, batteries, station
+ sanitation and apparatus care. Priced on the California MRO Statewide LPA, so there is no
+ solicitation to run. <b>Black Box Safety takes the order, owns the account, and delivers,</b>
+ backed by Grainger's national distribution network.</p>
+ <div class="ctarow">
+  <a class="btn btn-p" href="#sheet">See the sheet</a>
+  <a class="btn btn-s" href="#contact">Request a quote</a>
+ </div>
+ <div class="vehicles">
+  <div class="veh"><span class="mono">California MRO Statewide LPA</span><b>7-25-51-02.03</b></div>
+  <div class="veh"><span class="mono">California DVBE certification</span><b>CA DVBE Cert. 2009473</b></div>
+  <div class="veh"><span class="mono">Distribution partner</span><b>Grainger Tier 1 Diverse Reseller</b></div>
+ </div>
+ <div class="credchips">
+  <span class="credchip credchip-dvbe"><img src="assets/dvbe.png" alt="California DVBE certified"><span class="credtext">CA DVBE Cert. 2009473</span></span>
+  <span class="credchip"><img src="assets/cred-naspo.png" alt="NASPO ValuePoint"></span>
+ </div>
+</div></header>
+
+<div class="stats"><div class="wrap">
+ <div class="stat"><b>{{COUNT}}</b><span class="mono">Line items priced</span></div>
+ <div class="stat"><b>6</b><span class="mono">Categories covered</span></div>
+ <div class="stat"><b>0</b><span class="mono">Solicitations to run</span></div>
+ <div class="stat"><b>100%</b><span class="mono">Reportable DVBE participation</span></div>
+</div></div>
+
+<div class="brands"><div class="wrap">
+ <p class="mono brandlabel">Brands on this sheet</p>
+ <div class="brandrow">
+  <img class="bh30" src="assets/brand-3m.png" alt="3M">
+  <img class="bh26" src="assets/brand-dewalt.png" alt="DeWalt">
+  <img class="bh40" src="assets/brand-diversey.png" alt="Diversey">
+  <img class="bh26" src="assets/brand-gojo.png" alt="GOJO">
+  <img class="bh22" src="assets/brand-gp.png" alt="Georgia-Pacific">
+  <img class="bh22" src="assets/brand-honeywell.png" alt="Honeywell">
+  <img class="bh22" src="assets/brand-kimberly.png" alt="Kimberly-Clark">
+  <img class="bh36" src="assets/brand-milwaukee.png" alt="Milwaukee">
+  <img class="bh22" src="assets/brand-rubbermaid.png" alt="Rubbermaid">
+  <img class="bh36" src="assets/brand-sanitaire.png" alt="Sanitaire">
+ </div>
+</div></div>
+
+<section><div class="wrap">
+ <p class="eyebrow mono">01 / What is on the sheet</p>
+ <h2>What gets reordered most</h2>
+ <p class="lede">The twelve most reordered items on this sheet, ranked from State of
+ California public purchase records (SCPRS), FY24 to FY26. Every price shown is the contract
+ price for a California state agency buying through Black Box Safety.</p>
+ <div class="cards">{{CARDS}}</div>
+</div></section>
+
+<section class="sheet" id="sheet"><div class="wrap">
+ <p class="eyebrow mono">02 / The full sheet</p>
+ <h2>H2 2026 contract sheet</h2>
+ <p class="lede">Search by item number, description, or brand. Strikethrough is Grainger list
+ price. The figure beside it is what a California state agency pays through this contract.</p>
+ <div class="tools">
+  <input id="q" type="search" placeholder="Search item number, description, or brand" aria-label="Search the contract sheet">
+  <div class="jump">{{NAV}}</div>
+ </div>
+ <div class="tblwrap"><table id="tbl"><tbody>{{ROWS}}</tbody></table></div>
+ <p class="note" id="count"></p>
+ <p class="note">Stock status and ship dates are quoted per order at the time of quote.
+ Item 16W483 is quoted on request.</p>
+</div></section>
+
+<section id="how"><div class="wrap">
+ <p class="eyebrow mono">03 / How the order runs</p>
+ <h2>Nothing about your workflow changes</h2>
+ <p class="lede">The vehicle is already competed. The catalog is the one your unit already
+ buys from. The only thing that changes is the supplier on the line item.</p>
+ <div class="steps">
+  <div class="step"><p class="n">Step 01</p><h3>Send the list</h3>
+   <p>Item numbers and quantities, by email or through your buyer. A quote comes back on the
+   contract price, with current stock status and ship dates for those items.</p></div>
+  <div class="step"><p class="n">Step 02</p><h3>Issue the purchase order</h3>
+   <p>The order rides the California MRO Statewide LPA, 7-25-51-02.03. No new solicitation,
+   no sole-source justification, no duplicated evaluation.</p></div>
+  <div class="step"><p class="n">Step 03</p><h3>Receive and report</h3>
+   <p>Black Box Safety takes the order and delivers, backed by Grainger's national
+   distribution network. The spend reports as diversity participation.</p></div>
+ </div>
+</div></section>
+
+<section class="wedge" id="why"><div class="wrap">
+ <div>
+  <p class="eyebrow mono">04 / Why route it this way</p>
+  <h2>Same catalog. Same contract. Now it counts.</h2>
+  <p>Your unit already buys these items. Bought direct, the spend is simply spend. Routed
+  through Black Box Safety, the same items at the same contract price become reportable
+  supplier diversity participation for your department, with no price premium to absorb and
+  no change to how the order is placed.</p>
+  <p>Black Box Safety is a California-certified Disabled Veteran Business Enterprise. We take
+  the order, own the account, and deliver.</p>
+ </div>
+ <div class="credbox">
+  <div><span>California MRO Statewide LPA</span><b>7-25-51-02.03</b></div>
+  <div><span>DVBE certification</span><b>CA DVBE Cert. 2009473</b></div>
+  <div><span>Distribution partner</span><b>Grainger Authorized<br>Tier 1 Diverse Reseller</b></div>
+ </div>
+</div></section>
+
+<section class="contact" id="contact"><div class="wrap">
+ <p class="eyebrow mono">05 / Next step</p>
+ <h2>Send your list. Get it priced.</h2>
+ <p class="lede">Item numbers and quantities are enough. A quote comes back with the contract
+ price and the current ship date for those items.</p>
+ <div class="rep">
+  <div class="who"><b>Parker Marshall</b><span>Sales Manager, State of California</span></div>
+  <div class="lines">
+   <a href="mailto:pmarshall@blackboxsafety.com">pmarshall@blackboxsafety.com</a><br>
+   (619) 967-9812
+  </div>
+ </div>
+ <p class="fwd-note">Not the person who places the order?
+  <a id="fwdlink" href="#">Forward this sheet to your buyer.</a>
+ </div>
+</div></section>
+
+<footer><div class="wrap">
+ <img class="footmark" src="assets/bbs-logo-white.png" alt="Black Box Safety">
+ <p class="disclaim">Black Box Safety is an independent supplier. This offer is not sponsored
+ by, affiliated with, or endorsed by CAL FIRE.</p>
+ <p>Black Box Safety, Inc. supplies MRO, safety, and public safety equipment to California
+ public agencies. CA DVBE Cert. 2009473. Based in El Cajon, California.</p>
+ <div class="legal mono">
+  <span>1950 Cordell Ct., Ste 103, El Cajon, CA 92020</span>
+  <span>(619) 967-9812</span>
+  <span>Prices effective 24 Aug 2026</span>
+ </div>
+</div></footer>
+
+
+<div class="qb">
+ <button class="qb-pill" id="qb-pill" type="button" aria-expanded="false" aria-controls="qb-panel">
+  Quote <b id="qb-pill-count">0 items</b><b id="qb-pill-total">$0.00</b>
+ </button>
+ <div class="qb-panel" id="qb-panel" hidden role="region" aria-label="Draft quote">
+  <p class="qb-title">Build your quote</p>
+  <div class="qb-addrow">
+   <input id="qb-item" type="text" autocomplete="off" placeholder="Grainger item number"
+    aria-label="Grainger item number" role="combobox" aria-expanded="false" aria-controls="qb-suggest">
+   <input id="qb-qty" type="number" min="1" step="1" value="1" aria-label="Quantity">
+   <button class="qb-addbtn" id="qb-addbtn" type="button">Add</button>
+  </div>
+  <div class="qb-suggest" id="qb-suggest" hidden></div>
+  <div class="qb-lines" id="qb-lines" aria-live="polite"></div>
+  <div class="qb-totalrow"><span>Total, priced lines</span><b id="qb-total">$0.00</b></div>
+  <div class="qb-form">
+   <input id="qb-name" type="text" placeholder="Requester name" aria-label="Requester name" autocomplete="name">
+   <input id="qb-email" type="email" placeholder="Email" aria-label="Email" autocomplete="email">
+   <input id="qb-unit" type="text" list="qb-units" autocomplete="off"
+    placeholder="Unit or facility, start typing" aria-label="Unit or facility">
+   <datalist id="qb-units">{{UNITS}}</datalist>
+   <textarea id="qb-addr" placeholder="Delivery address, fills in when you pick a unit" aria-label="Delivery address"></textarea>
+   <p class="qb-note" id="qb-addrnote" hidden>Address filled from the unit on file. Edit it if you ship somewhere else.</p>
+   <input id="qb-po" type="text" placeholder="PO or reference, optional" aria-label="PO or reference, optional">
+  </div>
+  <div class="qb-actions">
+   <button id="qb-pdf" type="button" class="qb-primary">Download PDF</button>
+   <button id="qb-mailto" type="button">Email this list</button>
+   <button id="qb-clear" type="button">Clear</button>
+  </div>
+  <p class="qb-note">This is a draft quote request. A numbered quote with stock status and ship
+  dates comes back from Black Box Safety.</p>
+ </div>
+</div>
+
+<div id="printquote" aria-hidden="true">
+ <div class="pq-head">
+  <div>
+   <div class="pq-mark">Black Box Safety, Inc.</div>
+   <div class="pq-addr">1950 Cordell Ct., Ste 103, El Cajon, CA 92020<br>(619) 967-9812 &middot; pmarshall@blackboxsafety.com</div>
+   <div class="pq-cred">CA DVBE Cert. 2009473 &middot; California MRO Statewide LPA 7-25-51-02.03</div>
+  </div>
+  <div class="pq-meta">
+   <div class="pq-label">Draft quote request</div>
+   <div class="pq-date" id="pq-date"></div>
+  </div>
+ </div>
+ <div class="pq-fields" id="pq-fields"></div>
+ <table class="pq-tbl">
+  <thead><tr><th>Grainger item</th><th>Description</th><th>Brand</th><th class="r">Qty</th><th class="r">Unit price</th><th class="r">Extended</th></tr></thead>
+  <tbody id="pq-body"></tbody>
+  <tfoot id="pq-foot"></tfoot>
+ </table>
+ <p class="pq-legal">Black Box Safety is an independent supplier. This offer is not sponsored by, affiliated with, or endorsed by CAL FIRE.</p>
+ <p class="pq-legal">Prices are contract prices for California state agencies. Stock and ship dates are confirmed at order.</p>
+</div>
+
+<script type="application/json" id="hotlist-data">{{DATA}}</script>
+
+<script>
+(function(){
+ var q=document.getElementById('q'),tbl=document.getElementById('tbl'),
+     cnt=document.getElementById('count'),
+     rows=[].slice.call(tbl.querySelectorAll('tbody tr:not(.cat)')),
+     cats=[].slice.call(tbl.querySelectorAll('tr.cat'));
+ rows.forEach(function(r){r.dataset.k=r.textContent.toLowerCase()});
+ var open={'fire-tools':true,'ppe':true},btns={};
+ cats.forEach(function(c){
+  var id=c.id,th=c.querySelector('th'),
+      btn=document.createElement('button'),
+      chev=document.createElement('span');
+  btn.type='button';btn.className='catbtn';
+  btn.setAttribute('aria-expanded',open[id]?'true':'false');
+  chev.className='chev';chev.setAttribute('aria-hidden','true');
+  btn.appendChild(chev);
+  while(th.firstChild)btn.appendChild(th.firstChild);
+  th.appendChild(btn);
+  btns[id]=btn;
+  btn.addEventListener('click',function(){open[id]=!open[id];run()});
+ });
+ function run(){
+  var v=q.value.trim().toLowerCase(),n=0;
+  rows.forEach(function(r){
+   var hit=!v||r.dataset.k.indexOf(v)>-1,
+       show=v?hit:!!open[r.dataset.cat];
+   r.hidden=!show; if(v&&hit)n++;
+  });
+  cats.forEach(function(c){
+   if(v){
+    var vis=false,el=c.nextElementSibling;
+    while(el&&!el.classList.contains('cat')){if(!el.hidden){vis=true;break}el=el.nextElementSibling}
+    c.hidden=!vis;
+    c.classList.toggle('shut',!vis);
+    btns[c.id].setAttribute('aria-expanded',vis?'true':'false');
+   }else{
+    c.hidden=false;
+    c.classList.toggle('shut',!open[c.id]);
+    btns[c.id].setAttribute('aria-expanded',open[c.id]?'true':'false');
+   }
+  });
+  cnt.textContent=v?(n+' of '+rows.length+' line items match "'+q.value.trim()+'".')
+                   :(rows.length+' line items in six categories. Select a category header to expand or collapse it.');
+ }
+ [].slice.call(document.querySelectorAll('.jump a')).forEach(function(a){
+  a.addEventListener('click',function(){
+   var id=(a.getAttribute('href')||'').slice(1);
+   if(!open[id]){open[id]=true;run()}
+  });
+ });
+ q.addEventListener('input',run); run();
+})();
+
+(function(){
+ var dataEl=document.getElementById('hotlist-data');
+ if(!dataEl)return;
+ var ITEMS;try{ITEMS=JSON.parse(dataEl.textContent)}catch(e){return}
+ var BY={};ITEMS.forEach(function(x){BY[x.item]=x});
+ var KEY='bbsQuoteH2';
+ var state={lines:[],name:'',email:'',unit:'',addr:'',po:''};
+ try{
+  var saved=localStorage.getItem(KEY);
+  if(saved){var p=JSON.parse(saved);
+   if(p&&Object.prototype.toString.call(p.lines)==='[object Array]'){
+    state.lines=p.lines.filter(function(l){return l&&BY[l.item]&&l.qty>0});
+    state.name=p.name||'';state.email=p.email||'';state.unit=p.unit||'';
+    state.addr=p.addr||'';state.po=p.po||'';
+   }}
+ }catch(e){}
+ function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+ function money(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+ function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+
+ var pill=document.getElementById('qb-pill'),panel=document.getElementById('qb-panel'),
+     pillCount=document.getElementById('qb-pill-count'),pillTotal=document.getElementById('qb-pill-total'),
+     linesEl=document.getElementById('qb-lines'),totalEl=document.getElementById('qb-total'),
+     itemIn=document.getElementById('qb-item'),qtyIn=document.getElementById('qb-qty'),
+     suggest=document.getElementById('qb-suggest');
+
+ pill.addEventListener('click',function(){
+  var open=panel.hidden;
+  panel.hidden=!open;
+  pill.setAttribute('aria-expanded',open?'true':'false');
+  if(open)itemIn.focus();
+ });
+ document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&!panel.hidden){panel.hidden=true;pill.setAttribute('aria-expanded','false');pill.focus()}
+ });
+
+ function findLine(code){for(var i=0;i<state.lines.length;i++)if(state.lines[i].item===code)return state.lines[i];return null}
+ function addItem(code,qty){
+  code=String(code||'').trim().toUpperCase();
+  var it=BY[code];if(!it)return false;
+  qty=Math.max(1,Math.floor(+qty||1));
+  var l=findLine(code);
+  if(l)l.qty+=qty;else state.lines.push({item:code,qty:qty});
+  save();render();return true;
+ }
+ function removeItem(code){
+  state.lines=state.lines.filter(function(l){return l.item!==code});
+  save();render();
+ }
+ function totals(){
+  var t=0,q=0,onreq=0;
+  state.lines.forEach(function(l){
+   var it=BY[l.item];q+=l.qty;
+   if(it&&it.price!=null)t+=it.price*l.qty;else onreq++;
+  });
+  return {total:t,count:state.lines.length,onreq:onreq};
+ }
+ function render(){
+  var t=totals();
+  pillCount.textContent=t.count+(t.count===1?' item':' items');
+  pillTotal.textContent=money(t.total)+(t.onreq?' +':'');
+  totalEl.textContent=money(t.total)+(t.onreq?' plus '+t.onreq+' on request':'');
+  linesEl.textContent='';
+  if(!state.lines.length){linesEl.appendChild(el('p','qb-empty','No items yet. Add from the sheet above or type an item number.'));return}
+  state.lines.forEach(function(l){
+   var it=BY[l.item],row=el('div','qb-line');
+   var li=el('div','qb-li');
+   li.appendChild(el('span','qb-sku',l.item));
+   li.appendChild(el('span','qb-desc',it?it.desc:''));
+   row.appendChild(li);
+   var q=document.createElement('input');
+   q.type='number';q.min='1';q.step='1';q.value=l.qty;
+   q.setAttribute('aria-label','Quantity for '+l.item);
+   q.addEventListener('change',function(){
+    var v=Math.max(1,Math.floor(+q.value||1));l.qty=v;q.value=v;save();render();
+   });
+   row.appendChild(q);
+   row.appendChild(el('span','qb-ext',it&&it.price!=null?money(it.price*l.qty):'on request'));
+   var rm=el('button','qb-rm','Remove');
+   rm.type='button';rm.setAttribute('aria-label','Remove '+l.item+' from quote');
+   rm.addEventListener('click',function(){removeItem(l.item)});
+   row.appendChild(rm);
+   linesEl.appendChild(row);
+  });
+ }
+
+ /* add buttons in the sheet */
+ var tbl=document.getElementById('tbl');
+ if(tbl){
+  [].slice.call(tbl.querySelectorAll('tr.cat th')).forEach(function(th){th.colSpan=7});
+  [].slice.call(tbl.querySelectorAll('tbody tr[data-item]')).forEach(function(tr){
+   var code=tr.getAttribute('data-item'),td=el('td','ac'),
+       b=el('button','addbtn','Add');
+   b.type='button';
+   b.setAttribute('aria-label','Add '+code+' to quote');
+   b.addEventListener('click',function(){
+    if(addItem(code,1)){
+     b.textContent='Added';b.classList.add('done');
+     setTimeout(function(){b.textContent='Add';b.classList.remove('done')},1200);
+    }
+   });
+   td.appendChild(b);tr.appendChild(td);
+  });
+ }
+
+ /* direct entry with typeahead */
+ function closeSuggest(){suggest.hidden=true;suggest.textContent='';itemIn.setAttribute('aria-expanded','false')}
+ function runSuggest(){
+  var v=itemIn.value.trim().toUpperCase();
+  if(v.length<2){closeSuggest();return}
+  var hits=ITEMS.filter(function(x){
+   return x.item.indexOf(v)===0||x.item===v||x.desc.toUpperCase().indexOf(v)>-1;
+  }).slice(0,8);
+  suggest.textContent='';
+  if(!hits.length){closeSuggest();return}
+  hits.forEach(function(x){
+   var b=document.createElement('button');b.type='button';
+   b.appendChild(el('span','s-sku',x.item));
+   b.appendChild(document.createTextNode(x.desc));
+   b.addEventListener('click',function(){itemIn.value=x.item;closeSuggest();qtyIn.focus();qtyIn.select()});
+   suggest.appendChild(b);
+  });
+  suggest.hidden=false;itemIn.setAttribute('aria-expanded','true');
+ }
+ itemIn.addEventListener('input',runSuggest);
+ itemIn.addEventListener('keydown',function(e){
+  if(e.key==='ArrowDown'&&!suggest.hidden){e.preventDefault();var f=suggest.querySelector('button');if(f)f.focus()}
+  if(e.key==='Escape')closeSuggest();
+  if(e.key==='Enter'){e.preventDefault();doAdd()}
+ });
+ suggest.addEventListener('keydown',function(e){
+  var bs=[].slice.call(suggest.querySelectorAll('button')),i=bs.indexOf(document.activeElement);
+  if(e.key==='ArrowDown'&&i>-1&&i<bs.length-1){e.preventDefault();bs[i+1].focus()}
+  if(e.key==='ArrowUp'){e.preventDefault();if(i>0)bs[i-1].focus();else itemIn.focus()}
+  if(e.key==='Escape'){closeSuggest();itemIn.focus()}
+ });
+ document.addEventListener('click',function(e){
+  if(!suggest.hidden&&!suggest.contains(e.target)&&e.target!==itemIn)closeSuggest();
+ });
+ function doAdd(){
+  var code=itemIn.value.trim().toUpperCase();
+  if(!code)return;
+  if(!BY[code]){
+   var hits=ITEMS.filter(function(x){return x.item.indexOf(code)===0});
+   if(hits.length===1)code=hits[0].item;else{runSuggest();return}
+  }
+  if(addItem(code,qtyIn.value)){itemIn.value='';qtyIn.value=1;closeSuggest();itemIn.focus()}
+ }
+ document.getElementById('qb-addbtn').addEventListener('click',doAdd);
+ qtyIn.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doAdd()}});
+
+ /* requester fields */
+ [['qb-name','name'],['qb-email','email'],['qb-unit','unit'],['qb-addr','addr'],['qb-po','po']]
+ .forEach(function(pair){
+  var f=document.getElementById(pair[0]);
+  f.value=state[pair[1]];
+  f.addEventListener('input',function(){state[pair[1]]=f.value;save()});
+ });
+
+ /* clear */
+ document.getElementById('qb-clear').addEventListener('click',function(){
+  state={lines:[],name:'',email:'',unit:'',addr:'',po:''};
+  try{localStorage.removeItem(KEY)}catch(e){}
+  ['qb-name','qb-email','qb-unit','qb-addr','qb-po'].forEach(function(id){document.getElementById(id).value=''});
+  render();
+ });
+
+ /* print quote */
+ document.getElementById('qb-pdf').addEventListener('click',function(){
+  var d=new Date(),
+      months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('pq-date').textContent=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+  var f=document.getElementById('pq-fields');f.textContent='';
+  [['Requester',state.name],['Email',state.email],['Unit or facility',state.unit],
+   ['Delivery location',state.addr],['PO or reference',state.po]]
+  .forEach(function(pair){
+   if(!pair[1])return;
+   var row=el('div');row.appendChild(el('span',null,pair[0]));
+   row.appendChild(document.createTextNode(pair[1]));
+   f.appendChild(row);
+  });
+  var body=document.getElementById('pq-body');body.textContent='';
+  state.lines.forEach(function(l){
+   var it=BY[l.item],tr=el('tr');
+   tr.appendChild(el('td',null,l.item));
+   tr.appendChild(el('td',null,it?it.desc:''));
+   tr.appendChild(el('td',null,it&&it.brand?it.brand:''));
+   tr.appendChild(el('td','r',String(l.qty)));
+   tr.appendChild(el('td','r',it&&it.price!=null?money(it.price):'on request'));
+   tr.appendChild(el('td','r',it&&it.price!=null?money(it.price*l.qty):'on request'));
+   body.appendChild(tr);
+  });
+  var t=totals(),foot=document.getElementById('pq-foot');foot.textContent='';
+  var trf=el('tr'),lab=el('td',null,'Total'+(t.onreq?', excluding lines quoted on request':''));
+  lab.colSpan=5;lab.className='r';
+  trf.appendChild(lab);trf.appendChild(el('td','r',money(t.total)));
+  foot.appendChild(trf);
+  window.print();
+ });
+
+ /* mailto */
+ document.getElementById('qb-mailto').addEventListener('click',function(){
+  var subject='Quote request, H2 2026 contract sheet';
+  var head=['Requester: '+(state.name||''),'Email: '+(state.email||''),
+   'Unit or facility: '+(state.unit||''),'Delivery: '+(state.addr||''),
+   'PO or reference: '+(state.po||''),'','Lines:'].join('\n');
+  var itemLines=state.lines.map(function(l){return l.item+' x '+l.qty});
+  var body=head+'\n'+itemLines.join('\n');
+  if(body.length>1800){
+   var kept=[],used=head.length+1,i;
+   for(i=0;i<itemLines.length;i++){
+    if(used+itemLines[i].length+1>1700)break;
+    kept.push(itemLines[i]);used+=itemLines[i].length+1;
+   }
+   var more=itemLines.length-kept.length;
+   body=head+'\n'+kept.join('\n')+'\nplus '+more+' more lines, see attached';
+  }
+  window.location.href='mailto:pmarshall@blackboxsafety.com?subject='
+   +encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+ });
+
+ render();
+})();
+
+(function(){
+ document.addEventListener('click',function(e){
+  var b=e.target.closest('.cardadd'); if(!b)return;
+  var row=document.querySelector('tr[data-item="'+b.dataset.item+'"] .addbtn');
+  if(row){row.click(); b.classList.add('added'); var old=b.textContent;
+   b.textContent='Added to quote';
+   setTimeout(function(){b.classList.remove('added');b.textContent=old;},1400);}
+ });
+})();
+</script>
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script>
+(function(){
+ var unitEl=document.getElementById('qb-unit'),addrEl=document.getElementById('qb-addr'),
+     note=document.getElementById('qb-addrnote'),UNITS=null;
+ function units(){
+  if(UNITS)return UNITS;
+  UNITS={};
+  try{var el=document.getElementById('units-data');if(el)UNITS=JSON.parse(el.textContent)}catch(e){}
+  return UNITS;
+ }
+ function fill(){
+  var U=units();
+  var v=(unitEl.value||'').trim().toLowerCase(),hit=null;
+  if(!v)return;
+  for(var k in U){if(k.toLowerCase()===v){hit=U[k];break}}
+  if(!hit){for(var k2 in U){var lk=k2.toLowerCase();
+    if(v.length>3&&(lk.indexOf(v)===0||lk.indexOf(v)>-1)){hit=U[k2];break}}}
+  if(hit&&(!addrEl.value.trim()||addrEl.dataset.auto==='1')){
+   addrEl.value=hit;addrEl.dataset.auto='1';
+   if(note)note.hidden=false;
+   addrEl.dispatchEvent(new Event('input',{bubbles:true}));
+   try{window.va('event',{name:'unit_autofill',data:{seg:window.__seg}})}catch(x){}
+  }
+ }
+ if(unitEl){unitEl.addEventListener('change',fill);unitEl.addEventListener('blur',fill);}
+ if(addrEl){addrEl.addEventListener('input',function(){if(document.activeElement===addrEl)addrEl.dataset.auto='0'});}
+ var seg=(location.pathname.replace(/\//g,'')||'').toLowerCase();
+ if(!/^[abc]$/.test(seg)){try{seg=(new URLSearchParams(location.search).get('seg')||'').toLowerCase()}catch(e){seg=''}}
+ window.__seg=/^[abc]$/.test(seg)?seg:'direct';
+ var fwd=document.getElementById('fwdlink');
+ if(fwd){fwd.addEventListener('click',function(e){
+  e.preventDefault();
+  var body='The H2 2026 contract sheet is here: '+location.origin+'/\n\n'
+   +'Ninety-one line items priced on the California MRO Statewide LPA 7-25-51-02.03, '
+   +'so there is no solicitation to run. Supplier is Black Box Safety, Inc., CA DVBE Cert. 2009473.\n\n'
+   +'Black Box Safety is an independent supplier. This offer is not sponsored by, affiliated with, or endorsed by CAL FIRE.';
+  window.location.href='mailto:?subject='+encodeURIComponent('Contract sheet, H2 2026 priced list')
+   +'&body='+encodeURIComponent(body);
+  try{window.va('event',{name:'forward_to_buyer',data:{seg:window.__seg}})}catch(x){}
+ });}
+ function track(n,d){try{d=d||{};d.seg=window.__seg;window.va('event',{name:n,data:d})}catch(e){}}
+ document.addEventListener('click',function(e){
+  var t=e.target;
+  if(t.closest('.cardadd')) track('quote_add',{item:t.closest('.cardadd').dataset.item,src:'card'});
+  else if(t.closest('.addbtn')) track('quote_add',{src:'table'});
+  else if(t.closest('.barcta')||t.closest('.btn-s')) track('cta_request_quote');
+  var a=t.closest('a[href^="mailto:"]'); if(a) track('email_click');
+ });
+ var q=document.getElementById('q'); var qt;
+ if(q) q.addEventListener('input',function(){clearTimeout(qt);qt=setTimeout(function(){if(q.value.trim())track('sheet_search')},1500)});
+ window.addEventListener('beforeprint',function(){track('quote_pdf')});
+})();
+</script>
+</body>
+</html>
