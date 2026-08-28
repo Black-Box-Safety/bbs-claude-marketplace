@@ -212,11 +212,14 @@ tbody td{padding:.62rem 1rem;border-top:1px solid var(--line);vertical-align:top
 tbody tr:hover td{background:var(--charcoal-2)}
 .sku{font-family:var(--font-mono);font-size:.76rem;color:var(--hivis);white-space:nowrap;width:1%}
 .dn{display:block;font-size:.88rem}
-.br{display:block;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.11em;
+.br{display:flex;align-items:center;gap:.45rem;min-height:28px;
+ font-family:var(--font-mono);font-size:.6rem;letter-spacing:.11em;
  text-transform:uppercase;color:#8B9299;margin-top:.18rem}
-.brchip{display:inline-flex;align-items:center;vertical-align:middle;margin-left:.45rem;
+.brchip{display:inline-flex;align-items:center;flex:none;
  background:#fff;border-radius:2px;padding:2px 5px}
-.brchip img{height:10px;width:auto}
+.brchip img{height:15px;width:auto;max-width:104px;object-fit:contain;display:block}
+/* square and near-square marks need more height to stay legible */
+.brchip.sq img{height:24px}
 td.im{width:1%;padding:.42rem .65rem;vertical-align:middle}
 .thumb{display:block;width:56px;height:42px;background:#fff;border-radius:4px;padding:3px}
 .thumb img{width:100%;height:100%;object-fit:contain}
@@ -349,30 +352,42 @@ td.ac{text-align:right;white-space:nowrap;width:1%}
   border-left:0;border-right:0;border-bottom:0;max-height:78vh}
 }
 
-/* ---- print quote view ---- */
+/* ---- print quote view, mirrors the BBS Sales Quote (SQ-104032) layout ---- */
 #printquote{display:none}
 @media print{
- @page{size:letter;margin:.6in}
+ @page{size:letter;margin:.55in}
  html,body{background:#fff!important;color:#000!important}
  body>*:not(#printquote){display:none!important}
- #printquote{display:block!important;color:#000;font-family:var(--font-body)}
+ #printquote{display:block!important;color:#000;font-family:var(--font-body);font-size:9.5pt}
+ .pq-title{font-family:var(--font-display);font-size:1.3rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.02em;margin-bottom:.15rem}
+ .pq-titlerow{display:flex;justify-content:space-between;align-items:baseline}
+ .pq-page{font-family:var(--font-mono);font-size:.68rem;color:#333}
  .pq-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;
-  border-bottom:3px solid #000;padding-bottom:.7rem}
- .pq-mark{font-family:var(--font-display);font-size:1.5rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
- .pq-addr,.pq-cred{font-size:.78rem;line-height:1.5}
- .pq-meta{text-align:right;flex:none}
- .pq-label{font-family:var(--font-display);font-size:1rem;text-transform:uppercase;letter-spacing:.06em}
- .pq-date{font-family:var(--font-mono);font-size:.78rem;margin-top:.25rem}
- .pq-fields{margin:.9rem 0;font-size:.82rem;line-height:1.7}
- .pq-fields span{display:inline-block;min-width:9.5rem;font-family:var(--font-mono);
-  font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:#000}
- .pq-tbl{width:100%;border-collapse:collapse;margin-top:.4rem;font-size:.8rem}
- .pq-tbl th{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;
-  text-align:left;border-bottom:2px solid #000;padding:.35rem .4rem}
- .pq-tbl td{border-bottom:1px solid #999;padding:.4rem;vertical-align:top}
+  border-bottom:2px solid #000;padding-bottom:.55rem;margin-bottom:.7rem}
+ .pq-mark{font-family:var(--font-display);font-size:1.02rem;font-weight:600;letter-spacing:.03em}
+ .pq-addr{font-size:.74rem;line-height:1.55;margin-top:.15rem}
+ .pq-cred{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.03em;color:#000;margin-top:.3rem}
+ .pq-parties{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin-bottom:.8rem}
+ .pq-party h4{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+  margin:0 0 .3rem;color:#333;font-weight:500}
+ .pq-party p{font-size:.8rem;line-height:1.5;margin:0}
+ .pq-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;
+  border-top:1px solid #999;border-bottom:1px solid #999;padding:.5rem 0;margin-bottom:.8rem}
+ .pq-meta div span{display:block;font-family:var(--font-mono);font-size:.6rem;
+  letter-spacing:.08em;text-transform:uppercase;color:#555;margin-bottom:.15rem}
+ .pq-meta div b{font-size:.8rem;font-weight:600}
+ .pq-tbl{width:100%;border-collapse:collapse;font-size:.78rem}
+ .pq-tbl th{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;
+  text-align:left;border-bottom:2px solid #000;padding:.35rem .4rem;color:#000}
+ .pq-tbl td{border-bottom:1px solid #ccc;padding:.4rem;vertical-align:top}
  .pq-tbl th.r,.pq-tbl td.r{text-align:right;white-space:nowrap}
- .pq-tbl tfoot td{border-bottom:0;border-top:2px solid #000;font-weight:700}
- .pq-legal{font-size:.72rem;line-height:1.55;margin-top:1.1rem}
+ .pq-tbl td.num{width:1.6rem;color:#555}
+ .pq-tbl tfoot td{border-bottom:0;padding:.3rem .4rem}
+ .pq-tbl tfoot tr.grand td{border-top:2px solid #000;font-weight:700;padding-top:.5rem}
+ .pq-legal{font-size:.68rem;line-height:1.55;margin-top:1rem;color:#333}
+ .pq-footbar{margin-top:1.1rem;padding-top:.5rem;border-top:1px solid #999;
+  text-align:center;font-family:var(--font-mono);font-size:.62rem;color:#333}
 }
 </style>
 </head>
@@ -445,16 +460,16 @@ td.ac{text-align:right;white-space:nowrap;width:1%}
 <div class="brands"><div class="wrap">
  <p class="mono brandlabel">Brands on this sheet</p>
  <div class="brandrow">
+  <img class="bh26" src="assets/brand-anchor.png" alt="Anchor Industries">
+  <img class="bh22" src="assets/brand-counciltool.png" alt="Council Tool">
+  <img class="bh40" src="assets/brand-ess.png" alt="ESS">
+  <img class="bh26" src="assets/brand-camelbak.png" alt="CamelBak">
   <img class="bh30" src="assets/brand-3m.png" alt="3M">
-  <img class="bh26" src="assets/brand-dewalt.png" alt="DeWalt">
-  <img class="bh40" src="assets/brand-diversey.png" alt="Diversey">
-  <img class="bh26" src="assets/brand-gojo.png" alt="GOJO">
+  <img class="bh22" src="assets/brand-energizer.png" alt="Energizer">
+  <img class="bh22" src="assets/brand-procell.png" alt="Duracell Procell">
   <img class="bh22" src="assets/brand-gp.png" alt="Georgia-Pacific">
-  <img class="bh22" src="assets/brand-honeywell.png" alt="Honeywell">
-  <img class="bh22" src="assets/brand-kimberly.png" alt="Kimberly-Clark">
-  <img class="bh36" src="assets/brand-milwaukee.png" alt="Milwaukee">
-  <img class="bh22" src="assets/brand-rubbermaid.png" alt="Rubbermaid">
-  <img class="bh36" src="assets/brand-sanitaire.png" alt="Sanitaire">
+  <img class="bh40" src="assets/brand-diversey.png" alt="Diversey">
+  <img class="bh30" src="assets/brand-turtlewax.png" alt="Turtle Wax">
  </div>
 </div></div>
 
@@ -585,25 +600,35 @@ td.ac{text-align:right;white-space:nowrap;width:1%}
 </div>
 
 <div id="printquote" aria-hidden="true">
+ <div class="pq-titlerow">
+  <div class="pq-title">Sales Quote, draft</div>
+  <div class="pq-page">Page 1 / 1</div>
+ </div>
  <div class="pq-head">
   <div>
    <div class="pq-mark">Black Box Safety, Inc.</div>
    <div class="pq-addr">1950 Cordell Ct., Ste 103, El Cajon, CA 92020<br>(619) 967-9812 &middot; pmarshall@blackboxsafety.com</div>
-   <div class="pq-cred">CA DVBE Cert. 2009473 &middot; California MRO Statewide LPA 7-25-51-02.03</div>
   </div>
-  <div class="pq-meta">
-   <div class="pq-label">Draft quote request</div>
-   <div class="pq-date" id="pq-date"></div>
-  </div>
+  <div class="pq-cred" style="text-align:right">CA DVBE Cert. 2009473<br>California MRO Statewide LPA 7-25-51-02.03</div>
  </div>
- <div class="pq-fields" id="pq-fields"></div>
+ <div class="pq-parties">
+  <div class="pq-party"><h4>Bill to</h4><p id="pq-billto"></p></div>
+  <div class="pq-party"><h4>Ship to</h4><p id="pq-shipto"></p></div>
+ </div>
+ <div class="pq-meta">
+  <div><span>Contract vehicle</span><b>LPA 7-25-51-02.03</b></div>
+  <div><span>Shipment method</span><b>FOB Destination</b></div>
+  <div><span>Document date</span><b id="pq-date"></b></div>
+  <div><span>Valid to</span><b>Confirmed on formal quote</b></div>
+ </div>
  <table class="pq-tbl">
-  <thead><tr><th>Grainger item</th><th>Description</th><th>Brand</th><th class="r">Qty</th><th class="r">Unit price</th><th class="r">Extended</th></tr></thead>
+  <thead><tr><th class="num">#</th><th>Part #</th><th>Description</th><th class="r">Qty</th><th>UOM</th><th class="r">Unit price</th><th class="r">Amount</th></tr></thead>
   <tbody id="pq-body"></tbody>
   <tfoot id="pq-foot"></tfoot>
  </table>
+ <p class="pq-legal">Quote number and validity date are assigned when Black Box Safety issues the formal quote. Pricing subject to product availability. Reference the item numbers above on any resulting order.</p>
  <p class="pq-legal">Black Box Safety is an independent supplier. This offer is not sponsored by, affiliated with, or endorsed by CAL FIRE.</p>
- <p class="pq-legal">Prices are contract prices for California state agencies. Stock and ship dates are confirmed at order.</p>
+ <div class="pq-footbar">Black Box Safety, Inc. &middot; 1950 Cordell Ct., Ste 103, El Cajon, CA 92020 &middot; (619) 967-9812 &middot; pmarshall@blackboxsafety.com</div>
 </div>
 
 <script type="application/json" id="hotlist-data">{{DATA}}</script>
@@ -833,31 +858,49 @@ td.ac{text-align:right;white-space:nowrap;width:1%}
   var d=new Date(),
       months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   document.getElementById('pq-date').textContent=d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
-  var f=document.getElementById('pq-fields');f.textContent='';
-  [['Requester',state.name],['Email',state.email],['Unit or facility',state.unit],
-   ['Delivery location',state.addr],['PO or reference',state.po]]
-  .forEach(function(pair){
-   if(!pair[1])return;
-   var row=el('div');row.appendChild(el('span',null,pair[0]));
-   row.appendChild(document.createTextNode(pair[1]));
-   f.appendChild(row);
-  });
+
+  function fillLines(node,lines){
+   node.textContent='';
+   lines.filter(Boolean).forEach(function(line,i){
+    if(i>0)node.appendChild(document.createElement('br'));
+    node.appendChild(document.createTextNode(line));
+   });
+  }
+  var billUnit=state.unit?(/^CAL FIRE\b/i.test(state.unit)?state.unit:('CAL FIRE '+state.unit)):'Unit not entered',
+      billName=state.name||'Requester name not entered';
+  fillLines(document.getElementById('pq-billto'),
+   [billUnit,'Attn: '+billName,state.email]);
+  fillLines(document.getElementById('pq-shipto'),
+   [billUnit].concat(state.addr?state.addr.split('\n'):['Delivery address not entered'])
+   .concat(state.po?['PO/ref: '+state.po]:[]));
+
   var body=document.getElementById('pq-body');body.textContent='';
-  state.lines.forEach(function(l){
-   var it=BY[l.item],tr=el('tr');
+  state.lines.forEach(function(l,i){
+   var it=BY[l.item],tr=el('tr'),
+       ext=it&&it.price!=null?it.price*l.qty:null;
+   tr.appendChild(el('td','num',String(i+1)));
    tr.appendChild(el('td',null,l.item));
    tr.appendChild(el('td',null,it?it.desc:''));
-   tr.appendChild(el('td',null,it&&it.brand?it.brand:''));
    tr.appendChild(el('td','r',String(l.qty)));
+   tr.appendChild(el('td',null,it?(it.uom||'EA'):'EA'));
    tr.appendChild(el('td','r',it&&it.price!=null?money(it.price):'on request'));
-   tr.appendChild(el('td','r',it&&it.price!=null?money(it.price*l.qty):'on request'));
+   tr.appendChild(el('td','r',ext!=null?money(ext):'on request'));
    body.appendChild(tr);
   });
+
   var t=totals(),foot=document.getElementById('pq-foot');foot.textContent='';
-  var trf=el('tr'),lab=el('td',null,'Total'+(t.onreq?', excluding lines quoted on request':''));
-  lab.colSpan=5;lab.className='r';
-  trf.appendChild(lab);trf.appendChild(el('td','r',money(t.total)));
-  foot.appendChild(trf);
+  var trs=el('tr'),subl=el('td',null,'Subtotal'+(t.onreq?', excluding lines quoted on request':''));
+  subl.colSpan=6;subl.className='r';
+  trs.appendChild(subl);trs.appendChild(el('td','r',money(t.total)));
+  foot.appendChild(trs);
+  var trt=el('tr'),taxl=el('td',null,'Sales tax');
+  taxl.colSpan=6;taxl.className='r';
+  trt.appendChild(taxl);trt.appendChild(el('td','r','Calculated on formal quote'));
+  foot.appendChild(trt);
+  var trg=el('tr'),gl=el('td',null,'Total, excl. tax');
+  gl.colSpan=6;gl.className='r';trg.className='grand';
+  trg.appendChild(gl);trg.appendChild(el('td','r',money(t.total)));
+  foot.appendChild(trg);
   window.print();
  });
 

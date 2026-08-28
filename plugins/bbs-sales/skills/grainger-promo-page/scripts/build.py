@@ -33,18 +33,59 @@ HERO = ['8FA83', '9AN11', '818G62', '10F284', '38W365', '784H63',
         '36Y133', '2U229', '9DTE3', '13W831', '794KD9', '11Z396']
 
 
-# brand string -> approved mark file in web/assets (case-insensitive contains match)
+# brand string -> approved mark file in web/assets (case-insensitive contains match).
+# APPROVED VENDOR, CONDOR, TOUGH GUY and WESTWARD are Grainger private-label brands,
+# so they carry the Grainger mark. Longest/most specific keys come first.
 BRAND_LOGOS = [
-    ('3M', 'brand-3m.png'),
+    ('APPROVED VENDOR', 'grainger.png'),
+    ('TOUGH GUY', 'grainger.png'),
+    ('WESTWARD', 'grainger.png'),
+    ('CONDOR', 'grainger.png'),
+    ('GRAINGER', 'grainger.png'),
+    ('ABILITY ONE', 'brand-abilityone.png'),
+    ('ANCHOR INDUSTRIES', 'brand-anchor.png'),
+    ('ARMOR ALL', 'brand-armorall.png'),
+    ('BLUE MAGIC', 'brand-bluemagic.png'),
+    ('BULLARD', 'brand-bullard.png'),
+    ('CAMELBAK', 'brand-camelbak.png'),
+    ('CLOROX', 'brand-clorox.png'),
+    ('CORONA', 'brand-corona.png'),
+    ('COUNCIL TOOL', 'brand-counciltool.png'),
     ('DEWALT', 'brand-dewalt.png'),
     ('DIVERSEY', 'brand-diversey.png'),
-    ('GOJO', 'brand-gojo.png'),
+    ('DIXIE', 'brand-dixie.png'),
+    ('EASY OFF', 'brand-easyoff.png'),
+    ('ENERGIZER', 'brand-energizer.png'),
+    ('FIRE-DEX', 'brand-firedex.png'),
+    ('FIRST AID ONLY', 'brand-firstaidonly.png'),
+    ('FINISH', 'brand-finish.png'),
+    ('FRESHWAVE', 'brand-freshwave.png'),
     ('GEORGIA-PACIFIC', 'brand-gp.png'),
+    ('GOJO', 'brand-gojo.png'),
+    ('GUNK', 'brand-gunk.png'),
     ('HONEYWELL', 'brand-honeywell.png'),
+    ('IGLOO', 'brand-igloo.png'),
+    ('IMPACT', 'brand-impact.png'),
     ('KIMBERLY', 'brand-kimberly.png'),
+    ('MEAL KIT SUPPLY', 'brand-mealkit.png'),
     ('MILWAUKEE', 'brand-milwaukee.png'),
+    ('NICHOLSON', 'brand-nicholson.png'),
+    ('PRIME GUARD', 'brand-primeguard.png'),
+    ('PROCELL', 'brand-procell.png'),
+    ('R & R TEXTILE', 'brand-rrtextile.png'),
     ('RUBBERMAID', 'brand-rubbermaid.png'),
     ('SANITAIRE', 'brand-sanitaire.png'),
+    ('SCOTT', 'brand-kimberly.png'),
+    ('SEYMOUR', 'brand-seymour.png'),
+    ('SIMPLE GREEN', 'brand-simplegreen.png'),
+    ('SNAPLIGHT', 'brand-snaplight.png'),
+    ('STREAMLIGHT', 'brand-streamlight.png'),
+    ('TIDE', 'brand-tide.png'),
+    ('TURTLE WAX', 'brand-turtlewax.png'),
+    ('VP SMALL ENGINE FUELS', 'brand-vpracing.png'),
+    ('WINDEX', 'brand-windex.png'),
+    ('3M', 'brand-3m.png'),
+    ('ESS', 'brand-ess.png'),
 ]
 
 
@@ -54,6 +95,23 @@ def brand_logo(brand):
         if key in b:
             return fname
     return None
+
+
+def _png_size(path):
+    """Width and height from a PNG IHDR, no third-party imaging library."""
+    import struct
+    with open(path, 'rb') as f:
+        head = f.read(24)
+    return struct.unpack('>II', head[16:24])
+
+
+def chip_class(fname):
+    """Near-square marks read as a smear at 15px, so they get a taller box."""
+    try:
+        w, h = _png_size(os.path.join(ROOT, 'assets', fname))
+    except Exception:
+        return 'brchip'
+    return 'brchip sq' if h and (w / float(h)) < 2.0 else 'brchip'
 
 
 def slug(cat):
@@ -89,9 +147,9 @@ def row(it, cat_slug):
         im = '<td class="im"></td>'
     logo = brand_logo(it.get('brand'))
     if logo:
-        br = ('<span class="br">%s<span class="brchip">'
+        br = ('<span class="br">%s<span class="%s">'
               '<img loading="lazy" src="assets/%s" alt=""></span></span>'
-              % (esc(it.get('brand')), logo))
+              % (esc(it.get('brand')), chip_class(logo), logo))
     else:
         br = '<span class="br">%s</span>' % esc(it.get('brand'))
     return ('<tr data-item="%s" data-cat="%s"><td class="sku">%s</td>'
@@ -148,7 +206,8 @@ def build_nav():
 
 def build_data(items):
     compact = [{'item': x['item'], 'desc': x['desc'],
-                'brand': x.get('brand') or '', 'price': x.get('price')}
+                'brand': x.get('brand') or '', 'price': x.get('price'),
+                'uom': x.get('uom') or 'EA', 'uomQty': x.get('uomQty') or 1}
                for x in items]
     # keep the JSON safe inside a <script> element
     return json.dumps(compact, separators=(',', ':')).replace('</', '<\\/')
