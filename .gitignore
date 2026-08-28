@@ -2,3 +2,5 @@ node_modules/
 .DS_Store
 *.log
 skill-bus-telemetry.jsonl
+__pycache__/
+*.pyc

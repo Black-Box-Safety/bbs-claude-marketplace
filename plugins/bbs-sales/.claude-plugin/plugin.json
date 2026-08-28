@@ -1,0 +1,8 @@
+{
+  "name": "bbs-sales",
+  "description": "The inbound quote desk: log a state or prime RFQ into the right customer folder, price it on the right contract account, and return a signed, responsive packet. Carries the CA state intake SOP and the NASPO quoting workflow mined from the State of CA Agencies corpus.",
+  "version": "0.1.0",
+  "author": { "name": "Black Box Safety, Inc." },
+  "keywords": ["bbs", "sales", "rfq", "naspo", "state-of-california", "quoting", "dvbe"],
+  "skills": "./skills/"
+}
