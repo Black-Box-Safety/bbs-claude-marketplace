@@ -80,26 +80,36 @@ Copy `assets/inputs_template.json` and fill it in. Schema:
 ```bash
 python scripts/fill_obs_packet.py <blank_packet.pdf> <inputs.json> <output.pdf>
 ```
-The script fills all AcroForm fields (via the public pdf skill's fill script), then
-adds the four company-name text annotations. It requires `pymupdf` — if not installed,
-run `pip install pymupdf --break-system-packages -q` first.
+The script fills all AcroForm fields, then adds the four company-name text
+annotations. It needs `pypdf` and `pymupdf` — if they aren't installed, run
+`pip install pypdf pymupdf --break-system-packages -q` first. Nothing else is
+required: the script is self-contained so it runs the same on a rep's machine as
+it does in a Claude session.
 
 ### 4. Verify before delivering
-Convert the output to images and eyeball the key pages — the form field layout can drift
-between packet revisions:
+Render the key pages and eyeball them — the form field layout can drift between
+packet revisions:
 ```bash
-python /mnt/skills/public/pdf/scripts/convert_pdf_to_images.py <output.pdf> <verify_dir>/
+python scripts/render_pages.py <output.pdf> <verify_dir>/ 2 12 16 21 24
 ```
-Check: OBS 4007(B) front page (page 2), the line-item worksheet (page 12), CalRecycle 74
-(page 16), PD 843 (page 21), and STD 204 (page 24). Confirm the rep signed the bidder
-lines, Jackson signed the ownership lines, the totals are right, and no company-name
-line is blank.
+Those are the pages that matter: OBS 4007(B) front page (page 2), the line-item
+worksheet (page 12), CalRecycle 74 (page 16), PD 843 (page 21), and STD 204
+(page 24). Pass no page numbers to render the whole packet. Confirm the rep
+signed the bidder lines, Jackson signed the ownership lines, the totals are
+right, and no company-name line is blank.
 
-If a field lands in the wrong place, the packet revision may have changed. Re-extract the
-field list with `python /mnt/skills/public/pdf/scripts/extract_form_field_info.py
-<blank_packet.pdf> fields.json` and reconcile the field IDs in
-`scripts/fill_obs_packet.py` (the `add(...)` calls and `LINE_FIELD_IDS`). The annotation
-coordinates in `ANNOTATIONS` are tied to the Rev. 08/2025 layout.
+If a field lands in the wrong place, the packet revision may have changed. The script
+already refuses to write a packet when a field ID is unknown or sits on an unexpected
+page, and names the offenders. Re-extract the field list —
+
+```bash
+python -c "from pypdf import PdfReader; import json; \
+print(json.dumps(sorted((PdfReader('<blank_packet.pdf>').get_fields() or {})), indent=2))"
+```
+
+— and reconcile the field IDs in `scripts/fill_obs_packet.py` (the `add(...)`
+calls and `LINE_FIELD_IDS`). The annotation coordinates in `ANNOTATIONS` are
+tied to the Rev. 08/2025 layout.
 
 ### 5. Deliver
 Copy the final PDF to the outputs directory and present it. Then give the rep a short

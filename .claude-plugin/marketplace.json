@@ -22,6 +22,8 @@
         "supabase",
         "quote-bot",
         "catalog",
+        "cdcr",
+        "compliance-forms",
         "operations"
       ],
       "category": "operations"

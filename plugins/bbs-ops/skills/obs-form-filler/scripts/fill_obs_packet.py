@@ -8,7 +8,7 @@ Usage:
 The script:
   1. Loads the hardcoded BBS vendor profile (assets/bbs_vendor_profile.json).
   2. Merges it with the rep / agency / line-item inputs supplied in inputs.json.
-  3. Fills every AcroForm field via the pdf skill's fill_fillable_fields.py.
+  3. Fills every AcroForm field in-process with pypdf.
   4. Adds 4 text annotations for the company-name lines that have no AcroForm
      field (OBS 4007(B) Business Name, Line-Item Worksheet Business Name,
      CalRecycle 74 Contractor/Company Name, STD 204 Section 1 NAME).
@@ -32,11 +32,8 @@ Design notes (why it's built this way):
 import json
 import sys
 import os
-import subprocess
-import tempfile
 
 SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PDF_SKILL = "/mnt/skills/public/pdf"
 
 
 def load_profile():
@@ -391,8 +388,81 @@ ANNOTATIONS = [
 ]
 
 
+def _qualified_field_name(obj):
+    """Fully-qualified AcroForm name for a widget, e.g. "parent.child"."""
+    parts = []
+    seen = set()
+    while obj is not None and id(obj) not in seen:
+        seen.add(id(obj))
+        title = obj.get("/T")
+        if title is not None:
+            parts.append(str(title))
+        parent = obj.get("/Parent")
+        obj = parent.get_object() if parent is not None else None
+    return ".".join(reversed(parts)) if parts else None
+
+
+def _field_pages(reader):
+    """Map fully-qualified field name -> 1-based page carrying its widget."""
+    pages = {}
+    for page_no, page in enumerate(reader.pages, start=1):
+        for annot in page.get("/Annots") or []:
+            name = _qualified_field_name(annot.get_object())
+            if name and name not in pages:
+                pages[name] = page_no
+    return pages
+
+
+def fill_acroform(blank_pdf, field_values, output_pdf):
+    """Fill the packet's AcroForm fields.
+
+    Done in-process rather than by shelling out to the managed pdf skill:
+    this skill ships to reps' machines through the marketplace plugin, where
+    /mnt/skills/public/pdf does not exist.
+    """
+    try:
+        from pypdf import PdfReader, PdfWriter
+    except ImportError:
+        sys.exit("pypdf is required: pip install pypdf pymupdf")
+
+    reader = PdfReader(blank_pdf)
+    known = reader.get_fields() or {}
+    pages = _field_pages(reader)
+
+    errors = []
+    by_page = {}
+    for fv in field_values:
+        field_id = fv["field_id"]
+        if field_id not in known:
+            errors.append(f"ERROR: `{field_id}` is not a valid field ID")
+            continue
+        expected = pages.get(field_id)
+        if expected is not None and fv["page"] != expected:
+            errors.append(f"ERROR: Incorrect page number for `{field_id}` "
+                          f"(got {fv['page']}, expected {expected})")
+            continue
+        by_page.setdefault(fv["page"], {})[field_id] = fv["value"]
+
+    if errors:
+        print("\n".join(errors))
+        print("The packet revision may have changed. Re-extract the field list and "
+              "reconcile LINE_FIELD_IDS / the add() calls — see references/field_map.md.")
+        sys.exit(1)
+
+    writer = PdfWriter(clone_from=reader)
+    for page_no, values in by_page.items():
+        writer.update_page_form_field_values(
+            writer.pages[page_no - 1], values, auto_regenerate=False)
+    writer.set_need_appearances_writer(True)
+    with open(output_pdf, "wb") as f:
+        writer.write(f)
+
+
 def add_annotations(pdf_path, profile):
-    import fitz
+    try:
+        import fitz
+    except ImportError:
+        sys.exit("pymupdf is required: pip install pymupdf")
     doc = fitz.open(pdf_path)
     for a in ANNOTATIONS:
         page = doc[a["page"]]
@@ -412,29 +482,10 @@ def main():
 
     profile = load_profile()
     with open(inputs_path) as f:
-        global inp
         inp = json.load(f)
 
     field_values = build_field_values(profile, inp)
-
-    # Write field_values.json next to the output
-    fv_path = os.path.join(tempfile.gettempdir(), "obs_field_values.json")
-    with open(fv_path, "w") as f:
-        json.dump(field_values, f, indent=2)
-
-    # Fill AcroForm fields using the pdf skill's fill script
-    result = subprocess.run(
-        ["python", os.path.join(PDF_SKILL, "scripts", "fill_fillable_fields.py"),
-         blank_pdf, fv_path, output_pdf],
-        capture_output=True, text=True
-    )
-    if result.returncode != 0:
-        print("AcroForm fill failed:")
-        print(result.stdout)
-        print(result.stderr)
-        sys.exit(1)
-    if result.stdout.strip():
-        print(result.stdout)
+    fill_acroform(blank_pdf, field_values, output_pdf)
 
     # Add the 4 company-name text annotations
     add_annotations(output_pdf, profile)
