@@ -109,10 +109,18 @@ def build_field_values(profile, inp):
     add("OBS RFQ 4007(B) - Shipping Address L3", 3, ship3)
 
     # ---------- Line-Item Cost Worksheet (page 12) ----------
+    # The worksheet has 23 rows. A longer quote used to be truncated here, which
+    # also dropped the extra lines from the subtotal — the packet came out looking
+    # complete with a grand total that undercharged. Refuse instead: a bid is a
+    # binding price, so a wrong total is worse than no packet.
+    if len(items) > MAX_LINE_ITEMS:
+        sys.exit(f"{len(items)} line items, but the OBS worksheet has only "
+                 f"{MAX_LINE_ITEMS} rows. Split the quote across separate packets, "
+                 f"or consolidate lines and attach the full quote sheet — do not "
+                 f"submit a truncated worksheet.")
+
     subtotal = 0.0
     for idx, item in enumerate(items, start=1):
-        if idx > 23:
-            break  # the worksheet has 23 rows; long quotes need an attached quote sheet
         ln = str(idx)
         qty = str(item.get("qty", ""))
         unit = item.get("unit", "")
@@ -136,9 +144,7 @@ def build_field_values(profile, inp):
         subtotal += ext
 
         # Field IDs are not perfectly regular in the source PDF; resolve per-row.
-        line_field_map = LINE_FIELD_IDS.get(idx)
-        if not line_field_map:
-            continue
+        line_field_map = LINE_FIELD_IDS[idx]
         add(line_field_map["line"], 12, ln)
         add(line_field_map["qty"], 12, qty)
         add(line_field_map["unit"], 12, unit)
@@ -272,6 +278,9 @@ def build_field_values(profile, inp):
     # needlessly. Checkbox "/Off" values are not empty, so they survive this.
     fv = [f for f in fv if f["value"] != ""]
     return fv
+
+
+MAX_LINE_ITEMS = 23
 
 
 def _money(x):
