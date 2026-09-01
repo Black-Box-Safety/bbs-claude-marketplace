@@ -268,9 +268,9 @@ def build_field_values(profile, inp):
     add("Payee Data Record STD 204 - Auth Rep Sign Date", 24, sig_date)
     add("Payee Data Record STD 204 - Auth Rep. Signature", 24, owner["name"])
 
-    # Drop empty-string values so we don't write blank-but-present fields needlessly,
-    # EXCEPT keep checkbox "/Off" values which are meaningful.
-    fv = [f for f in fv if f["value"] != "" or f["value"] == "/Off"]
+    # Drop empty-string values so we don't write blank-but-present fields
+    # needlessly. Checkbox "/Off" values are not empty, so they survive this.
+    fv = [f for f in fv if f["value"] != ""]
     return fv
 
 
@@ -388,6 +388,11 @@ ANNOTATIONS = [
 ]
 
 
+def _resolve(obj):
+    """Follow an indirect reference, if that's what this is."""
+    return obj.get_object() if hasattr(obj, "get_object") else obj
+
+
 def _qualified_field_name(obj):
     """Fully-qualified AcroForm name for a widget, e.g. "parent.child"."""
     parts = []
@@ -398,19 +403,93 @@ def _qualified_field_name(obj):
         if title is not None:
             parts.append(str(title))
         parent = obj.get("/Parent")
-        obj = parent.get_object() if parent is not None else None
+        obj = _resolve(parent) if parent is not None else None
     return ".".join(reversed(parts)) if parts else None
 
 
-def _field_pages(reader):
-    """Map fully-qualified field name -> 1-based page carrying its widget."""
-    pages = {}
+def _inherited(obj, key):
+    """Look up an inheritable field attribute (/FT, /Opt) up the parent chain."""
+    seen = set()
+    while obj is not None and id(obj) not in seen:
+        seen.add(id(obj))
+        if key in obj:
+            return _resolve(obj[key])
+        parent = obj.get("/Parent")
+        obj = _resolve(parent) if parent is not None else None
+    return None
+
+
+def describe_fields(reader):
+    """Describe every AcroForm field: type, pages holding a widget, on-states.
+
+    Read off the widgets rather than taken on trust from the field dictionary:
+    /FT is inheritable, and a checkbox's "checked" value is spelled out only in
+    its appearance dictionary. A revised packet that spells the checked state
+    "/1" instead of "/Yes" is exactly what this has to catch.
+    """
+    specs = {}
     for page_no, page in enumerate(reader.pages, start=1):
         for annot in page.get("/Annots") or []:
-            name = _qualified_field_name(annot.get_object())
-            if name and name not in pages:
-                pages[name] = page_no
-    return pages
+            obj = _resolve(annot)
+            name = _qualified_field_name(obj)
+            if not name:
+                continue
+            spec = specs.setdefault(
+                name, {"type": None, "pages": set(), "on_states": set()})
+            spec["pages"].add(page_no)
+            ftype = _inherited(obj, "/FT")
+            if ftype is not None:
+                spec["type"] = str(ftype)
+            if spec["type"] != "/Btn":
+                # Only a button's /AP /N is a state dictionary. On a text field
+                # it is the appearance stream itself, whose keys (/BBox, /Filter,
+                # ...) are not states.
+                continue
+            appearances = _resolve((_resolve(obj.get("/AP")) or {}).get("/N"))
+            if hasattr(appearances, "keys"):
+                spec["on_states"].update(
+                    str(state) for state in appearances.keys() if str(state) != "/Off")
+    return specs
+
+
+def resolve_value(name, spec, value):
+    """Return (value_to_write, note, error) for one field.
+
+    Buttons are resolved against the states the packet actually declares, so
+    the intent ("check the DVBE box") survives a revision that renames the
+    checked state. Anything unresolvable is an error, never a silent skip: an
+    unchecked DVBE box on a DVBE bid is a disqualification.
+    """
+    ftype = spec["type"]
+    value = str(value)
+
+    if ftype == "/Btn":
+        if value == "/Off":
+            return "/Off", None, None
+        on_states = sorted(spec["on_states"])
+        if not on_states:
+            return None, None, (
+                f"ERROR: `{name}` is a button field with no on-state in its "
+                f"appearance dictionary, so it cannot be checked")
+        if value in on_states:
+            return value, None, None
+        if len(on_states) > 1:
+            return None, None, (
+                f"ERROR: `{name}` is a button with several on-states "
+                f"{on_states}; the script asked for \"{value}\". It is probably "
+                f"a radio group now and needs an explicit choice")
+        return on_states[0], (
+            f"NOTE: `{name}` is checked as \"{on_states[0]}\", not \"{value}\" — "
+            f"this packet revision spells the checked state differently"), None
+
+    if ftype == "/Ch":
+        options = spec.get("options")
+        if options and value not in options:
+            return None, None, (
+                f"ERROR: invalid value \"{value}\" for choice field `{name}`. "
+                f"Valid values are: {sorted(options)}")
+
+    return value, None, None
 
 
 def fill_acroform(blank_pdf, field_values, output_pdf):
@@ -418,36 +497,58 @@ def fill_acroform(blank_pdf, field_values, output_pdf):
 
     Done in-process rather than by shelling out to the managed pdf skill:
     this skill ships to reps' machines through the marketplace plugin, where
-    /mnt/skills/public/pdf does not exist.
+    /mnt/skills/public/pdf does not exist. The validation below stands in for
+    what that script used to catch — every field is checked against the packet
+    in hand before anything is written.
     """
-    try:
-        from pypdf import PdfReader, PdfWriter
-    except ImportError:
-        sys.exit("pypdf is required: pip install pypdf pymupdf")
+    from pypdf import PdfReader, PdfWriter
 
     reader = PdfReader(blank_pdf)
+    if reader.is_encrypted:
+        # decrypt() reports failure by return value, not by raising.
+        try:
+            opened = reader.decrypt("")
+        except Exception:
+            opened = False
+        if not opened:
+            sys.exit(f"{blank_pdf} is password-protected. Save an unlocked copy of "
+                     f"the blank packet and run again.")
     known = reader.get_fields() or {}
-    pages = _field_pages(reader)
+    specs = describe_fields(reader)
 
     errors = []
+    notes = []
     by_page = {}
     for fv in field_values:
-        field_id = fv["field_id"]
-        if field_id not in known:
-            errors.append(f"ERROR: `{field_id}` is not a valid field ID")
+        name, page, raw = fv["field_id"], fv["page"], fv["value"]
+        if name not in known:
+            errors.append(f"ERROR: `{name}` is not a valid field ID")
             continue
-        expected = pages.get(field_id)
-        if expected is not None and fv["page"] != expected:
-            errors.append(f"ERROR: Incorrect page number for `{field_id}` "
-                          f"(got {fv['page']}, expected {expected})")
+        spec = specs.get(name)
+        if spec is None or not spec["pages"]:
+            errors.append(f"ERROR: `{name}` exists in the form but has no widget on "
+                          f"any page, so nothing would be written to it")
             continue
-        by_page.setdefault(fv["page"], {})[field_id] = fv["value"]
+        if page not in spec["pages"]:
+            errors.append(f"ERROR: Incorrect page number for `{name}` (got {page}, "
+                          f"expected {sorted(spec['pages'])})")
+            continue
+        value, note, err = resolve_value(name, spec, raw)
+        if err:
+            errors.append(err)
+            continue
+        if note:
+            notes.append(note)
+        by_page.setdefault(page, {})[name] = value
 
     if errors:
         print("\n".join(errors))
-        print("The packet revision may have changed. Re-extract the field list and "
-              "reconcile LINE_FIELD_IDS / the add() calls — see references/field_map.md.")
+        print(f"\n{len(errors)} field(s) could not be filled. The packet revision has "
+              f"probably changed — run `--inspect` on the blank packet and reconcile "
+              f"LINE_FIELD_IDS / the add() calls. See references/field_map.md.")
         sys.exit(1)
+    if notes:
+        print("\n".join(notes))
 
     writer = PdfWriter(clone_from=reader)
     for page_no, values in by_page.items():
@@ -459,10 +560,7 @@ def fill_acroform(blank_pdf, field_values, output_pdf):
 
 
 def add_annotations(pdf_path, profile):
-    try:
-        import fitz
-    except ImportError:
-        sys.exit("pymupdf is required: pip install pymupdf")
+    import fitz
     doc = fitz.open(pdf_path)
     for a in ANNOTATIONS:
         page = doc[a["page"]]
@@ -474,9 +572,50 @@ def add_annotations(pdf_path, profile):
     os.replace(tmp, pdf_path)
 
 
+def inspect(blank_pdf):
+    """Print every field with its type, page and on-states.
+
+    The diagnostic lives beside the filler, and reads the packet exactly the
+    way the filler does, so the two can never disagree about what it contains.
+    """
+    from pypdf import PdfReader
+
+    reader = PdfReader(blank_pdf)
+    specs = describe_fields(reader)
+    rows = sorted(specs.items(), key=lambda kv: (min(kv[1]["pages"]), kv[0]))
+    print(f"{len(rows)} fields in {blank_pdf}\n")
+    print(f"{'PAGE':<6}{'TYPE':<8}{'ON-STATES':<22}NAME")
+    for name, spec in rows:
+        pages = ",".join(str(p) for p in sorted(spec["pages"]))
+        states = ",".join(sorted(spec["on_states"])) or "-"
+        print(f"{pages:<6}{(spec['type'] or '?'):<8}{states:<22}{name}")
+
+
+def require_dependencies():
+    """Fail before touching the packet, not halfway through writing it."""
+    missing = []
+    for module, package in (("pypdf", "pypdf"), ("fitz", "pymupdf")):
+        try:
+            __import__(module)
+        except ImportError:
+            missing.append(package)
+    if missing:
+        sys.exit(f"missing dependencies: {' '.join(missing)}\n"
+                 f"install with: pip install {' '.join(missing)}")
+
+
+USAGE = ("Usage: python fill_obs_packet.py <blank_packet.pdf> <inputs.json> <output.pdf>\n"
+         "       python fill_obs_packet.py --inspect <blank_packet.pdf>")
+
+
 def main():
+    require_dependencies()
+
+    if len(sys.argv) == 3 and sys.argv[1] == "--inspect":
+        inspect(sys.argv[2])
+        return
     if len(sys.argv) != 4:
-        print("Usage: python fill_obs_packet.py <blank_packet.pdf> <inputs.json> <output.pdf>")
+        print(USAGE)
         sys.exit(1)
     blank_pdf, inputs_path, output_pdf = sys.argv[1], sys.argv[2], sys.argv[3]
 
@@ -485,10 +624,18 @@ def main():
         inp = json.load(f)
 
     field_values = build_field_values(profile, inp)
-    fill_acroform(blank_pdf, field_values, output_pdf)
 
-    # Add the 4 company-name text annotations
-    add_annotations(output_pdf, profile)
+    # Fill and annotate a scratch copy, then move it into place, so a failure
+    # part-way through never leaves a half-filled packet looking finished.
+    partial = output_pdf + ".partial"
+    try:
+        fill_acroform(blank_pdf, field_values, partial)
+        add_annotations(partial, profile)
+        os.replace(partial, output_pdf)
+    finally:
+        if os.path.exists(partial):
+            os.remove(partial)
+
     print(f"Filled packet written to: {output_pdf}")
     print(f"Fields written: {len(field_values)}")
 

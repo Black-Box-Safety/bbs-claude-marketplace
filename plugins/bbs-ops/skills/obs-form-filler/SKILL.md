@@ -77,39 +77,58 @@ Copy `assets/inputs_template.json` and fill it in. Schema:
   total are computed automatically.
 
 ### 3. Run the fill script
+Run it by its full path — `SKILL_DIR` is the folder holding this SKILL.md, which
+is wherever the plugin got installed, not the directory you happen to be in:
 ```bash
-python scripts/fill_obs_packet.py <blank_packet.pdf> <inputs.json> <output.pdf>
+SKILL_DIR=<the folder containing this SKILL.md>
+python "$SKILL_DIR/scripts/fill_obs_packet.py" <blank_packet.pdf> <inputs.json> <output.pdf>
 ```
 The script fills all AcroForm fields, then adds the four company-name text
-annotations. It needs `pypdf` and `pymupdf` — if they aren't installed, run
-`pip install pypdf pymupdf --break-system-packages -q` first. Nothing else is
-required: the script is self-contained so it runs the same on a rep's machine as
-it does in a Claude session.
+annotations. It needs `pypdf` and `pymupdf`, checks for both before it touches
+the packet, and prints the install command if either is missing
+(`pip install pypdf pymupdf --break-system-packages -q`). Nothing else is
+required: it is self-contained, so it runs the same on a rep's machine as it
+does in a Claude session.
+
+It writes the packet only if every field validates, so a non-zero exit means no
+output file — never a half-filled one. Read any `NOTE:` lines it prints: a note
+that a checkbox was checked under a different state name means this packet
+revision differs from Rev. 08/2025, and the rest of the layout deserves a
+closer look.
 
 ### 4. Verify before delivering
 Render the key pages and eyeball them — the form field layout can drift between
 packet revisions:
 ```bash
-python scripts/render_pages.py <output.pdf> <verify_dir>/ 2 12 16 21 24
+python "$SKILL_DIR/scripts/render_pages.py" <output.pdf> <verify_dir>/ 2 12 16 21 24
 ```
 Those are the pages that matter: OBS 4007(B) front page (page 2), the line-item
 worksheet (page 12), CalRecycle 74 (page 16), PD 843 (page 21), and STD 204
-(page 24). Pass no page numbers to render the whole packet. Confirm the rep
-signed the bidder lines, Jackson signed the ownership lines, the totals are
-right, and no company-name line is blank.
+(page 24). Pass no page numbers to render the whole packet.
 
-If a field lands in the wrong place, the packet revision may have changed. The script
-already refuses to write a packet when a field ID is unknown or sits on an unexpected
-page, and names the offenders. Re-extract the field list —
+Confirm, in this order:
+
+1. **The DVBE box on page 2 is actually ticked**, along with the PD 843 "not a
+   broker" box (page 21) and the STD 204 entity boxes (page 24). Check the
+   rendered image, not the field values — a box can hold the right value and
+   still render blank if the packet revision renamed its checked state.
+2. Every line item appears and the grand total matches the quote.
+3. The rep signed the bidder lines and Jackson signed the ownership lines.
+4. No company-name line is blank.
+
+If a field lands in the wrong place, the packet revision has probably changed. The
+script refuses to write a packet when a field ID is unknown, sits on an unexpected
+page, or is a checkbox it cannot tick, and names every offender. To see what the new
+packet actually contains — each field's page, type and checkbox on-states:
 
 ```bash
-python -c "from pypdf import PdfReader; import json; \
-print(json.dumps(sorted((PdfReader('<blank_packet.pdf>').get_fields() or {})), indent=2))"
+python "$SKILL_DIR/scripts/fill_obs_packet.py" --inspect <blank_packet.pdf>
 ```
 
-— and reconcile the field IDs in `scripts/fill_obs_packet.py` (the `add(...)`
-calls and `LINE_FIELD_IDS`). The annotation coordinates in `ANNOTATIONS` are
-tied to the Rev. 08/2025 layout.
+Reconcile that against the field IDs in `scripts/fill_obs_packet.py` (the `add(...)`
+calls and `LINE_FIELD_IDS`), and update `references/field_map.md` to match. The
+annotation coordinates in `ANNOTATIONS` are tied to the Rev. 08/2025 layout, so
+re-check those four company-name lines too.
 
 ### 5. Deliver
 Copy the final PDF to the outputs directory and present it. Then give the rep a short

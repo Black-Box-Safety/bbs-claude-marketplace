@@ -57,8 +57,10 @@ The source field names are hand-authored and inconsistent. The script's
 - Row 6 ext-price: `"OBS Line-Item Cost Wrksht L6"`
 - Rows 13/18/23 ext-price: `"OBS Line-Item Cost Wrksht L13"`, `"...wrksht L18"`, `"...Wrksht L23"`
 
-If the fill script reports an invalid field ID, re-extract with the pdf skill's
-`extract_form_field_info.py` and reconcile, rather than guessing.
+If the fill script reports an invalid field ID, dump the packet's real fields with
+`python scripts/fill_obs_packet.py --inspect <blank_packet.pdf>` and reconcile against
+that, rather than guessing. The dump lists each field's page, type and checkbox
+on-states, which is what the fill script itself validates against.
 
 ## Fields intentionally left blank (State fills these)
 
