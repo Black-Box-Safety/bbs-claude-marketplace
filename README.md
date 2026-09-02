@@ -83,7 +83,7 @@ Updating later is `/plugin marketplace update`: new skill and agent versions arr
 | Agents | **10**: one owner per stage, plus Arthur (architecture), Tom (delivery), business-review |
 | Skills | Price-list cleaning, contract pricing, variant families, product pages, brand pages, image pipeline, lane tuning, CA/CDCR bid forms, and `site-wiring-map` |
 | Commands | `/bbs-onboard` · `/bbs-add-product` · `/bbs-new-brand` · `/bbs-review` |
-| Guardrails | Skill-bus doctrine that auto-applies BBS design, cert, pricing, and grounding rules |
+| Guardrails | Skill-bus doctrine that auto-applies BBS design, cert, and pricing rules (grounding rules come from `bbs-foundations`) |
 | Repos covered | `bbs-database` · `bbs-shopify` · `bbs-quote-bot` |
 
 ```mermaid
@@ -135,7 +135,7 @@ bbs-claude-marketplace/
 
 - **Skills** teach the BBS way of each task; **agents** own a pipeline stage and route work to the right skill; **commands** are thin orchestration over both.
 - **Two data planes, one product truth**: the Supabase products database (`bbs-database`) is the source, Shopify renders it, and the quote bot advises over a frozen snapshot plus live search. A database change reaches the storefront only after sync, and the bot only after a `gen-*.mjs` regen is committed.
-- **Docs teach, the skill-bus enforces**: three doctrine inserts (storefront design/cert/pricing, catalog rules, quote-bot grounding) auto-inject as context whenever a relevant skill runs, so the rules hold even for someone who hasn't read them. `/bbs-review` reads `skill-bus-telemetry.jsonl` to catch coverage gaps.
+- **Docs teach, the skill-bus enforces**: three doctrine inserts (storefront design/cert/pricing and catalog rules from `bbs-ops`; quote-bot grounding from `bbs-foundations`) auto-inject as context whenever a relevant skill runs, so the rules hold even for someone who hasn't read them. `/bbs-review` reads `skill-bus-telemetry.jsonl` to catch coverage gaps.
 - **Reviewers keep it living**: Arthur (architecture) and Tom (delivery/quality) review recent changes and write findings back into the skills, so the plugin sharpens like the site does.
 - **Reference skills are linked, not copied**: generic Shopify/Liquid skills update on their own and never drift.
 
