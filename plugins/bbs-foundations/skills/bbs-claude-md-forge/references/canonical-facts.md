@@ -21,14 +21,28 @@ FEIN, seller's permit, and buying account numbers live in `~/.bbs/vendor_profile
 | Channel | Say | Number | Expires |
 |---|---|---|---|
 | Federal, primes (Bechtel, USACE, Centerra, UCOR), DoD | **SDVOSB**, VA CVE / SBA VetCert | UEI `FRK5MJD35GN5` | 05/16/2028 |
-| California state agencies | **DVBE** (OSDS program name is "SB/DVBE") | `2009473` | 12/31/2027 |
+| California state agencies | **SB/DVBE** — one OSDS certification carrying both | `2009473` | 12/31/2027 |
 | LA County only | LA County DVBE (local credit only) | `10086` | 11/17/2027 |
 | City of San Diego only | SLBE (local credit only) | `17BB1659` | — |
 
-BBS is **not** California SB-certified. Do not write "5% SB preference" or "SB credit."
-`ca-quote-hub/CLAUDE.md` still says "5% SB preference + DVBE incentive" — that line is
-wrong and should be corrected there. Parker's email signature reads `CA SB/DVBE 2009473`,
-which is the program's name and is fine in a signature; it is not a claim of SB status.
+On California **competitive solicitations, informal included**, BBS is entitled to both the
+**5% Small Business preference** (SCM §1204, "Small Business Preference and Competitive
+Solicitations") and the **DVBE incentive** (SCM §1202, 1–5% scaled to DVBE participation).
+They are evaluation mechanisms, and they are separate: §1202 notes a non-SB DVBE incentive
+"cannot displace award to a #1 ranked small business," which is why holding both matters.
+§1204 verbatim: the preference "applies for competitive solicitations regardless of the
+solicitation format (e.g., RFQ, IFB, RFP) or dollar value with few exceptions," is "for
+evaluation purposes only and does not change the actual bids," and is capped at $50,000 per
+bid (combined preferences 15% or $100,000, whichever is less). Gov. Code §14838.5(a),
+§14838(b)(2), §14838(g); 2 CCR §1896.8. Confirmed by Parker Marshall, 2026-09-02.
+
+Where they do **not** apply: orders placed against an LPA or NASPO contract (no evaluation,
+so no preference — the contract-lane price passes through at cost); federal and prime bids
+(SDVOSB only); and storefront or marketing copy, where a preference is not a customer
+benefit. That last point is what the `bbs-shopify` canonical-facts line "BBS is NOT SB-
+certified" (2026-07-10) was protecting, but as written it contradicts this row and the
+storefront skill-bus doctrine still carries it. **Outstanding for Parker:** reword that line
+to "no SB or DVBE preference language in storefront copy" so the two files agree.
 
 ## Contract vehicles (canonical count: 8)
 
@@ -88,7 +102,7 @@ Archivo, JetBrains Mono. Quote SLA 48 hours. CA sales tax ~7.75%, F.O.B. Destina
 | Contradiction | Ruling |
 |---|---|
 | MRO LPA `7-25-51-02.03` (96 places) vs `-52-` (10 places) | `-51-`. Fix `bbs-agent` |
-| "CA SB & DVBE … 5% SB preference" vs "NOT SB-certified" | Not SB-certified. Fix `ca-quote-hub` |
+| "CA SB & DVBE … 5% SB preference" (`ca-quote-hub`, signature block) vs "NOT SB-certified" (`bbs-shopify` canonical facts, storefront doctrine) | **SB/DVBE is correct.** 5% SB preference (§1204) + DVBE incentive (§1202) on competitive solicitations incl. informal; never on LPA orders, federal bids, or storefront copy. Fix the `bbs-shopify` line and the storefront doctrine, not `ca-quote-hub`. Ruling reversed 2026-09-02 on Parker's confirmation; the earlier ruling was mine and was wrong |
 | HQ "San Diego" vs "El Cajon" | El Cajon |
 | Theme "BBS — Field Manual" vs "Copy of BBS — Field Manual" id `160937935099` | The id wins; check `shopify theme list` |
 | Shopify `--only`: "always" vs "never for new files" | Both true: `--only` for edits, full push when adding files, always from `theme/` |

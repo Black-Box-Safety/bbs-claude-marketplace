@@ -80,8 +80,15 @@ external plugin so it is one install away and there is one marketplace for the t
 3. **Public-record facts only in the skill.** UEI, DVBE number, LPA numbers — what Parker
    prints in his email signature. FEIN, seller's permit, buying account numbers stay in
    `~/.bbs/vendor_profile.json`.
-4. **`github-standards` and `parker-voice` stay where they are** (Parker's machine).
-   Moving them into foundations is a real decision about Grace's standard; flagged, not made.
+4. **`github-standards` stays where it is** (Grace's standard, Parker's machine).
+   **`parker-voice` becomes the exemplar inside a template**, `bbs-voice-template`, so each
+   teammate builds their own `<first>-voice` from their own sent mail (Parker, 2026-09-02).
+5. **SB preference ruling reversed, 2026-09-02.** The first release's checker failed on
+   "5% SB preference" on the strength of one `bbs-shopify` line. Parker confirms BBS holds
+   OSDS SB/DVBE 2009473 and the 5% preference applies on competitive solicitations incl.
+   informal (SCM §1204), alongside the DVBE incentive (§1202). The check is removed; the
+   canonical-facts row now says where a preference does and does not belong. The
+   `ca-quote-hub` PR that removed the claim was closed unmerged.
 
 ## Success criteria
 
