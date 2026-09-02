@@ -24,6 +24,7 @@ question a teammate eventually has to ask Parker. This plugin exists to stop ask
 | Skill | Fires when | Stops at |
 |---|---|---|
 | `bbs-claude-md-forge` | Anyone asks to create, audit, fix, or sync a `CLAUDE.md` in a BBS repo or customer folder; a folder has no `CLAUDE.md` and an agent keeps re-deriving the same facts; a file is over 150 lines or contradicts another repo | A file under the cap, chained correctly, with zero checker failures and every fact pointing at its system of record |
+| `bbs-voice-template` | A teammate wants Claude to draft email that sounds like *them*, not like a chatbot; someone asks to "make my own voice skill" or to strip AI tells from a draft | A personal `<first>-voice` skill in their own `~/.claude/skills/`, built from their real sent mail, never committed to a repo |
 
 Its H1 is **BBSClaudeMDForge**. It wraps the `claudeforge` engine and Anthropic's
 `claude-md-improver` without copying either — both update on their own — and supplies what
@@ -50,6 +51,7 @@ once with `/skill-bus:onboard`, or let `/bbs-onboard` do it.
 | Command | Does |
 |---|---|
 | `/bbs-claude-md [init\|audit\|sync] [path]` | Runs the checker, decides the kind of place, drafts or repairs from the matching template, hands cap and chain repair to `claudeforge` if present. Nothing is written until you say go; nothing is committed. |
+| `/bbs-my-voice [first-name]` | Samples your real Sent Items, fills the voice profile with you, and writes a personal `<first>-voice` skill into your own `~/.claude/skills/`. Never touches a repo. |
 
 ## The rules that don't bend
 
@@ -61,9 +63,10 @@ nothing. The Bechtel Sentinel tree shipped that way and the link checker reporte
 references" — which is the tell. Root imports children; children import `@../CLAUDE.md`
 so a session started in a subdirectory still gets the universal rules.
 
-**Cert language follows the channel.** SDVOSB for federal and primes, DVBE `2009473` for
-California state, and BBS is **not** CA SB-certified. The checker fails a federal-context
-file that says DVBE, and any file that says "SB credit."
+**Cert language follows the channel.** SDVOSB for federal and primes; OSDS SB/DVBE
+`2009473` for California state, where the 5% SB preference and the DVBE incentive apply on
+competitive solicitations and never on LPA orders or storefront copy. The checker fails a
+federal-context file that makes a DVBE claim.
 
 **Point, never copy.** Money is in Business Central, catalog in Supabase, documents in
 SharePoint, BBS form values in `~/.bbs/vendor_profile.json`. A fact stated twice drifts;

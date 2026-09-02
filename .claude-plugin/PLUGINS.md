@@ -13,7 +13,9 @@
 - **bbs-foundations** (live, first release) — company-wide AI fundamentals. Ships
   `bbs-claude-md-forge` (BBSClaudeMDForge): the BBS way to write, audit, and repair
   CLAUDE.md files, with a deterministic checker and the canonical facts every repo must
-  agree on. `plugins/bbs-foundations`. Spec:
+  agree on. Also `bbs-voice-template`: how a teammate builds a personal `<first>-voice`
+  skill from their own sent mail, with `parker-voice` as the worked example.
+  `plugins/bbs-foundations`. Spec:
   `docs/superpowers/specs/2026-09-02-bbs-foundations-claude-md-forge-design.md`.
   `bbs-grounding-doctrine` lives here and only here; `bbs-website` no longer carries a copy,
   and its two lane-tuning skills receive it from this plugin.
