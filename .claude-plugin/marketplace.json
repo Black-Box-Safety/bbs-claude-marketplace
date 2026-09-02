@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Black Box Safety internal Claude plugins — site operations, state sales, and AI foundations.",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "plugins": [
     {
@@ -48,6 +48,46 @@
         "state-of-california"
       ],
       "category": "sales"
+    },
+    {
+      "name": "bbs-foundations",
+      "source": "./plugins/bbs-foundations",
+      "description": "Company-wide AI foundations: the BBS way to write CLAUDE.md files (BBSClaudeMDForge), the doctrine every skill inherits, and the shared company facts, systems of record, and certification rules that keep every repo and customer folder consistent.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Black Box Safety, Inc."
+      },
+      "keywords": [
+        "bbs",
+        "claude-md",
+        "context-management",
+        "doctrine",
+        "foundations",
+        "onboarding",
+        "standards"
+      ],
+      "category": "foundations"
+    },
+    {
+      "name": "claudeforge",
+      "source": {
+        "source": "github",
+        "repo": "Black-Box-Safety/ClaudeForge",
+        "ref": "dev"
+      },
+      "description": "Pinned external dependency of bbs-foundations: the generic CLAUDE.md engine (150-line cap, @path chaining, /enhance-claude-md, /sync-claude-md, drift/link/dependency audits). BBS fork of alirezarezvani/ClaudeForge; bbs-claude-md-forge supplies the BBS doctrine on top of it.",
+      "version": "2.1.0",
+      "author": {
+        "name": "Alireza Rezvani"
+      },
+      "keywords": [
+        "claude-md",
+        "context-management",
+        "external",
+        "modular",
+        "sync"
+      ],
+      "category": "foundations"
     }
   ]
 }
