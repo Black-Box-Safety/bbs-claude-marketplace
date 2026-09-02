@@ -77,7 +77,7 @@ Three doctrine inserts fire automatically when a relevant skill runs, so the rul
 
 - **Storefront** — BBS design tokens, cert/claim rules (no cross-jurisdiction credit; DVBE 2009473), MAP-not-contract pricing, RFQ page-flow.
 - **Catalog** — import-template rules, contract eligibility and `is_restricted`, regenerate-don't-hand-edit for generated files.
-- **Grounding** — the bot states only tool/knowledge facts (never invented prices); current model IDs (`claude-opus-4-8` / `claude-sonnet-5` / `claude-haiku-4-5`); cache the stable prefix; forms at session-end only.
+- **Grounding** — the bot states only tool/knowledge facts (never invented prices); current model IDs (`claude-opus-4-8` / `claude-sonnet-5` / `claude-haiku-4-5`); cache the stable prefix; forms at session-end only. Ships with `bbs-foundations`, not this plugin — install both, or the lane-tuning skills run without it.
 
 ## Contributing
 

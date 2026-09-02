@@ -27,8 +27,9 @@ Branch `feat/bbs-foundations-claude-md-forge` → PR to `main`. Tasks 1–8 are 
 
 ## Follow-ups (not in this PR)
 
-- [ ] **9. Repoint `bbs-ops` grounding subscriptions** to the foundations copy and delete
-  the `bbs-ops` insert. One commit, after this PR merges and installs cleanly.
+- [x] **9. Repoint `bbs-ops` grounding subscriptions** to the foundations copy and delete
+  the `bbs-ops` insert. Done 2026-09-02 (`chore/repoint-grounding-doctrine`); the
+  `site-wiring-map` now says grounding ships with `bbs-foundations`.
 - [ ] **10. Fix the contradictions in their home repos**, one PR each: `bbs-agent` LPA
   `-52-` → `-51-` and `claude-opus-4-5` → current; `ca-quote-hub` "5% SB preference";
   `bbs-bc-mcp-proxy` duplicate Base64 bullet; `bbs-sales-vault` dangling `quote-desk/`

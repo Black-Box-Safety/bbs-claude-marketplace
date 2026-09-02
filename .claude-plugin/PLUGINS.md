@@ -15,8 +15,8 @@
   CLAUDE.md files, with a deterministic checker and the canonical facts every repo must
   agree on. `plugins/bbs-foundations`. Spec:
   `docs/superpowers/specs/2026-09-02-bbs-foundations-claude-md-forge-design.md`.
-  `bbs-grounding-doctrine` now lives here (its `bbs-ops` copy stays under a "migrates"
-  note until the two `bbs-ops` subscriptions are repointed — plan task 9).
+  `bbs-grounding-doctrine` lives here and only here; `bbs-ops` no longer carries a copy,
+  and its two lane-tuning skills receive it from this plugin.
   Still planned, each its own spec: the MCP connector roster (ca-procurement-intel,
   Grainger, BBS KIt, Microsoft 365, Shopify, Supabase) with a degrade-gracefully contract,
   and AI-literacy onboarding.

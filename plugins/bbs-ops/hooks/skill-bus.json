@@ -12,9 +12,6 @@
     },
     "bbs-catalog-doctrine": {
       "text": "BBS CATALOG DOCTRINE (data intake, pricing, enrichment). Import: every manufacturer file differs; map to the BBS standard import template before load; verify row counts and required fields; SKU + manufacturer uniqueness. Pricing: Shopify/store price = MAP/MSRP list, NOT contract price (real contract price lives in Supabase) — label store prices 'list price / contract pricing on quote'. Contract eligibility is per-manufacturer per-contract; non-contracted manufacturers must show unavailable under that contract; respect is_restricted (LE-only never surfaced on civilian items). Generated files (src/knowledge/*-index.md via scripts/gen-*.mjs) are NEVER hand-edited — change the source (DB) and regenerate, then commit. Financial arithmetic is deterministic code, never guessed. No invented specs in descriptions — source from the manufacturer."
-    },
-    "bbs-grounding-doctrine": {
-      "text": "BBS GROUNDING DOCTRINE (migrates to bbs-foundations). The quote bot states only facts from tool results (search_products, get_manufacturer) or src/knowledge files — NEVER an invented price, stock, lead time, or brand fact. Current model IDs ONLY: claude-opus-4-8, claude-sonnet-5, claude-haiku-4-5 — flag any dated/older suffix as stale. Haiku has no effort and no extended thinking. Cache the stable prefix (lane system prompt + frozen knowledge + stable tool set); never cache the volatile turn; do not interpolate date/session-id into the system prompt. Model routing: start on fast (haiku), escalate to specialist (sonnet) only via escalate_to_specialist; never a direct provider call from the client. Forms generated client-side at session end only; signature lines flagged; CalRecycle perjury cert needs rep confirmation; DVBE expiry checked. NOTE: this doctrine is company-wide AI literacy and will migrate to the bbs-foundations plugin; keep one home."
     }
   },
   "subscriptions": [
@@ -71,16 +68,6 @@
     {
       "insert": "bbs-catalog-doctrine",
       "on": "bbs-ops:image-pipeline",
-      "when": "pre"
-    },
-    {
-      "insert": "bbs-grounding-doctrine",
-      "on": "bbs-ops:le-lane-tuning",
-      "when": "pre"
-    },
-    {
-      "insert": "bbs-grounding-doctrine",
-      "on": "bbs-ops:supply-lane-tuning",
       "when": "pre"
     }
   ]
