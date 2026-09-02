@@ -36,7 +36,9 @@ works.
 
 ## Setup
 
-Nothing beyond the marketplace. Optional, and worth it:
+Nothing beyond the marketplace if your machine already receives the org's managed settings —
+`docs/bbs-managed-settings.json` is that file, and [`docs/MANAGED-SETTINGS.md`](docs/MANAGED-SETTINGS.md)
+explains every block. Optional, and worth it:
 
 ```bash
 /plugin install claudeforge@bbs-claude-marketplace   # cap enforcement, chain repair, /sync-claude-md
