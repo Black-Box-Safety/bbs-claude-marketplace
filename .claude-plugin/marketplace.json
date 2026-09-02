@@ -4,14 +4,14 @@
     "name": "Black Box Safety, Inc."
   },
   "metadata": {
-    "description": "Black Box Safety internal Claude plugins — site operations, state sales, and AI foundations.",
+    "description": "Black Box Safety internal Claude plugins \u2014 site operations, state sales, and AI foundations.",
     "version": "0.2.0"
   },
   "plugins": [
     {
-      "name": "bbs-ops",
-      "source": "./plugins/bbs-ops",
-      "description": "Maintain the BBS website end to end — price list to product page. Skills, agents, and commands for catalog intake, pricing, enrichment, storefront, quote bot, QA, and cross-sell.",
+      "name": "bbs-website",
+      "source": "./plugins/bbs-website",
+      "description": "Maintain the BBS website end to end \u2014 price list to product page. Skills, agents, and commands for catalog intake, pricing, enrichment, storefront, quote bot, QA, and cross-sell.",
       "version": "0.1.0",
       "author": {
         "name": "Black Box Safety, Inc."

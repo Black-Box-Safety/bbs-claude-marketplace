@@ -27,8 +27,8 @@
     { "insert": "bbs-claude-md-doctrine", "on": "claude-md-management:*", "when": "pre" },
     { "insert": "bbs-claude-md-doctrine", "on": "revise-claude-md", "when": "pre" },
     { "insert": "bbs-grounding-doctrine", "on": "bbs-foundations:*", "when": "pre" },
-    { "insert": "bbs-grounding-doctrine", "on": "bbs-ops:le-lane-tuning", "when": "pre" },
-    { "insert": "bbs-grounding-doctrine", "on": "bbs-ops:supply-lane-tuning", "when": "pre" },
+    { "insert": "bbs-grounding-doctrine", "on": "bbs-website:le-lane-tuning", "when": "pre" },
+    { "insert": "bbs-grounding-doctrine", "on": "bbs-website:supply-lane-tuning", "when": "pre" },
     { "insert": "bbs-grounding-doctrine", "on": "bbs-sales:*", "when": "pre" }
   ]
 }

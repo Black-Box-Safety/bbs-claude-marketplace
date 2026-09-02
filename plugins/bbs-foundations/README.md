@@ -6,7 +6,7 @@
 
 # bbs-foundations
 
-The plugin for what the whole company stands on, as opposed to any one job. `bbs-ops`
+The plugin for what the whole company stands on, as opposed to any one job. `bbs-website`
 maintains the website; `bbs-sales` runs the California quote desk. This one carries the
 rules both of them inherit, and the first of those rules is how to write the file Claude
 reads before it reads anything else.
@@ -76,9 +76,9 @@ come, each its own plan: the MCP connector roster the team relies on (Grainger, 
 Central, Microsoft 365, Supabase, Shopify, ca-procurement-intel) with a degrade-gracefully
 contract for skills that reference them; and AI-literacy onboarding for a team that is
 not native with AI. `bbs-grounding-doctrine` now lives here as the spec said it would;
-`bbs-ops` still carries a copy under a "migrates" note until its subscriptions are
+`bbs-website` still carries a copy under a "migrates" note until its subscriptions are
 repointed.
 
 ---
 
-<sub>Part of the Black Box Safety plugin marketplace. Sibling to <code>bbs-ops</code> and <code>bbs-sales</code>. Black Box Safety, Inc. · SDVOSB / CA DVBE · El Cajon, CA.</sub>
+<sub>Part of the Black Box Safety plugin marketplace. Sibling to <code>bbs-website</code> and <code>bbs-sales</code>. Black Box Safety, Inc. · SDVOSB / CA DVBE · El Cajon, CA.</sub>

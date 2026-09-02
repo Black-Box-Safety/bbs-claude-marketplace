@@ -4,15 +4,15 @@
   <img src="https://img.shields.io/badge/works%20in-Claude%20Code%20CLI%20·%20VS%20Code%20·%20Desktop-6E56CF" alt="Works in Claude Code CLI, VS Code, and Desktop">
 </p>
 
-# BBS Ops
+# BBS Website
 
-This marketplace ships more than one plugin. This README covers **bbs-ops**, the one that
+This marketplace ships more than one plugin. This README covers **bbs-website**, the one that
 maintains the website: everything from a manufacturer's price list to a live product page,
 packaged as one Claude Code plugin. The marketplace also ships **bbs-sales**, the California
 state sales desk (inbound RFQ intake and quoting, plus outbound Grainger promo pages); see the
 plugins table below and [its own README](plugins/bbs-sales/README.md) for that one.
 
-bbs-ops covers three repos that together make one storefront: the product **database**, the
+bbs-website covers three repos that together make one storefront: the product **database**, the
 **Shopify** store, and the customer-facing **quote bot**. Install it once and Claude knows how
 BBS does each job, the same way every time. No one person has to hold it all in their head.
 
@@ -22,12 +22,12 @@ BBS does each job, the same way every time. No one person has to hold it all in 
 
 | Plugin | Covers | README |
 |---|---|---|
-| `bbs-ops` | Maintaining the website: price list to product page, across the database, Shopify, and the quote bot. | This file |
+| `bbs-website` | Maintaining the website: price list to product page, across the database, Shopify, and the quote bot. | This file |
 | `bbs-sales` | California state sales: inbound RFQ intake and quoting, and outbound Grainger promo page campaigns. | [plugins/bbs-sales/README.md](plugins/bbs-sales/README.md) |
 | `bbs-foundations` | What the whole company stands on: how to write a CLAUDE.md the BBS way (`bbs-claude-md-forge`), the doctrine every skill inherits, and the canonical facts every repo must agree on. | [plugins/bbs-foundations/README.md](plugins/bbs-foundations/README.md) |
 | `claudeforge` | Pinned external dependency of `bbs-foundations`: the generic CLAUDE.md engine (150-line cap, `@path` chaining, `/sync-claude-md`). BBS fork, updates through git. | [Black-Box-Safety/ClaudeForge](https://github.com/Black-Box-Safety/ClaudeForge) |
 
-The rest of this README is about `bbs-ops` specifically.
+The rest of this README is about `bbs-website` specifically.
 
 ## See it work
 
@@ -46,7 +46,7 @@ Once it's installed, there's nothing to configure:
 3. It points you at **`site-wiring-map`**, the single "how it all connects" reference.
 4. Try a real task: *"Add a product,"* *"Build a brand page for Streamlight,"* or *"Why is the Supply lane showing too many options?"*
 
-You should be able to upload one product and see it render as a card and PDP without asking anyone. The [onboarding guide](plugins/bbs-ops/docs/ONBOARDING.md) has more.
+You should be able to upload one product and see it render as a card and PDP without asking anyone. The [onboarding guide](plugins/bbs-website/docs/ONBOARDING.md) has more.
 
 ## Setting it up (admins)
 
@@ -57,7 +57,7 @@ One person adds the marketplace once; the whole team installs from it and stays 
 /plugin marketplace add Black-Box-Safety/bbs-claude-marketplace
 
 # install the plugin
-/plugin install bbs-ops@bbs-claude-marketplace
+/plugin install bbs-website@bbs-claude-marketplace
 
 # wire the guardrails and learn the layout
 /bbs-onboard
@@ -105,10 +105,10 @@ It doesn't replace the three repos or run the site: it's how you *maintain* them
 
 | Guide | Who it's for |
 |---|---|
-| [ONBOARDING](plugins/bbs-ops/docs/ONBOARDING.md) | Anyone new to maintaining the site |
-| [site-wiring-map](plugins/bbs-ops/skills/site-wiring-map/SKILL.md) | The "how it all connects" reference |
-| [CONTRIBUTING](plugins/bbs-ops/docs/CONTRIBUTING.md) | Changing or adding a skill/agent |
-| [plugins/bbs-ops](plugins/bbs-ops/README.md) | The plugin's own detailed README |
+| [ONBOARDING](plugins/bbs-website/docs/ONBOARDING.md) | Anyone new to maintaining the site |
+| [site-wiring-map](plugins/bbs-website/skills/site-wiring-map/SKILL.md) | The "how it all connects" reference |
+| [CONTRIBUTING](plugins/bbs-website/docs/CONTRIBUTING.md) | Changing or adding a skill/agent |
+| [plugins/bbs-website](plugins/bbs-website/README.md) | The plugin's own detailed README |
 
 ## For developers
 
@@ -122,7 +122,7 @@ bbs-claude-marketplace/
 ├── .claude-plugin/marketplace.json   # marketplace manifest, lists every plugin
 ├── README.md                         # this file
 └── plugins/
-    ├── bbs-ops/
+    ├── bbs-website/
     │   ├── .claude-plugin/plugin.json
     │   ├── skills/                   # one folder per skill, each with SKILL.md
     │   ├── agents/                   # one file per agent
@@ -135,7 +135,7 @@ bbs-claude-marketplace/
 
 - **Skills** teach the BBS way of each task; **agents** own a pipeline stage and route work to the right skill; **commands** are thin orchestration over both.
 - **Two data planes, one product truth**: the Supabase products database (`bbs-database`) is the source, Shopify renders it, and the quote bot advises over a frozen snapshot plus live search. A database change reaches the storefront only after sync, and the bot only after a `gen-*.mjs` regen is committed.
-- **Docs teach, the skill-bus enforces**: three doctrine inserts (storefront design/cert/pricing and catalog rules from `bbs-ops`; quote-bot grounding from `bbs-foundations`) auto-inject as context whenever a relevant skill runs, so the rules hold even for someone who hasn't read them. `/bbs-review` reads `skill-bus-telemetry.jsonl` to catch coverage gaps.
+- **Docs teach, the skill-bus enforces**: three doctrine inserts (storefront design/cert/pricing and catalog rules from `bbs-website`; quote-bot grounding from `bbs-foundations`) auto-inject as context whenever a relevant skill runs, so the rules hold even for someone who hasn't read them. `/bbs-review` reads `skill-bus-telemetry.jsonl` to catch coverage gaps.
 - **Reviewers keep it living**: Arthur (architecture) and Tom (delivery/quality) review recent changes and write findings back into the skills, so the plugin sharpens like the site does.
 - **Reference skills are linked, not copied**: generic Shopify/Liquid skills update on their own and never drift.
 
@@ -146,7 +146,7 @@ git clone https://github.com/Black-Box-Safety/bbs-claude-marketplace
 cd bbs-claude-marketplace
 # add it as a local marketplace to test before pushing
 /plugin marketplace add ./
-/plugin install bbs-ops@bbs-claude-marketplace
+/plugin install bbs-website@bbs-claude-marketplace
 /bbs-review        # run Arthur + Tom against your changes before shipping
 ```
 
