@@ -44,8 +44,8 @@ FAIL_PATTERNS = [
      "stale model ID; use claude-opus-4-8 / claude-sonnet-5 / claude-haiku-4-5"),
     ("wrong_mro_lpa", re.compile(r"7-25-52-02\.03|7-18-51-02\.18"),
      "MRO LPA is 7-25-51-02.03"),
-    ("sb_claim", re.compile(r"\b(SB[- ]certified|SB credit|5%\s*SB preference|small business certified)\b", re.I),
-     "BBS is not CA SB-certified"),
+    # No SB-preference check: BBS holds OSDS SB/DVBE 2009473 and the 5% preference applies
+    # on competitive solicitations (SCM §1204). Where it belongs is a reviewer's judgment.
 ]
 
 WARN_PATTERNS = [

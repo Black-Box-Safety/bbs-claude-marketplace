@@ -96,7 +96,7 @@ gotchas, `@../CLAUDE.md` at column one near the top.
 
 ## `plugin` — a directory under `plugins/` in a marketplace repo
 
-Modelled on `bbs-ops` and `bbs-sales`. The plugin README carries the story; the CLAUDE.md
+Modelled on `bbs-website` and `bbs-sales`. The plugin README carries the story; the CLAUDE.md
 (if any) carries only what a contributor needs that the README does not say.
 
 ```markdown

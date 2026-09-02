@@ -39,7 +39,9 @@ Branch `feat/bbs-foundations-claude-md-forge` → PR to `main`. Tasks 1–8 are 
   installs; one marketplace for the team.
 - [ ] **12. Push the 120-line-warning removal to the ClaudeForge fork** so the plugin copy
   matches the local install and Decision 1 in the spec.
-- [ ] **13. Decide** whether `github-standards` and `parker-voice` move into
-  `bbs-foundations`. Grace owns the standard; Parker decides.
+- [x] **13. Decided 2026-09-02.** `github-standards` stays put (Grace's). `parker-voice` is
+  the exemplar inside a new `bbs-voice-template` skill in `bbs-foundations`; teammates
+  build their own `<first>-voice` locally from it. Shipped on
+  `feat/foundations-sb-ruling-and-voice-template`.
 - [ ] **14. Acceptance gate.** A non-Parker teammate runs `/bbs-claude-md init` on a repo
   with no CLAUDE.md and passes the checker unaided. Record pass/fail here.

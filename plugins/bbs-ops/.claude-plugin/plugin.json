@@ -1,8 +1,0 @@
-{
-  "name": "bbs-ops",
-  "description": "Maintain the BBS website end to end — price list to product page. Consolidated skills, responsibility-named agents, onboarding commands, and skill-bus doctrine that keeps BBS design, cert, pricing, and grounding rules consistent.",
-  "version": "0.1.0",
-  "author": { "name": "Black Box Safety, Inc." },
-  "keywords": ["bbs", "shopify", "supabase", "quote-bot", "catalog", "operations"],
-  "skills": "./skills/"
-}

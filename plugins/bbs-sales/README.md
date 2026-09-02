@@ -63,12 +63,12 @@ Start from the copy already in this marketplace:
 
 ```bash
 mkdir -p ~/.bbs
-cp plugins/bbs-ops/skills/obs-form-filler/assets/bbs_vendor_profile.json ~/.bbs/vendor_profile.json
+cp plugins/bbs-website/skills/obs-form-filler/assets/bbs_vendor_profile.json ~/.bbs/vendor_profile.json
 ```
 
 Then open it and confirm every value is current. If an RFQ arrives pre-filled with a BBS field that disagrees with this file, the RFQ is wrong: flag it, don't adopt it.
 
-TODO: confirm whether `~/.bbs/vendor_profile.json` needs a `cuf_statement` key beyond what the bbs-ops copy carries, and whether the signature paths below should also live in this file rather than being passed per-run.
+TODO: confirm whether `~/.bbs/vendor_profile.json` needs a `cuf_statement` key beyond what the bbs-website copy carries, and whether the signature paths below should also live in this file rather than being passed per-run.
 
 **3. Point at the signature images.** Both PNGs live in OneDrive, not in this repo:
 
@@ -120,4 +120,4 @@ How this gets introduced to the team, and what "working" looks like: <https://cl
 
 ---
 
-<sub>Part of the Black Box Safety plugin marketplace. Sibling to `bbs-ops`, which maintains the website.</sub>
+<sub>Part of the Black Box Safety plugin marketplace. Sibling to `bbs-website`, which maintains the website.</sub>

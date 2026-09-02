@@ -17,7 +17,6 @@ file; the "found in" column says where.
 | Placeholder `[TODO]`, `[TBD]`, `[PLACEHOLDER]`, `[Insert…]`, `TODO(` | Generic content is a template someone forgot to fill | — |
 | Stale model ID (`claude-opus-4-5`, `claude-3-…`, dated suffix) | Only `claude-opus-4-8`, `claude-sonnet-5`, `claude-haiku-4-5` | `bbs-agent/config.py` |
 | MRO LPA written `7-25-52-02.03` or `7-18-51-02.18` | The number is `7-25-51-02.03`; the typo spread to 10 places | `bbs-agent`, a `bbs-ops` spec |
-| "SB certified", "SB credit", "5% SB preference" | BBS is not CA SB-certified | `ca-quote-hub/CLAUDE.md` |
 | A DVBE *claim* ("as a DVBE", "DVBE-certified", "DVBE credit") in a federal-context file (mentions Bechtel, FAR, DFARS, USACE, federal prime) without SDVOSB on the same line | Cert language follows the channel; DVBE on a federal bid is the wrong credential. A role title ("DVBE veteran owner: Jackson Dalton") or a rule about when not to use it is not a claim and passes | Bechtel quote email, first draft |
 | `7-25-51-02.03` cited as a federal vehicle | It is a California LPA | — |
 
@@ -32,6 +31,11 @@ file; the "found in" column says where.
 | Stale status banner: "days remaining", "due <past date>", "as of <date >90 days old>" | A READ-FIRST banner advertising a deadline three months gone | 747947 playbook |
 | "San Diego, CA" as headquarters | El Cajon is locked | live site copy |
 | File under 20 lines | Probably a stub; either fill it or delete it | `ca-quote-hub` intake skill at 25 |
+
+Not checked: SB-preference claims. An earlier version failed on "5% SB preference"; that was
+wrong — BBS holds OSDS SB/DVBE 2009473 and the preference applies on competitive
+solicitations (SCM §1204). Whether a preference *belongs* in a given file (never on an LPA
+order, a federal bid, or storefront copy) is a judgment the reviewer makes, not a regex.
 
 Not checked: em-dash density. The house README standard limits them to genuine asides, but
 every strong CLAUDE.md in the fleet uses them freely; a check that warns on `bbs-database`

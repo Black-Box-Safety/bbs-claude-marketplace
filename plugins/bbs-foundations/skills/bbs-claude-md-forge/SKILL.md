@@ -1,6 +1,6 @@
 ---
 name: bbs-claude-md-forge
-description: Write, audit, and repair CLAUDE.md files the Black Box Safety way — for a code repo, a plugin, a private data vault, or a customer folder on OneDrive that is not git at all. Use whenever someone asks to create, init, improve, audit, sync, or fix a CLAUDE.md, an AGENTS.md, or "the instructions Claude reads" in any BBS repo or customer tree; whenever a folder has no CLAUDE.md and an agent keeps re-deriving the same facts; whenever a CLAUDE.md is over 150 lines, contradicts another repo, or carries a stale fact (an old LPA number, "SB certified", a dated model ID, a sandbox path). Also use it before running the generic claudeforge or claude-md-improver tools, because this skill supplies the BBS doctrine and canonical facts those tools do not know. Do NOT use it to write a README (that is the github-standards skill) or to draft customer-facing email (that is parker-voice).
+description: Write, audit, and repair CLAUDE.md files the Black Box Safety way — for a code repo, a plugin, a private data vault, or a customer folder on OneDrive that is not git at all. Use whenever someone asks to create, init, improve, audit, sync, or fix a CLAUDE.md, an AGENTS.md, or "the instructions Claude reads" in any BBS repo or customer tree; whenever a folder has no CLAUDE.md and an agent keeps re-deriving the same facts; whenever a CLAUDE.md is over 150 lines, contradicts another repo, or carries a stale fact (an old LPA number, a dated model ID, a sandbox path). Also use it before running the generic claudeforge or claude-md-improver tools, because this skill supplies the BBS doctrine and canonical facts those tools do not know. Do NOT use it to write a README (that is the github-standards skill) or to draft customer-facing email (that is parker-voice).
 ---
 
 # BBSClaudeMDForge
@@ -47,7 +47,8 @@ the ones that apply. The five that apply everywhere:
    `~/.bbs/vendor_profile.json`, not in a CLAUDE.md. Public-record identifiers Parker
    prints in his email signature are fine.
 5. **Certification language follows the channel.** SDVOSB for federal and primes
-   (Bechtel, USACE); DVBE 2009473 for California state. BBS is **not** CA SB-certified.
+   (Bechtel, USACE); OSDS SB/DVBE 2009473 for California state, where the 5% SB preference
+   and the DVBE incentive apply on competitive solicitations and never on LPA orders.
 
 `references/canonical-facts.md` holds the exact strings (LPA numbers, UEI, cert numbers,
 model IDs, systems of record, who signs what) and resolves every contradiction the
@@ -90,8 +91,8 @@ python3 "${CLAUDE_PLUGIN_ROOT}/skills/bbs-claude-md-forge/scripts/check_claude_m
 It walks every `CLAUDE.md` under the path and fails on: the 150-line cap; a line-one `@`
 import or markdown link that does not resolve; a sandbox path (`/mnt/skills`,
 `/mnt/user-data`) that exists only inside a hosted Claude session; a secret-shaped string;
-a `[TODO]`-style placeholder; a stale model ID; the wrong MRO LPA number; an "SB
-certified" claim; DVBE language in a file that talks about Bechtel, FAR, DFARS, or USACE.
+a `[TODO]`-style placeholder; a stale model ID; the wrong MRO LPA number; a DVBE claim in
+a file that talks about Bechtel, FAR, DFARS, or USACE.
 It warns on a missing maintenance footer, duplicate headings, and a root file that has
 child CLAUDE.md files it does not import. `references/checklist.md` lists every check with
 the reason each one exists — most of them are a real defect found in a real BBS file.
