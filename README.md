@@ -24,6 +24,8 @@ BBS does each job, the same way every time. No one person has to hold it all in 
 |---|---|---|
 | `bbs-ops` | Maintaining the website: price list to product page, across the database, Shopify, and the quote bot. | This file |
 | `bbs-sales` | California state sales: inbound RFQ intake and quoting, and outbound Grainger promo page campaigns. | [plugins/bbs-sales/README.md](plugins/bbs-sales/README.md) |
+| `bbs-foundations` | What the whole company stands on: how to write a CLAUDE.md the BBS way (`bbs-claude-md-forge`), the doctrine every skill inherits, and the canonical facts every repo must agree on. | [plugins/bbs-foundations/README.md](plugins/bbs-foundations/README.md) |
+| `claudeforge` | Pinned external dependency of `bbs-foundations`: the generic CLAUDE.md engine (150-line cap, `@path` chaining, `/sync-claude-md`). BBS fork, updates through git. | [Black-Box-Safety/ClaudeForge](https://github.com/Black-Box-Safety/ClaudeForge) |
 
 The rest of this README is about `bbs-ops` specifically.
 
