@@ -26,7 +26,7 @@ BBS does each job, the same way every time. No one person has to hold it all in 
 | `bbs-sales` | California state sales: inbound RFQ intake and quoting, and outbound Grainger promo page campaigns. | [plugins/bbs-sales/README.md](plugins/bbs-sales/README.md) |
 | `bbs-foundations` | What the whole company stands on: how to write a CLAUDE.md the BBS way (`bbs-claude-md-forge`), the doctrine every skill inherits, and the canonical facts every repo must agree on. | [plugins/bbs-foundations/README.md](plugins/bbs-foundations/README.md) |
 | `claudeforge` | Pinned external dependency of `bbs-foundations`: the generic CLAUDE.md engine (150-line cap, `@path` chaining, `/sync-claude-md`). BBS fork, updates through git. | [Black-Box-Safety/ClaudeForge](https://github.com/Black-Box-Safety/ClaudeForge) |
-| `impeccable` | Pinned external design skill: `/impeccable polish`, `audit`, `critique`, `typeset`, `layout` plus a deterministic anti-pattern detector for any HTML/UI we ship to customers. Downloads its engine binary to `~/.impeccable/bin/` on first run. Pinned to an upstream commit; bump the ref to update. | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) |
+| `impeccable` | Pinned external design skill: `/impeccable polish`, `audit`, `critique`, `typeset`, `layout` plus a deterministic anti-pattern detector for any HTML/UI we ship to customers. Downloads its engine binary to `~/.impeccable/bin/` on first run. BBS fork, sync from upstream to update. | [Black-Box-Safety/impeccable](https://github.com/Black-Box-Safety/impeccable) |
 
 The rest of this README is about `bbs-website` specifically.
 
