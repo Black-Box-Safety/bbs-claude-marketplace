@@ -15,7 +15,7 @@ when that file changes, change the block.
 | Block | Purpose | Why it matters for a small team |
 |---|---|---|
 | `extraKnownMarketplaces` | Registers **one** BBS marketplace plus the `skill-bus` marketplace | Two marketplaces named after forks confused install instructions in August. `skill-bus` is the mechanism that injects BBS doctrine when a skill runs — without it the doctrine never fires |
-| `enabledPlugins` | `bbs-foundations`, `bbs-sales`, `bbs-website`, `claudeforge`, `skill-bus` — all on, for everyone | Nine people. The cost of an unused plugin is a few lines of context; the cost of a rep missing the quote-desk skill is a lost bid. `bbs-website` is advisory, so a rep having it costs nothing |
+| `enabledPlugins` | `bbs-foundations`, `bbs-sales`, `bbs-website`, `claudeforge`, `impeccable`, `skill-bus` — all on, for everyone | Nine people. The cost of an unused plugin is a few lines of context; the cost of a rep missing the quote-desk skill is a lost bid. `bbs-website` is advisory, so a rep having it costs nothing |
 | `mcpServers.bbs-grainger` | The Grainger pricing MCP, **without the API key** | The server (`mcp/server.mjs`) reads `mcp/.env` on its own. The key lives per machine in that file, mode 0600, never in a distributed config. `${HOME}` replaces Parker's hard-coded home path |
 | `permissions.allow` | Read-only git/gh and file tools without prompts | Fewer prompts on the actions that cannot break anything |
 | `permissions.ask` | Push, PR create/merge, Vercel deploy, Shopify theme push | Plan → approve → execute is doctrine; this makes the tool enforce it |
