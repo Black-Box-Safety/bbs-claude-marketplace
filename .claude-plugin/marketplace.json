@@ -4,14 +4,14 @@
     "name": "Black Box Safety, Inc."
   },
   "metadata": {
-    "description": "Black Box Safety internal Claude plugins \u2014 site operations, state sales, and AI foundations.",
-    "version": "0.2.0"
+    "description": "Black Box Safety internal Claude plugins — site operations, state sales, and AI foundations.",
+    "version": "0.3.0"
   },
   "plugins": [
     {
       "name": "bbs-website",
       "source": "./plugins/bbs-website",
-      "description": "Maintain the BBS website end to end \u2014 price list to product page. Skills, agents, and commands for catalog intake, pricing, enrichment, storefront, quote bot, QA, and cross-sell.",
+      "description": "Maintain the BBS website end to end — price list to product page. Skills, agents, and commands for catalog intake, pricing, enrichment, storefront, quote bot, QA, and cross-sell.",
       "version": "0.1.0",
       "author": {
         "name": "Black Box Safety, Inc."
@@ -88,6 +88,30 @@
         "sync"
       ],
       "category": "foundations"
+    },
+    {
+      "name": "impeccable",
+      "source": {
+        "source": "github",
+        "repo": "pbakaus/impeccable",
+        "ref": "67d018fe052853c104a96d441ce175dd5ec4c39d",
+        "path": "plugin"
+      },
+      "description": "Pinned external design skill for anything with a frontend: /impeccable polish, audit, critique, typeset, layout, and 61 deterministic anti-pattern detector rules. Used on customer-facing HTML (dossiers, landing pages, quote bot, storefront). Upstream pbakaus/impeccable v4.3.1; updates by moving the pinned ref.",
+      "version": "4.3.1",
+      "author": {
+        "name": "Paul Bakaus"
+      },
+      "keywords": [
+        "design",
+        "frontend",
+        "ui",
+        "ux",
+        "external",
+        "polish",
+        "audit"
+      ],
+      "category": "design"
     }
   ]
 }
