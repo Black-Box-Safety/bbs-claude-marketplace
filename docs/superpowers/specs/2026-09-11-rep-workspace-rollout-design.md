@@ -281,6 +281,45 @@ beyond quoting. Design intent, in order:
 3. Reps "creating opps" = the promo-page + SCPRS segmentation workflow already in the
    marketplace, surfaced through the marketing desk.
 
+## How it all fits together (the system in one view)
+
+Visual companion: the "BBS AI Operating System" artifact (published 2026-09-11).
+
+**The value chain (figurative stack)** — each layer consumes the one beneath it, and
+nothing skips a layer:
+
+```text
+CUSTOMER        CA agency buyer: compliant, priced, DVBE-credited answer, fast
+   ▲  the answer
+SURFACES        quote packet + forms · storefront · agency tenants · promo pages · rep email
+   ▲  drafts — a human reviews every number, then sends
+REP DESK        Claude session on the SharePoint desk (VS Code / Desktop app)
+                inbound: intake → precedent → price → packet → record → human sends
+                outbound: SCPRS segments → promo / winback / follow-up (1 motion/rep/week)
+   ▲  skills load the BBS way of each job
+KNOWLEDGE       marketplace plugins (foundations · sales · website) + desk CLAUDE.md
+   ▲  facts read live from systems of record, never copied into prompts
+DATA            BC (money) · Grainger MCP (price) · SCPRS (market) · SharePoint (docs)
+                · bbs-suppliers (leverage)        ⟂ GOVERNANCE (settings·hooks·checkup·
+                                                     flags·metrics·registry) holds all layers
+```
+
+**The literal architecture** — the rep's Claude session is the hub. Two control channels
+flow in (admin console → managed settings, hourly; GitHub marketplace → skills,
+auto-update on push). Data connectors flow in read-only, one source per fact. Output lands
+only as reviewable files in the OneDrive-synced desk; the only writes to the outside world
+(send, submit, SQ entry in BC) pass through a human hand, hook-enforced, with the SQ read
+back and verified. Consequence: **no rep-machine state matters** — any machine rebuilds in
+minutes from console + git + OneDrive, so drift is structurally impossible and support is
+"restart and re-sync."
+
+**The flywheel (why it compounds, not just accelerates):** inbound handled fast → the
+record grows (BC quote, quote-log, outcome) → the next quote is faster and smarter
+(precedent in seconds) → hours freed → outbound motion (SCPRS-aimed) → new business →
+more inbound. Inner loop: flags → skill fixes, golden set guards changes, metrics steer
+investment. The outer ring is the revenue engine; the inner loop is the quality engine.
+A team with only the outer ring gets faster; with both, it gets better.
+
 ## Data plane — the sources every rep session reaches
 
 Distinct callouts for the data infrastructure the workspace rides on. Each is a seam in
