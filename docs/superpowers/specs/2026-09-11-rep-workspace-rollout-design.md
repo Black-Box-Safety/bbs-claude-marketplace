@@ -262,6 +262,58 @@ beyond quoting. Design intent, in order:
 3. Reps "creating opps" = the promo-page + SCPRS segmentation workflow already in the
    marketplace, surfaced through the marketing desk.
 
+## Adopted operational practices — build mechanism and home
+
+Source: `docs/assessments/2026-09-11-research-briefs.md` +
+`2026-09-11-consolidated-findings.md`. Posture ruling (Parker, 2026-09-11): **empower, don't
+lock down.** Reps may install skills, author their own, and experiment freely. Enforcement
+is reserved for irreversible actions and the money path only. The strict lockdown keys
+(`strictKnownMarketplaces`, `strictPluginOnlyCustomization`, model restrictions) are
+consciously NOT adopted — a rep writing their own skill is the champion behavior this
+rollout exists to create.
+
+### v1 items
+
+| Item | How it's built | Where it lives |
+|---|---|---|
+| Guardrail hook: outbound stays draft-first | PreToolUse hook that blocks send-class tools (`outlook_send_mail`, SignNow send-invite) with the message "Draft it; a human sends it" — Claude physically cannot send even if asked; reps still send from Outlook as always | `plugins/bbs-foundations/hooks/` (ships with the plugin); noted in managed settings via `allowManagedHooksOnly: false` (advisory distribution, not lockdown) |
+| Safety-only permission rails | Keep the existing draft's `deny` list (rm -rf, force-push, hard reset, repo delete, .env reads) + `disableBypassPermissionsMode`; `ask` on push/PR/deploy; everything else open | `plugins/bbs-foundations/docs/bbs-managed-settings.json` → pushed via claude.ai admin console (server-managed, hourly refresh) |
+| Marketplace version policy: auto-update | Remove `version` fields from the three bbs-* plugin entries so every push to main updates every machine (pin again only for a deliberate freeze) | `.claude-plugin/marketplace.json`; policy documented in `plugins/bbs-website/docs/CONTRIBUTING.md` |
+| Baseline capture (closes this month) | Reconstruct pre-Claude time-per-RFQ for 3–5 real quotes from Outlook timestamps; record in a SharePoint list; defines the 4 monthly metrics (quotes/rep/week, turnaround, win rate once BC loop closes, adoption) | Task in `docs/ADMIN-RUNBOOK.md`; metrics definitions in `docs/MEASUREMENT.md` (both new, this repo) |
+| "AI was wrong" flag log, blameless | One `FLAGS.md` per desk (date, skill, what happened, caught-before-send?); template + blameless framing text in the desk CLAUDE.md; reps told "logging a catch = the system working" | Template in `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/`; instantiated at each desk root; triage ritual in ADMIN-RUNBOOK |
+| One-page AUP | Approved-tools list, "customer data only in approved tools," "every number human-reviewed before submission," "automate the labor, never the bid/no-bid decision," "when unsure, ask" | `plugins/bbs-foundations/docs/AUP.md`; linked from managed `claudeMd` and REP-SETUP |
+| Analytics on + monthly review | Enable Team analytics dashboard + spend report (admin console, one-time); monthly 30-min review of the 4 metrics | Enablement + ritual steps in `docs/ADMIN-RUNBOOK.md` |
+
+### v1.1 items
+
+| Item | How it's built | Where it lives |
+|---|---|---|
+| Golden-case eval suite | 5–10 completed, human-verified RFQ→packet cases (inputs + correct outputs); a headless runner (`claude -p` + grader per Anthropic's eval-first methodology); run before any skill change ships and after any model release | Cases in `plugins/bbs-sales/skills/naspo-quote/tests/`; runner script in `tools/`; gate documented in CONTRIBUTING |
+| Nightly audit as a Routine | Claude Code Routine (scheduled cloud agent, no server): read desk quote-logs + 2 BC queries (stale quotes >14d unsent; overdue AR) + duplicate-folder detection (CalTrans pair = test case); one Teams digest | Routine definition + setup steps in `docs/ADMIN-RUNBOOK.md`; created from Parker's account |
+| Canary + change notes | Discipline: model updates and skill updates never land on reps in the same week; Parker runs changes live for 1–2 days first; two-line Teams note in rep language per change | Section in `docs/ADMIN-RUNBOOK.md`; `companyAnnouncements` block carries the note |
+| Extension contract | One page: new capability = skill in a plugin; new data = connector; new segment = desk from template; new automation = flow/Routine; new person = managed settings + guide. Anything that doesn't fit a slot gets questioned | `plugins/bbs-foundations/docs/EXTENSION-CONTRACT.md`; referenced from managed `claudeMd` |
+| Training + deputy champion | Anthropic Academy links (Claude 101) in the rep guide; most-fluent rep named deputy for how-to questions | `docs/REP-SETUP.md` |
+| Skill ownership lines | `owner:` line in every BBS skill's frontmatter | Each SKILL.md, one sweep commit |
+
+### Standing rituals (calendar entries, not code)
+
+| Ritual | Cadence | Documented in |
+|---|---|---|
+| Show-and-tell (one rep demos one thing, good or bad) | Weekly 15 min, existing meeting | ADMIN-RUNBOOK |
+| Friction channel triage (respond within a week: fixed / queued / won't-fix + why) | Weekly | ADMIN-RUNBOOK |
+| Flag-log review → skill fixes | Monthly | ADMIN-RUNBOOK |
+| Metrics review (4 numbers) | Monthly 30 min | MEASUREMENT.md |
+| Security hygiene: rotate keys, skim permissions, prune marketplaces | Quarterly 30 min | ADMIN-RUNBOOK + REGISTRY standing tasks |
+
+### Bus-factor items (Parker-controlled ruling)
+
+Break-glass documentation is written but **lives where Parker chooses** (password-manager
+emergency contact / sealed location of his choosing), not in a shared repo; it exists to
+protect Parker's own continuity (vacation, burnout) and the business's, on his terms.
+Deputy champion handles how-to questions only — admin authority, marketplace merges, and
+key custody remain with Parker. Template in `docs/ADMIN-RUNBOOK.md`; the filled copy is
+explicitly out of the repo.
+
 ## Out of scope for v1
 
 Source-repo cutover of the remaining bbs-website skills (per-skill, one commit each, after
