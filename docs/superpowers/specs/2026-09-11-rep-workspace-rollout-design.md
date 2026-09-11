@@ -8,6 +8,12 @@ Reps cannot drive new sales because stale processes trap the team in reactive wo
 inbound RFQs, customer service, documentation, email management. The low-level load
 consumes the capacity that should extend existing customers and open truly new business.
 
+Compounding it: **there is no infrastructure for tracking performance or quoting fast from
+history.** What BBS bid a customer before — items, prices, outcome — lives in individual
+recall, not in queryable records. Every quote starts from scratch; pricing knowledge cannot
+be learned from, verified, or handed to a new rep. The team trusts memory where it should
+be reading documented success.
+
 Everything in this design is therefore judged against two outcomes, in order:
 1. **Reclaim capacity** — automate the labor in the inbound/service load (this design's v1).
 2. **Convert that capacity into growth motion** — reclaimed hours must be deliberately
@@ -274,6 +280,35 @@ beyond quoting. Design intent, in order:
    `grainger-promo-page` into it from `bbs-sales` (it is outbound campaign work).
 3. Reps "creating opps" = the promo-page + SCPRS segmentation workflow already in the
    marketplace, surfaced through the marketing desk.
+
+## The precedent engine (documented success replaces recall)
+
+The design's answer to "we trust recall": before any price goes out, the rep's Claude
+session checks the record, and after any quote goes out, the record grows. Four layers,
+all already designed — this section names them as one system and makes "check precedent
+first" a required step, not a habit:
+
+1. **BC sales quotes** (v1.1 loop) — the structured layer: what was quoted to which
+   customer, at what price, and (with sentDate/acceptedDate hygiene) whether it won.
+   `bc_get_sales_document` / `bc_customer_snapshot` answer "what did we bid CMC in March?"
+   in one query. This is the layer that turns quoting into learning: win rate per agency,
+   price points that convert, items that repeat.
+2. **The desk folder tree** — the document layer: per-buyer `quote-log.md` (Date / Item /
+   Quote# / Vehicle / Value / **Outcome**) plus the `FILLED/` packets. The intake skill's
+   "search by buyer AND item before creating anything" rule is the retrieval discipline;
+   duplicate folders are precedent-destroyers (see landmines).
+3. **Mined form precedents** — `naspo-quote`'s references were built from ~440 historical
+   PDFs; every form default is the documented majority answer, not a guess. This layer
+   already exists and proves the model works.
+4. **The flag log + golden set** — the learning layer: what went wrong feeds skill fixes;
+   what was verified correct becomes regression cases.
+
+**Skill change (v1.1, rides with the BC quote step):** `naspo-quote` opens with a
+precedent check — prior quotes to this buyer (BC + quote-log), prior wins on these items —
+and cites what it found in the cover summary ("last quoted 3M 8511 to CMC 3/2026 at $X,
+won"). The rep sees the history without asking anyone; the Outcome column stops being
+optional. **Success test:** a rep who has never worked an account can answer "what did we
+bid them before and did we win?" in under a minute, from records.
 
 ## From reactive to generative (the conversion mechanism)
 
