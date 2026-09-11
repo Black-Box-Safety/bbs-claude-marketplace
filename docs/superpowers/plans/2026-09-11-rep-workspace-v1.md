@@ -10,7 +10,14 @@
 
 **Working directory for all tasks:** `C:\Users\Parker-BBS\bbs-claude-marketplace`
 
-**Conventions:** every commit ends with `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>`. Docs wrap at ~100 cols. Do NOT push to origin — the final task hands off a push checklist to Parker.
+**Conventions:**
+
+- **Every `git commit` below MUST append the trailer `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>`** — the commit blocks show `-m "..."` shorthand; do not copy them verbatim without adding the trailer.
+- **Do NOT push to origin at any point.** One atomic push happens in Task 13, by Parker.
+- Shell is Git Bash: discard output with `> /dev/null` (NEVER `> NUL` — in Git Bash that creates an undeletable junk file named NUL).
+- `python` on this machine resolves to a working 3.11 (`python3` = 3.12); both run `-m json.tool`. Don't detour to `py`.
+- Docs wrap at ~100 cols.
+- **Preflight before Task 1:** run `git status` — the tree must be clean. If anything is modified, stop and resolve with Parker first.
 
 ---
 
@@ -78,8 +85,12 @@ git commit -m "feat: REGISTRY.md — living asset inventory with statuses and st
 
 - [ ] **Step 2: Validate JSON + plugin structure**
 
-Run: `python -m json.tool .claude-plugin/marketplace.json > NUL` — expect no output (exit 0).
-Run: `claude plugin validate .` — expect "valid" (if the CLI reports missing-version warnings, they are informational; only errors block).
+Run: `python -m json.tool .claude-plugin/marketplace.json > /dev/null` — expect exit 0.
+Run: `claude plugin validate .` — run this immediately after the edit; warnings are informational, any **error** is a stop (re-add the version fields and investigate).
+
+**Consequence of this task (why the no-push rule is load-bearing):** once pushed, every
+machine with the marketplace registered auto-updates on every subsequent push. That is the
+point — but it means nothing gets pushed until Task 13's single atomic push of finished work.
 
 - [ ] **Step 3: Append to `plugins/bbs-website/docs/CONTRIBUTING.md`:**
 
@@ -120,15 +131,26 @@ note the deviation in MANAGED-SETTINGS.md.
 "mcp__claude_ai_Microsoft_365__outlook_send_draft",
 "mcp__claude_ai_Microsoft_365__outlook_forward_mail",
 "mcp__claude_ai_SignNow__send_invite",
-"mcp__claude_ai_SignNow__send_invite_reminder"
+"mcp__claude_ai_SignNow__send_invite_reminder",
+"mcp__claude_ai_SignNow__create_embedded_invite",
+"mcp__claude_ai_SignNow__create_embedded_sending"
 ```
+
+Comma mechanics: the current last deny element `"Read(**/.env.production)"` needs a
+trailing comma added before inserting these. The two `create_embedded_*` SignNow tools are
+included because they mint live signing links — effectively a send.
+
+**Name-dependence caveat (verify at deploy):** the `claude_ai_<ServerName>` segment derives
+from the connector's name on each account; these strings match this machine's live tool
+names, but a deny rule on a name that doesn't exist is a silent no-op. ADMIN-RUNBOOK §1
+step 3 (edited in Task 9) includes the live-fire test.
 
 Verify the file contains NO strict lockdown keys (`strictKnownMarketplaces`,
 `strictPluginOnlyCustomization`, `availableModels`) — the empowerment ruling. If any are
 present, remove them. Keep `disableBypassPermissionsMode: "disable"` — that is a safety
 rail, not a lockdown.
 
-- [ ] **Step 2: Validate** — `python -m json.tool plugins/bbs-foundations/docs/bbs-managed-settings.json > NUL` (exit 0).
+- [ ] **Step 2: Validate** — `python -m json.tool plugins/bbs-foundations/docs/bbs-managed-settings.json > /dev/null` (exit 0).
 
 - [ ] **Step 3: Append to MANAGED-SETTINGS.md** (new section before "What is deliberately not here"):
 
@@ -136,11 +158,16 @@ rail, not a lockdown.
 ## Draft-first enforcement (2026-09-11)
 
 Doctrine says "humans send quotes." The `permissions.deny` block now enforces it: the
-send-class M365/SignNow tools are denied, so Claude drafts email and packets but cannot
-transmit them — the rep sends from Outlook/SignNow as always. This was specced as a
-PreToolUse hook; deny rules achieve the same guarantee with nothing to install or debug on
-rep machines. If a future connector adds a new send-class tool, add it to the deny list in
-the same commit that documents it here.
+send-class M365/SignNow tools are denied (including SignNow's embedded-invite tools, which
+mint live signing links), so Claude drafts email and packets but cannot transmit them — the
+rep sends from Outlook/SignNow as always. This was specced as a PreToolUse hook; deny rules
+achieve the same guarantee with nothing to install or debug on rep machines. Caveat: the
+tool-name prefix derives from the connector's name per account, and a deny on a nonexistent
+name is a silent no-op — so deployment verification (ADMIN-RUNBOOK §1) includes asking
+Claude to send a test email and expecting a denial, on the admin machine AND the pilot
+rep's. If a future connector adds a new send-class tool, add it to the deny list in the
+same commit that documents it here. AUP.md is the human-side counterpart, linked from the
+`claudeMd` block.
 
 ## Empowerment posture (2026-09-11)
 
@@ -149,7 +176,14 @@ Ruling: reps may install skills, author their own, and experiment. The strict lo
 deliberately absent. Guardrails cover irreversible acts and the money path only.
 ```
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 4: Update the stale metadata in MANAGED-SETTINGS.md** — in its block-by-block
+table, extend the `permissions.deny` row's purpose text with "+ send-class tools
+(draft-first)"; change the header's "Last verified: 2026-09-02" to "Last verified:
+2026-09-11". In `bbs-managed-settings.json`'s `claudeMd` block, append one line under
+"Where the detail lives": `- AUP: plugins/bbs-foundations/docs/AUP.md — the one-page use
+policy everyone signs.`
+
+- [ ] **Step 5: Commit**
 
 ```bash
 git add plugins/bbs-foundations/docs/bbs-managed-settings.json plugins/bbs-foundations/docs/MANAGED-SETTINGS.md
@@ -188,7 +222,6 @@ git commit -m "feat(managed-settings): deny send-class tools (draft-first, enfor
     "workbench.panel.defaultLocation": "bottom",
     "search.exclude": { "**/FILLED": false },
     "files.exclude": { "**/.tmp*": true },
-    "workbench.editorAssociations": { "*.pdf": "default" },
     "window.title": "BBS Quote Desk — ${activeEditorShort}"
   },
   "extensions": {
@@ -212,7 +245,8 @@ git commit -m "feat(managed-settings): deny send-class tools (draft-first, enfor
 **First open (once per machine):** VS Code will say the folder path is missing. Open the
 file (File → Open File), replace `REPLACE-ON-FIRST-OPEN` with your OneDrive root — usually
 `C:/Users/<you>/Black Box Safety` (check File Explorer for the exact synced name) — save,
-then File → Open Workspace from File. Full walk-through with screenshots: `docs/REP-SETUP.md`.
+then File → Open Workspace from File. Full walk-through: `docs/REP-SETUP.md` (screenshots
+live in the Teams sales channel pinned post).
 
 Four extensions are recommended on open — accept them. That's the whole setup.
 
@@ -221,7 +255,13 @@ makes Claude sessions in this workspace know the folder rules, the landmines, an
 precedent-first habit.
 ```
 
-- [ ] **Step 3: Validate** — `python -m json.tool workspace/bbs-rep.code-workspace > NUL` (exit 0; JSON here contains no comments so plain parse works).
+- [ ] **Step 3: Validate** — `python -m json.tool workspace/bbs-rep.code-workspace > /dev/null` (exit 0; JSON here contains no comments so plain parse works).
+
+Recorded deviations from the spec (deliberate): the workspace points directly at the CA
+desk rather than `Customers/` (simpler first-open; other desks get added as folders when
+they exist), and "hide terminal panel" has no clean VS Code setting — the panel simply
+starts closed by default, which suffices. The `tomoki1207.pdf` extension registers itself
+as the PDF default; no `editorAssociations` override needed (one would break it).
 
 - [ ] **Step 4: Commit**
 
@@ -285,8 +325,13 @@ Cite what you find in the cover summary ("last quoted X to CMC 3/2026 at $Y, won
 
 ## When something goes wrong
 
-Add one line to this folder's `FLAGS.md` (template below in this file's source). Catching
-an error IS the system working — log it, don't bury it. Parker triages monthly.
+Add one line to this folder's `FLAGS.md` (template: bbs-foundations →
+`bbs-claude-md-forge/references/flags-template.md`). Catching an error IS the system
+working — log it, don't bury it. Parker triages monthly.
+
+_Stamping note (admins): `ca-rfq-intake`'s `scripts/scaffold_folder_context.py` stamps
+per-buyer CLAUDE.md files across the tree (`--dry-run` first, then `--write`); this desk-root
+file is instantiated from `workspace/DESK-CLAUDE-template.md`._
 ```
 
 - [ ] **Step 2: Create `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/flags-template.md`:**
@@ -343,8 +388,10 @@ report format at the end. Read-only: create/modify nothing, send nothing.
 4. **Grainger MCP.** Call `grainger_search` with query "3M 8511". PASS = results return.
    FAIL = tool absent (MCP not configured) or connection error (local server down).
 5. **Microsoft 365 connector.** Call `get_me`. PASS = the rep's own name/email returns.
-6. **Desk folder.** Glob for `**/All RFQ's by Agency` under the workspace folders. PASS =
-   exactly one match. Also check a `CLAUDE.md` exists at the desk root.
+6. **Desk folder.** Verify the directory `All RFQ's by Agency` exists under the workspace
+   folder (list directories; Glob matches files, so check the folder itself, e.g. by listing
+   its children). PASS = present with children. Also check a `CLAUDE.md` exists at the desk
+   root.
 7. **Duplicate-agency scan.** List directories directly under `All RFQ's by Agency/`.
    Flag any pair whose names normalize to the same string ignoring case/spaces/`(ALL)`
    (known live pair: `CalTrans` vs `Cal Trans (ALL)` — expected until Parker merges them;
@@ -365,7 +412,8 @@ For each check: ✅ PASS / ❌ FAIL / ⚠️ WARN + one line. Then:
 Never attempt to fix a FAIL yourself (no installs, no config edits) — the report is the fix.
 ```
 
-- [ ] **Step 2: Validate plugin still parses** — `claude plugin validate .` → no errors.
+- [ ] **Step 2: Validate the plugin itself** — `claude plugin validate plugins/bbs-foundations`
+(NOT just `.` — root only validates the marketplace manifest) → no errors.
 
 - [ ] **Step 3: Commit**
 
@@ -491,9 +539,9 @@ MEASUREMENT.md (metrics), ADMIN-CLEANUP.md (one-time machine cleanup).
 ## 0. Prerequisites (before ANY deployment)
 
 1. **Rotate the two leaked keys** (found 2026-09-11): Firecrawl (dashboard → new key) and
-   Grainger gateway (issue new; place per machine in `~/grainger-api/mcp/.env`, mode
-   equivalent private). Strip old values from `~/.claude/settings.local.json` and
-   `~/.claude/remote-settings.json` per ADMIN-CLEANUP.md.
+   Grainger gateway (issue new; place per machine in `~/grainger-api/mcp/.env`, readable by
+   your user only — Windows: keep it out of shared/synced folders). Strip old values from
+   `~/.claude/settings.local.json` and `~/.claude/remote-settings.json` per ADMIN-CLEANUP.md.
 
 ## 1. Push managed settings (the deployment step that has stalled twice)
 
@@ -502,7 +550,10 @@ MEASUREMENT.md (metrics), ADMIN-CLEANUP.md (one-time machine cleanup).
    "Before pasting" first).
 3. On ONE machine: restart Claude Code, run `/status` (managed source should win), `/mcp`
    (bbs-grainger connected — verifies `${HOME}` expansion; if not, fall back per-machine),
-   then `/plugin marketplace update` and `/bbs-checkup`.
+   then `/plugin marketplace update` and `/bbs-checkup`. **Live-fire the draft-first rail:**
+   ask Claude to send you a test email — expect a permission denial, not a send (`/permissions`
+   should list the managed deny entries). Deny rules on wrong tool names fail silently, so
+   this test is not optional. Repeat it once on the pilot rep's machine.
 4. Only after that machine is green: tell the reps to restart Claude Code.
 
 ## 2. Enable analytics (one-time)
@@ -610,6 +661,18 @@ Claude is reading, side by side. Screenshots live in the Teams sales channel pin
 - **VS Code**: quote work — you want the RFQ, the worksheet, and Claude on one screen.
 - **Desktop app**: everything else, or if VS Code is ever broken. Same Claude.
 
+## Want an agency storefront?
+
+Twelve agencies already have their own BBS gear-assistant page (cdcr.blackboxsafety.com
+etc.). If your buyer's agency should have one: drop the agency name + what they buy into
+the buyer's folder and ping Parker — that's the whole request process today.
+
+## The ground rules
+
+Read and sign the one-page use policy (bbs-foundations → docs/AUP.md). Short version:
+approved tools only for company data, every number human-reviewed, you send everything,
+log it when Claude gets it wrong, experiment freely otherwise.
+
 ## Level up (optional, free)
 
 Anthropic Academy "Claude 101": anthropic.skilljar.com/claude-101. Ask the deputy champion
@@ -709,16 +772,30 @@ Design: `docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md`.
 
 - [ ] **Step 2: Update the spec header** status field to: `**Status:** v1 built (this repo, 2026-09-11) — deployment checklist: docs/ADMIN-RUNBOOK.md §0–§3`
 
-- [ ] **Step 3: Full validation sweep**
+- [ ] **Step 3: Create `docs/acceptance/README.md`** (referenced by the gate; empty dirs can't be committed):
 
-Run: `claude plugin validate .` → expect valid, no errors.
-Run: `python -m json.tool .claude-plugin/marketplace.json > NUL` and same for `plugins/bbs-foundations/docs/bbs-managed-settings.json` and `workspace/bbs-rep.code-workspace` → all exit 0.
+```markdown
+# Acceptance results
 
-- [ ] **Step 4: Commit**
+One file per gate run: `YYYY-MM-DD-<initials>.md` containing PASS or FAIL, the task run
+(checkup + one real RFQ logged + one packet produced, unaided), what stuck, and what was
+fixed. The July 2026 gate was never recorded — that ambiguity is what this folder kills.
+```
+
+- [ ] **Step 4: Full validation sweep**
+
+Run: `claude plugin validate . --strict` and `claude plugin validate plugins/bbs-foundations`,
+`claude plugin validate plugins/bbs-sales`, `claude plugin validate plugins/bbs-website` →
+no errors anywhere.
+Run: `python -m json.tool .claude-plugin/marketplace.json > /dev/null` and same for
+`plugins/bbs-foundations/docs/bbs-managed-settings.json` and `workspace/bbs-rep.code-workspace`
+→ all exit 0.
+
+- [ ] **Step 5: Commit**
 
 ```bash
-git add README.md docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md
-git commit -m "docs: wire rep-desk docs into root README; spec status → v1 built"
+git add README.md docs/acceptance/README.md docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md
+git commit -m "docs: wire rep-desk docs into root README; acceptance folder; spec status → v1 built"
 ```
 
 ---
@@ -729,19 +806,42 @@ git commit -m "docs: wire rep-desk docs into root README; spec status → v1 bui
 
 - [ ] **Step 1: Present Parker the deployment checklist** (in chat, after all tasks committed):
 
-1. Review the full diff (`git log --oneline origin/main..HEAD`, `git diff origin/main`).
-2. Push: `git push origin main` (his call — the repo's convention is PR to main; direct
-   push acceptable here if he says so, else `gh pr create`).
+1. Review the full diff (`git log --oneline origin/main..HEAD`, `git diff origin/main`) —
+   note it includes the ~10 design-session commits that predate this plan, not just its tasks.
+2. Push: `git push origin main` — direct push, Parker's call (this session has committed on
+   main throughout; a PR from main to main isn't possible). **The push instantly updates any
+   machine that already has the marketplace registered.**
 3. Execute ADMIN-RUNBOOK §0 (rotate keys) — before pasting managed settings anywhere.
-4. Execute ADMIN-RUNBOOK §1–§3 (push managed settings, verify one machine, analytics,
-   connectors) — on the work desktop.
-5. Post `workspace/bbs-rep.code-workspace` + REP-SETUP link in Teams; add the screenshots.
-6. Pick the pilot rep and date; run the acceptance gate (spec: rep runs /bbs-checkup clean,
+4. Execute ADMIN-RUNBOOK §1–§3 (push managed settings, verify one machine incl. the
+   live-fire send-denial test, analytics, connectors) — on the work desktop.
+5. **Stamp the desk root CLAUDE.md** on the pilot machine from
+   `workspace/DESK-CLAUDE-template.md` (via `/bbs-claude-md init` at the desk root, or
+   `ca-rfq-intake`'s `scaffold_folder_context.py --dry-run` then `--write` for per-buyer
+   folders) — before the acceptance gate, since `/bbs-checkup` checks for it.
+6. Post `workspace/bbs-rep.code-workspace` + REP-SETUP link in Teams; add the screenshots.
+7. Pick the pilot rep and date; run the acceptance gate (spec: rep runs /bbs-checkup clean,
    logs one real RFQ, produces one packet, unaided); record result in `docs/acceptance/`.
-7. Start ADMIN-CLEANUP.md on both admin machines.
-8. Baseline capture this month (MEASUREMENT.md) — the window closes.
+8. Start ADMIN-CLEANUP.md on both admin machines.
+9. Baseline capture this month (MEASUREMENT.md) — the window closes.
+10. Inventory the BBS Marketing SharePoint folder + locate Joey's skill (spec's marketing
+    "now" item) — feeds the bbs-marketing plugin decision in v1.1.
 
 ---
+
+## Review log
+
+Reviewed 2026-09-11 by a fresh-context reviewer agent against the spec + live repo +
+empirical shell tests. All CRITICAL and IMPORTANT findings applied: NUL→/dev/null (junk-file
+hazard confirmed empirically), dirty-spec preflight (resolved — spec formatting committed
+separately), commit-trailer rule made explicit, editorAssociations removed (was defeating
+the PDF extension), desk-CLAUDE.md stamping added to handoff, deny-rule live-fire test added
+(tool names verified against this machine but are account-dependent), per-plugin validate
+(root only checks the manifest), SignNow embedded-invite tools added to deny list, tenant
+request path + AUP signing added to REP-SETUP, AUP linked from claudeMd, acceptance folder
+created, marketing inventory added to handoff, PR clause replaced with direct-push ruling.
+Grounding checks that passed: marketplace version fields, managed-settings structure,
+command frontmatter convention, all four VS Code extension IDs, deny tool names (this
+machine), `claude plugin validate` availability.
 
 ## Self-review notes
 
