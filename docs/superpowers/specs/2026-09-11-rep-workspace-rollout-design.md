@@ -2,7 +2,20 @@
 
 **Date:** 2026-09-11 · **Owner:** Parker Marshall · **Status:** approved in session (home desktop)
 
-## The problem
+## The business problem (why any of this matters)
+
+Reps cannot drive new sales because stale processes trap the team in reactive work:
+inbound RFQs, customer service, documentation, email management. The low-level load
+consumes the capacity that should extend existing customers and open truly new business.
+
+Everything in this design is therefore judged against two outcomes, in order:
+1. **Reclaim capacity** — automate the labor in the inbound/service load (this design's v1).
+2. **Convert that capacity into growth motion** — reclaimed hours must be deliberately
+   redirected into outbound and expansion work, with vehicles and measures, or they will
+   silently backfill into more inbound. Efficiency alone does not create a single new
+   customer. See "From reactive to generative" below.
+
+## The tooling problem (what blocks outcome 1)
 
 Black Box Safety has designed rep-facing AI infrastructure five times (bbs-ops/bbs-website,
 bbs-sales, bbs-sales-vault, ca-quote-hub, bbs-rfq-automation) and deployed none of it to the
@@ -261,6 +274,37 @@ beyond quoting. Design intent, in order:
    `grainger-promo-page` into it from `bbs-sales` (it is outbound campaign work).
 3. Reps "creating opps" = the promo-page + SCPRS segmentation workflow already in the
    marketplace, surfaced through the marketing desk.
+
+## From reactive to generative (the conversion mechanism)
+
+The rollout fails in the way that matters if quote turnaround drops 40% and outbound
+activity stays at zero. Freed capacity converts only if the growth motions are named,
+tooled, and measured:
+
+**The growth vehicles (all already exist as tools — none are new builds):**
+- **`grainger-promo-page` + SCPRS segmentation** — the flagship outbound motion: turn an
+  agency's existing spend into a targeted campaign page for the three buyer segments
+  (buys prime direct / buys category elsewhere / BBS history but drifted). This is the
+  workflow reclaimed hours should flow into first.
+- **Drifted-buyer winback** — the SCPRS "has BBS history but drifted" segment is a standing
+  call list; Claude drafts the re-engagement outreach in the rep's voice.
+- **Stale-quote follow-up** — once quotes live in BC (v1.1 loop), "sent >14 days, no
+  outcome" is a follow-up queue, not a dead file. The nightly Routine surfaces it.
+- **New-desk expansion** — the customer-desk template stamped onto federal primes /
+  local fire-LE is the structural version of "new business."
+- **Agency tenants** — a rep-initiated tenant (v1.1 PR flow) turns one buyer's reorder
+  pattern into a self-service storefront for the whole agency.
+
+**The operating change:** the weekly rhythm gains one explicit expectation — reclaimed
+time has a default destination. Concretely: each rep runs one outbound motion per week
+(a promo page, a winback batch, or a follow-up sweep), tracked in the same weekly log as
+the inbound metrics. Parker's monthly review reads both halves together.
+
+**Measurement gains a second half.** The four inbound metrics (quotes/rep/week,
+turnaround, win rate, adoption) get four outbound counterparts in `docs/MEASUREMENT.md`:
+outbound touches/week, promo pages shipped, winback conversations started, reactivated or
+net-new buyers per month (from BC — a first order from a customer number with no activity
+in 12 months). Leading indicators are the touches; the lagging proof is net-new buyers.
 
 ## Adopted operational practices — build mechanism and home
 
