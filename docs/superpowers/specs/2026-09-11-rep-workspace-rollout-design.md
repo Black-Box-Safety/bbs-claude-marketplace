@@ -15,6 +15,7 @@ be learned from, verified, or handed to a new rep. The team trusts memory where 
 be reading documented success.
 
 Everything in this design is therefore judged against two outcomes, in order:
+
 1. **Reclaim capacity** — automate the labor in the inbound/service load (this design's v1).
 2. **Convert that capacity into growth motion** — reclaimed hours must be deliberately
    redirected into outbound and expansion work, with vehicles and measures, or they will
@@ -60,10 +61,11 @@ The new SharePoint home base is being established at
 **Surface: VS Code standard, Desktop app unchanged.** Reps already run Claude Code inside
 the Desktop app; that keeps working untouched and is the documented escape hatch. VS Code
 is the encouraged standard because quote work is multi-document work (worksheet + attachments
+
 + precedent side by side, file tree visible next to Claude). Same Claude Code underneath —
-same skills, sessions, connectors — so adopting VS Code is a window change, not a retraining.
-The rep pitch, verbatim: *"Everything you do today keeps working. VS Code shows you what
-Claude is reading."*
+  same skills, sessions, connectors — so adopting VS Code is a window change, not a retraining.
+  The rep pitch, verbatim: *"Everything you do today keeps working. VS Code shows you what
+  Claude is reading."*
 
 ### Alternatives rejected
 
@@ -143,18 +145,19 @@ caveman statusline from any config a rep could inherit; delete the OneDrive
 
 ## Consolidation map (initial REGISTRY.md content)
 
-| Asset | Status | Action |
-|---|---|---|
-| `bbs-claude-marketplace` (3 plugins + managed settings) | **Canon** | Deploy; add workspace/, checkup, registry, guides |
-| `bbs-naspo-quote` | **Canon source → cutover** | Marketplace copy becomes canonical; repo keeps precedent-mining scripts + pointer README |
-| `ca-quote-hub` | **Harvested** | `.code-workspace` + CLAUDE.md grounding → workspace/; Supabase pipeline parked; duplicate `ca-rfq-intake` deleted |
-| `bbs-sales-vault` | **Harvest → archive** | `document-store-map.md` → bbs-foundations; archive repo (depends on never-written quote-desk stages) |
-| `parker-voice` | **Consolidated** | Becomes the worked example in `bbs-voice-template`; two drifted copies deleted |
-| `bbs-bc-mcp-proxy` | **Retired** | Replaced by the BC MCP (Custom API) claude.ai connector (2026-09-02); archive the repo once nothing references the Vercel endpoint |
-| `bbs-customer-bots` | **Separate track** | Customer-facing; not part of this rollout |
-| `bbs-rfq-automation` | **Parked** | Invariants retained in doctrine; Dataverse app is not the rep destination |
-| `bbs-agent`, `BBS-ICM-Sales` | **Archive** | Campaign over / zero BBS commits |
-| OneDrive `claude-inside-sales-skills/` | **Delete** | Replaced by marketplace install |
+
+| Asset                                                   | Status                      | Action                                                                                                                             |
+| --------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `bbs-claude-marketplace` (3 plugins + managed settings) | **Canon**                   | Deploy; add workspace/, checkup, registry, guides                                                                                  |
+| `bbs-naspo-quote`                                       | **Canon source → cutover** | Marketplace copy becomes canonical; repo keeps precedent-mining scripts + pointer README                                           |
+| `ca-quote-hub`                                          | **Harvested**               | `.code-workspace` + CLAUDE.md grounding → workspace/; Supabase pipeline parked; duplicate `ca-rfq-intake` deleted                 |
+| `bbs-sales-vault`                                       | **Harvest → archive**      | `document-store-map.md` → bbs-foundations; archive repo (depends on never-written quote-desk stages)                              |
+| `parker-voice`                                          | **Consolidated**            | Becomes the worked example in`bbs-voice-template`; two drifted copies deleted                                                      |
+| `bbs-bc-mcp-proxy`                                      | **Retired**                 | Replaced by the BC MCP (Custom API) claude.ai connector (2026-09-02); archive the repo once nothing references the Vercel endpoint |
+| `bbs-customer-bots`                                     | **Separate track**          | Customer-facing; not part of this rollout                                                                                          |
+| `bbs-rfq-automation`                                    | **Parked**                  | Invariants retained in doctrine; Dataverse app is not the rep destination                                                          |
+| `bbs-agent`, `BBS-ICM-Sales`                            | **Archive**                 | Campaign over / zero BBS commits                                                                                                   |
+| OneDrive`claude-inside-sales-skills/`                   | **Delete**                  | Replaced by marketplace install                                                                                                    |
 
 ## External tools ruling
 
@@ -257,6 +260,7 @@ The `new-agency-tenant` skill is the playbook, but today it is admin-grade: it e
 which conflicts with the rep permission profile (read-only ops, deploys gated).
 
 **Ruling for this rollout:** tier it rather than fork it.
+
 - **v1:** reps get tenant *awareness* — `/bbs-checkup`-style visibility of which tenants
   exist and a documented request path ("ask for a tenant" = drop agency name + buying
   context into a folder; Parker runs the skill).
@@ -273,6 +277,7 @@ The marketing effort is not a named agent — it is an early second instance of 
 customer-desk pattern: a SharePoint folder ("BBS Marketing") holding consistent reference
 material, plus a skill built for Joey that works. That is evidence the pattern transfers
 beyond quoting. Design intent, in order:
+
 1. **Now:** inventory what's in the BBS Marketing folder and where Joey's skill lives
    (likely hand-copied — the same drift risk the marketplace exists to fix).
 2. **v1.1:** give the marketing folder a root `CLAUDE.md` (same forge), move Joey's skill
@@ -325,14 +330,15 @@ A team with only the outer ring gets faster; with both, it gets better.
 Distinct callouts for the data infrastructure the workspace rides on. Each is a seam in
 the extension contract: new data enters through one of these, never copied into skills.
 
-| Source | What it answers | Access / who |
-|---|---|---|
-| **Grainger MCP** (`bbs-grainger`, local stdio; key per-machine in `mcp/.env`, never distributed) | Live per-account pricing, availability — pricing doctrine says *this*, never the open web. The at-cost sell price on schedule business IS this number | Managed `mcpServers` block; everyone who quotes. `/bbs-checkup` verifies it |
-| **SCPRS MCP** (`ca-procurement-intel`) | The state's own purchase records: what an agency buys, from whom, at what price — buyer segments (prime-direct / category-elsewhere / drifted), competitive intel, promo-page targeting | claude.ai connector; reps on the CA state book. Curation-time tool (customer bots never call it live) |
-| **BC MCP (Custom API)** | Quote/order/invoice history, customer snapshots, AR — the precedent engine's structured layer | claude.ai connector; everyone, read-only |
-| **M365 / SharePoint** | The desks (`MASTER/Customers/...`), ~440 precedent PDFs, BBS Marketing reference material, email/Teams | claude.ai connector; everyone |
-| **`bbs-suppliers` repo** | Supplier/manufacturer briefs, taxonomy, BC spend tiers — the negotiation context behind `bbs-sourcing`'s vendor outreach (who to call, what leverage, what BBS spends with them) | Git repo (org). v1.1: surface the briefs to rep sessions — either vendored as references in the `bbs-sourcing` skill or a desk-style folder; today it's invisible to reps |
-| **Supabase catalog** | The 18k-product web catalog | Admin only (site maintainers); reps touch product data via the storefront/quote bot, never the DB |
+
+| Source                                                                                           | What it answers                                                                                                                                                                          | Access / who                                                                                                                                                              |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Grainger MCP** (`bbs-grainger`, local stdio; key per-machine in `mcp/.env`, never distributed) | Live per-account pricing, availability — pricing doctrine says*this*, never the open web. The at-cost sell price on schedule business IS this number                                    | Managed`mcpServers` block; everyone who quotes. `/bbs-checkup` verifies it                                                                                                |
+| **SCPRS MCP** (`ca-procurement-intel`)                                                           | The state's own purchase records: what an agency buys, from whom, at what price — buyer segments (prime-direct / category-elsewhere / drifted), competitive intel, promo-page targeting | claude.ai connector; reps on the CA state book. Curation-time tool (customer bots never call it live)                                                                     |
+| **BC MCP (Custom API)**                                                                          | Quote/order/invoice history, customer snapshots, AR — the precedent engine's structured layer                                                                                           | claude.ai connector; everyone, read-only                                                                                                                                  |
+| **M365 / SharePoint**                                                                            | The desks (`MASTER/Customers/...`), ~440 precedent PDFs, BBS Marketing reference material, email/Teams                                                                                   | claude.ai connector; everyone                                                                                                                                             |
+| **`bbs-suppliers` repo**                                                                         | Supplier/manufacturer briefs, taxonomy, BC spend tiers — the negotiation context behind`bbs-sourcing`'s vendor outreach (who to call, what leverage, what BBS spends with them)         | Git repo (org). v1.1: surface the briefs to rep sessions — either vendored as references in the`bbs-sourcing` skill or a desk-style folder; today it's invisible to reps |
+| **Supabase catalog**                                                                             | The 18k-product web catalog                                                                                                                                                              | Admin only (site maintainers); reps touch product data via the storefront/quote bot, never the DB                                                                         |
 
 **Gap this table exposes:** `bbs-sourcing` references a vendor directory that doesn't
 exist in any shipped location (a known HANDOFF gap) while `bbs-suppliers` — which IS that
@@ -391,6 +397,7 @@ activity stays at zero. Freed capacity converts only if the growth motions are n
 tooled, and measured:
 
 **The growth vehicles (all already exist as tools — none are new builds):**
+
 - **`grainger-promo-page` + SCPRS segmentation** — the flagship outbound motion: turn an
   agency's existing spend into a targeted campaign page for the three buyer segments
   (buys prime direct / buys category elsewhere / BBS history but drifted). This is the
@@ -427,36 +434,39 @@ rollout exists to create.
 
 ### v1 items
 
-| Item | How it's built | Where it lives |
-|---|---|---|
+
+| Item                                       | How it's built                                                                                                                                                                                                               | Where it lives                                                                                                                                               |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Guardrail hook: outbound stays draft-first | PreToolUse hook that blocks send-class tools (`outlook_send_mail`, SignNow send-invite) with the message "Draft it; a human sends it" — Claude physically cannot send even if asked; reps still send from Outlook as always | `plugins/bbs-foundations/hooks/` (ships with the plugin); noted in managed settings via `allowManagedHooksOnly: false` (advisory distribution, not lockdown) |
-| Safety-only permission rails | Keep the existing draft's `deny` list (rm -rf, force-push, hard reset, repo delete, .env reads) + `disableBypassPermissionsMode`; `ask` on push/PR/deploy; everything else open | `plugins/bbs-foundations/docs/bbs-managed-settings.json` → pushed via claude.ai admin console (server-managed, hourly refresh) |
-| Marketplace version policy: auto-update | Remove `version` fields from the three bbs-* plugin entries so every push to main updates every machine (pin again only for a deliberate freeze) | `.claude-plugin/marketplace.json`; policy documented in `plugins/bbs-website/docs/CONTRIBUTING.md` |
-| Baseline capture (closes this month) | Reconstruct pre-Claude time-per-RFQ for 3–5 real quotes from Outlook timestamps; record in a SharePoint list; defines the 4 monthly metrics (quotes/rep/week, turnaround, win rate once BC loop closes, adoption) | Task in `docs/ADMIN-RUNBOOK.md`; metrics definitions in `docs/MEASUREMENT.md` (both new, this repo) |
-| "AI was wrong" flag log, blameless | One `FLAGS.md` per desk (date, skill, what happened, caught-before-send?); template + blameless framing text in the desk CLAUDE.md; reps told "logging a catch = the system working" | Template in `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/`; instantiated at each desk root; triage ritual in ADMIN-RUNBOOK |
-| One-page AUP | Approved-tools list, "customer data only in approved tools," "every number human-reviewed before submission," "automate the labor, never the bid/no-bid decision," "when unsure, ask" | `plugins/bbs-foundations/docs/AUP.md`; linked from managed `claudeMd` and REP-SETUP |
-| Analytics on + monthly review | Enable Team analytics dashboard + spend report (admin console, one-time); monthly 30-min review of the 4 metrics | Enablement + ritual steps in `docs/ADMIN-RUNBOOK.md` |
+| Safety-only permission rails               | Keep the existing draft's`deny` list (rm -rf, force-push, hard reset, repo delete, .env reads) + `disableBypassPermissionsMode`; `ask` on push/PR/deploy; everything else open                                               | `plugins/bbs-foundations/docs/bbs-managed-settings.json` → pushed via claude.ai admin console (server-managed, hourly refresh)                              |
+| Marketplace version policy: auto-update    | Remove`version` fields from the three bbs-* plugin entries so every push to main updates every machine (pin again only for a deliberate freeze)                                                                              | `.claude-plugin/marketplace.json`; policy documented in `plugins/bbs-website/docs/CONTRIBUTING.md`                                                           |
+| Baseline capture (closes this month)       | Reconstruct pre-Claude time-per-RFQ for 3–5 real quotes from Outlook timestamps; record in a SharePoint list; defines the 4 monthly metrics (quotes/rep/week, turnaround, win rate once BC loop closes, adoption)           | Task in`docs/ADMIN-RUNBOOK.md`; metrics definitions in `docs/MEASUREMENT.md` (both new, this repo)                                                           |
+| "AI was wrong" flag log, blameless         | One`FLAGS.md` per desk (date, skill, what happened, caught-before-send?); template + blameless framing text in the desk CLAUDE.md; reps told "logging a catch = the system working"                                          | Template in`plugins/bbs-foundations/skills/bbs-claude-md-forge/references/`; instantiated at each desk root; triage ritual in ADMIN-RUNBOOK                  |
+| One-page AUP                               | Approved-tools list, "customer data only in approved tools," "every number human-reviewed before submission," "automate the labor, never the bid/no-bid decision," "when unsure, ask"                                        | `plugins/bbs-foundations/docs/AUP.md`; linked from managed `claudeMd` and REP-SETUP                                                                          |
+| Analytics on + monthly review              | Enable Team analytics dashboard + spend report (admin console, one-time); monthly 30-min review of the 4 metrics                                                                                                             | Enablement + ritual steps in`docs/ADMIN-RUNBOOK.md`                                                                                                          |
 
 ### v1.1 items
 
-| Item | How it's built | Where it lives |
-|---|---|---|
-| Golden-case eval suite | 5–10 completed, human-verified RFQ→packet cases (inputs + correct outputs); a headless runner (`claude -p` + grader per Anthropic's eval-first methodology); run before any skill change ships and after any model release | Cases in `plugins/bbs-sales/skills/naspo-quote/tests/`; runner script in `tools/`; gate documented in CONTRIBUTING |
-| Nightly audit as a Routine | Claude Code Routine (scheduled cloud agent, no server): read desk quote-logs + 2 BC queries (stale quotes >14d unsent; overdue AR) + duplicate-folder detection (CalTrans pair = test case); one Teams digest | Routine definition + setup steps in `docs/ADMIN-RUNBOOK.md`; created from Parker's account |
-| Canary + change notes | Discipline: model updates and skill updates never land on reps in the same week; Parker runs changes live for 1–2 days first; two-line Teams note in rep language per change | Section in `docs/ADMIN-RUNBOOK.md`; `companyAnnouncements` block carries the note |
-| Extension contract | One page: new capability = skill in a plugin; new data = connector; new segment = desk from template; new automation = flow/Routine; new person = managed settings + guide. Anything that doesn't fit a slot gets questioned | `plugins/bbs-foundations/docs/EXTENSION-CONTRACT.md`; referenced from managed `claudeMd` |
-| Training + deputy champion | Anthropic Academy links (Claude 101) in the rep guide; most-fluent rep named deputy for how-to questions | `docs/REP-SETUP.md` |
-| Skill ownership lines | `owner:` line in every BBS skill's frontmatter | Each SKILL.md, one sweep commit |
+
+| Item                       | How it's built                                                                                                                                                                                                               | Where it lives                                                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| Golden-case eval suite     | 5–10 completed, human-verified RFQ→packet cases (inputs + correct outputs); a headless runner (`claude -p` + grader per Anthropic's eval-first methodology); run before any skill change ships and after any model release | Cases in`plugins/bbs-sales/skills/naspo-quote/tests/`; runner script in `tools/`; gate documented in CONTRIBUTING |
+| Nightly audit as a Routine | Claude Code Routine (scheduled cloud agent, no server): read desk quote-logs + 2 BC queries (stale quotes >14d unsent; overdue AR) + duplicate-folder detection (CalTrans pair = test case); one Teams digest                | Routine definition + setup steps in`docs/ADMIN-RUNBOOK.md`; created from Parker's account                         |
+| Canary + change notes      | Discipline: model updates and skill updates never land on reps in the same week; Parker runs changes live for 1–2 days first; two-line Teams note in rep language per change                                                | Section in`docs/ADMIN-RUNBOOK.md`; `companyAnnouncements` block carries the note                                  |
+| Extension contract         | One page: new capability = skill in a plugin; new data = connector; new segment = desk from template; new automation = flow/Routine; new person = managed settings + guide. Anything that doesn't fit a slot gets questioned | `plugins/bbs-foundations/docs/EXTENSION-CONTRACT.md`; referenced from managed `claudeMd`                          |
+| Training + deputy champion | Anthropic Academy links (Claude 101) in the rep guide; most-fluent rep named deputy for how-to questions                                                                                                                     | `docs/REP-SETUP.md`                                                                                               |
+| Skill ownership lines      | `owner:` line in every BBS skill's frontmatter                                                                                                                                                                               | Each SKILL.md, one sweep commit                                                                                   |
 
 ### Standing rituals (calendar entries, not code)
 
-| Ritual | Cadence | Documented in |
-|---|---|---|
-| Show-and-tell (one rep demos one thing, good or bad) | Weekly 15 min, existing meeting | ADMIN-RUNBOOK |
-| Friction channel triage (respond within a week: fixed / queued / won't-fix + why) | Weekly | ADMIN-RUNBOOK |
-| Flag-log review → skill fixes | Monthly | ADMIN-RUNBOOK |
-| Metrics review (4 numbers) | Monthly 30 min | MEASUREMENT.md |
-| Security hygiene: rotate keys, skim permissions, prune marketplaces | Quarterly 30 min | ADMIN-RUNBOOK + REGISTRY standing tasks |
+
+| Ritual                                                                            | Cadence                         | Documented in                           |
+| ----------------------------------------------------------------------------------- | --------------------------------- | ----------------------------------------- |
+| Show-and-tell (one rep demos one thing, good or bad)                              | Weekly 15 min, existing meeting | ADMIN-RUNBOOK                           |
+| Friction channel triage (respond within a week: fixed / queued / won't-fix + why) | Weekly                          | ADMIN-RUNBOOK                           |
+| Flag-log review → skill fixes                                                    | Monthly                         | ADMIN-RUNBOOK                           |
+| Metrics review (4 numbers)                                                        | Monthly 30 min                  | MEASUREMENT.md                          |
+| Security hygiene: rotate keys, skim permissions, prune marketplaces               | Quarterly 30 min                | ADMIN-RUNBOOK + REGISTRY standing tasks |
 
 ### Bus-factor items (Parker-controlled ruling)
 
@@ -476,8 +486,7 @@ SignNow routing, the nightly audit run, per-rep voice profiles beyond the templa
 
 ## Open questions carried into the plan
 
-- Exact OneDrive local path pattern on rep machines (varies: `C:\Users\<user>\Black Box
-  Safety\...` vs tenant-name variants) — resolve on the first pilot machine.
+- Exact OneDrive local path pattern on rep machines (varies: `C:\Users\<user>\Black Box Safety\...` vs tenant-name variants) — resolve on the first pilot machine.
 - Whether managed settings' `${HOME}` expansion works in `mcpServers` on Windows (flagged
   in MANAGED-SETTINGS.md; test on one machine, fall back per-machine if not).
 - Which rep pilots first, and the date for the acceptance gate.
