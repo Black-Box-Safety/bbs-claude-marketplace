@@ -167,6 +167,48 @@ caveman statusline from any config a rep could inherit; delete the OneDrive
    RFQ with `/ca-rfq-log`, and produces a quote packet with `/ca-rfq-quote` — unaided.**
    Result recorded pass/fail with date and rep initials.
 
+## Business Central rulings (from `docs/assessments/2026-09-11-bc-assessment.md`)
+
+Live-tenant assessment (2026-09-11) found BC heavily used (≈10 quotes/day, ≈45–70
+orders/day, real purchasing) but three loops open: Claude-drafted 9000xx quotes never
+enter BC (re-typed on win, invisible to precedent search), quote lifecycle fields unused
+(no win rate), and the AREA/CONTRACT/CUSTOMER dimensions apparently scaffolded but never
+populated (NASPO at-cost revenue not separable from margin business). Rulings:
+
+- **v1.1:** `naspo-quote` gains a step — create the BC sales quote, record the SQ number
+  in `cover_summary.md` + `quote-log.md`, Claude verifies via `bc_get_sales_document`.
+  The acceptance gate's quote should end with an SQ number.
+- **v1.1:** quote hygiene habit (mark Sent, convert-to-order on win) — one paragraph in
+  REP-SETUP.md.
+- **v1.1:** admin task — verify/populate dimensions, set customer defaults.
+- **v1.1:** Teams BC app pushed to reps + screenshot section in the guide.
+- **Later:** Shopify order-path investigation + payment mapping (cash-application gap:
+  aged "unpaid" Shopify invoices were card-paid at checkout); then Late Payment Prediction.
+- **Later:** nightly audit digest adds two BC queries (stale quotes, overdue AR).
+- **Later:** item-creation convention doc (15k+ ad-hoc item cards; stop the bleeding, no
+  retroactive renumber).
+- **Standing:** BC connector stays read-only for reps; catalog stays in Supabase (native
+  Shopify connector item sync stays OFF — orders/payments only, if it's even in use);
+  no AL extensions, no ISV add-ons, no Premium, no Copilot Studio.
+
+## Folder-tree landmines (from `docs/assessments/2026-09-11-folder-migration-debrief.md`)
+
+The migration to `All RFQ's by Agency/` happened Aug 11–27 on another machine; the debrief
+reconstructs the convention and nine live landmines. Design consequences:
+
+- The desk-root `CLAUDE.md` template must carry the landmines verbatim (duplicate buyer
+  folders are the most expensive intake error; the CDCR "copy" trees; the live
+  `CalTrans` / `Cal Trans (ALL)` duplicate pair; **folder-name typos are load-bearing** —
+  account numbers ride on names, never rename; buyer notes override folder-name accounts).
+- `/bbs-checkup` (or the nightly audit) detects duplicate agency/buyer folders — the
+  `CalTrans` pair is the ready-made test case.
+- **Open ruling needed:** deal-folder naming — the skill says item-first
+  (`metal detectors naspo 8.27.26`), reps actually use date-first
+  (`MM.DD - desc - buyer`). Pick one (recommend ruling in favor of observed rep behavior)
+  and align the skill; a convention nobody follows is worse than none.
+- `agency-tree.md` (8/27) supersedes `document-store-map.md` (8/11, pre-migration): the
+  harvest target changes to agency-tree.md; the vault map gets archived, not promoted.
+
 ## The customer-desk pattern (generalization)
 
 The SharePoint backbone — segment folder tree + root `CLAUDE.md` + intake convention +
