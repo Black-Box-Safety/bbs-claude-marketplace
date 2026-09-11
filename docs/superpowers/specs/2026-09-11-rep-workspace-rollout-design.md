@@ -281,6 +281,41 @@ beyond quoting. Design intent, in order:
 3. Reps "creating opps" = the promo-page + SCPRS segmentation workflow already in the
    marketplace, surfaced through the marketing desk.
 
+## Data plane — the sources every rep session reaches
+
+Distinct callouts for the data infrastructure the workspace rides on. Each is a seam in
+the extension contract: new data enters through one of these, never copied into skills.
+
+| Source | What it answers | Access / who |
+|---|---|---|
+| **Grainger MCP** (`bbs-grainger`, local stdio; key per-machine in `mcp/.env`, never distributed) | Live per-account pricing, availability — pricing doctrine says *this*, never the open web. The at-cost sell price on schedule business IS this number | Managed `mcpServers` block; everyone who quotes. `/bbs-checkup` verifies it |
+| **SCPRS MCP** (`ca-procurement-intel`) | The state's own purchase records: what an agency buys, from whom, at what price — buyer segments (prime-direct / category-elsewhere / drifted), competitive intel, promo-page targeting | claude.ai connector; reps on the CA state book. Curation-time tool (customer bots never call it live) |
+| **BC MCP (Custom API)** | Quote/order/invoice history, customer snapshots, AR — the precedent engine's structured layer | claude.ai connector; everyone, read-only |
+| **M365 / SharePoint** | The desks (`MASTER/Customers/...`), ~440 precedent PDFs, BBS Marketing reference material, email/Teams | claude.ai connector; everyone |
+| **`bbs-suppliers` repo** | Supplier/manufacturer briefs, taxonomy, BC spend tiers — the negotiation context behind `bbs-sourcing`'s vendor outreach (who to call, what leverage, what BBS spends with them) | Git repo (org). v1.1: surface the briefs to rep sessions — either vendored as references in the `bbs-sourcing` skill or a desk-style folder; today it's invisible to reps |
+| **Supabase catalog** | The 18k-product web catalog | Admin only (site maintainers); reps touch product data via the storefront/quote bot, never the DB |
+
+**Gap this table exposes:** `bbs-sourcing` references a vendor directory that doesn't
+exist in any shipped location (a known HANDOFF gap) while `bbs-suppliers` — which IS that
+knowledge — sits unreferenced in a repo reps never see. v1.1 task: wire `bbs-suppliers`
+briefs into the sourcing skill's references (pointer, not copy).
+
+## Competitive reality (ruling, 2026-09-11)
+
+**NASPO quotes are uncompetitive on price.** The schedule is the convenience/contract-
+vehicle lane, not the growth lane. Design consequences:
+
+- **Automate NASPO inbound to near-zero rep effort** — it's volume to be handled, not
+  business to be fought for. The naspo-quote pipeline's job is speed and compliance, and
+  minimal rep minutes.
+- **The competitive weapons get the rep time:** the SB/DVBE competitive lane (5% SB
+  preference + DVBE incentive apply there — SCM 1204/1202, competitive solicitations
+  only) and `bbs-sourcing`'s vendor-negotiated pricing, where BBS can actually beat a
+  price rather than match a schedule. Supplier leverage context comes from
+  `bbs-suppliers` (see data plane).
+- Win-rate measurement (precedent engine) should segment by lane — NASPO vs competitive —
+  or the blended number hides exactly the insight this ruling encodes.
+
 ## The precedent engine (documented success replaces recall)
 
 The design's answer to "we trust recall": before any price goes out, the rep's Claude
