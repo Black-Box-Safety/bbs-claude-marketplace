@@ -167,6 +167,59 @@ caveman statusline from any config a rep could inherit; delete the OneDrive
    RFQ with `/ca-rfq-log`, and produces a quote packet with `/ca-rfq-quote` — unaided.**
    Result recorded pass/fail with date and rep initials.
 
+## The customer-desk pattern (generalization)
+
+The SharePoint backbone — segment folder tree + root `CLAUDE.md` + intake convention +
+per-buyer `quote-log.md` — is not a CA-state one-off. It is the **customer-desk pattern**,
+and the State of CA Agencies desk is its first instance. Other segments (federal primes,
+local fire/LE, higher-ed) get stamped from the same template: create the folder tree,
+generate the root `CLAUDE.md` with `/bbs-claude-md`, adapt the intake skill's agency
+registry. The rep workspace template must therefore treat the CA desk as *an instance*,
+not hard-code it: the workspace file points at `Customers/` with the CA desk as the
+default folder, and the folder-root CLAUDE.md template lives in `bbs-foundations` as a
+reusable reference, instantiated per desk.
+
+**SharePoint is the starting substrate, not the destination.** The durable assets are the
+*conventions* — intake discipline, run records (`RFQ.md`, `quote-log.md`), the registry,
+the desk CLAUDE.md — not the storage they sit on. Skills reference conventions and relative
+desk paths, never absolute SharePoint paths, so the substrate can evolve (e.g., reviving
+the parked Supabase `rep_cockpit` as the tracker once folder tracking shows its limits)
+without retraining reps or rewriting skills. Phase-one success includes *learning what to
+measure*: `/bbs-checkup` and the nightly audit are also instruments for discovering where
+folders stop being enough.
+
+## Rep-deployable agency tenants (bbs-customer-bots)
+
+Twelve agency gear-assistant tenants exist (`cdcr` reference implementation; `<id>.blackboxsafety.com`).
+The `new-agency-tenant` skill is the playbook, but today it is admin-grade: it edits code
+(`src/tenants/<id>.js`), requires SCPRS/BC/Grainger curation, and ends in a Vercel deploy —
+which conflicts with the rep permission profile (read-only ops, deploys gated).
+
+**Ruling for this rollout:** tier it rather than fork it.
+- **v1:** reps get tenant *awareness* — `/bbs-checkup`-style visibility of which tenants
+  exist and a documented request path ("ask for a tenant" = drop agency name + buying
+  context into a folder; Parker runs the skill).
+- **v1.1:** the skill gains a **rep mode**: the rep's Claude session does the curation
+  (facility roster from BC, buying history from SCPRS, account discovery via Grainger MCP)
+  and produces the tenant file + a PR with a preview URL; Parker's merge is the deploy.
+  This honors plan → approve → execute: rep does 95% of the work, the one irreversible
+  step stays gated. The skill's own silent-failure checklist (registry checks, live-site
+  console read) becomes the PR's acceptance section.
+
+## Marketing desk (second instance of the pattern)
+
+The marketing effort is not a named agent — it is an early second instance of the
+customer-desk pattern: a SharePoint folder ("BBS Marketing") holding consistent reference
+material, plus a skill built for Joey that works. That is evidence the pattern transfers
+beyond quoting. Design intent, in order:
+1. **Now:** inventory what's in the BBS Marketing folder and where Joey's skill lives
+   (likely hand-copied — the same drift risk the marketplace exists to fix).
+2. **v1.1:** give the marketing folder a root `CLAUDE.md` (same forge), move Joey's skill
+   into the marketplace as the seed of a **`bbs-marketing` plugin**, and migrate
+   `grainger-promo-page` into it from `bbs-sales` (it is outbound campaign work).
+3. Reps "creating opps" = the promo-page + SCPRS segmentation workflow already in the
+   marketplace, surfaced through the marketing desk.
+
 ## Out of scope for v1
 
 Source-repo cutover of the remaining bbs-website skills (per-skill, one commit each, after
