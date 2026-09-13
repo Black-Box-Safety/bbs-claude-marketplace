@@ -30,11 +30,11 @@ if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
 Write-Host "BBS rep-machine bootstrap $(if ($DryRun) { '(dry run - nothing will be installed)' })"
 Write-Host ""
 
-$installed = winget list --accept-source-agreements 2>$null | Out-String
 $failed = @()
 
 foreach ($p in $packages) {
-  if ($installed -match [regex]::Escape($p.Id)) {
+  winget list --id $p.Id --exact --accept-source-agreements > $null 2>&1
+  if ($LASTEXITCODE -eq 0) {
     Write-Host ("[ok]      {0}" -f $p.Id)
     continue
   }

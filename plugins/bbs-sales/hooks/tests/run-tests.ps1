@@ -24,6 +24,11 @@ Set-Content -Path (Join-Path $mcsp 'FLAGS.md') -Value @(
   '| 2026-09-15 | naspo-quote | wrong solicitation # | yes | (Parker: triage) |'
 )
 
+# A folder outside the desk tree that happens to carry its own quote-log.md (check 15).
+$outside = Join-Path $root 'not-the-desk'
+New-Item -ItemType Directory -Force -Path $outside | Out-Null
+Set-Content -Path (Join-Path $outside 'quote-log.md') -Value '| 2026-04-01 | Decoy row | SQ-9999 | - | 0 | - |'
+
 function Run($script, $obj) {
   $json = $obj | ConvertTo-Json -Compress -Depth 5
   return ($json | powershell -NoProfile -ExecutionPolicy Bypass -File $script | Out-String).Trim()
@@ -78,6 +83,32 @@ Check 'session context has flags'     ($o -match 'OPEN FLAGS' -and $o -match 'wr
 # 10. Session start outside any buyer folder -> silent
 $o = Run $ctx @{ hook_event_name='SessionStart'; source='startup'; cwd = $root }
 Check 'session context silent outside tree' ($o -eq '') $true
+
+# 11. Rename inside the tree through the PowerShell tool -> deny (same guard, other shell)
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='PowerShell'; tool_input=@{ command = "Rename-Item `"$cdcr`" 'CDCR'" } }
+Check 'powershell rename inside tree denied' (Decision $o) 'deny'
+
+# 12. Deleting a submitted packet through the shell -> deny
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "rm `"$mcsp\FILLED\packet-b.pdf`"" } }
+Check 'bash rm of FILLED packet denied' (Decision $o) 'deny'
+
+# 13. Reading a submitted packet through the shell -> allow (immutable, not unreadable)
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "cat `"$mcsp\FILLED\packet-b.pdf`"" } }
+Check 'bash cat of FILLED packet allowed' (Decision $o) 'allow'
+
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "pdftotext `"$mcsp\FILLED\packet-b.pdf`" > `"$root\out.txt`"" } }
+Check 'bash redirect FROM FILLED elsewhere allowed' (Decision $o) 'allow'
+
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "echo y > `"$mcsp\FILLED\packet-b.pdf`"" } }
+Check 'bash redirect INTO FILLED denied' (Decision $o) 'deny'
+
+# 14. Acronym typo folder via mkdir -> deny (CDRC vs CDCR)
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "mkdir `"$tree\CDRC (ALL)`"" } }
+Check 'acronym typo agency folder denied' (Decision $o) 'deny'
+
+# 15. Session start outside the tree, in a folder that has a quote-log.md -> silent
+$o = Run $ctx @{ hook_event_name='SessionStart'; source='startup'; cwd = $outside }
+Check 'session context silent outside tree with quote-log' ($o -eq '') $true
 
 Remove-Item -Recurse -Force $root
 Write-Host ""

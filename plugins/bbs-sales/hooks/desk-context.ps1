@@ -8,6 +8,10 @@ try { $h = $raw | ConvertFrom-Json } catch { exit 0 }
 $dir = [string]$h.cwd
 if (-not $dir -or -not (Test-Path -LiteralPath $dir)) { exit 0 }
 
+# Quote-desk tree only. A session anywhere else on the machine gets nothing injected, even if
+# some unrelated folder happens to hold a quote-log.md.
+if ($dir.IndexOf("All RFQ's by Agency", [StringComparison]::OrdinalIgnoreCase) -lt 0) { exit 0 }
+
 $out = New-Object System.Collections.Generic.List[string]
 for ($i = 0; $i -lt 5 -and $dir; $i++) {
   $ql = Join-Path $dir 'quote-log.md'

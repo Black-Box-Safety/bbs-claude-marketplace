@@ -10,8 +10,8 @@ report format at the end. Read-only: create/modify nothing, send nothing.
 ## Checks
 
 1. **Plugins.** Confirm the bbs-foundations, bbs-sales, bbs-website, skill-bus, claudeforge,
-   and impeccable plugins are loaded (their skills appear in your available skills). Report
-   each present/absent.
+   impeccable, superpowers-chrome, caveman, and document-skills plugins are loaded (their
+   skills appear in your available skills). Report each present/absent.
 2. **Marketplace freshness.** Run `claude plugin marketplace list` via Bash if available;
    note whether bbs-claude-marketplace is registered. If the command is unavailable, say so.
 3. **Business Central connector** (BC MCP Custom API, interim — tool names change at the
@@ -36,6 +36,9 @@ report format at the end. Read-only: create/modify nothing, send nothing.
    desk root) containing `bbs-grounding-doctrine`. PASS = present. FAIL = absent → the fix is
    `/bbs-onboard`. If `.claude/skill-bus-telemetry.jsonl` exists at the desk, note whether it
    shows a `match` for a `bbs-sales:` skill (informational).
+10. **Bootstrap tools.** Run `where.exe node pdftotext pandoc uv` via Bash (or PowerShell
+    `Get-Command`). PASS = all four resolve. WARN (not FAIL) for any missing one, naming it and
+    pointing at `scripts/bbs-setup.ps1` (REP-SETUP step 1).
 
 ## Report format
 

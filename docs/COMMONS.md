@@ -17,7 +17,7 @@ tags where the upstream cuts them, a commit SHA otherwise. Nothing is copied int
 | Plugin | Pin | Why reps have it | Watch for |
 |---|---|---|---|
 | `superpowers-chrome` | `v3.0.5` | Drives the rep's own Chrome: product research on distributor and agency sites, logged-in sessions included. Full browser access is a standing ruling; no deny rules touch it | Upstream says beta. Needs Node.js (bootstrap installs it). If a rep hits a crash, log it in FLAGS |
-| `caveman` | `v2.6.0` | Opt-in terse mode. Cuts output tokens roughly two-thirds; technical content stays exact. `/caveman lite` is a good default for long sessions | Off by default; never forced on |
+| `caveman` | `v2.6.0` | Opt-in terse mode. Cuts output tokens roughly two-thirds; technical content stays exact. `/caveman lite` is a good default for long sessions | Off by default via managed env (`CAVEMAN_DEFAULT_MODE=off`); never forced on |
 | `document-skills` (Anthropic) | commit `34040c9c` | Word, PDF, Excel handling with real scripts: fill and merge PDFs, read tracked changes, build spreadsheets with formulas. RFQ worksheets and bid packets are exactly this | `pptx` excluded on purpose. Skills carry Python scripts; `uv` from the bootstrap covers the runtime |
 
 ## Considered, not included (yet)

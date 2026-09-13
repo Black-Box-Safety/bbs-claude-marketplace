@@ -47,6 +47,16 @@ function Levenshtein([string]$a, [string]$b) {
   return $prev[$b.Length]
 }
 
+# One swapped adjacent pair ("cdrc" for "cdcr"). Plain Levenshtein scores a transposition 2,
+# and loosening the short-name threshold to 2 would collide real siblings like CDPH and CDCR,
+# so the swap is checked on its own.
+function IsTransposition([string]$a, [string]$b) {
+  if ($a.Length -ne $b.Length -or $a.Length -lt 2) { return $false }
+  $diff = @(0..($a.Length - 1) | Where-Object { $a[$_] -ne $b[$_] })
+  if ($diff.Count -ne 2 -or ($diff[1] - $diff[0]) -ne 1) { return $false }
+  return ($a[$diff[0]] -eq $b[$diff[1]] -and $a[$diff[1]] -eq $b[$diff[0]])
+}
+
 # Two folder names are near-duplicates when one is a typo of the other, or when one names the
 # same buyer with a word dropped or added ("Mule Creek Prison" vs "Mule Creek State Prison").
 function IsNearDuplicate([string]$new, [string]$existing) {
@@ -55,6 +65,11 @@ function IsNearDuplicate([string]$new, [string]$existing) {
   if (-not $want -or -not $have) { return $false }
   if ($want -eq $have) { return $true }
   if ($want.Length -ge 6 -and (Levenshtein $want $have) -le 2) { return $true }
+  # Agency acronyms (CDCR, CALPIA) are too short for the rule above: one wrong or swapped
+  # letter there is a typo, not a different buyer.
+  if ($want.Length -ge 4 -and $want.Length -le 5 -and $have.Length -ge 4 -and $have.Length -le 5) {
+    if ((Levenshtein $want $have) -le 1 -or (IsTransposition $want $have)) { return $true }
+  }
   $wantT = Tokens $new
   $haveT = Tokens $existing
   if ($wantT.Count -ge 2 -and $haveT.Count -ge 2) {
@@ -89,12 +104,20 @@ function NearDuplicate([string]$path) {
 }
 
 switch ($tool) {
-  'Bash' {
+  { $_ -in 'Bash', 'PowerShell' } {
     $cmd = [string]$in.command
     if (-not $cmd) { exit 0 }
     if ($cmd.IndexOf($TREE, [StringComparison]::OrdinalIgnoreCase) -lt 0) { exit 0 }
     if ($cmd -match '(^|[\s;&|(])(mv|ren|rename|Rename-Item|Move-Item|git\s+mv)\b') {
       Deny "Blocked: renaming or moving inside '$TREE' is never allowed -- folder names carry Grainger account numbers and buyer identity (desk CLAUDE.md landmine 4). If a folder is truly misnamed, tell Parker."
+    }
+    # Deletes anywhere near a FILLED path, or a redirect whose TARGET is inside FILLED. Reading
+    # a packet (cat, pdftotext ... > elsewhere) stays allowed.
+    if ($cmd -match '[\\/]FILLED[\\/]' -and $cmd -match '(^|[\s;&|(])(rm|del|Remove-Item)\b') {
+      Deny "Blocked: files under FILLED/ are submitted packets and immutable. Do not delete them; save a new version alongside (e.g. -v2)."
+    }
+    if ($cmd -match '>{1,2}\s*("[^"]*[\\/]FILLED[\\/]|[^\s"|;&]*[\\/]FILLED[\\/])') {
+      Deny "Blocked: redirecting output into FILLED/ would overwrite a submitted packet. Write the new file alongside it (e.g. -v2)."
     }
     if ($cmd -match '(^|[\s;&|(])(mkdir|md|New-Item)\b') {
       $m = [regex]::Match($cmd, '"([^"]*' + [regex]::Escape($TREE) + '[^"]*)"')

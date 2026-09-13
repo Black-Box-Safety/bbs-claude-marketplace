@@ -123,7 +123,7 @@ without any per-machine setup.
 
 | Hook | When | What it does |
 |---|---|---|
-| `guard-tree.ps1` | Before Bash / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/` |
+| `guard-tree.ps1` | Before Bash / PowerShell / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/`, including a shell delete or a redirect into a submitted packet (reading one stays allowed) |
 | `desk-context.ps1` | Session start inside a buyer folder | Puts the last rows of `quote-log.md` and the latest `FLAGS.md` entries in front of Claude before the first prompt |
 
 A denial shows up as a permission refusal with a one-line reason Claude relays. Test locally:

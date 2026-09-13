@@ -20,6 +20,7 @@ when that file changes, change the block.
 | `permissions.allow` | Read-only git/gh and file tools without prompts + the superpowers-chrome browser tool (full browser access is a ruling; prompts per click would defeat it) | Fewer prompts on the actions that cannot break anything |
 | `permissions.ask` | Push, PR create/merge, Vercel deploy, Shopify theme push | Plan → approve → execute is doctrine; this makes the tool enforce it |
 | `permissions.deny` | `rm -rf`, force-push, hard reset, `gh repo delete`, reading `.env` files | The irreversible actions and the secret files + send-class tools (draft-first). `Read(**/.env)` does not block `.env.example` |
+| `env.CAVEMAN_DEFAULT_MODE=off` | Caveman stays off until a rep types `/caveman` | The plugin's own default is `full`; without this every rep session — including customer-email drafting — would start terse |
 | `disableBypassPermissionsMode` | Nobody can run `--dangerously-skip-permissions` | For a team that is not native with AI, the permission prompt is the seatbelt |
 | `claudeMd` | Company memory injected into **every** session on every machine | The nine rules that hold everywhere, the exact strings, the systems of record, and where the detail lives. Managed-settings-only field, so it cannot be overridden by a repo file. This is the fastest path to "the same answer Parker would give" |
 | `companyAnnouncements` | One rotating line at startup | Onboarding by repetition |
@@ -134,7 +135,9 @@ Three pinned third-party plugins ship to everyone: `superpowers-chrome` (real-Ch
 `caveman` (opt-in terse mode), and Anthropic's `document-skills` (docx/pdf/xlsx). Curation,
 bar, and refresh cadence: `docs/COMMONS.md`. The browser tool is on the allow list on purpose —
 reps browse to find products, and the pricing-source rule (no price from the open web) is a
-rule about where numbers come from, not a restriction on browsing.
+rule about where numbers come from, not a restriction on browsing. Caveman is forced off by default
+through the managed `env` block; a rep turns it on per session with `/caveman lite` or
+`/caveman full`.
 
 ## What is deliberately not here
 
