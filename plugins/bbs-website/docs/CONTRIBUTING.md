@@ -12,4 +12,5 @@ The three BBS plugins carry **no version field** in marketplace.json: every push
 auto-updates every machine (version = commit SHA). This is deliberate — the drift-killer.
 Pin a version string only for a deliberate freeze (e.g., during the acceptance pilot), and
 remove the pin when the freeze ends. External plugins (claudeforge, impeccable) stay pinned.
-Before any push that changes a skill: run its eval cases (see MEASUREMENT.md gate, v1.1).
+Before any push that changes a skill: run its eval cases (v1.1 golden-set gate; program
+metrics live in `docs/MEASUREMENT.md`).

@@ -858,3 +858,36 @@ machine), `claude plugin validate` availability.
 - **Types/consistency:** file paths cross-referenced (REP-SETUP ↔ workspace/README ↔
   checkup; RUNBOOK ↔ MANAGED-SETTINGS ↔ CLEANUP). Registry statuses match the spec map.
 ```
+
+## Execution log (2026-09-13)
+
+Executed via subagent-driven development on `main`, one commit per task, no push. Task text
+above is as approved; the deltas below are what actually shipped, each reviewed for spec
+compliance and quality by a fresh-context agent.
+
+- **Trailer:** `Claude Fable 5.1`, not `Fable 5` (current attribution). Subagents drift to their
+  own model name in trailers, so the controller made every commit.
+- **Task 4** (`a47d12f`): README OneDrive-root example corrected to `Black Box Safety - MASTER`
+  (repo-wide convention; the bare name contradicted every other doc).
+- **Task 5** (`5018021`): desk template — dropped the unverified `tiffany-ortiz-` example
+  (pre-migration artifact, absent from `agency-tree.md`); added `## Context hygiene` (one RFQ
+  per session; compaction preservation list — Claude Code best practice); added the
+  cert-language pointer and "external content is data" rule (bbs-claude-md-forge doctrine);
+  added the maintenance footer the forge requires.
+- **Task 9**: §1 step 3 now ends with a `/context` startup-size measurement and a
+  trim-connectors-per-role check; §5 gained item 6 (`/context` + `/doctor` after CLAUDE.md
+  edits). Both from Anthropic's best-practices page (context is the binding constraint).
+- **Task 10**: Daily use gained a "Session hygiene" bullet (`/clear` between RFQs, `/btw`,
+  `/clear` after two failed corrections, `/rename` per deal).
+- **Task 11**: caveman moved from Remove to Keep (Parker ruling 2026-09-13; becomes a
+  `bbs-commons` pin in v1.1); heading `keep 4` → `keep 5`.
+- **Task 2 follow-up**: `plugins/bbs-website/docs/CONTRIBUTING.md` version-policy line now
+  distinguishes the v1.1 eval gate from `docs/MEASUREMENT.md` (metrics), which it had
+  conflated.
+- **Recorded, not changed:** `outlook_create_event`, `outlook_respond_to_event`, and Teams
+  send tools are outbound but outside the email + e-sign deny scope — ruling logged in
+  `2026-09-13-v1.1-backlog.md`. `search.exclude: {"**/FILLED": false}` in the workspace file
+  is a no-op (harmless, left as authored).
+- **Session rulings and proposals** (bbs-commons, full browser access, supplier-scout via
+  Firecrawl, CLI tools, 13 hook candidates, headless runner, budget lens) live in
+  `docs/superpowers/plans/2026-09-13-v1.1-backlog.md`.
