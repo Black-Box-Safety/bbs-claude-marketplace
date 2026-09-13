@@ -79,6 +79,50 @@ Three doctrine inserts fire automatically when a relevant skill runs, so the rul
 - **Catalog** — import-template rules, contract eligibility and `is_restricted`, regenerate-don't-hand-edit for generated files.
 - **Grounding** — the bot states only tool/knowledge facts (never invented prices); current model IDs (`claude-opus-4-8` / `claude-sonnet-5` / `claude-haiku-4-5`); cache the stable prefix; forms at session-end only. Ships with `bbs-foundations`, not this plugin — install both, or the lane-tuning skills run without it.
 
+## See it work
+
+> **You:** We just got a price list from Avon Protection. Get it into the store.
+>
+> **Claude:** Cleaning the list into the BBS import template (17 SKUs), loading it into the
+> products database, and checking Avon's contract eligibility (they're on NPPGov PS25650, so
+> contract pricing applies). Enriching descriptions and images, then building the Avon brand page
+> in the Field Manual style like the other 24. Last step: a "Customers Also Bought" strip so the
+> new gear surfaces next to related items.
+
+One request walks the whole pipeline. Each step is owned by an agent that knows the BBS way of
+doing it, and the rules apply whether or not you've read them.
+
+## What you can ask for
+
+- **Load a new price list**: *"Clean this Damascus price sheet and import it."*
+- **Apply a contract**: *"Load the new Sourcewell discounts by manufacturer."*
+- **Onboard a manufacturer**: *"Add a brand page for Avon, like the others."*
+- **Fix the storefront**: *"This product card is missing its logo and shows the wrong price mode."*
+- **Tune the quote bot**: *"The Direct lane isn't recommending the right brands."*
+- **Merchandise**: *"Add a Customers-Also-Bought strip to the PDPs."*
+- **Audit quality**: *"Find products with broken images or descriptions that don't match."*
+
+## How the pieces fit
+
+- **Skills** teach the BBS way of each task; **agents** own a pipeline stage and route work to the
+  right skill; **commands** are thin orchestration over both.
+- **Two data planes, one product truth**: the Supabase products database (`bbs-database`) is the
+  source, Shopify renders it, and the quote bot advises over a frozen snapshot plus live search. A
+  database change reaches the storefront only after sync, and the bot only after a `gen-*.mjs`
+  regen is committed.
+- **Docs teach, the skill-bus enforces**: doctrine inserts auto-inject as context whenever a
+  relevant skill runs. `/bbs-review` reads `skill-bus-telemetry.jsonl` to catch coverage gaps.
+- **Reviewers keep it living**: Arthur (architecture) and Tom (delivery) review recent changes and
+  write findings back into the skills.
+- **Reference skills are linked, not copied**: generic Shopify/Liquid skills update on their own.
+
+## What it won't do
+
+It doesn't replace the three repos or run the site: it's how you *maintain* them. The quote bot it
+tunes is advisory: it searches, recommends, quotes, and generates forms, but never places orders or
+writes to Business Central on its own. It states only facts from the database and knowledge files,
+never invented prices or stock.
+
 ## Contributing
 
 This plugin improves like the site does:
