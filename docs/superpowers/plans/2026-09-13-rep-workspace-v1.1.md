@@ -913,3 +913,43 @@ git checkout main && git pull && git merge --no-ff v1.1 && git push origin main
 - **Consistency:** hook script names match between `hooks.json`, tests, and README;
   `supplier-scout` name matches the agent frontmatter, the 5c text, and the README line;
   package IDs in `bbs-setup.ps1` were verified with `winget show --exact` on 2026-09-13.
+
+## Execution log (2026-09-13, overnight, branch `v1.1`)
+
+Executed via subagent-driven development; Tasks 1–5 implemented in parallel on disjoint files,
+6–7 after, one combined spec + quality review of 1–5 and a fix batch before Task 8. Deltas from
+the task text above:
+
+- **PowerShell files are pure ASCII.** Windows PowerShell 5.1 reads BOM-less files as cp1252; an
+  em-dash inside a string terminated it and broke parsing. Dashes became `-`/`--`.
+- **`guard-tree.ps1` duplicate rule is stronger than written.** Levenshtein ≤2 could not catch
+  "Mule Creek Prison" vs "Mule Creek State Prison"; added a token-subset rule (two-token names
+  where one token set contains the other). Acronyms (4–5 chars): Levenshtein ≤1 or one adjacent
+  transposition (`CDRC` vs `CDCR` denies; `CDPH` vs `CDCR` allows). Known over-reach: a legit
+  sibling that starts with an existing two-token name is denied; the reason string says ask Parker.
+- **Guard covers the `PowerShell` tool** as well as Bash (matcher + switch case).
+- **FILLED via shell:** `rm`/`del`/`Remove-Item` near a FILLED path denied; redirect denied only
+  when the *target* is inside FILLED, so `pdftotext FILLED/x.pdf > out.txt` still works.
+- **SessionStart matcher includes `compact`**; `desk-context.ps1` only fires inside the tree.
+- **Caveman forced off by default** through managed `env.CAVEMAN_DEFAULT_MODE=off` (the plugin's
+  own default is `full`); documented in MANAGED-SETTINGS.md and COMMONS.md.
+- **`/bbs-checkup`**: roster lists all nine plugins; new check 10 for bootstrap tools on PATH.
+- **`bbs-setup.ps1`**: per-package `winget list --id --exact` instead of scraping `winget list`.
+  On Parker's machine Chrome Beta is installed, so `Google.Chrome` reads `[would]` — correct.
+- README repo-layout comment shortened to fit 100 cols. No `agents` field added to
+  `plugins/bbs-sales/.claude-plugin/plugin.json` (bbs-website relies on auto-discovery too).
+- Hook tests: 18 checks, all pass.
+
+**Open after v1.1** (still in `2026-09-13-v1.1-backlog.md`): Firecrawl connector scope for
+reps, unsourced-price Stop hook (needs a price-cell format), community skills review,
+statusline meter, `bbs-sourcing` move to `bbs-sales` + its missing references, headless runner,
+precedent index, golden evals, BC MCP swap. Pilot check for `document-skills`: confirm only
+docx/pdf/xlsx install from the `strict:false` + `skills` list against a `url` source.
+
+**Merge, after the v1 pilot passes:**
+
+```bash
+git checkout main && git pull && git merge --no-ff v1.1 && git push origin main
+# then on one machine: /plugin marketplace update, restart, /bbs-checkup,
+# "open Chrome and find MSA 10082709", and /caveman lite to confirm it is off until asked
+```
