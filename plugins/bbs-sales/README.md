@@ -96,6 +96,8 @@ This skill does not touch the PDF stack or `vendor_profile.json` above: it has i
 | `/ca-rfq-log` | Log a request you just received: find or create the folder, save the attachments, open `RFQ.md`, update the buyer's quote log. Stops before pricing. |
 | `/ca-rfq-quote` | Take a logged RFQ folder through pricing, quote, cert packet, visual verification, and delivery. |
 
+Agent: `supplier-scout` — supplier options for an item BBS has never sourced; dispatched by `bbs-sourcing` step 5c or directly ("find supplier options for MSA 10082709").
+
 Run them in that order. `/ca-rfq-quote` on an unlogged request works, but you lose the deadline record and the buyer history that makes the next quote faster.
 
 `grainger-promo-page` has no slash command yet. Describe the ask ("build a promo page for CAL FIRE from this hot list") and it fires on its own.
