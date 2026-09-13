@@ -66,6 +66,15 @@ One person adds the marketplace once; the whole team installs from it and stays 
 
 Updating later is `/plugin marketplace update`: new skill and agent versions arrive through git, so nobody copies files between machines and nothing drifts.
 
+## The rep quote desk
+
+Sales reps: your entire setup is `docs/REP-SETUP.md` (~20 min). The VS Code workspace is
+`workspace/bbs-rep.code-workspace`; verify any machine with `/bbs-checkup`.
+
+Admins: `docs/ADMIN-RUNBOOK.md` (deploy + operate), `docs/MEASUREMENT.md` (the 8 numbers),
+`docs/ADMIN-CLEANUP.md` (one-time hygiene), `REGISTRY.md` (what's canon vs archived).
+Design: `docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md`.
+
 ## What you can do
 
 - **Load a new price list**: *"Clean this Damascus price sheet and import it."*
