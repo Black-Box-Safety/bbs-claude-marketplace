@@ -1,0 +1,32 @@
+{
+  "folders": [
+    {
+      "name": "State of CA Agencies (quote desk)",
+      "path": "REPLACE-ON-FIRST-OPEN/Customers/State of CA Agencies"
+    }
+  ],
+  "settings": {
+    "workbench.startupEditor": "none",
+    "workbench.activityBar.location": "default",
+    "workbench.statusBar.visible": true,
+    "explorer.confirmDelete": true,
+    "explorer.confirmDragAndDrop": true,
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": false,
+    "editor.minimap.enabled": false,
+    "files.autoSave": "afterDelay",
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "workbench.panel.defaultLocation": "bottom",
+    "search.exclude": { "**/FILLED": false },
+    "files.exclude": { "**/.tmp*": true },
+    "window.title": "BBS Quote Desk — ${activeEditorShort}"
+  },
+  "extensions": {
+    "recommendations": [
+      "anthropic.claude-code",
+      "tomoki1207.pdf",
+      "grapecity.gc-excelviewer",
+      "pkief.material-icon-theme"
+    ]
+  }
+}
