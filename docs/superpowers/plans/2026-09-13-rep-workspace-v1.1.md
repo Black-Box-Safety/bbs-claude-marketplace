@@ -929,7 +929,9 @@ the task text above:
   sibling that starts with an existing two-token name is denied; the reason string says ask Parker.
 - **Guard covers the `PowerShell` tool** as well as Bash (matcher + switch case).
 - **FILLED via shell:** `rm`/`del`/`Remove-Item` near a FILLED path denied; redirect denied only
-  when the *target* is inside FILLED, so `pdftotext FILLED/x.pdf > out.txt` still works.
+  when the *target* is inside FILLED, so `pdftotext FILLED/x.pdf > out.txt` still works; write-only
+  cmdlets (`Set-Content`, `Add-Content`, `Out-File`, `tee`) with a FILLED path denied; `cp`/`copy`/
+  `Copy-Item` denied when the *last* path token is inside FILLED (copying a packet out is fine).
 - **SessionStart matcher includes `compact`**; `desk-context.ps1` only fires inside the tree.
 - **Caveman forced off by default** through managed `env.CAVEMAN_DEFAULT_MODE=off` (the plugin's
   own default is `full`); documented in MANAGED-SETTINGS.md and COMMONS.md.
@@ -938,7 +940,7 @@ the task text above:
   On Parker's machine Chrome Beta is installed, so `Google.Chrome` reads `[would]` — correct.
 - README repo-layout comment shortened to fit 100 cols. No `agents` field added to
   `plugins/bbs-sales/.claude-plugin/plugin.json` (bbs-website relies on auto-discovery too).
-- Hook tests: 18 checks, all pass.
+- Hook tests: 22 checks, all pass.
 
 **Open after v1.1** (still in `2026-09-13-v1.1-backlog.md`): Firecrawl connector scope for
 reps, unsourced-price Stop hook (needs a price-cell format), community skills review,

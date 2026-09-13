@@ -119,6 +119,18 @@ switch ($tool) {
     if ($cmd -match '>{1,2}\s*("[^"]*[\\/]FILLED[\\/]|[^\s"|;&]*[\\/]FILLED[\\/])') {
       Deny "Blocked: redirecting output into FILLED/ would overwrite a submitted packet. Write the new file alongside it (e.g. -v2)."
     }
+    # Write-only cmdlets and tee: a FILLED path anywhere in the command is the target.
+    if ($cmd -match '[\\/]FILLED[\\/]' -and $cmd -match '(^|[\s;&|(])(Set-Content|Add-Content|Out-File|tee)\b') {
+      Deny "Blocked: writing into FILLED/ would overwrite a submitted packet. Write the new file alongside it (e.g. -v2)."
+    }
+    # Copies: the LAST path token is the destination. Copying a packet OUT of FILLED is fine.
+    if ($cmd -match '(^|[\s;&|(])(cp|copy|Copy-Item|Move-Item|mv)\b') {
+      $tokens = [regex]::Matches($cmd, '"[^"]+"|\S+') | ForEach-Object { $_.Value.Trim('"') }
+      $dest = ($tokens | Where-Object { $_ -match '[\\/]' -and $_ -notmatch '^-' } | Select-Object -Last 1)
+      if ($dest -and $dest -match '[\\/]FILLED[\\/]') {
+        Deny "Blocked: copying onto FILLED/ would overwrite a submitted packet. Copy to a new name alongside it (e.g. -v2)."
+      }
+    }
     if ($cmd -match '(^|[\s;&|(])(mkdir|md|New-Item)\b') {
       $m = [regex]::Match($cmd, '"([^"]*' + [regex]::Escape($TREE) + '[^"]*)"')
       $target = if ($m.Success) { $m.Groups[1].Value } else { ($cmd -split '\s+' | Where-Object { $_ -like "*$TREE*" } | Select-Object -First 1) }

@@ -102,6 +102,18 @@ Check 'bash redirect FROM FILLED elsewhere allowed' (Decision $o) 'allow'
 $o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "echo y > `"$mcsp\FILLED\packet-b.pdf`"" } }
 Check 'bash redirect INTO FILLED denied' (Decision $o) 'deny'
 
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "cp `"$root\new.pdf`" `"$mcsp\FILLED\packet-b.pdf`"" } }
+Check 'bash cp ONTO FILLED packet denied' (Decision $o) 'deny'
+
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "cp `"$mcsp\FILLED\packet-b.pdf`" `"$root\copy.pdf`"" } }
+Check 'bash cp OUT of FILLED allowed' (Decision $o) 'allow'
+
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='PowerShell'; tool_input=@{ command = "Set-Content -Path `"$mcsp\FILLED\packet-b.pdf`" -Value y" } }
+Check 'powershell Set-Content onto FILLED denied' (Decision $o) 'deny'
+
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "echo y | tee `"$mcsp\FILLED\packet-b.pdf`"" } }
+Check 'bash tee onto FILLED denied' (Decision $o) 'deny'
+
 # 14. Acronym typo folder via mkdir -> deny (CDRC vs CDCR)
 $o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "mkdir `"$tree\CDRC (ALL)`"" } }
 Check 'acronym typo agency folder denied' (Decision $o) 'deny'
