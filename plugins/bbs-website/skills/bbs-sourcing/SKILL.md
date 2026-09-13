@@ -116,9 +116,9 @@ Look up the vertical in `references/vendor-directory.md`. Pick candidates per th
 
 If the vertical has DPA members available, at least one of them should be in the outreach list.
 
-### 5c. Search online for new vendors
+### 5c. Scout suppliers for items the directory doesn't cover
 
-Do this when the BBS directory doesn't cover the item, or when the rep wants more options for a high-dollar line.
+Do this when the BBS directory doesn't cover the item, or when the rep wants more options for a high-dollar line. Dispatch the `supplier-scout` agent (bbs-sales plugin) with the line item, quantity, and buying agency; it checks SCPRS and Business Central first, then the web (Firecrawl when assigned, `WebSearch`/`WebFetch` otherwise), and returns a supplier-options table with every price tied to a fetched URL and date. Rank its rows with the credibility list below before presenting them.
 
 **Credibility ranking for online finds:**
 1. Authorized distributor (verified on manufacturer's site — look for a "Where to Buy" or "Find a Distributor" page)
