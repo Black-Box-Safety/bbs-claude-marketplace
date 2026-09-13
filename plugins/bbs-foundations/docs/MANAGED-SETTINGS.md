@@ -30,7 +30,7 @@ when that file changes, change the block.
 
 1. **Rotate the Grainger gateway key.** The old one was distributed in plaintext to every
    machine and pasted into at least one chat. Issue a new one; put it in
-   `~/grainger-api/mcp/.env` on each machine (`GRAINGER_GATEWAY_API_KEY=...`). The distributed
+   `~/grainger-api/mcp/.env` on admin machines only (`GRAINGER_GATEWAY_API_KEY=...`). The distributed
    config no longer carries it.
 2. **Confirm connector assignments** in the admin console match the matrix below (Grainger,
    BC, SCPRS, CRM, M365). No `mcpServers` block ships; reps get everything as connectors.
@@ -131,7 +131,7 @@ deliberately absent. Guardrails cover irreversible acts and the money path only.
 ## What is deliberately not here
 
 - **No API keys, tokens, account numbers, FEIN, or seller's permit.** Those live in
-  `~/.bbs/vendor_profile.json` and `~/grainger-api/mcp/.env` per machine.
+  `~/.bbs/vendor_profile.json` per machine and `~/grainger-api/mcp/.env` on admin machines.
 - **No hooks.** The skill-bus plugin carries its own; `bbs-website` ships one template
   validator in `bbs-database`'s repo settings where it belongs.
 - **No model pin.** People pick per task; the `claudeMd` block names the three current IDs

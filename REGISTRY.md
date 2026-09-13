@@ -6,7 +6,7 @@ named value, then archive), **parked** (deliberate pause, revisit condition name
 **archived** (done, read-only), **separate track** (alive, not this program). "archived"
 records the ruling; the GitHub click itself is tracked in docs/ADMIN-CLEANUP.md until done.
 
-Last verified: 2026-09-11 (rep-workspace design session).
+Last verified: 2026-09-13 (rep-workspace v1 build; connector rulings added).
 
 | Asset | Status | Ruling / where the value went |
 |---|---|---|

@@ -14,10 +14,10 @@ Claude is reading, side by side. Screenshots will be pinned in the Teams sales c
    repo (Parker posts it in Teams). First open: replace `REPLACE-ON-FIRST-OPEN` with your
    OneDrive root per `workspace/README.md`, save, reopen. Accept the 4 recommended
    extensions.
-4. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
-   exact sentence to send Parker — send it, use the Desktop app meanwhile.
-5. **Run `/bbs-onboard`** once — wires the skill-bus doctrine injection so BBS grounding rules
+4. **Run `/bbs-onboard`** once — wires the skill-bus doctrine injection so BBS grounding rules
    fire inside the quoting skills. Without it the skills run with no guardrail text.
+5. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
+   exact sentence to send Parker — send it, use the Desktop app meanwhile.
 6. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
 
 ## Daily use
@@ -55,5 +55,5 @@ log it when Claude gets it wrong, experiment freely otherwise.
 ## Level up (optional, free)
 
 Anthropic Academy "Claude 101": anthropic.skilljar.com/claude-101. Ask Parker both the
-how-do-I and the it's-broken questions for now (a deputy champion gets named after the
-pilot) (with your /bbs-checkup line).
+how-do-I and the it's-broken questions for now, with your /bbs-checkup line for the latter
+(a deputy champion gets named after the pilot).

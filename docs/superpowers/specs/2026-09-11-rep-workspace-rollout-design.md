@@ -1,6 +1,6 @@
 # Rep workspace rollout — design
 
-**Date:** 2026-09-11 · **Owner:** Parker Marshall · **Status:** v1 built (this repo, 2026-09-13) — deployment checklist: docs/ADMIN-RUNBOOK.md §0–§3
+**Date:** 2026-09-11 · **Owner:** Parker Marshall · **Status:** v1 built (this repo, 2026-09-13) — deployment checklist: docs/ADMIN-RUNBOOK.md §0–§3a
 
 ## The business problem (why any of this matters)
 
