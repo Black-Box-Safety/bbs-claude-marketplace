@@ -6,19 +6,23 @@ Claude is reading, side by side. Screenshots will be pinned in the Teams sales c
 
 ## Set up (once)
 
-1. **Install VS Code** — code.visualstudio.com, all defaults.
-2. **Install the Claude Code extension** — Extensions sidebar (Ctrl+Shift+X), search
+1. **Run the bootstrap** — download `scripts/bbs-setup.ps1` from the marketplace repo (Parker
+   posts it in Teams with the workspace file), then in PowerShell:
+   `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1`. It installs Git, Node, Chrome,
+   and the PDF/OCR/Office command-line tools Claude uses to read RFQs. Two minutes, safe to rerun.
+2. **Install VS Code** — code.visualstudio.com, all defaults.
+3. **Install the Claude Code extension** — Extensions sidebar (Ctrl+Shift+X), search
    "Claude Code", install, then sign in with your BBS Claude account (same login as the
    Desktop app).
-3. **Open the quote desk** — grab `workspace/bbs-rep.code-workspace` from the marketplace
+4. **Open the quote desk** — grab `workspace/bbs-rep.code-workspace` from the marketplace
    repo (Parker posts it in Teams). First open: replace `REPLACE-ON-FIRST-OPEN` with your
    OneDrive root per `workspace/README.md`, save, reopen. Accept the 4 recommended
    extensions.
-4. **Run `/bbs-onboard`** once — wires the skill-bus doctrine injection so BBS grounding rules
+5. **Run `/bbs-onboard`** once — wires the skill-bus doctrine injection so BBS grounding rules
    fire inside the quoting skills. Without it the skills run with no guardrail text.
-5. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
+6. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
    exact sentence to send Parker — send it, use the Desktop app meanwhile.
-6. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
+7. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
 
 ## Daily use
 
@@ -28,6 +32,9 @@ Claude is reading, side by side. Screenshots will be pinned in the Teams sales c
   You send.
 - Where you'd have asked "what did we quote them last time?" — ask Claude. It reads the
   quote-log and Business Central and cites what it finds.
+- Need to find a product or a supplier? Ask Claude to open Chrome and look. It drives your own
+  browser, logged in as you. Prices still come from Grainger or a vendor quote, never from a web
+  page — Claude knows the rule.
 - One outbound motion a week: a promo page, a winback batch, or a follow-up sweep. Log it.
 - Claude got something wrong? One line in `FLAGS.md`. That's a catch, not a confession.
 - Session hygiene: one RFQ per Claude session — `/clear` before the next one. Side question?
