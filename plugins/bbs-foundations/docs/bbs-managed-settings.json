@@ -16,8 +16,11 @@
     "bbs-foundations@bbs-claude-marketplace": true,
     "bbs-sales@bbs-claude-marketplace": true,
     "bbs-website@bbs-claude-marketplace": true,
+    "caveman@bbs-claude-marketplace": true,
     "claudeforge@bbs-claude-marketplace": true,
+    "document-skills@bbs-claude-marketplace": true,
     "impeccable@bbs-claude-marketplace": true,
+    "superpowers-chrome@bbs-claude-marketplace": true,
     "skill-bus@skill-bus-marketplace": true
   },
 
@@ -35,7 +38,8 @@
       "Bash(gh pr list:*)",
       "Bash(gh pr diff:*)",
       "Bash(gh issue list:*)",
-      "Bash(python3 -m py_compile:*)"
+      "Bash(python3 -m py_compile:*)",
+      "mcp__plugin_superpowers-chrome_chrome__use_browser"
     ],
     "ask": [
       "Bash(git push:*)",

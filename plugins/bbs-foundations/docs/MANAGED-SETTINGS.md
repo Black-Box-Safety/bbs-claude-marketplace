@@ -6,7 +6,7 @@ teammate's machine. That file is a **mirror**: local edits are overwritten on re
 this is the only place to change it. This document says what each block does and why, so
 the next person to edit it does not have to reverse-engineer it.
 
-Owner: Parker Marshall. Last verified: 2026-09-11. Company facts in the `claudeMd` block
+Owner: Parker Marshall. Last verified: 2026-09-13. Company facts in the `claudeMd` block
 come from `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`;
 when that file changes, change the block.
 
@@ -15,9 +15,9 @@ when that file changes, change the block.
 | Block | Purpose | Why it matters for a small team |
 |---|---|---|
 | `extraKnownMarketplaces` | Registers **one** BBS marketplace plus the `skill-bus` marketplace | Two marketplaces named after forks confused install instructions in August. `skill-bus` is the mechanism that injects BBS doctrine when a skill runs — without it the doctrine never fires |
-| `enabledPlugins` | `bbs-foundations`, `bbs-sales`, `bbs-website`, `claudeforge`, `impeccable`, `skill-bus` — all on, for everyone | Nine people. The cost of an unused plugin is a few lines of context; the cost of a rep missing the quote-desk skill is a lost bid. `bbs-website` is advisory, so a rep having it costs nothing |
+| `enabledPlugins` | `bbs-foundations`, `bbs-sales`, `bbs-website`, `claudeforge`, `impeccable`, `skill-bus`, plus the commons: `superpowers-chrome`, `caveman`, `document-skills` — all on, for everyone | Nine people. The cost of an unused plugin is a few lines of context; the cost of a rep missing the quote-desk skill is a lost bid. `bbs-website` is advisory, so a rep having it costs nothing |
 | _(no `mcpServers`)_ | Grainger, BC, SCPRS, CRM, M365 are all claude.ai connectors (ruled 2026-09-13) | Connectors are assigned in the admin console, never configured per machine. The local `grainger-api` stdio server stays on admin machines only; a `mcpServers` entry here would show red in `/mcp` on every rep machine that lacks it |
-| `permissions.allow` | Read-only git/gh and file tools without prompts | Fewer prompts on the actions that cannot break anything |
+| `permissions.allow` | Read-only git/gh and file tools without prompts + the superpowers-chrome browser tool (full browser access is a ruling; prompts per click would defeat it) | Fewer prompts on the actions that cannot break anything |
 | `permissions.ask` | Push, PR create/merge, Vercel deploy, Shopify theme push | Plan → approve → execute is doctrine; this makes the tool enforce it |
 | `permissions.deny` | `rm -rf`, force-push, hard reset, `gh repo delete`, reading `.env` files | The irreversible actions and the secret files + send-class tools (draft-first). `Read(**/.env)` does not block `.env.example` |
 | `disableBypassPermissionsMode` | Nobody can run `--dangerously-skip-permissions` | For a team that is not native with AI, the permission prompt is the seatbelt |
@@ -127,6 +127,14 @@ same commit that documents it here. AUP.md is the human-side counterpart, linked
 Ruling: reps may install skills, author their own, and experiment. The strict lockdown keys
 (`strictKnownMarketplaces`, `strictPluginOnlyCustomization`, model restrictions) are
 deliberately absent. Guardrails cover irreversible acts and the money path only.
+
+## Commons (2026-09-13)
+
+Three pinned third-party plugins ship to everyone: `superpowers-chrome` (real-Chrome browsing),
+`caveman` (opt-in terse mode), and Anthropic's `document-skills` (docx/pdf/xlsx). Curation,
+bar, and refresh cadence: `docs/COMMONS.md`. The browser tool is on the allow list on purpose —
+reps browse to find products, and the pricing-source rule (no price from the open web) is a
+rule about where numbers come from, not a restriction on browsing.
 
 ## What is deliberately not here
 
