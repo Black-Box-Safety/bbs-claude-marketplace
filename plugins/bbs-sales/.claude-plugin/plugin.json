@@ -18,5 +18,6 @@
     "scprs",
     "state-of-california"
   ],
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json"
 }

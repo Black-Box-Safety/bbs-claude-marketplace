@@ -114,6 +114,19 @@ These four come up on every state quote, and each one exists for a reason worth 
 
 One more that is not a rule but behaves like one: the `Customers/State of CA Agencies/` tree is the training data. Every blank the agency sent and every filled version BBS returned is in there. When history can answer a question (which form revision this agency uses, what BBS wrote in that field last time, whether this buyer accepted a 0% recycled-content answer), read the corpus instead of guessing or asking the rep.
 
+## Hooks (v1.1)
+
+Deterministic guards, PowerShell, shipped with the plugin. They fire on Windows rep machines
+without any per-machine setup.
+
+| Hook | When | What it does |
+|---|---|---|
+| `guard-tree.ps1` | Before Bash / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/` |
+| `desk-context.ps1` | Session start inside a buyer folder | Puts the last rows of `quote-log.md` and the latest `FLAGS.md` entries in front of Claude before the first prompt |
+
+A denial shows up as a permission refusal with a one-line reason Claude relays. Test locally:
+`powershell -File plugins/bbs-sales/hooks/tests/run-tests.ps1`.
+
 ## Rollout guide
 
 How this gets introduced to the team, and what "working" looks like: <https://claude.ai/code/artifact/6fd0a004-8323-477d-b461-332fb35afd7e>
