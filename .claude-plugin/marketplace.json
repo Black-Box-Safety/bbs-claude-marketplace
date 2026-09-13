@@ -5,14 +5,13 @@
   },
   "metadata": {
     "description": "Black Box Safety internal Claude plugins — site operations, state sales, and AI foundations.",
-    "version": "0.3.0"
+    "version": "0.4.0"
   },
   "plugins": [
     {
       "name": "bbs-website",
       "source": "./plugins/bbs-website",
       "description": "Maintain the BBS website end to end — price list to product page. Skills, agents, and commands for catalog intake, pricing, enrichment, storefront, quote bot, QA, and cross-sell.",
-      "version": "0.1.0",
       "author": {
         "name": "Black Box Safety, Inc."
       },
@@ -30,7 +29,6 @@
       "name": "bbs-sales",
       "source": "./plugins/bbs-sales",
       "description": "California state sales: log an inbound RFQ, price it and fill the CA compliance packet, and turn a Grainger negotiated price sheet into an agency promotion page with SCPRS buyer segments and the brand compliance gate.",
-      "version": "0.2.0",
       "author": {
         "name": "Black Box Safety, Inc."
       },
@@ -53,7 +51,6 @@
       "name": "bbs-foundations",
       "source": "./plugins/bbs-foundations",
       "description": "Company-wide AI foundations: the BBS way to write CLAUDE.md files (BBSClaudeMDForge), the doctrine every skill inherits, and the shared company facts, systems of record, and certification rules that keep every repo and customer folder consistent.",
-      "version": "0.1.0",
       "author": {
         "name": "Black Box Safety, Inc."
       },
