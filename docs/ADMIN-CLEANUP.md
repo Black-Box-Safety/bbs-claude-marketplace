@@ -6,7 +6,11 @@ Execute deliberately, one block at a time. Nothing here touches rep machines.
 ## Secrets (do first, both machines)
 
 - [ ] Rotate Firecrawl API key; update `~/.claude.json` mcpServers env with the new one
-- [ ] Rotate Grainger gateway key; new value only in `~/grainger-api/mcp/.env`
+- [ ] Rotate Grainger gateway key; new value only in `~/grainger-api/mcp/.env` (admin machines
+      only — reps use the Grainger claude.ai connector)
+- [ ] Remove the stale local `businesscentral` MCP server entry from `~/.claude.json` (fails
+      with "MCP Configuration not found"; superseded by the BC MCP connector)
+- [ ] Admin console: unassign the retired BC Chat Connector from everyone
 - [ ] Delete `~/.claude/remote-settings.json` stale `bbs-grainger` entry (macOS path + old key)
 - [ ] Rebuild `~/.claude/settings.local.json` from empty: remove all 116 entries (they
       include the old Firecrawl key ~20 times, `Bash(bash *)`, and auto-approved

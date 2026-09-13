@@ -2,7 +2,7 @@
 
 You already use Claude Code in the Desktop app. **Everything you do today keeps working.**
 This adds the VS Code quote desk: same Claude, same skills — plus you can SEE the files
-Claude is reading, side by side. Screenshots live in the Teams sales channel pinned post.
+Claude is reading, side by side. Screenshots will be pinned in the Teams sales channel.
 
 ## Set up (once)
 
@@ -16,13 +16,16 @@ Claude is reading, side by side. Screenshots live in the Teams sales channel pin
    extensions.
 4. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
    exact sentence to send Parker — send it, use the Desktop app meanwhile.
-5. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
+5. **Run `/bbs-onboard`** once — wires the skill-bus doctrine injection so BBS grounding rules
+   fire inside the quoting skills. Without it the skills run with no guardrail text.
+6. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
 
 ## Daily use
 
-- New RFQ lands (or appears in `_inbox/`): open the workspace, tell Claude what arrived —
-  `ca-rfq-intake` files it and starts the record. Then `/ca-rfq-quote` when you're ready
-  to price. You review every number. You send.
+- New RFQ lands in your mailbox (an `_inbox/` folder arrives once Parker's intake flow is
+  live): open the workspace, tell Claude what arrived — `ca-rfq-intake` files it and starts
+  the record. Then `/ca-rfq-quote` when you're ready to price. You review every number.
+  You send.
 - Where you'd have asked "what did we quote them last time?" — ask Claude. It reads the
   quote-log and Business Central and cites what it finds.
 - One outbound motion a week: a promo page, a winback batch, or a follow-up sweep. Log it.
@@ -51,5 +54,6 @@ log it when Claude gets it wrong, experiment freely otherwise.
 
 ## Level up (optional, free)
 
-Anthropic Academy "Claude 101": anthropic.skilljar.com/claude-101. Ask the deputy champion
-the how-do-I questions; ask Parker the it's-broken ones (with your /bbs-checkup line).
+Anthropic Academy "Claude 101": anthropic.skilljar.com/claude-101. Ask Parker both the
+how-do-I and the it's-broken questions for now (a deputy champion gets named after the
+pilot) (with your /bbs-checkup line).

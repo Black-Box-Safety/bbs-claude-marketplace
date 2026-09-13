@@ -20,8 +20,8 @@ invoke them directly.
    item before creating anything. A duplicate hides the precedent the next quote needs.
 2. A duplicate agency pair exists: `CalTrans` vs `Cal Trans (ALL)`. Use `Cal Trans (ALL)`.
 3. CDCR has legacy "copy" trees. Prefer the consolidated `CDCR (ALL)`.
-4. **Folder-name typos are load-bearing.** `Califonria Women's Facility` carries Grainger
-   account 887895136 in its name. NEVER rename folders — account numbers ride on them.
+4. **Folder-name typos are load-bearing.** `Califonria Women's Facility` carries a Grainger
+   buying-account number in its name. NEVER rename folders — account numbers ride on them.
 5. Buyer notes inside a folder override the account number in the folder name.
 6. Truncated names exist on disk (e.g. `VHC HQ (No`). Match them as-is.
 7. A stray deal folder sits at institution level under `CDCR (ALL)` (MCSP batteries, 08.11).

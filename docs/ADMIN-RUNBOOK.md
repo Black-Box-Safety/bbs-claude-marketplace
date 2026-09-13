@@ -5,7 +5,10 @@ MEASUREMENT.md (metrics), ADMIN-CLEANUP.md (one-time machine cleanup).
 
 ## 0. Prerequisites (before ANY deployment)
 
-1. **Rotate the two leaked keys** (found 2026-09-11): Firecrawl (dashboard → new key) and
+1. **Push `main`** from the admin machine (`git push origin main`). Every artifact below — the
+   plugins, `/bbs-checkup`, the workspace file — reaches machines only via the marketplace, and
+   the marketplace serves whatever is on `main`. Nothing in §1–§3 works against an unpushed repo.
+2. **Rotate the two leaked keys** (found 2026-09-11): Firecrawl (dashboard → new key) and
    Grainger gateway (issue new; place per machine in `~/grainger-api/mcp/.env`, readable by
    your user only — Windows: keep it out of shared/synced folders). Strip old values from
    `~/.claude/settings.local.json` and `~/.claude/remote-settings.json` per ADMIN-CLEANUP.md.
@@ -16,14 +19,16 @@ MEASUREMENT.md (metrics), ADMIN-CLEANUP.md (one-time machine cleanup).
 2. Paste `plugins/bbs-foundations/docs/bbs-managed-settings.json` (review MANAGED-SETTINGS.md
    "Before pasting" first).
 3. On ONE machine: restart Claude Code, run `/status` (managed source should win), `/mcp`
-   (bbs-grainger connected — verifies `${HOME}` expansion; if not, fall back per-machine),
+   (Grainger, BC, SCPRS, CRM, M365 connectors all listed — they come from the admin console,
+   not from settings),
    then `/plugin marketplace update` and `/bbs-checkup`. **Live-fire the draft-first rail:**
    ask Claude to send you a test email — expect a permission denial, not a send (`/permissions`
    should list the managed deny entries). Deny rules on wrong tool names fail silently, so
-   this test is not optional. Repeat it once on the pilot rep's machine. Then run `/context`
-   and record the startup context size (managed CLAUDE.md + plugin skill descriptions + MCP
-   tool schemas) in the deployment note; if MCP tool schemas dominate, trim connector
-   assignments per role (§3) before rollout.
+   this test is not optional. Repeat it once on the pilot rep's machine. Repeat the send test once
+   in the Desktop app as well — managed settings govern both surfaces; confirm rather than assume.
+   Then run `/context` and record the startup context size (managed CLAUDE.md + plugin skill
+   descriptions + MCP tool schemas) in the deployment note; if MCP tool schemas dominate, trim
+   connector assignments per role (§3) before rollout.
 4. Only after that machine is green: tell the reps to restart Claude Code.
 
 ## 2. Enable analytics (one-time)
@@ -33,15 +38,31 @@ Add the monthly reading to the metrics review (MEASUREMENT.md).
 
 ## 3. Connector assignments (one-time, then per new hire)
 
-Per the matrix in MANAGED-SETTINGS.md: everyone gets BC (read-only), M365, Grainger;
-CA-book reps add SCPRS; Supabase/Shopify/Vercel/QuickBooks stay admin-only.
+Per the matrix in MANAGED-SETTINGS.md: everyone gets BC MCP (Custom API, read-only, interim),
+M365, Grainger, Sales CRM; CA-book reps add SCPRS; BC Chat Connector is retired — unassign it;
+Supabase/Shopify/Vercel/QuickBooks stay admin-only.
+
+## 3a. First-deployment sequence (once, in this order)
+
+1. §0 → §1 → §2 → §3 above, on the admin machine.
+2. **Stamp the desk-root CLAUDE.md** on the pilot machine from `workspace/DESK-CLAUDE-template.md`
+   (`/bbs-claude-md init` at the desk root, or `ca-rfq-intake`'s `scaffold_folder_context.py
+   --dry-run` then `--write` for per-buyer folders). `/bbs-checkup` check 6 expects it.
+3. Post `workspace/bbs-rep.code-workspace` + the REP-SETUP link in the Teams sales channel;
+   pin it; add the first-open screenshots to that post.
+4. Pick the pilot rep and date. Gate: rep runs `/bbs-checkup` clean, logs one real RFQ,
+   produces one packet, unaided. Record PASS/FAIL in `docs/acceptance/YYYY-MM-DD-<initials>.md`.
+5. Start ADMIN-CLEANUP.md on both admin machines.
+6. Capture the baseline this month (MEASUREMENT.md) — the window closes.
+7. Inventory the BBS Marketing SharePoint folder and locate Joey's skill — feeds the
+   bbs-marketing plugin decision in v1.1.
 
 ## 4. Power Automate intake flow (build once)
 
 Flow: trigger = new mail to the quotes mailbox matching CA-agency senders/subjects →
 save attachments to `.../State of CA Agencies/_inbox/<sender>-<date>/` → post to the
-Teams sales channel. Keep it dumb: no parsing, no AI, just filing + ping. Intake skill
-takes over from `_inbox/`.
+Teams sales channel. Keep it dumb: no parsing, no AI, just filing + ping. v1: the rep tells
+Claude what arrived; an `_inbox/` sweep step lands in `ca-rfq-intake` in v1.1.
 
 ## 5. Change discipline (every skill edit or model release)
 
@@ -76,6 +97,6 @@ merges, and key custody stay with you.
 | Symptom | Fix |
 |---|---|
 | BC `Internal_CompanyNotFound` | Restart the Claude session, retry once |
-| `/mcp` shows bbs-grainger down | Local gateway not running / `.env` missing on that machine |
+| `/mcp` missing Grainger / BC / CRM | Connector not assigned to that user in the admin console (§3). Admin machines only: local `grainger-api` gateway not running |
 | Rep "Claude got weird" after an update | Check FLAGS for a spike; consider revert; it's a heightened-review week |
 | Plugin didn't update | `/plugin marketplace update`, restart; check git push actually landed |

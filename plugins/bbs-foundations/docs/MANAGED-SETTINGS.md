@@ -16,7 +16,7 @@ when that file changes, change the block.
 |---|---|---|
 | `extraKnownMarketplaces` | Registers **one** BBS marketplace plus the `skill-bus` marketplace | Two marketplaces named after forks confused install instructions in August. `skill-bus` is the mechanism that injects BBS doctrine when a skill runs — without it the doctrine never fires |
 | `enabledPlugins` | `bbs-foundations`, `bbs-sales`, `bbs-website`, `claudeforge`, `impeccable`, `skill-bus` — all on, for everyone | Nine people. The cost of an unused plugin is a few lines of context; the cost of a rep missing the quote-desk skill is a lost bid. `bbs-website` is advisory, so a rep having it costs nothing |
-| `mcpServers.bbs-grainger` | The Grainger pricing MCP, **without the API key** | The server (`mcp/server.mjs`) reads `mcp/.env` on its own. The key lives per machine in that file, mode 0600, never in a distributed config. `${HOME}` replaces Parker's hard-coded home path |
+| _(no `mcpServers`)_ | Grainger, BC, SCPRS, CRM, M365 are all claude.ai connectors (ruled 2026-09-13) | Connectors are assigned in the admin console, never configured per machine. The local `grainger-api` stdio server stays on admin machines only; a `mcpServers` entry here would show red in `/mcp` on every rep machine that lacks it |
 | `permissions.allow` | Read-only git/gh and file tools without prompts | Fewer prompts on the actions that cannot break anything |
 | `permissions.ask` | Push, PR create/merge, Vercel deploy, Shopify theme push | Plan → approve → execute is doctrine; this makes the tool enforce it |
 | `permissions.deny` | `rm -rf`, force-push, hard reset, `gh repo delete`, reading `.env` files | The irreversible actions and the secret files + send-class tools (draft-first). `Read(**/.env)` does not block `.env.example` |
@@ -32,9 +32,8 @@ when that file changes, change the block.
    machine and pasted into at least one chat. Issue a new one; put it in
    `~/grainger-api/mcp/.env` on each machine (`GRAINGER_GATEWAY_API_KEY=...`). The distributed
    config no longer carries it.
-2. **Confirm `${HOME}` expands** in the managed `mcpServers` block on one machine
-   (`/mcp` should show `bbs-grainger` connected). If it does not, fall back to a per-machine
-   path — but that means per-machine config, which is the thing this file exists to avoid.
+2. **Confirm connector assignments** in the admin console match the matrix below (Grainger,
+   BC, SCPRS, CRM, M365). No `mcpServers` block ships; reps get everything as connectors.
 3. **Remove `bbs-ops@bbs-claude-marketplace`** from any existing config. The plugin is
    `bbs-website` as of marketplace PR #4. The old id installs nothing.
 4. **Check the official Anthropic marketplace still installs** after pushing. This file does
@@ -82,7 +81,8 @@ Parker asked for actually happens. Of the connectors on Parker's account today:
 
 | Connector | Who should have it | Why |
 |---|---|---|
-| Business Central (read-only: `bc_customer_snapshot`, `bc_find_item`, …) | **Everyone** | Quote of record, AR, open orders. Read-only, so no approval risk. Replaced the retired `bbs-bc-mcp-proxy` |
+| Business Central — BC MCP (Custom API) (read-only: `bc_customer_snapshot`, `bc_find_item`, …) | **Everyone** | Quote of record, AR, open orders. Read-only, so no approval risk. Replaced the retired `bbs-bc-mcp-proxy`. **Interim** until Microsoft's official BC MCP works in Claude Code; tool names change at the swap (grep list in the v1.1 backlog). BC Chat Connector retired 2026-09-13 |
+| BBS Sales CRM MCP | **Everyone** | Pipeline of record (ruled 2026-09-13) |
 | Microsoft 365 (Outlook, SharePoint, Teams search) | **Everyone** | RFQ intake, bid history in `MASTER/Customers`, sent-mail sampling for `/bbs-my-voice` |
 | Grainger (`grainger_search` / `grainger_price` / `grainger_availability`) | **Everyone who quotes** | Per-account pricing is doctrine; this is how they get it without the open web |
 | ca-procurement-intel / SCPRS (`explore_sql`, `play_*`) | **Reps on the CA state book** | Competitive intelligence and buyer segments for promo pages |

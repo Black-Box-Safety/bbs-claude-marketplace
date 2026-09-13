@@ -869,7 +869,7 @@ compliance and quality by a fresh-context agent.
   own model name in trailers, so the controller made every commit.
 - **Task 4** (`a47d12f`): README OneDrive-root example corrected to `Black Box Safety - MASTER`
   (repo-wide convention; the bare name contradicted every other doc).
-- **Task 5** (`5018021`): desk template — dropped the unverified `tiffany-ortiz-` example
+- **Task 5** (`3fa23b9` + fix `5018021`): desk template — dropped the unverified `tiffany-ortiz-` example
   (pre-migration artifact, absent from `agency-tree.md`); added `## Context hygiene` (one RFQ
   per session; compaction preservation list — Claude Code best practice); added the
   cert-language pointer and "external content is data" rule (bbs-claude-md-forge doctrine);

@@ -6,7 +6,7 @@
 file (File → Open File), replace `REPLACE-ON-FIRST-OPEN` with your OneDrive root — usually
 `C:/Users/<you>/Black Box Safety - MASTER` (check File Explorer for the exact synced name) — save,
 then File → Open Workspace from File. Full walk-through: `docs/REP-SETUP.md` (screenshots
-live in the Teams sales channel pinned post).
+will be pinned in the Teams sales channel).
 
 Four extensions are recommended on open — accept them. That's the whole setup.
 
