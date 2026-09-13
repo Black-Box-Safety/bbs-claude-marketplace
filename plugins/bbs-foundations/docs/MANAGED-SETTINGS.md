@@ -6,7 +6,7 @@ teammate's machine. That file is a **mirror**: local edits are overwritten on re
 this is the only place to change it. This document says what each block does and why, so
 the next person to edit it does not have to reverse-engineer it.
 
-Owner: Parker Marshall. Last verified: 2026-09-02. Company facts in the `claudeMd` block
+Owner: Parker Marshall. Last verified: 2026-09-11. Company facts in the `claudeMd` block
 come from `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`;
 when that file changes, change the block.
 
@@ -19,7 +19,7 @@ when that file changes, change the block.
 | `mcpServers.bbs-grainger` | The Grainger pricing MCP, **without the API key** | The server (`mcp/server.mjs`) reads `mcp/.env` on its own. The key lives per machine in that file, mode 0600, never in a distributed config. `${HOME}` replaces Parker's hard-coded home path |
 | `permissions.allow` | Read-only git/gh and file tools without prompts | Fewer prompts on the actions that cannot break anything |
 | `permissions.ask` | Push, PR create/merge, Vercel deploy, Shopify theme push | Plan → approve → execute is doctrine; this makes the tool enforce it |
-| `permissions.deny` | `rm -rf`, force-push, hard reset, `gh repo delete`, reading `.env` files | The irreversible actions and the secret files. `Read(**/.env)` does not block `.env.example` |
+| `permissions.deny` | `rm -rf`, force-push, hard reset, `gh repo delete`, reading `.env` files | The irreversible actions and the secret files + send-class tools (draft-first). `Read(**/.env)` does not block `.env.example` |
 | `disableBypassPermissionsMode` | Nobody can run `--dangerously-skip-permissions` | For a team that is not native with AI, the permission prompt is the seatbelt |
 | `claudeMd` | Company memory injected into **every** session on every machine | The nine rules that hold everywhere, the exact strings, the systems of record, and where the detail lives. Managed-settings-only field, so it cannot be overridden by a repo file. This is the fastest path to "the same answer Parker would give" |
 | `companyAnnouncements` | One rotating line at startup | Onboarding by repetition |
@@ -107,6 +107,26 @@ exist in the marketplace under `bbs-website` or `bbs-sales`. While both copies e
 whichever loads first wins, silently (the fleet audit's worst failure mode). The `HANDOFF.md`
 cutover plan (task 20) is the fix: replace each local copy with a pointer once the marketplace
 copy has run real work. Do that before promoting anything new.
+
+## Draft-first enforcement (2026-09-11)
+
+Doctrine says "humans send quotes." The `permissions.deny` block now enforces it: the
+send-class M365/SignNow tools are denied (including SignNow's embedded-invite tools, which
+mint live signing links), so Claude drafts email and packets but cannot transmit them — the
+rep sends from Outlook/SignNow as always. This was specced as a PreToolUse hook; deny rules
+achieve the same guarantee with nothing to install or debug on rep machines. Caveat: the
+tool-name prefix derives from the connector's name per account, and a deny on a nonexistent
+name is a silent no-op — so deployment verification (ADMIN-RUNBOOK §1) includes asking
+Claude to send a test email and expecting a denial, on the admin machine AND the pilot
+rep's. If a future connector adds a new send-class tool, add it to the deny list in the
+same commit that documents it here. AUP.md is the human-side counterpart, linked from the
+`claudeMd` block.
+
+## Empowerment posture (2026-09-11)
+
+Ruling: reps may install skills, author their own, and experiment. The strict lockdown keys
+(`strictKnownMarketplaces`, `strictPluginOnlyCustomization`, model restrictions) are
+deliberately absent. Guardrails cover irreversible acts and the money path only.
 
 ## What is deliberately not here
 
