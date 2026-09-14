@@ -955,3 +955,6 @@ git checkout main && git pull && git merge --no-ff v1.1 && git push origin main
 # then on one machine: /plugin marketplace update, restart, /bbs-checkup,
 # "open Chrome and find MSA 10082709", and /caveman lite to confirm it is off until asked
 ```
+
+**Merged into `main` 2026-09-14 at `55cbe4e` on Parker's instruction ("I want it all Monday"). The pilot
+runs on v1 + v1.1 together; the branch-only guardrail above is superseded.**
