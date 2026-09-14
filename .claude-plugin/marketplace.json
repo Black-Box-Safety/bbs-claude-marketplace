@@ -4,52 +4,72 @@
     "name": "Black Box Safety, Inc."
   },
   "metadata": {
-    "description": "Black Box Safety internal Claude plugins — site operations, state sales, and AI foundations.",
-    "version": "0.1.0"
+    "description": "Black Box Safety internal Claude plugins \u2014 the state sales desk, the website pipeline, and the Business Central back office.",
+    "version": "0.2.0"
   },
   "plugins": [
     {
       "name": "bbs-ops",
       "source": "./plugins/bbs-ops",
-      "description": "Maintain the BBS website end to end — price list to product page. Skills, agents, and commands for catalog intake, pricing, enrichment, storefront, quote bot, QA, and cross-sell.",
-      "version": "0.2.0",
+      "description": "Maintain the BBS website end to end \u2014 price list to live product page. Catalog intake and import, contract pricing, variant families, enrichment, storefront pages, quote-bot lane tuning, QA and cross-sell.",
+      "version": "0.3.0",
       "author": {
         "name": "Black Box Safety, Inc."
       },
       "keywords": [
         "bbs",
+        "catalog",
+        "operations",
+        "pricing",
         "shopify",
         "supabase",
-        "quote-bot",
-        "catalog",
-        "cdcr",
-        "compliance-forms",
-        "operations"
+        "quote-bot"
       ],
       "category": "operations"
     },
     {
       "name": "bbs-sales",
       "source": "./plugins/bbs-sales",
-      "description": "California state sales: log an inbound RFQ, price it and fill the CA compliance packet, and turn a Grainger negotiated price sheet into an agency promotion page with SCPRS buyer segments and the brand compliance gate.",
-      "version": "0.2.0",
+      "description": "The California state quote desk, end to end: log an inbound RFQ, pull items out of whatever the agency sent, check BPO eligibility, price it through the Grainger punch-out or vendor sourcing, build the customer quote, and fill the CDCR and CA compliance packets. Plus Grainger promo pages and federal deck copy.",
+      "version": "0.3.0",
       "author": {
         "name": "Black Box Safety, Inc."
       },
       "keywords": [
         "bbs",
-        "campaign",
+        "bid-forms",
+        "cdcr",
+        "compliance-forms",
         "dvbe",
         "grainger",
-        "landing-page",
         "naspo",
         "quoting",
         "rfq",
         "sales",
-        "scprs",
+        "sdvosb",
+        "sourcing",
         "state-of-california"
       ],
       "category": "sales"
+    },
+    {
+      "name": "bbs-back-office",
+      "source": "./plugins/bbs-back-office",
+      "description": "What happens after the bid is won: read the truth out of Business Central. Where an order stands, what a vendor still owes us, and what the deal actually earned once Grainger rebates are applied.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Black Box Safety, Inc."
+      },
+      "keywords": [
+        "bbs",
+        "business-central",
+        "fulfillment",
+        "margin",
+        "orders",
+        "purchasing",
+        "rebates"
+      ],
+      "category": "operations"
     }
   ]
 }

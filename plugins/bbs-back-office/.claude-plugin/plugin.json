@@ -1,0 +1,8 @@
+{
+  "name": "bbs-back-office",
+  "description": "What happens after the bid is won: read the truth out of Business Central. Where an order stands, what a vendor still owes us, and what the deal actually earned once Grainger rebates are applied.",
+  "version": "0.1.0",
+  "author": { "name": "Black Box Safety, Inc." },
+  "keywords": ["bbs", "business-central", "fulfillment", "margin", "orders", "purchasing", "rebates"],
+  "skills": "./skills/"
+}

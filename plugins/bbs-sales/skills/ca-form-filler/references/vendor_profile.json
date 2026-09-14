@@ -1,0 +1,60 @@
+{
+  "_meta": {
+    "source": "Single source of truth for BBS vendor facts on California bid forms.",
+    "sibling": "obs-form-filler/assets/bbs_vendor_profile.json holds the SAME facts in a flat schema for the OBS packet script. Update BOTH when a cert, address or permit changes.",
+    "last_reviewed": "2026-09-14",
+    "notes": [
+      "CERT DISCIPLINE — statewide credit comes ONLY from OSDS DVBE 2009473. San Diego SLBE 17BB1659 and LA County DVBE 10086 are LOCAL certifications and earn no state credit; never cite them for a statewide bid.",
+      "BBS is NOT Small Business (SB) certified. Never claim SB status or SB preference on a CA form.",
+      "In FEDERAL context BBS is SDVOSB, not DVBE. DVBE is the California term. Do not mix them on one form.",
+      "A manufacturer's own GSA or contract vehicle does not authorize BBS to fulfill unless BBS is a named reseller."
+    ]
+  },
+  "business_identity": {
+    "legal_name": "Black Box Safety, Inc.",
+    "short_name": "Black Box Safety",
+    "fein": "82-1125133",
+    "ca_sellers_permit": "103213178",
+    "entity_type": "Corporation",
+    "founded": "2017"
+  },
+  "address": {
+    "mailing_street": "1950 Cordell CT Ste 103",
+    "city": "El Cajon",
+    "state": "CA",
+    "zip": "92020"
+  },
+  "contact": {
+    "phone": "(619) 499-7943",
+    "email": "jackson@blackboxsafety.com",
+    "website": "www.blackboxsafety.com"
+  },
+  "certifications": {
+    "dvbe": {
+      "osds_ref_number": "2009473",
+      "expiration": "12/31/2027",
+      "scope": "California statewide"
+    },
+    "local_only": [
+      { "name": "San Diego SLBE", "number": "17BB1659", "scope": "San Diego local only" },
+      { "name": "LA County DVBE", "number": "10086", "scope": "Los Angeles County local only" }
+    ],
+    "federal": { "designation": "SDVOSB", "gsa_mas": "47QSWA23D000Y" }
+  },
+  "authorized_representatives": [
+    {
+      "name": "Jackson Dalton",
+      "title": "President",
+      "email": "jackson@blackboxsafety.com",
+      "signs": "Ownership and payee lines — DVBE owner declarations (DGS PD 843) and STD 204 authorized payee representative. Tied to who OWNS the certified DVBE, not to who quoted the job."
+    },
+    {
+      "name": "Amy Leath",
+      "title": "Accounting",
+      "email": "accounting@blackboxsafety.com",
+      "phone": "(619) 499-7943",
+      "signs": "Nothing. Accounting contact for payee and remittance blocks."
+    }
+  ],
+  "product_type": "Safety Equipment, MRO, PPE"
+}

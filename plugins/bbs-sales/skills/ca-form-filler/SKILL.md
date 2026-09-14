@@ -49,24 +49,26 @@ On first use, create the persistent directory structure and copy the pdf skill
 scripts so they persist across sessions:
 
 ```bash
-mkdir -p ~/.bbs/pdf_scripts
-mkdir -p ~/bbs_forms
+mkdir -p ~/.bbs ~/bbs_forms
 
-# Copy pdf skill scripts to persistent location
-cp /mnt/skills/public/pdf/scripts/* ~/.bbs/pdf_scripts/
+# The vendor profile ships with this skill — copy it, don't retype it.
+cp "$SKILL_DIR/references/vendor_profile.json" ~/.bbs/vendor_profile.json
 
-# Write vendor profile to persistent location
-cat > ~/.bbs/vendor_profile.json << 'PROFILE'
-PASTE_VENDOR_PROFILE_JSON_HERE
-PROFILE
+# PDF form work needs these two libraries:
+pip install pypdf pymupdf --break-system-packages -q
 ```
 
-The vendor profile JSON is stored in `references/vendor_profile.json` inside
-this skill package. Copy its contents into the above command on first run.
+`SKILL_DIR` is the folder holding this SKILL.md — wherever the plugin was
+installed, not the directory you happen to be standing in.
+
+Earlier revisions of this skill copied form-filling helpers out of
+`/mnt/skills/public/pdf`, which exists only inside a Claude session and not on a
+rep's machine. Everything below uses `pypdf`/`pymupdf` directly instead, so the
+skill behaves the same wherever it runs.
 
 Check setup is complete:
 ```bash
-ls ~/.bbs/pdf_scripts/
+ls ~/.bbs/vendor_profile.json
 cat ~/.bbs/vendor_profile.json | python3 -c "import json,sys; d=json.load(sys.stdin); print('Profile OK:', d['business_identity']['legal_name'])"
 ```
 
@@ -342,14 +344,18 @@ python3 ~/.bbs/pdf_scripts/fill_fillable_fields.py \
 
 ```bash
 # Extract structure for coordinate-based placement
-python3 ~/.bbs/pdf_scripts/extract_form_structure.py /path/to/forms.pdf /tmp/structure.json
+python3 -c "from pypdf import PdfReader; import json,sys; \
+print(json.dumps(sorted((PdfReader(sys.argv[1]).get_fields() or {})), indent=2))" /path/to/forms.pdf
 
 # Rasterize all pages for visual coordinate mapping
 pdftoppm -jpeg -r 150 /path/to/forms.pdf /tmp/form_pages
 ```
 
-Then use `fill_pdf_form_with_annotations.py` with image or PDF coordinates.
-See `/mnt/skills/public/pdf/FORMS.md` for full coordinate mapping workflow.
+Then write the values with `pypdf` and stamp any non-AcroForm lines with
+`pymupdf` at measured coordinates. The sibling `obs-form-filler` skill in this
+plugin does exactly that in `scripts/fill_obs_packet.py` — read it for the
+working pattern, including how it validates every field against the packet in
+hand before writing (checkbox on-states included) rather than trusting a map.
 
 ### 5C — Verify Every Output
 

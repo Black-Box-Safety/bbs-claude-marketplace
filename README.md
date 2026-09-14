@@ -6,11 +6,11 @@
 
 # BBS Ops
 
-This marketplace ships more than one plugin. This README covers **bbs-ops**, the one that
-maintains the website: everything from a manufacturer's price list to a live product page,
-packaged as one Claude Code plugin. The marketplace also ships **bbs-sales**, the California
-state sales desk (inbound RFQ intake and quoting, plus outbound Grainger promo pages); see the
-plugins table below and [its own README](plugins/bbs-sales/README.md) for that one.
+This marketplace ships three plugins, split by the desk that owns the work. This README
+covers **bbs-ops**, the one that maintains the website: everything from a manufacturer's
+price list to a live product page. The other two have their own READMEs — **bbs-sales**
+is the California state quote desk, and **bbs-back-office** is what happens after the bid
+is won. Install whichever matches your job; install more than one if you do more than one.
 
 bbs-ops covers three repos that together make one storefront: the product **database**, the
 **Shopify** store, and the customer-facing **quote bot**. Install it once and Claude knows how
@@ -20,10 +20,11 @@ BBS does each job, the same way every time. No one person has to hold it all in 
 
 ## Plugins in this marketplace
 
-| Plugin | Covers | README |
-|---|---|---|
-| `bbs-ops` | Maintaining the website: price list to product page, across the database, Shopify, and the quote bot. | This file |
-| `bbs-sales` | California state sales: inbound RFQ intake and quoting, and outbound Grainger promo page campaigns. | [plugins/bbs-sales/README.md](plugins/bbs-sales/README.md) |
+| Plugin | Covers | Who installs it | README |
+|---|---|---|---|
+| `bbs-sales` | The CA state quote desk end to end: RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled. Plus promo pages and federal deck copy. | Sales reps | [plugins/bbs-sales/README.md](plugins/bbs-sales/README.md) |
+| `bbs-ops` | Maintaining the website: price list to product page, across the database, Shopify, and the quote bot. | Whoever maintains the site | This file |
+| `bbs-back-office` | After the bid is won, out of Business Central: order status, vendor PO receipts, true margin after Grainger rebates. | Purchasing, accounting, anyone answering "where is it?" | [plugins/bbs-back-office/README.md](plugins/bbs-back-office/README.md) |
 
 The rest of this README is about `bbs-ops` specifically.
 
@@ -54,10 +55,12 @@ One person adds the marketplace once; the whole team installs from it and stays 
 # add the marketplace (one time)
 /plugin marketplace add Black-Box-Safety/bbs-claude-marketplace
 
-# install the plugin
-/plugin install bbs-ops@bbs-claude-marketplace
+# install what matches the job
+/plugin install bbs-sales@bbs-claude-marketplace         # sales reps
+/plugin install bbs-ops@bbs-claude-marketplace           # site maintenance
+/plugin install bbs-back-office@bbs-claude-marketplace   # purchasing / accounting
 
-# wire the guardrails and learn the layout
+# wire the guardrails and learn the layout (bbs-ops)
 /bbs-onboard
 ```
 
@@ -79,7 +82,7 @@ Updating later is `/plugin marketplace update`: new skill and agent versions arr
 |---|---|
 | Pipeline stages | **7**: intake, pricing, enrichment, storefront, quote bot, data-QA, cross-sell |
 | Agents | **10**: one owner per stage, plus Arthur (architecture), Tom (delivery), business-review |
-| Skills | Price-list cleaning, contract pricing, variant families, product pages, brand pages, image pipeline, lane tuning, CA/CDCR bid forms, and `site-wiring-map` |
+| Skills | Catalog import pipeline, price-list cleaning, contract pricing, variant families, product pages, brand pages, image pipeline, lane tuning, and `site-wiring-map` |
 | Commands | `/bbs-onboard` · `/bbs-add-product` · `/bbs-new-brand` · `/bbs-review` |
 | Guardrails | Skill-bus doctrine that auto-applies BBS design, cert, pricing, and grounding rules |
 | Repos covered | `bbs-database` · `bbs-shopify` · `bbs-quote-bot` |
@@ -126,7 +129,8 @@ bbs-claude-marketplace/
     │   ├── agents/                   # one file per agent
     │   ├── commands/                 # /bbs-onboard, /bbs-add-product, …
     │   └── docs/                     # onboarding + contributor guides
-    └── bbs-sales/                    # same shape: plugin.json + skills/, no agents/commands yet
+    ├── bbs-sales/                    # same shape: plugin.json + skills/, no agents/commands yet
+    └── bbs-back-office/              # same shape: plugin.json + skills/
 ```
 
 ### How the pieces fit

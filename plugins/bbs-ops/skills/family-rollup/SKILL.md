@@ -125,7 +125,7 @@ each variant's SKU + price + option value correct. Check `family_review_queue` f
   rows first (`delete from shopify_sync_queue where product_id in (…) and status in ('pending','error')`), then
   re-roll. Check with `select pg_get_constraintdef(oid) from pg_constraint where conname='shopify_sync_queue_status_check';`.
 - **Inline python + `.env`:** in a bash heredoc, `load_dotenv()` fails (`find_dotenv` has no frame) — use
-  `load_dotenv("/Users/parkermarshall/bbs-database/.env")` with the explicit path. Baked into the drivers.
+  `load_dotenv("<bbs-database clone>/.env")` with the explicit absolute path. Baked into the drivers.
 - **zsh word-splitting:** `for id in $IDS` does NOT split in zsh — use `printf '%s\n' "$IDS" | tr ' ' '\n' | while read -r id`.
 - **MCP `execute_sql` returns only the LAST statement's rows** — probe one statement at a time, or you'll
   "confirm" a constraint doesn't exist when it does.
