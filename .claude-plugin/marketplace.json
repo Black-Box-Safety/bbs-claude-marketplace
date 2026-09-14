@@ -50,17 +50,21 @@
     {
       "name": "bbs-foundations",
       "source": "./plugins/bbs-foundations",
-      "description": "Company-wide AI foundations: the BBS way to write CLAUDE.md files (BBSClaudeMDForge), the doctrine every skill inherits, and the shared company facts, systems of record, and certification rules that keep every repo and customer folder consistent.",
+      "description": "Company-wide AI foundations: the BBS way to write CLAUDE.md files (BBSClaudeMDForge), the doctrine every skill inherits, the shared company facts, systems of record, and certification rules that keep every repo and customer folder consistent, and order reconciliation — diagnosing and resolving problems on orders already placed.",
       "author": {
         "name": "Black Box Safety, Inc."
       },
       "keywords": [
         "bbs",
+        "business-central",
         "claude-md",
         "context-management",
         "doctrine",
         "foundations",
         "onboarding",
+        "order-reconciliation",
+        "post-award",
+        "purchasing",
         "standards"
       ],
       "category": "foundations"
