@@ -23,6 +23,7 @@ Last verified: 2026-09-13 (rep-workspace v1 build; connector rulings added).
 | BC MCP (Custom API) connector | **canon** | Interim Business Central access until Microsoft's official BC MCP is usable in Claude Code; swap list in `docs/superpowers/plans/2026-09-13-v1.1-backlog.md` |
 | BC Chat Connector | **archived** | Retired 2026-09-13; redundant with BC MCP (Custom API). Remove from admin-console assignments |
 | BBS Sales CRM MCP connector | **canon** | Assigned to everyone (ruled 2026-09-13); pipeline of record |
+| Commons (pinned third-party plugins) | **canon** | `docs/COMMONS.md`; entries in `marketplace.json` under `category: commons`; refreshed quarterly |
 | `bbs-suppliers` | **canon** | Data plane. Supplier leverage layer; v1.1: wire briefs into `bbs-sourcing` references (pointer, not copy) |
 | OneDrive `claude-inside-sales-skills/` | **archived** | Delete: Original drift source; superseded by marketplace install |
 | `bbs-shopify`, `bbs-database`, `bbs-quote-bot` | **separate track** | Site/catalog ops (bbs-website plugin's world) |

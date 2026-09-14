@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Black Box Safety internal Claude plugins — site operations, state sales, and AI foundations.",
-    "version": "0.4.0"
+    "version": "0.5.0"
   },
   "plugins": [
     {
@@ -109,6 +109,73 @@
         "audit"
       ],
       "category": "design"
+    },
+    {
+      "name": "superpowers-chrome",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/obra/superpowers-chrome.git",
+        "ref": "v3.0.5"
+      },
+      "description": "Commons: drives the rep's real Chrome over the DevTools protocol (logged-in sessions, product research on distributor and agency sites). Skill mode needs Node.js (bbs-setup.ps1 installs it). Upstream self-labels beta; pinned to a release tag, refreshed quarterly per docs/COMMONS.md.",
+      "version": "3.0.5",
+      "author": {
+        "name": "Jesse Vincent"
+      },
+      "keywords": [
+        "browser",
+        "chrome",
+        "commons",
+        "external",
+        "research"
+      ],
+      "category": "commons"
+    },
+    {
+      "name": "caveman",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/JuliusBrussee/caveman.git",
+        "ref": "v2.6.0"
+      },
+      "description": "Commons: terse output mode (/caveman lite|full|ultra) that cuts roughly two-thirds of output tokens while keeping technical content exact. Opt-in per session; ruled in 2026-09-13. Pinned to a release tag.",
+      "version": "2.6.0",
+      "author": {
+        "name": "Julius Brussee"
+      },
+      "keywords": [
+        "commons",
+        "external",
+        "tokens",
+        "style"
+      ],
+      "category": "commons"
+    },
+    {
+      "name": "document-skills",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/anthropics/skills.git",
+        "ref": "34040c9c568585f6929bedeaad110ad08f079624"
+      },
+      "strict": false,
+      "skills": [
+        "./skills/docx",
+        "./skills/pdf",
+        "./skills/xlsx"
+      ],
+      "description": "Commons: Anthropic's official document skills — Word (tracked changes, comments), PDF (extract, merge, fill, annotate), Excel (formulas, charts). RFQ worksheets, bid PDFs, price lists. Pinned to a commit of anthropics/skills; pptx deliberately excluded.",
+      "author": {
+        "name": "Anthropic"
+      },
+      "keywords": [
+        "commons",
+        "docx",
+        "external",
+        "pdf",
+        "xlsx"
+      ],
+      "category": "commons"
     }
   ]
 }

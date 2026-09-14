@@ -1,0 +1,32 @@
+{
+  "description": "bbs-sales quote-desk guards: no renames inside the tree, no near-duplicate buyer folders, FILLED/ is immutable; buyer precedent and open FLAGS injected at session start. PowerShell, exec form, Windows rep machines.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell|Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${CLAUDE_PLUGIN_ROOT}/hooks/guard-tree.ps1"],
+            "timeout": 15,
+            "statusMessage": "bbs-sales: checking quote-desk folder rules"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "${CLAUDE_PLUGIN_ROOT}/hooks/desk-context.ps1"],
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

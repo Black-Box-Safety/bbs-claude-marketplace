@@ -96,6 +96,8 @@ This skill does not touch the PDF stack or `vendor_profile.json` above: it has i
 | `/ca-rfq-log` | Log a request you just received: find or create the folder, save the attachments, open `RFQ.md`, update the buyer's quote log. Stops before pricing. |
 | `/ca-rfq-quote` | Take a logged RFQ folder through pricing, quote, cert packet, visual verification, and delivery. |
 
+Agent: `supplier-scout` — supplier options for an item BBS has never sourced; dispatched by `bbs-sourcing` step 5c or directly ("find supplier options for MSA 10082709").
+
 Run them in that order. `/ca-rfq-quote` on an unlogged request works, but you lose the deadline record and the buyer history that makes the next quote faster.
 
 `grainger-promo-page` has no slash command yet. Describe the ask ("build a promo page for CAL FIRE from this hot list") and it fires on its own.
@@ -113,6 +115,19 @@ These four come up on every state quote, and each one exists for a reason worth 
 **DVBE cert 2009473 expires 12/31/2027.** The DVBE certification is what makes BBS worth quoting to a state buyer with a participation goal, and a packet signed against an expired cert is worse than no packet. Check the expiration against the quote due date before signing anything. Expired, or inside 30 days, means stop and tell the rep.
 
 One more that is not a rule but behaves like one: the `Customers/State of CA Agencies/` tree is the training data. Every blank the agency sent and every filled version BBS returned is in there. When history can answer a question (which form revision this agency uses, what BBS wrote in that field last time, whether this buyer accepted a 0% recycled-content answer), read the corpus instead of guessing or asking the rep.
+
+## Hooks (v1.1)
+
+Deterministic guards, PowerShell, shipped with the plugin. They fire on Windows rep machines
+without any per-machine setup.
+
+| Hook | When | What it does |
+|---|---|---|
+| `guard-tree.ps1` | Before Bash / PowerShell / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/`, including a shell delete or a redirect into a submitted packet (reading one stays allowed) |
+| `desk-context.ps1` | Session start inside a buyer folder | Puts the last rows of `quote-log.md` and the latest `FLAGS.md` entries in front of Claude before the first prompt |
+
+A denial shows up as a permission refusal with a one-line reason Claude relays. Test locally:
+`powershell -File plugins/bbs-sales/hooks/tests/run-tests.ps1`.
 
 ## Rollout guide
 

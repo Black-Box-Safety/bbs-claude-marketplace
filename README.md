@@ -2,7 +2,7 @@
   <img src="https://img.shields.io/badge/company-Black%20Box%20Safety%2C%20Inc.-051c2c" alt="Black Box Safety, Inc.">
   <img src="https://img.shields.io/badge/certified-SDVOSB%20%C2%B7%20CA%20SB%2FDVBE%202009473-b19800" alt="SDVOSB and California SB/DVBE 2009473">
   <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, VS Code, and Desktop">
-  <img src="https://img.shields.io/badge/plugins-3%20BBS%20%2B%202%20pinned-2dd4bf" alt="Three BBS plugins plus two pinned external">
+  <img src="https://img.shields.io/badge/plugins-3%20BBS%20%2B%205%20pinned-2dd4bf" alt="Three BBS plugins plus five pinned external">
 </p>
 
 # Black Box Safety — Claude Marketplace
@@ -90,6 +90,7 @@ flowchart LR
 | `bbs-website` | The storefront: price list to product page across the database, Shopify, and the quote bot | [README](plugins/bbs-website/README.md) |
 | `claudeforge` | Pinned external CLAUDE.md engine used by `bbs-foundations` | [fork](https://github.com/Black-Box-Safety/ClaudeForge) |
 | `impeccable` | Pinned external design skill for anything with a frontend | [fork](https://github.com/Black-Box-Safety/impeccable) |
+| `superpowers-chrome` · `caveman` · `document-skills` | **Commons**: pinned third-party plugins reps get by default — real-Chrome browsing, opt-in terse mode, Anthropic's Word/PDF/Excel skills | [docs/COMMONS.md](docs/COMMONS.md) |
 
 ## The rules that never bend
 
@@ -116,7 +117,7 @@ forms, and tells you where every number came from. The judgment stays with the p
 
 ```text
 bbs-claude-marketplace/
-├── .claude-plugin/marketplace.json     # manifest: 3 BBS plugins (unpinned) + 2 external (pinned)
+├── .claude-plugin/marketplace.json     # manifest: 3 BBS plugins (unpinned) + 5 external (pinned)
 ├── README.md                           # this file
 ├── REGISTRY.md                         # every BBS repo and asset: canon, harvest, parked, archived
 ├── workspace/                          # bbs-rep.code-workspace + desk CLAUDE.md template

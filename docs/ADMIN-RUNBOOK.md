@@ -19,16 +19,17 @@ MEASUREMENT.md (metrics), ADMIN-CLEANUP.md (one-time machine cleanup).
 2. Paste `plugins/bbs-foundations/docs/bbs-managed-settings.json` (review MANAGED-SETTINGS.md
    "Before pasting" first).
 3. On ONE machine: restart Claude Code, run `/status` (managed source should win), `/mcp`
-   (Grainger, BC, SCPRS, CRM, M365 connectors all listed — they come from the admin console,
-   not from settings),
-   then `/plugin marketplace update` and `/bbs-checkup`. **Live-fire the draft-first rail:**
-   ask Claude to send you a test email — expect a permission denial, not a send (`/permissions`
-   should list the managed deny entries). Deny rules on wrong tool names fail silently, so
-   this test is not optional. Repeat it once on the pilot rep's machine. Repeat the send test once
-   in the Desktop app as well — managed settings govern both surfaces; confirm rather than assume.
-   Then run `/context` and record the startup context size (managed CLAUDE.md + plugin skill
-   descriptions + MCP tool schemas) in the deployment note; if MCP tool schemas dominate, trim
-   connector assignments per role (§3) before rollout.
+   (Grainger, BC, SCPRS, CRM, M365 connectors all listed — they come from the admin console, not
+   from settings), then `/plugin marketplace update` and `/bbs-checkup`. **Live-fire the
+   draft-first rail:** ask Claude to send you a test email — expect a permission denial, not a
+   send (`/permissions` should list the managed deny entries). Deny rules on wrong tool names fail
+   silently, so this test is not optional. Repeat it once on the pilot rep's machine. Repeat the
+   send test once in the Desktop app as well — managed settings govern both surfaces; confirm
+   rather than assume. Ask Claude to open Chrome and search a product — expect it to run without
+   a permission prompt (the browser tool is on the managed allow list). Then run `/context` and
+   record the startup context size (managed CLAUDE.md + plugin skill descriptions + MCP tool
+   schemas) in the deployment note; if MCP tool schemas dominate, trim connector assignments per
+   role (§3) before rollout.
 4. Only after that machine is green: tell the reps to restart Claude Code.
 
 ## 2. Enable analytics (one-time)
@@ -50,11 +51,13 @@ Supabase/Shopify/Vercel/QuickBooks stay admin-only.
    --dry-run` then `--write` for per-buyer folders). `/bbs-checkup` check 6 expects it.
 3. Post `workspace/bbs-rep.code-workspace` + the REP-SETUP link in the Teams sales channel;
    pin it; add the first-open screenshots to that post.
-4. Pick the pilot rep and date. Gate: rep runs `/bbs-checkup` clean, logs one real RFQ,
+4. Post `scripts/bbs-setup.ps1` in the same Teams post; reps run it before anything else
+   (REP-SETUP step 1).
+5. Pick the pilot rep and date. Gate: rep runs `/bbs-checkup` clean, logs one real RFQ,
    produces one packet, unaided. Record PASS/FAIL in `docs/acceptance/YYYY-MM-DD-<initials>.md`.
-5. Start ADMIN-CLEANUP.md on both admin machines.
-6. Capture the baseline this month (MEASUREMENT.md) — the window closes.
-7. Inventory the BBS Marketing SharePoint folder and locate Joey's skill — feeds the
+6. Start ADMIN-CLEANUP.md on both admin machines.
+7. Capture the baseline this month (MEASUREMENT.md) — the window closes.
+8. Inventory the BBS Marketing SharePoint folder and locate Joey's skill — feeds the
    bbs-marketing plugin decision in v1.1.
 
 ## 4. Power Automate intake flow (build once)
