@@ -103,11 +103,14 @@ right home for most is `bbs-sales` (quoting, PO status, Grainger) or `bbs-founda
 (deck voice, morning routine). Each move is a plan task, one skill per commit, the same way
 `naspo-quote` was vendored into `bbs-sales`.
 
-Four of them — `bbs-sourcing`, `ca-form-filler`, `obs-form-filler`, `naspo-quote` — already
-exist in the marketplace under `bbs-website` or `bbs-sales`. While both copies exist,
-whichever loads first wins, silently (the fleet audit's worst failure mode). The `HANDOFF.md`
-cutover plan (task 20) is the fix: replace each local copy with a pointer once the marketplace
-copy has run real work. Do that before promoting anything new.
+As of 2026-09-15 this is **15 skills**, not four: porting the personal skill set into the
+marketplace gave every one of them a marketplace copy, and all four named above now live in
+`bbs-sales`. While both copies exist, whichever loads first wins, silently (the fleet
+audit's worst failure mode) — and the marketplace copy is the maintained one, so the person
+holding a personal copy is the person not receiving fixes. `HANDOFF.md` carries the cutover
+plan and the current list: replace each personal copy with a pointer, one commit each,
+starting with the five whose marketplace copy is already ahead. Do that before promoting
+anything new.
 
 ## Draft-first enforcement (2026-09-11)
 
