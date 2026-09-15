@@ -34,9 +34,14 @@ Execute deliberately, one block at a time. Nothing here touches rep machines.
 - [ ] Caveman: keep (ruled 2026-09-13) — but remove its statusline from settings.json
       before any config is copied anywhere, and delete the stray `.caveman-active.*` /
       `.caveman-mode-log.jsonl` home-dir files
-- [ ] Global skills: bbs-sourcing / ca-form-filler / obs-form-filler → replace with 3-line
-      pointers to the marketplace copies (single-source rule; do AFTER the marketplace
-      install is verified on this machine)
+- [ ] Personal (account-synced) skills → **delete in claude.ai → Settings → Capabilities →
+      Skills.** Confirmed 2026-09-15: they are account-synced, so removing them from disk
+      does not work — a new session re-syncs them byte-identical. Editing the body into a
+      pointer does not work either. It is a delete, and nothing to harvest: 9 of 15 are
+      byte-identical to the marketplace and the other 6 are strictly worse. Start with the
+      five orphans (`bbs-b2b-pricing`, `obs-form-filler`, `grainger-cart-info`,
+      `grainger-screenshot`, `dwr-pdf-info`) whose marketplace counterpart was merged away
+      — they are live contradictions now. Full list and order: `HANDOFF.md`.
 - [ ] Delete OneDrive `claude-inside-sales-skills/` (drift source; superseded)
 
 ## Repos

@@ -43,8 +43,11 @@ do not paraphrase it weaker.
 9. **Never commit secrets.** "`.env` holds `SUPABASE_SERVICE_KEY`; it stays gitignored."
    (`bbs-database`). "No secrets. Public client + PKCE. There must never need to be one."
    (`bbs-bc-mcp-proxy`). "No credentials, ever." (`bbs-sales-vault`).
-10. **Identity numbers live outside git.** "`~/.bbs/vendor_profile.json` is the single
-    authority for every BBS value that goes on a state form. It lives outside the repo so
+10. **Identity numbers have exactly one home, and it is named.** "`plugins/bbs-sales/references/vendor_profile.json` is the single
+    authority for every BBS value that goes on a state form. It is committed in this
+    private BBS-specific repo deliberately; the rule against committing FEIN and permit
+    guards work that might be reused elsewhere. Buying account numbers and API keys are
+    never committed. Resolve it as `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` so
     nobody's certificate numbers end up in git." (`bbs-sales`). Public-record identifiers
     BBS prints in its email signature (UEI, DVBE number, LPA numbers) are fine to state.
 11. **Public repos get a private-data policy at the top.** Never commit buyer contacts,

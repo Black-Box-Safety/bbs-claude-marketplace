@@ -8,7 +8,7 @@ Three skills in this plugin fill California compliance forms:
 | `ca-form-filler` | The same sub-forms when an agency sends them as standalone PDFs |
 | `naspo-quote` | The packet that goes with a NASPO-routed quote |
 
-Five of the nine sub-forms are common to all three. **This file owns what those forms
+Eight of the nine sub-forms are documented below. **This file owns what those forms
 mean — who signs them, what stays blank, what disqualifies a bid.** Each skill keeps its
 own AcroForm field IDs, because a field ID belongs to a specific PDF: the same STD 204
 has different internal names inside a bound packet than as a standalone download, and
@@ -31,7 +31,7 @@ false certification.
 | **The rep** (variable) | Bidder signature, Darfur certification, CalRecycle 74 certification | Whoever quoted the job. Comes from the skill's inputs; `default_rep` in the profile is only a fallback. |
 | **Jackson Dalton** (fixed) | DGS PD 843 DVBE owner declaration, STD 204 authorized payee representative | Tied to who **owns** the certified business, not to who quoted. Never varies by rep. |
 
-## The five shared sub-forms
+## The sub-forms
 
 | Form | Rule |
 |---|---|
@@ -39,7 +39,10 @@ false certification.
 | **DGS PD 843** DVBE declaration | Signed by the DVBE owner. SCPRS reference number is the State's to fill; leave it. |
 | **CalRecycle 74** (SABRC) | **Never leave blank — a missing CalRecycle 74 can disqualify the bid.** BBS resells finished goods and rarely certifies a postconsumer percentage, so PCRC and SABRC default to "NA". Only override with a real percentage the rep supplies. Certified by the rep. |
 | **OBS 1000** GenAI factsheet | Answer the "was GenAI used" question; it is about the *product* being sold, not about how the bid was prepared. |
-| **GSPD-05-105** Bidder Declaration | BBS bids as the certified business, not through subs or brokers, unless the rep says otherwise for this bid. |
+| **GSPD-05-105** Bidder Declaration | BBS bids as the certified business, not through subs or brokers, unless the rep says otherwise for this bid. The "distinct element of work" is the CUF statement, which is **not** in the vendor profile — ask the rep. |
+| **STD 205** Payee Data Record Supplement | Accompanies STD 204 when the agency asks for it. Same signer as the STD 204 — the owner, not the rep. Agency block stays blank, exactly as on the STD 204. |
+| **OBS 1500** Darfur Contracting Act (CDCR) | The CDCR packet's Darfur form; **DGS PD 1** is the standalone equivalent outside a CDCR packet. Same substance either way: BBS has no business operations in Sudan, so the no-foreign-operations paragraph is the one that applies. Certified by the rep. |
+| **DGS PD 1** Darfur Contracting Act (standalone) | As OBS 1500, when the agency sends the DGS form rather than the CDCR one. Do not fill both for the same bid. |
 
 ## Fields the State fills — leave them blank
 

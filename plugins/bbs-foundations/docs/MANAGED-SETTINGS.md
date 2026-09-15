@@ -93,24 +93,20 @@ Parker asked for actually happens. Of the connectors on Parker's account today:
 The `claudeMd` block already tells every session which system of record answers which
 question, so a teammate with the right connectors gets routed correctly without reading this.
 
-## Parker-local skills worth promoting to the marketplace
+## Parker-local skills — already promoted, now waiting to be retired
 
-Parker's machine carries skills under an `anthropic-skills:` namespace that the team would
-use daily but cannot install: `bbs-quote-builder`, `grainger-pricing`, `bbs-po-status`,
-`bbs-pricelist-import`, `bbs-rebate-profitability`, `so-search`, `dgs-bpo-item-check`,
-`rfq-item-extract`, `vendor-quote-email`, `bbs-deck-voice`, `morning`, `schedule`. The
-right home for most is `bbs-sales` (quoting, PO status, Grainger) or `bbs-foundations`
-(deck voice, morning routine). Each move is a plan task, one skill per commit, the same way
-`naspo-quote` was vendored into `bbs-sales`.
+This section used to list personal skills "worth promoting". **They are promoted.** Every
+one of them has a marketplace copy, and that copy is the maintained one.
 
-As of 2026-09-15 this is **15 skills**, not four: porting the personal skill set into the
-marketplace gave every one of them a marketplace copy, and all four named above now live in
-`bbs-sales`. While both copies exist, whichever loads first wins, silently (the fleet
-audit's worst failure mode) — and the marketplace copy is the maintained one, so the person
-holding a personal copy is the person not receiving fixes. `HANDOFF.md` carries the cutover
-plan and the current list: replace each personal copy with a pointer, one commit each,
-starting with the five whose marketplace copy is already ahead. Do that before promoting
-anything new.
+What is left is the opposite job: retiring the personal copies, 15 of them, which shadow
+the marketplace in Parker's own sessions. The 2026-09-15 consolidation made five of them
+outright contradictions — `bbs-b2b-pricing` still drives the retired
+`b2b.blackboxsafety.com` punch-out, and `obs-form-filler`, `grainger-cart-info`,
+`grainger-screenshot` and `dwr-pdf-info` compete with the skills that replaced them.
+
+They are **account-synced**: they live in Parker's claude.ai account, not on disk and not
+in this repo, so they can only be removed in claude.ai → Settings → Capabilities → Skills.
+`HANDOFF.md` carries the confirmed mechanism, the evidence, and the order.
 
 ## Draft-first enforcement (2026-09-11)
 
@@ -144,8 +140,10 @@ through the managed `env` block; a rep turns it on per session with `/caveman li
 
 ## What is deliberately not here
 
-- **No API keys, tokens, account numbers, FEIN, or seller's permit.** Those live in
-  `~/.bbs/vendor_profile.json` per machine and `~/grainger-api/mcp/.env` on admin machines.
+- **No API keys, tokens, or buying account numbers.** Those live in
+  `~/grainger-api/mcp/.env` on admin machines. FEIN, seller's permit and cert numbers live
+  in `plugins/bbs-sales/references/vendor_profile.json`, committed deliberately in this
+  private repo — not re-keyed into a CLAUDE.md.
 - **No hooks.** The skill-bus plugin carries its own; `bbs-website` ships one template
   validator in `bbs-database`'s repo settings where it belongs.
 - **No model pin.** People pick per task; the `claudeMd` block names the three current IDs

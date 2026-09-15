@@ -106,7 +106,8 @@ Standard BBS answers, consistent across every state packet:
 | OBS 1000 GenAI | GenAI utilized = **No**; detail questions and training question stay blank |
 | CalRecycle 74 | agency + buyer header from the RFQ, vendor block from the profile, one row per quoted line |
 
-Vendor constants live in `~/.bbs/vendor_profile.json` (legal name, FEIN, address,
+Vendor constants live in `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json`
+(legal name, FEIN, address,
 DVBE cert 2009473 exp. 12/31/2027, CUF statement, Jackson Dalton as DV owner).
 Treat it as the authority — if an RFQ pre-fills a BBS field differently, the RFQ
 is wrong; flag it rather than adopting it.

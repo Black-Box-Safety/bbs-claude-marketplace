@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/scope-what%20the%20whole%20company%20stands%20on-051c2c" alt="Company-wide foundations">
-  <img src="https://img.shields.io/badge/skills-1-b19800" alt="1 skill">
+  <img src="https://img.shields.io/badge/skills-3-b19800" alt="3 skills">
   <img src="https://img.shields.io/badge/CLAUDE.md-150%20lines%2C%20hard-0b3d5c" alt="150-line cap">
 </p>
 
@@ -71,7 +71,7 @@ competitive solicitations and never on LPA orders or storefront copy. The checke
 federal-context file that makes a DVBE claim.
 
 **Point, never copy.** Money is in Business Central, catalog in Supabase, documents in
-SharePoint, BBS form values in `~/.bbs/vendor_profile.json`. A fact stated twice drifts;
+SharePoint, BBS form values in `plugins/bbs-sales/references/vendor_profile.json`. A fact stated twice drifts;
 the sweep found the MRO LPA number written two ways in 106 places.
 
 ## What's planned

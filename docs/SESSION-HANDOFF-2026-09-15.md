@@ -76,8 +76,9 @@ link in a chain.
 
 ### `bbs-foundations` — company-wide
 **Owns:** doctrine every other plugin inherits, the BBS way to write a CLAUDE.md, personal
-voice skills, managed settings, the AUP, `/bbs-checkup`.
-**Does not own:** any desk's workflow. 2 skills · 3 commands · 1 hook.
+voice skills (including `bbs-deck-voice`, the federal slide-copy voice standard), managed
+settings, the AUP, `/bbs-checkup`.
+**Does not own:** any desk's workflow. 3 skills · 3 commands · 1 hook.
 
 ### Pinned external plugins
 `claudeforge`, `impeccable`, `superpowers-chrome`, `caveman`, and Anthropic's
