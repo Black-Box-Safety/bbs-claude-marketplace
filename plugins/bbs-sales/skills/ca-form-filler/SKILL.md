@@ -117,8 +117,9 @@ address     = f"{vp['address']['mailing_street']}, {vp['address']['city']}, {vp[
 phone       = vp["contact"]["phone"]
 email       = vp["contact"]["email"]
 rep         = vp["authorized_representatives"][0]
-dvbe_cert   = vp["certifications"]["dvbe"]["osds_ref_number"]
-dvbe_exp    = vp["certifications"]["dvbe"]["expiration"]  # MM/DD/YYYY
+cert        = vp["certifications"]["sb_dvbe"]   # ONE cert carrying both SB and DVBE
+dvbe_cert   = cert["osds_ref_number"]
+dvbe_exp    = cert["expiration"]  # MM/DD/YYYY
 sellers_permit = vp["business_identity"]["ca_sellers_permit"]
 ```
 

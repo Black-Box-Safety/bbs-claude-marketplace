@@ -4,8 +4,8 @@
     "sibling": "obs-form-filler/assets/bbs_vendor_profile.json holds the SAME facts in a flat schema for the OBS packet script. Update BOTH when a cert, address or permit changes.",
     "last_reviewed": "2026-09-14",
     "notes": [
-      "CERT DISCIPLINE — statewide credit comes ONLY from OSDS DVBE 2009473. San Diego SLBE 17BB1659 and LA County DVBE 10086 are LOCAL certifications and earn no state credit; never cite them for a statewide bid.",
-      "BBS is NOT Small Business (SB) certified. Never claim SB status or SB preference on a CA form.",
+      "CERT DISCIPLINE — statewide credit comes ONLY from OSDS 2009473. San Diego SLBE 17BB1659 and LA County DVBE 10086 are LOCAL certifications and earn no state credit; never cite them for a statewide bid.",
+      "SB PREFERENCE APPLIES — claim it. The OSDS certification 2009473 carries BOTH SB and DVBE, so on California competitive solicitations, informal included, BBS is entitled to the 5% Small Business preference (SCM §1204) AND the DVBE incentive (SCM §1202). Neither applies to an LPA/NASPO order, a federal bid (SDVOSB only), or storefront copy. The storefront doctrine's 'never claim SB credit' is about storefront copy alone — it is not a statement that BBS lacks SB certification. Ruling reversed by Parker 2026-09-02; bbs-foundations canonical-facts is the source.",
       "In FEDERAL context BBS is SDVOSB, not DVBE. DVBE is the California term. Do not mix them on one form.",
       "A manufacturer's own GSA or contract vehicle does not authorize BBS to fulfill unless BBS is a named reseller."
     ]
@@ -30,10 +30,11 @@
     "website": "www.blackboxsafety.com"
   },
   "certifications": {
-    "dvbe": {
+    "sb_dvbe": {
       "osds_ref_number": "2009473",
       "expiration": "12/31/2027",
-      "scope": "California statewide"
+      "scope": "California statewide — ONE OSDS certification carrying both SB and DVBE",
+      "carries": ["Small Business", "Disabled Veteran Business Enterprise"]
     },
     "local_only": [
       { "name": "San Diego SLBE", "number": "17BB1659", "scope": "San Diego local only" },
