@@ -1,0 +1,42 @@
+{
+  "_meta": {
+    "purpose": "THE source of truth for which Claude model IDs are current at BBS. canonical-facts.md quotes it and check_claude_md.py reads it, so the fact and the checker that enforces it can never disagree.",
+    "why_a_file": "This list was previously written down twice — once in canonical-facts.md and once as a regex inside the checker. It went stale in both, and the checker kept telling authors to write the superseded ID. When a canonical fact has a checker, the checker is part of the fact.",
+    "refresh": "scripts/refresh_models.py rewrites this from the Anthropic Models API (GET /v1/models). Run it by hand, or let .github/workflows/refresh-models.yml do it weekly and open a PR.",
+    "generated_at": "2026-09-15",
+    "generated_by": "manual — first entry, verified against the claude-api skill's current-models table",
+    "source": "https://api.anthropic.com/v1/models"
+  },
+
+  "current": {
+    "opus": "claude-opus-5",
+    "sonnet": "claude-sonnet-5",
+    "haiku": "claude-haiku-4-5"
+  },
+
+  "roles": {
+    "opus": "Hardest reasoning, architecture, long-horizon agent work.",
+    "sonnet": "The quote bot's specialist tier — escalate_to_specialist routes here.",
+    "haiku": "The quote bot's fast tier — clear lookups; no effort and no extended thinking."
+  },
+
+  "known_not_adopted": {
+    "claude-fable-5-1": "Anthropic's most capable widely released model. Priced above Opus tier. BBS has not adopted it; writing it is a deliberate choice, not an error.",
+    "claude-fable-5": "Predecessor to Fable 5.1, still served.",
+    "claude-mythos-5-1": "Project Glasswing access program only."
+  },
+
+  "superseded": {
+    "claude-opus-4-8": "claude-opus-5",
+    "claude-opus-4-7": "claude-opus-5",
+    "claude-opus-4-6": "claude-opus-5",
+    "claude-opus-4-5": "claude-opus-5",
+    "claude-sonnet-4-6": "claude-sonnet-5",
+    "claude-sonnet-4-5": "claude-sonnet-5"
+  },
+
+  "rules": {
+    "no_date_suffix": "Model IDs are complete as written. Never append a date — `claude-opus-5-20260401` is not a thing. Any `claude-*-20YYMMDD` is an error.",
+    "current_only": "BBS writes only the three IDs under `current`. A superseded ID is a FAIL; a known-not-adopted ID is a WARN, because it may be deliberate."
+  }
+}

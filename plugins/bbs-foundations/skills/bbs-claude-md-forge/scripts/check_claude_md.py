@@ -23,6 +23,33 @@ import sys
 CAP = 150
 SKIP_DIRS = {".git", "node_modules", "vendor", ".venv", "venv", "__pycache__", ".claude-plugin"}
 
+# Model IDs come from references/models.json — the same file canonical-facts.md quotes and
+# scripts/refresh_models.py rewrites from the API. The list used to live here as a regex,
+# which is how it went stale while still being enforced: the checker passed the superseded
+# ID and told authors to write it. A checker that carries its own copy of a fact is a
+# second source of truth waiting to drift.
+MODELS_JSON = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                           "references", "models.json")
+ANY_CLAUDE_ID = re.compile(r"\bclaude-[a-z0-9]+(?:-[a-z0-9]+)*\b")
+DATE_SUFFIXED = re.compile(r"\bclaude-[a-z0-9-]+-20\d{6}\b")
+
+
+def load_models():
+    """Return (current, superseded, known_not_adopted). Missing file is fatal:
+    silently skipping the model check is how a stale ID ships."""
+    try:
+        with open(MODELS_JSON) as f:
+            data = json.load(f)
+    except (OSError, ValueError) as exc:
+        sys.exit(f"cannot read {MODELS_JSON}: {exc}\n"
+                 f"It is the source of truth for model IDs; the checker will not run without it.")
+    return (set(data["current"].values()),
+            data.get("superseded", {}),
+            set(data.get("known_not_adopted", {})))
+
+
+CURRENT_MODELS, SUPERSEDED_MODELS, KNOWN_NOT_ADOPTED = load_models()
+
 FEDERAL_MARKERS = re.compile(r"\b(Bechtel|USACE|DFARS|FAR 52\.|federal prime|Centerra|UCOR|Northrop)\b", re.I)
 # A DVBE *claim* — leading with the credential — not a role title ("DVBE veteran owner")
 # and not a rule about when not to use it ("Never use DVBE here").
@@ -40,8 +67,6 @@ FAIL_PATTERNS = [
      "secret-shaped string; never commit secrets"),
     ("placeholder", re.compile(r"\[(TODO|TBD|PLACEHOLDER|Insert[^\]]*|Add[^\]]*)\]|\bTODO\("),
      "placeholder content left from a template"),
-    ("stale_model", re.compile(r"claude-(opus-4-[0-7]|sonnet-4(?:-\d)?|haiku-3|3(?:-\d)?-(?:opus|sonnet|haiku))\b|claude-[a-z0-9-]+-20\d{6}\b"),
-     "stale model ID; use claude-opus-4-8 / claude-sonnet-5 / claude-haiku-4-5"),
     ("wrong_mro_lpa", re.compile(r"7-25-52-02\.03|7-18-51-02\.18"),
      "MRO LPA is 7-25-51-02.03"),
     # No SB-preference check: BBS holds OSDS SB/DVBE 2009473 and the 5% preference applies
@@ -123,6 +148,25 @@ def check_file(path, all_files):
         for code, pat, msg in FAIL_PATTERNS:
             if pat.search(raw):
                 F(code, i, msg)
+
+        for dated in DATE_SUFFIXED.findall(raw):
+            base = re.sub(r"-20\d{6}$", "", dated)
+            F("dated_model", i,
+              f"{dated} — model IDs carry no date suffix; write {base}")
+        for found in ANY_CLAUDE_ID.findall(raw):
+            if DATE_SUFFIXED.match(found) or found in CURRENT_MODELS:
+                continue
+            if found in SUPERSEDED_MODELS:
+                F("stale_model", i,
+                  f"{found} is superseded; use {SUPERSEDED_MODELS[found]}")
+            elif found in KNOWN_NOT_ADOPTED:
+                W("unadopted_model", i,
+                  f"{found} is a real model BBS has not adopted; current set is "
+                  f"{' / '.join(sorted(CURRENT_MODELS))}")
+            else:
+                F("unknown_model", i,
+                  f"{found} is not a known model ID; current set is "
+                  f"{' / '.join(sorted(CURRENT_MODELS))}")
         for code, pat, msg in WARN_PATTERNS:
             if pat.search(raw):
                 W(code, i, msg)

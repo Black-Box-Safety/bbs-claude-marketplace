@@ -89,8 +89,18 @@ Joyce Newell (POs), Jeff Azar (body armor), Griffin (federal). Accounting: Amy L
 
 ## Model IDs
 
-`claude-opus-4-8` · `claude-sonnet-5` · `claude-haiku-4-5`. Anything with a dated suffix
-or an older number (`claude-opus-4-5` in `bbs-agent/config.py`) is stale.
+`claude-opus-5` · `claude-sonnet-5` · `claude-haiku-4-5`. Anything with a dated suffix or
+an older number (`claude-opus-4-8`, `claude-opus-4-5` in `bbs-agent/config.py`) is stale.
+
+**This list is generated — do not hand-edit it here.** `references/models.json` is the
+source: `check_claude_md.py` reads it, and `scripts/refresh_models.py` rewrites it from the
+Anthropic Models API (weekly, via `.github/workflows/refresh-models.yml`, which opens a PR
+when the list moves). When the workflow changes `models.json`, update this line to match.
+
+That split exists because this fact went stale in two places at once: the list said
+`claude-opus-4-8` and the checker enforced it, so the checker passed the superseded ID and
+told authors to write it. **When a canonical fact has a checker, the checker is part of the
+fact** — which is why the checker now has no copy of its own.
 
 ## Brand
 
