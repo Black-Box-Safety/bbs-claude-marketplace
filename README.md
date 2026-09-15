@@ -145,7 +145,8 @@ bbs-claude-marketplace/
   four outbound (growth), a baseline captured before anything is claimed.
 - **Acceptance:** a rep who is not the admin runs a real RFQ end to end, unaided. Result recorded in
   [`docs/acceptance/`](docs/acceptance/README.md). That is the definition of done.
-- **Models:** `claude-opus-4-8` · `claude-sonnet-5` · `claude-haiku-4-5` only. Anything else is
+- **Models:** `claude-opus-5` · `claude-sonnet-5` · `claude-haiku-4-5` only, generated from
+  `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/models.json`. Anything else is
   stale.
 
 ## Contributing
