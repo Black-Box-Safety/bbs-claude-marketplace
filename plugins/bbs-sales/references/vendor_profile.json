@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "source": "THE source of truth for BBS vendor facts on California bid forms. Every form skill in this plugin reads this file and nothing else. Resolve it as ${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json; fill_obs_packet.py derives its flat view from here rather than keeping a second copy.",
+    "do_not_duplicate": "If you are about to write a BBS address, cert number, FEIN or signer into a skill, stop and read it from here instead. This file exists because those facts were previously written down twice, in two shapes, and a cert expiry could go stale in one of them while a rep submitted binding bids from the other.",
+    "last_reviewed": "2026-09-15",
+    "notes": [
+      "CERT DISCIPLINE — statewide credit comes ONLY from OSDS 2009473. San Diego SLBE 17BB1659 and LA County DVBE 10086 are LOCAL certifications and earn no state credit; never cite them for a statewide bid.",
+      "SB PREFERENCE APPLIES — claim it. The OSDS certification 2009473 carries BOTH SB and DVBE, so on California competitive solicitations, informal included, BBS is entitled to the 5% Small Business preference (SCM §1204) AND the DVBE incentive (SCM §1202). Neither applies to an LPA/NASPO order, a federal bid (SDVOSB only), or storefront copy. The storefront doctrine's 'never claim SB credit' is about storefront copy alone — it is not a statement that BBS lacks SB certification. Ruling reversed by Parker 2026-09-02; bbs-foundations canonical-facts is the source.",
+      "In FEDERAL context BBS is SDVOSB, not DVBE. DVBE is the California term. Do not mix them on one form.",
+      "A manufacturer's own GSA or contract vehicle does not authorize BBS to fulfill unless BBS is a named reseller.",
+      "FEIN and seller's permit live here deliberately. This repo is BBS-specific and private; the canonical-facts rule against committing them guards work that might be reused elsewhere."
+    ]
+  },
+  "business_identity": {
+    "legal_name": "Black Box Safety, Inc.",
+    "short_name": "Black Box Safety",
+    "fein": "82-1125133",
+    "ca_sellers_permit": "103213178",
+    "entity_type": "Corporation",
+    "founded": "2017"
+  },
+  "address": {
+    "mailing_street": "1950 Cordell CT Ste 103",
+    "city": "El Cajon",
+    "state": "CA",
+    "zip": "92020"
+  },
+  "contact": {
+    "phone": "(619) 499-7943",
+    "email": "jackson@blackboxsafety.com",
+    "website": "www.blackboxsafety.com"
+  },
+  "certifications": {
+    "sb_dvbe": {
+      "osds_ref_number": "2009473",
+      "expiration": "12/31/2027",
+      "scope": "California statewide — ONE OSDS certification carrying both SB and DVBE",
+      "carries": ["Small Business", "Disabled Veteran Business Enterprise"]
+    },
+    "local_only": [
+      { "name": "San Diego SLBE", "number": "17BB1659", "scope": "San Diego local only" },
+      { "name": "LA County DVBE", "number": "10086", "scope": "Los Angeles County local only" }
+    ],
+    "federal": { "designation": "SDVOSB", "gsa_mas": "47QSWA23D000Y" }
+  },
+  "authorized_representatives": [
+    {
+      "role": "dvbe_owner",
+      "name": "Jackson Dalton",
+      "title": "President",
+      "email": "jackson@blackboxsafety.com",
+      "phone": "(619) 499-7943",
+      "signs": "Ownership and payee lines — DVBE owner declarations (DGS PD 843) and STD 204 authorized payee representative. Tied to who OWNS the certified DVBE, not to who quoted the job, so this does not change with the rep."
+    },
+    {
+      "role": "accounting",
+      "name": "Amy Leath",
+      "title": "Accounting",
+      "email": "accounting@blackboxsafety.com",
+      "phone": "(619) 499-7943",
+      "signs": "Nothing. Accounting contact for payee and remittance blocks."
+    }
+  ],
+  "default_rep": {
+    "role": "bidder",
+    "name": "Parker Marshall",
+    "title": "Sales Manager",
+    "email": "parker@blackboxsafety.com",
+    "signs": "Bidder lines only. The rep is a VARIABLE — whoever quotes the job signs these, so a skill must take the rep from its inputs and use this only as a fallback."
+  },
+  "product_type": "Safety Equipment, MRO, PPE"
+}

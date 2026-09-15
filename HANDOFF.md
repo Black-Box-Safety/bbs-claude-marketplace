@@ -35,7 +35,7 @@ At the office machine after that: `git clone https://github.com/Black-Box-Safety
 
 Then confirm skill-bus fires on the plugin's own skills (this was the old gap): invoke the
 `product-page` skill and check `.claude/skill-bus-telemetry.jsonl` shows a `match` (not
-`no_match`) for `bbs-ops:product-page` with `bbs-storefront-doctrine`.
+`no_match`) for `bbs-website:product-page` with `bbs-storefront-doctrine`.
 
 ## Step 3 — Acceptance gate (the real test)
 

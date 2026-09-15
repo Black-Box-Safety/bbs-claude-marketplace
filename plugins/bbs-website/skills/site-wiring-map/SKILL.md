@@ -37,8 +37,8 @@ Forgetting either is the most common "why isn't my change showing up" cause.
 | Add a manufacturer brand page | `brand-page-builder` | `storefront-pages` |
 | Tune the LE (Direct) lane | `le-lane-tuning` | `quote-bot` |
 | Tune the Grainger (Supply) lane | `supply-lane-tuning` | `quote-bot` |
-| Fill CA / CDCR bid forms | `ca-form-filler` / `obs-form-filler` | `quote-bot` |
-| Source an RFQ from vendors | `bbs-sourcing` | `quote-bot` |
+| Fill CA / CDCR bid forms | `bbs-sales:ca-form-filler` / `bbs-sales:obs-form-filler` | the sales desk, not this plugin |
+| Source an RFQ from vendors | `bbs-sales:bbs-sourcing` | the sales desk, not this plugin |
 | Add "Customers Also Bought" | (uses `product-page`) | `cross-sell` |
 | Audit data quality | — | `data-qa` |
 | Review architecture of a change | — | `arthur` |

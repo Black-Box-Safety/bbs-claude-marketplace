@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-3-b19800" alt="3 skills">
+  <img src="https://img.shields.io/badge/skills-14-b19800" alt="14 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
@@ -19,9 +19,38 @@ automatic so the rep spends their time on the buyer. The same discipline applies
 promo page that overstates a discount or implies an agency's endorsement is a compliance problem,
 not a marketing win, so every page runs through the same brand gate as any printed piece.
 
-**Jump to:** [The three skills](#the-three-skills) · [Setup](#one-time-setup) · [Commands](#commands) · [The rules that don't bend](#the-rules-that-dont-bend) · [Rollout guide](#rollout-guide)
+**Jump to:** [The desk, end to end](#the-desk-end-to-end) · [Setup](#one-time-setup) · [Commands](#commands) · [The rules that don't bend](#the-rules-that-dont-bend) · [Rollout guide](#rollout-guide)
 
-## The three skills
+## The desk, end to end
+
+A state quote moves through the same seven steps every time. Each one has a skill, and
+the handoffs are what the plugin is really for — the rep should never be the integration
+between two of these.
+
+| # | Step | Skill |
+|---|---|---|
+| 1 | An RFQ arrives and the clock starts | `ca-rfq-intake` |
+| 2 | Get the items out of whatever they sent | `dwr-pdf-info` (DWR RFQ PDFs) · `grainger-cart-info` (saved cart PDF) · `grainger-screenshot` (a screenshot of a cart or table) |
+| 3 | Can we even sell it on this vehicle? | `dgs-bpo-item-check` — is the Grainger part on the active DGS BPO |
+| 4 | Price it | `bbs-b2b-pricing` (the authorized Grainger punch-out path) · `bbs-sourcing` (competitive bids needing real vendor outreach, dispatching `supplier-scout` for items BBS has never sourced) · `vendor-quote-email` (one vendor, one ask) |
+| 5 | Build the customer's quote | `bbs-quote-builder` — BBS letterhead, SQ-104032 format, as a PDF |
+| 6 | Fill the compliance packet | `naspo-quote` (NASPO-routed) · `obs-form-filler` (CDCR OBS 4007(B) Packet-B) · `ca-form-filler` (general CA state packets) |
+| 7 | Go find the next one | `grainger-promo-page` (outbound campaign) · `bbs-deck-voice` (federal pursuit deck copy) |
+
+Step 4 is the one to get right. `bbs-b2b-pricing` is the authorized path for Grainger
+pricing at BBS — prefer it over anything found on the open web, because the open-web
+price is not the price BBS's account actually pays.
+
+`bbs-deck-voice` is the exception to this plugin's California framing: it writes
+**federal** pursuit copy, where BBS is SDVOSB and never DVBE. Do not use it for a CA
+agency deck, and do not let its certification language leak into a state bid. On
+California competitive solicitations the opposite discipline applies — OSDS 2009473
+carries both SB and DVBE, so claim the 5% SB preference and the DVBE incentive.
+
+An order that has already been taken is not this plugin's work. A wrong item, a short
+shipment, a price discrepancy on the PO — those go to `bbs-back-office`.
+
+### The three the plugin was built around
 
 The work splits into inbound and outbound.
 
@@ -63,7 +92,7 @@ Start from the copy already in this marketplace:
 
 ```bash
 mkdir -p ~/.bbs
-cp plugins/bbs-website/skills/obs-form-filler/assets/bbs_vendor_profile.json ~/.bbs/vendor_profile.json
+cp plugins/bbs-sales/references/vendor_profile.json ~/.bbs/vendor_profile.json
 ```
 
 Then open it and confirm every value is current. If an RFQ arrives pre-filled with a BBS field that disagrees with this file, the RFQ is wrong: flag it, don't adopt it.

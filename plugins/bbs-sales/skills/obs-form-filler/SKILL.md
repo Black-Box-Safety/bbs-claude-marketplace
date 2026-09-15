@@ -2,7 +2,6 @@
 name: obs-form-filler
 description: Fill out the CDCR OBS 4007(B) "RFQ Packet-B" California state compliance forms for Black Box Safety (BBS). Use this skill whenever a BBS rep needs to respond to a CDCR (Department of Corrections and Rehabilitation) informal competitive RFQ — i.e. whenever they upload or mention a blank OBS 4007(B) packet, "Packet B", "OBS 4007", a CDCR RFQ, or ask to fill out the bid forms / compliance packet for a CDCR quote. Also trigger when a rep provides a quote (product, price, quantity) plus a solicitation number and asks to "fill the OBS form", "redo this on the new forms", "complete the bid packet", or "fill out the CDCR forms". The rep supplies the quote line items, the dates, the agency contact info, and their own rep info (name/title/email); this skill merges in BBS's fixed vendor profile, fills all 9 sub-forms, embeds signatures, and produces a submission-ready PDF. Do NOT use for non-CDCR bid packets, NASPO/Grainger-routed quotes, or generic California state forms unrelated to the OBS 4007(B) packet.
 ---
-> **BBS Website pipeline — stage: Quote bot.** See `site-wiring-map` for how this fits the whole flow.
 
 # OBS 4007(B) Packet-B Filler — Black Box Safety
 
@@ -18,7 +17,10 @@ The packet is the same every time except for (a) the quote line items, (b) the d
 and solicitation number, (c) the agency requestor/ship-to info, and (d) which rep is
 signing the bidder line. Everything else — BBS's address, FEIN, seller's permit, DVBE
 cert, the DVBE owner's signature, the accounting contact — is fixed and lives in the
-bundled vendor profile so the rep never re-keys it.
+plugin's canonical vendor profile at `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json`,
+so the rep never re-keys it. `ca-form-filler` reads that same file: BBS's vendor facts are
+written down once, in one place, and a cert expiry cannot go stale in one copy while bids
+go out from another. Do not add a second copy here.
 
 ## The model behind the form (read this — it prevents the common mistakes)
 
@@ -77,38 +79,74 @@ Copy `assets/inputs_template.json` and fill it in. Schema:
   total are computed automatically.
 
 ### 3. Run the fill script
+Run it by its full path — `SKILL_DIR` is the folder holding this SKILL.md, which
+is wherever the plugin got installed, not the directory you happen to be in:
 ```bash
-python scripts/fill_obs_packet.py <blank_packet.pdf> <inputs.json> <output.pdf>
+SKILL_DIR=<the folder containing this SKILL.md>
+python "$SKILL_DIR/scripts/fill_obs_packet.py" <blank_packet.pdf> <inputs.json> <output.pdf>
 ```
-The script fills all AcroForm fields (via the public pdf skill's fill script), then
-adds the four company-name text annotations. It requires `pymupdf` — if not installed,
-run `pip install pymupdf --break-system-packages -q` first.
+The script fills all AcroForm fields, then adds the four company-name text
+annotations. It needs `pypdf` and `pymupdf`, checks for both before it touches
+the packet, and prints the install command if either is missing
+(`pip install pypdf pymupdf --break-system-packages -q`). Nothing else is
+required: it is self-contained, so it runs the same on a rep's machine as it
+does in a Claude session.
+
+It writes the packet only if every field validates, so a non-zero exit means no
+output file — never a half-filled one. Read any `NOTE:` lines it prints: a note
+that a checkbox was checked under a different state name means this packet
+revision differs from Rev. 08/2025, and the rest of the layout deserves a
+closer look.
 
 ### 4. Verify before delivering
-Convert the output to images and eyeball the key pages — the form field layout can drift
-between packet revisions:
+Render the key pages and eyeball them — the form field layout can drift between
+packet revisions:
 ```bash
-python /mnt/skills/public/pdf/scripts/convert_pdf_to_images.py <output.pdf> <verify_dir>/
+python "$SKILL_DIR/scripts/render_pages.py" <output.pdf> <verify_dir>/ 2 12 16 21 24
 ```
-Check: OBS 4007(B) front page (page 2), the line-item worksheet (page 12), CalRecycle 74
-(page 16), PD 843 (page 21), and STD 204 (page 24). Confirm the rep signed the bidder
-lines, Jackson signed the ownership lines, the totals are right, and no company-name
-line is blank.
+Those are the pages that matter: OBS 4007(B) front page (page 2), the line-item
+worksheet (page 12), CalRecycle 74 (page 16), PD 843 (page 21), and STD 204
+(page 24). Pass no page numbers to render the whole packet.
 
-If a field lands in the wrong place, the packet revision may have changed. Re-extract the
-field list with `python /mnt/skills/public/pdf/scripts/extract_form_field_info.py
-<blank_packet.pdf> fields.json` and reconcile the field IDs in
-`scripts/fill_obs_packet.py` (the `add(...)` calls and `LINE_FIELD_IDS`). The annotation
-coordinates in `ANNOTATIONS` are tied to the Rev. 08/2025 layout.
+Confirm, in this order:
+
+1. **The DVBE box on page 2 is actually ticked**, along with the PD 843 "not a
+   broker" box (page 21) and the STD 204 entity boxes (page 24). Check the
+   rendered image, not the field values — a box can hold the right value and
+   still render blank if the packet revision renamed its checked state.
+2. Every line item appears and the grand total matches the quote.
+3. The rep signed the bidder lines and Jackson signed the ownership lines.
+4. No company-name line is blank.
+
+If a field lands in the wrong place, the packet revision has probably changed. The
+script refuses to write a packet when a field ID is unknown, sits on an unexpected
+page, or is a checkbox it cannot tick, and names every offender. To see what the new
+packet actually contains — each field's page, type and checkbox on-states:
+
+```bash
+python "$SKILL_DIR/scripts/fill_obs_packet.py" --inspect <blank_packet.pdf>
+```
+
+Reconcile that against the field IDs in `scripts/fill_obs_packet.py` (the `add(...)`
+calls and `LINE_FIELD_IDS`), and update `references/field_map.md` to match. The
+annotation coordinates in `ANNOTATIONS` are tied to the Rev. 08/2025 layout, so
+re-check those four company-name lines too.
 
 ### 5. Deliver
 Copy the final PDF to the outputs directory and present it. Then give the rep a short
 status: which forms were completed, who signed what, and the reminder to add the
 signature date by hand at submission if it was left blank.
 
-For a full page-by-page map of what goes where, who signs each form, the four
-flat-text annotation coordinates, and the list of irregular field names, see
+For a full page-by-page map of what goes where, the four flat-text annotation
+coordinates, and the list of irregular field names in *this* packet, see
 `references/field_map.md`.
+
+For the rules that are the same whoever fills a CA form — who signs which lines, what
+the State fills in, why CalRecycle 74 is never left blank, and the certification
+language that decides whether BBS claims the 5% SB preference — see
+`${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md`. That file is shared with
+`ca-form-filler` and `naspo-quote`; put a new signing or leave-blank rule there, not
+here, so all three skills stay in agreement.
 
 ## Field-name caution
 

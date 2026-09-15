@@ -1,5 +1,11 @@
 # OBS 4007(B) Packet-B — Field & Page Reference
 
+> **Scope:** this file maps the AcroForm field IDs and coordinates of the CDCR
+> OBS 4007(B) packet PDF specifically. The rules that apply to these forms whoever
+> fills them — who signs what, what the State fills, what disqualifies a bid — live
+> once in `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md`. Field IDs belong to a
+> PDF; rules belong to the forms.
+
 CDCR "Request For Quote (RFQ) Packet – B", OBS 4007(B) Rev. 08/2025. Ships as a
 fillable AcroForm PDF (~480 fields) plus four flat (non-fillable) company-name lines.
 `scripts/fill_obs_packet.py` handles both. This file is a human-readable map of what
@@ -57,8 +63,10 @@ The source field names are hand-authored and inconsistent. The script's
 - Row 6 ext-price: `"OBS Line-Item Cost Wrksht L6"`
 - Rows 13/18/23 ext-price: `"OBS Line-Item Cost Wrksht L13"`, `"...wrksht L18"`, `"...Wrksht L23"`
 
-If the fill script reports an invalid field ID, re-extract with the pdf skill's
-`extract_form_field_info.py` and reconcile, rather than guessing.
+If the fill script reports an invalid field ID, dump the packet's real fields with
+`python scripts/fill_obs_packet.py --inspect <blank_packet.pdf>` and reconcile against
+that, rather than guessing. The dump lists each field's page, type and checkbox
+on-states, which is what the fill script itself validates against.
 
 ## Fields intentionally left blank (State fills these)
 

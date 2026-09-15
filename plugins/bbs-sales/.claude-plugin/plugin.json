@@ -1,21 +1,23 @@
 {
   "name": "bbs-sales",
-  "description": "California state sales: log an inbound RFQ, price it and fill the CA compliance packet, and turn a Grainger negotiated price sheet into an agency promotion page with SCPRS buyer segments and the brand compliance gate. Carries ca-rfq-intake, naspo-quote, and grainger-promo-page.",
-  "version": "0.2.0",
+  "description": "The California state quote desk, end to end: log an inbound RFQ, pull items out of whatever the agency sent, check BPO eligibility, price it through the Grainger punch-out or vendor sourcing, build the customer quote, and fill the CDCR and CA compliance packets. Plus Grainger promo pages and federal deck copy.",
+  "version": "0.3.0",
   "author": {
     "name": "Black Box Safety, Inc."
   },
   "keywords": [
     "bbs",
-    "campaign",
+    "bid-forms",
+    "cdcr",
+    "compliance-forms",
     "dvbe",
     "grainger",
-    "landing-page",
     "naspo",
     "quoting",
     "rfq",
     "sales",
-    "scprs",
+    "sdvosb",
+    "sourcing",
     "state-of-california"
   ],
   "skills": "./skills/",

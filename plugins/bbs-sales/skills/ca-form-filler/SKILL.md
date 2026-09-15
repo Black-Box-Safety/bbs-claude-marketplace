@@ -13,9 +13,6 @@ description: >
   signature lines, and produces filled PDFs ready for rep review and submission.
 compatibility: claude-code
 ---
-> **BBS Website pipeline — stage: Quote bot.** See `site-wiring-map` for how this fits the whole flow.
-
-> **Note:** the vendor-profile JSON this skill reads from `references/` is created on first-run setup (see the setup section); it is not shipped in the package.
 
 # California State Compliance Form Filler
 
@@ -37,8 +34,11 @@ iterative fix/verify loop without re-uploading source files.
 - Signature lines clearly flagged with `⚑ SIGNATURE REQUIRED`
 - Cover summary (markdown) with fields filled, signature requirements, and gap report
 
-**Vendor profile:** `~/.bbs/vendor_profile.json` (persistent across sessions)
-**PDF scripts:** `~/.bbs/pdf_scripts/` (persistent helper scripts — see Setup below)
+**Vendor profile:** `~/.bbs/vendor_profile.json`, copied on first run from the
+plugin's canonical `references/vendor_profile.json` — the one place BBS's vendor
+facts are written down. `obs-form-filler` reads the same file.
+**Shared form rules:** `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md` — who
+signs what, what the State fills, what disqualifies a bid.
 **Output directory:** `~/bbs_forms/[YYYYMMDD_AgencyShortName]/`
 
 ---
@@ -49,24 +49,27 @@ On first use, create the persistent directory structure and copy the pdf skill
 scripts so they persist across sessions:
 
 ```bash
-mkdir -p ~/.bbs/pdf_scripts
-mkdir -p ~/bbs_forms
+mkdir -p ~/.bbs ~/bbs_forms
 
-# Copy pdf skill scripts to persistent location
-cp /mnt/skills/public/pdf/scripts/* ~/.bbs/pdf_scripts/
+# The vendor profile ships with this skill — copy it, don't retype it.
+cp "$CLAUDE_PLUGIN_ROOT/references/vendor_profile.json" ~/.bbs/vendor_profile.json
 
-# Write vendor profile to persistent location
-cat > ~/.bbs/vendor_profile.json << 'PROFILE'
-PASTE_VENDOR_PROFILE_JSON_HERE
-PROFILE
+# PDF form work needs these two libraries:
+pip install pypdf pymupdf --break-system-packages -q
 ```
 
-The vendor profile JSON is stored in `references/vendor_profile.json` inside
-this skill package. Copy its contents into the above command on first run.
+`CLAUDE_PLUGIN_ROOT` is the installed bbs-sales plugin directory. `SKILL_DIR`,
+used further down, is the folder holding this SKILL.md — in both cases, wherever
+the plugin was installed, not the directory you happen to be standing in.
+
+Earlier revisions of this skill copied form-filling helpers out of
+`/mnt/skills/public/pdf`, which exists only inside a Claude session and not on a
+rep's machine. Everything below uses `pypdf`/`pymupdf` directly instead, so the
+skill behaves the same wherever it runs.
 
 Check setup is complete:
 ```bash
-ls ~/.bbs/pdf_scripts/
+ls ~/.bbs/vendor_profile.json
 cat ~/.bbs/vendor_profile.json | python3 -c "import json,sys; d=json.load(sys.stdin); print('Profile OK:', d['business_identity']['legal_name'])"
 ```
 
@@ -114,9 +117,11 @@ fein        = vp["business_identity"]["fein"]
 address     = f"{vp['address']['mailing_street']}, {vp['address']['city']}, {vp['address']['state']} {vp['address']['zip']}"
 phone       = vp["contact"]["phone"]
 email       = vp["contact"]["email"]
-rep         = vp["authorized_representatives"][0]
-dvbe_cert   = vp["certifications"]["dvbe"]["osds_ref_number"]
-dvbe_exp    = vp["certifications"]["dvbe"]["expiration"]  # MM/DD/YYYY
+# Look signers up by role — never by list position.
+owner       = next(r for r in vp["authorized_representatives"] if r["role"] == "dvbe_owner")
+cert        = vp["certifications"]["sb_dvbe"]   # ONE cert carrying both SB and DVBE
+dvbe_cert   = cert["osds_ref_number"]
+dvbe_exp    = cert["expiration"]  # MM/DD/YYYY
 sellers_permit = vp["business_identity"]["ca_sellers_permit"]
 ```
 
@@ -174,14 +179,14 @@ elif days_to_exp < 30:
 ## Step 3 — Identify Forms and Check Fields
 
 ```bash
-# Check if form packet has fillable fields
-python3 ~/.bbs/pdf_scripts/check_fillable_fields.py /path/to/forms.pdf
+# What fields does this packet actually have, on which pages, with which
+# checkbox on-states? obs-form-filler's inspector reads any CA form PDF:
+python3 "$CLAUDE_PLUGIN_ROOT/skills/obs-form-filler/scripts/fill_obs_packet.py" \
+  --inspect /path/to/forms.pdf
 ```
 
-```bash
-# If fillable — extract all field IDs with page numbers and coordinates
-python3 ~/.bbs/pdf_scripts/extract_form_field_info.py /path/to/forms.pdf /tmp/fields.json
-```
+A packet with no fields listed is a flat scan — fall through to the coordinate
+stamping path below.
 
 ```bash
 # Extract text structure to identify which forms are present and on which pages
@@ -313,17 +318,25 @@ pdftoppm -jpeg -r 150 -f 1 -l 1 /path/to/forms.pdf /tmp/std204_verify
 
 ### 5A — Fillable PDFs (preferred path)
 
-```bash
-# Validate field values before filling
-python3 ~/.bbs/pdf_scripts/check_bounding_boxes.py /tmp/field_values.json
-```
+Fill with `pypdf`, following the pattern in
+`obs-form-filler/scripts/fill_obs_packet.py` — read `fill_acroform()` before
+writing your own. What matters there, and applies equally here:
+
+- **Validate every field against the PDF in hand before writing anything.** An
+  unknown field ID, a field on an unexpected page, or a checkbox whose declared
+  on-state is not what you are about to write is an error, not a warning. Abort
+  and write no file.
+- **Never write a hardcoded `/Yes` to a checkbox.** Read its real on-state from
+  the widget's appearance dictionary and write that. A box can carry the "right"
+  value and still render unticked — which on the SB/DVBE line is the difference
+  between claiming a preference and silently forfeiting it.
+- **Fill a scratch copy and move it into place**, so a failure part-way through
+  never leaves a half-filled packet looking finished.
 
 ```bash
-# Fill using the skill script
-python3 ~/.bbs/pdf_scripts/fill_fillable_fields.py \
-    /path/to/forms.pdf \
-    /tmp/field_values.json \
-    ~/bbs_forms/[output_dir]/[FormID]_filled.pdf
+# Same validation the OBS filler does, against any CA form PDF:
+python3 "$CLAUDE_PLUGIN_ROOT/skills/obs-form-filler/scripts/fill_obs_packet.py" \
+  --inspect /path/to/forms.pdf
 ```
 
 **field_values.json format:**
@@ -342,14 +355,18 @@ python3 ~/.bbs/pdf_scripts/fill_fillable_fields.py \
 
 ```bash
 # Extract structure for coordinate-based placement
-python3 ~/.bbs/pdf_scripts/extract_form_structure.py /path/to/forms.pdf /tmp/structure.json
+python3 -c "from pypdf import PdfReader; import json,sys; \
+print(json.dumps(sorted((PdfReader(sys.argv[1]).get_fields() or {})), indent=2))" /path/to/forms.pdf
 
 # Rasterize all pages for visual coordinate mapping
 pdftoppm -jpeg -r 150 /path/to/forms.pdf /tmp/form_pages
 ```
 
-Then use `fill_pdf_form_with_annotations.py` with image or PDF coordinates.
-See `/mnt/skills/public/pdf/FORMS.md` for full coordinate mapping workflow.
+Then write the values with `pypdf` and stamp any non-AcroForm lines with
+`pymupdf` at measured coordinates. The sibling `obs-form-filler` skill in this
+plugin does exactly that in `scripts/fill_obs_packet.py` — read it for the
+working pattern, including how it validates every field against the packet in
+hand before writing (checkbox on-states included) rather than trusting a map.
 
 ### 5C — Verify Every Output
 
