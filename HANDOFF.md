@@ -1,64 +1,74 @@
-# HANDOFF — bbs-ops plugin, remaining steps
+# HANDOFF — the personal-copy cutover
 
-> **2026-09-02:** the plugin described below was renamed `bbs-ops` → `bbs-website` (directory `plugins/bbs-website`, install `bbs-website@bbs-claude-marketplace`). Paths and names in this handoff are as they were on 2026-07-23.
+The July 2026 rollout this file used to track is **done**. The repo is pushed, the
+marketplace is live, and what was one `bbs-ops` plugin is now four. Deployment moved to
+[`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md), the acceptance gate to
+[`docs/acceptance/`](docs/acceptance/README.md), and asset status to
+[`REGISTRY.md`](REGISTRY.md).
 
-**State as of 2026-07-23:** the `bbs-ops` plugin is fully built, statically validated, and
-committed locally in this repo (`bbs-claude-marketplace`). It has NOT been pushed, NOT been
-installed live, and the source repos have NOT been cut over. Everything below is what's left.
-Built on the home desktop; the interactive steps happen on the office machine.
+One thread from it is still open, and it is the reason this file still exists: **15 skills
+exist twice** — once as a personal copy synced to Parker's account, once in the
+marketplace. While both copies exist, whichever loads first wins, silently. That is the
+fleet audit's worst failure mode, and it is now the gap between a fix landing in the
+marketplace and a rep actually getting it.
 
-## What's done
+Last verified: 2026-09-15.
 
-- Marketplace manifest (one plugin `bbs-ops`; `bbs-foundations` reserved in `.claude-plugin/PLUGINS.md`).
-- 12 skills (`site-wiring-map` + 11 ported copy-not-cut), 10 agents, 4 commands, 3 skill-bus
-  doctrine inserts / 13 subscriptions (all targets resolve).
-- A deep review found and fixed 10 defects (skill-bus no-match, dangling agent names, a stale
-  Grainger architecture description in quote-bot, form numbers, README links, gap notes).
-- Design spec + plan live in the `bbs-quote-bot` repo under `docs/superpowers/`.
+## Why this matters more than it did in July
 
-## Step 1 — Push (once, from any machine with gh auth to the Black-Box-Safety org)
+In July this was three skills. Porting the personal skill set into the marketplace made it
+fifteen — every skill below now has a marketplace copy that is the maintained one, and a
+personal copy that shadows it in Parker's own sessions.
 
-```bash
-cd bbs-claude-marketplace
-gh repo create Black-Box-Safety/bbs-claude-marketplace --private --source=. --remote=origin --push
-```
+Concretely: the `obs-form-filler` hardening of 2026-09-14 — checkbox on-state validation,
+and the refusal to truncate a quote too long for the worksheet — is live in the marketplace
+and **absent from the personal copy Parker's sessions load first**. Parker is currently the
+one person at BBS not getting his own bug fixes.
 
-At the office machine after that: `git clone https://github.com/Black-Box-Safety/bbs-claude-marketplace`.
+## The cutover
 
-## Step 2 — Install live (interactive Claude Code session, office machine)
+Per skill, one commit each — never en masse, so a bad pointer is one revert and not a
+rollback of the set. For each, replace the personal `SKILL.md` **body** with a three-line
+pointer to the marketplace copy, keeping the frontmatter `name` and `description` so
+triggering is unchanged until the personal copy is deleted.
 
-```
-/plugin marketplace add Black-Box-Safety/bbs-claude-marketplace
-/plugin install bbs-ops@bbs-claude-marketplace
-/bbs-onboard
-```
+Order matters: start with the skills whose marketplace copy has already done real work.
 
-Then confirm skill-bus fires on the plugin's own skills (this was the old gap): invoke the
-`product-page` skill and check `.claude/skill-bus-telemetry.jsonl` shows a `match` (not
-`no_match`) for `bbs-website:product-page` with `bbs-storefront-doctrine`.
+**Tier 1 — the marketplace copy is ahead of the personal one, cut over first:**
 
-## Step 3 — Acceptance gate (the real test)
+| Skill | Marketplace home | Why first |
+|---|---|---|
+| `obs-form-filler` | `bbs-sales` | Personal copy lacks the checkbox and truncation fixes |
+| `ca-form-filler` | `bbs-sales` | Personal copy has no vendor profile and points at `/mnt/skills` |
+| `bbs-pricelist-import` | `bbs-website` | Personal copy hardcodes a path on one Mac |
+| `dgs-bpo-item-check` | `bbs-sales` | Personal copy documents a container-only path |
+| `bbs-quote-builder` | `bbs-sales` | Personal copy calls a container-only LibreOffice wrapper |
 
-A Black Box team member who is NOT Parker, guided only by `/bbs-onboard` + `site-wiring-map`,
-runs `/bbs-add-product` on one real product and sees it render as a card + PDP — without asking
-Parker. Record pass/fail. This is the definition of done for the whole project.
+**Tier 2 — copies are equivalent; cut over as each is exercised:**
 
-## Step 4 — Source-repo cutover (ONLY after Step 3 passes)
+`bbs-sourcing`, `bbs-b2b-pricing`, `bbs-deck-voice`, `bbs-po-status`,
+`bbs-rebate-profitability`, `dwr-pdf-info`, `grainger-cart-info`, `grainger-screenshot`,
+`so-search`, `vendor-quote-email`.
 
-Per-skill, one commit each — never en masse. For each moved skill, replace the source
-`SKILL.md` body (keep frontmatter name/description) with a pointer to the plugin. Order:
-bbs-sourcing, ca-form-filler, obs-form-filler (global `~/.claude/skills`) → price-list-cleaner,
-contract-discount-loader, family-rollup (bbs-database) → product-page, brand-page-builder
-(bbs-shopify) → le-lane-tuning, supply-lane-tuning (bbs-quote-bot). See plan Task 20 in
-`docs/superpowers/plans/2026-07-22-bbs-ops-plugin.md` (this repo).
+**Then the source repos**, same one-commit-each rule: `price-list-cleaner`,
+`contract-discount-loader`, `family-rollup` (in `bbs-database`) → `product-page`,
+`brand-page-builder` (in `bbs-shopify`) → `le-lane-tuning`, `supply-lane-tuning` (in
+`bbs-quote-bot`). `naspo-quote`'s repo cutover is tracked in `REGISTRY.md` instead.
 
-Any skill that turns out to belong to `bbs-foundations` (company-wide, not site-only) stays
-put and is flagged for the foundations plan — do not point it here.
+Any skill that turns out to be company-wide rather than desk-specific belongs in
+`bbs-foundations` — leave it and flag it there rather than pointing it at the wrong plugin.
 
-## Known gaps logged for /bbs-review (not blockers)
+## Known gaps
 
-- `bbs-sourcing` skill references companion `references/` files (vendor directory, email
-  templates, triage, input-handling) that don't exist in any source; add them or trim the refs.
-- `ca-form-filler` expects a vendor-profile JSON created on first-run; not shipped.
-- `image-pipeline` is a documented stub — codify the Sirv/Firecrawl workflow into a real script.
-- `family-rollup` depends on the unmerged bbs-database branch `feature/nonapparel-family-expansion`.
+Not blockers; log them through `/bbs-review` so Arthur and Tom can prioritise.
+
+| Gap | Status |
+|---|---|
+| `bbs-sourcing` references companion `references/` files (vendor directory, email templates, triage, input-handling) that exist nowhere | **Open**, verified 2026-09-15. Add them or trim the refs. `vendor-quote-email` covers part of what the email-template file was meant to hold. |
+| `image-pipeline` is a documented stub — the Sirv/Firecrawl workflow is not codified | **Open**, verified 2026-09-15 |
+| `family-rollup` depends on the unmerged `bbs-database` branch `feature/nonapparel-family-expansion` | **Unverified** — status lives in that repo, not this one |
+| `ca-form-filler` expects a vendor-profile JSON that was never shipped | **Closed** 2026-09-15. It ships at `plugins/bbs-sales/references/vendor_profile.json` and is now the single source both form skills read. |
+
+---
+
+Owner: Parker. This file is done when the table above is empty and no skill exists twice.
