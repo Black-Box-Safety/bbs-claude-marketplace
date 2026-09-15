@@ -1,7 +1,7 @@
 # Trigger-precision evals
 
-A skill is chosen from its name and description, before anything in its body is read. With
-14 skills in front of one rep, the wrong one can win silently — the rep gets a plausible
+A skill is chosen from its name and description, before anything in its body is read. When
+several skills sit on one desk the wrong one can win silently — the rep gets a plausible
 answer from the wrong skill and no error is raised. This measures that.
 
 ## Why not `skill-creator`'s eval directly
@@ -19,8 +19,19 @@ root, runs `claude -p <query>`, and records which skill the model actually invok
 ```bash
 cd docs/evals
 python3 discriminate.py --skills skills.json --queries queries-routing.json \
-    --runs 5 --workers 10 --anonymize --out results.json
+    --runs 5 --workers 4 --anonymize --out results.json
 ```
+
+**Keep `--workers` at 4, and re-run anything that fails as `__none__`.** Throttling is the
+main source of noise here, and it looks exactly like a regression. Measured on the same
+code, minutes apart: a full set scored 16/21 at 10 workers and 21/21 at 4; later, under
+sustained load, two queries scored 60% at 4 workers and 100% each when re-run alone at 2.
+
+The tell is the shape of the failure. **A throttled run fails as `__none__`** — no skill
+fired at all, across queries that are unrelated to each other. **A real routing defect
+fails as the wrong skill name**, and it reproduces in isolation. Never act on a `__none__`
+cluster without re-running the affected queries on their own; the numbers below are from
+clean runs.
 
 `skills.json` is `{"skill-name": "description", ...}`, and must hold **everything the
 person has installed**, not one plugin — a skill cannot lose to a sibling that is not in
@@ -47,21 +58,23 @@ Two harness details that are easy to get wrong:
 
 ## Results, 2026-09-15
 
-The field is the 14 skills a sales rep actually has installed. 5 runs per query,
-pass = ≥80% of runs.
+The field is the 11 skills a sales rep has installed. 5 runs per query, pass = ≥80%.
 
-| Condition | Baseline | After |
+| Condition | Baseline (14 skills) | After consolidation (11 skills) |
 |---|---|---|
-| Real-world (name + description) | 20/20 | 20/20 |
-| Description alone (`--anonymize`) | 18/20 | 20/20 |
+| Real-world (name + description) | 20/20 | 24/24 |
+| Description alone (`--anonymize`) | 18/20 | **24/24** |
 
-Fixed: `naspo-quote` (40% → 100%; was losing to `ca-rfq-intake`) and `dwr-pdf-info`
-(60% → 100%; its description led with "California Department of Water Resources" and never
-said the bare acronym a rep actually types).
+Two description defects were found and fixed before any consolidation: `naspo-quote`
+(40% → 100%, was losing to `ca-rfq-intake`) and `dwr-pdf-info` (60% → 100%, its
+description led with "California Department of Water Resources" and never said the bare
+acronym a rep types).
 
-The Grainger cluster that the 2026-09-15 handoff predicted would collide — cart PDF,
-screenshot, DWR PDF, BPO check, punch-out pricing — routed 5/5 in **both** conditions,
-before and after. That prediction was wrong, and it took measurement to find out.
+The Grainger cluster the 2026-09-15 handoff predicted would collide — cart PDF,
+screenshot, DWR PDF, BPO check, pricing — routed 5/5 in **both** conditions, before and
+after. That prediction was wrong, and it took measurement to find out: the skills that
+actually overlapped were the three item extractors and the two form fillers, which is a
+different cut entirely.
 
 ### The ambiguous set is the one that pays
 
@@ -71,10 +84,21 @@ guess*.
 
 | Query | Baseline | After |
 |---|---|---|
-| "Can you check these Grainger items? 4CZ16, 6YPH8" | punch-out **pricing** ran, 4/5 | asks which, 5/5 |
-| "Pull the Grainger numbers out of items.pdf" | **cart** skill ran, 3/5 | asks which, 5/5 |
+| "Can you check these Grainger items? 4CZ16, 6YPH8" | **pricing** ran, 4/5 | asks which, 5/5 |
 | "I need pricing on the items in rfq.pdf" | pricing ran, 5/5 | asks, 5/5 |
 | "Here are some Grainger part numbers: …" | asks, 5/5 | asks, 5/5 |
+| "CDCR Corcoran just emailed asking us to quote these…" | — | split 3/1/1 — see below |
+
+"Pull the Grainger numbers out of items.pdf" used to split (the cart skill grabbed it 3/5
+on a PDF nobody said was a cart). Merging the extractors made it unambiguous, so it moved
+into the scored set at 5/5.
+
+The Corcoran query is the one left open, and it is **a workflow question for Parker, not a
+description defect**: `ca-rfq-intake` says to log a request before pricing anything and is
+step 1 of the sales README, but the model reads "asking us to quote" as a quoting task and
+picks `naspo-quote` about 3 times in 5. Whichever way Parker rules, one of the two
+descriptions needs to say so outright. Tuning either one before that ruling would just be
+fitting the test.
 
 The fix was reciprocal `Do NOT use for` clauses that name the sibling and say *ask which*.
 On a binding document a skill should fail loudly rather than produce a plausible wrong

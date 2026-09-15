@@ -4,7 +4,7 @@ Three skills in this plugin fill California compliance forms:
 
 | Skill | Fills |
 |---|---|
-| `obs-form-filler` | The CDCR OBS 4007(B) "Packet-B" — nine sub-forms bound into one PDF |
+| `ca-form-filler` (Path A) | The CDCR OBS 4007(B) "Packet-B" — nine sub-forms bound into one PDF |
 | `ca-form-filler` | The same sub-forms when an agency sends them as standalone PDFs |
 | `naspo-quote` | The packet that goes with a NASPO-routed quote |
 

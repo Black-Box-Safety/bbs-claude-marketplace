@@ -52,13 +52,12 @@ ones you have. Without them the skills still load, they just have nothing to rea
 Missing one? That is the `/bbs-checkup` line you send Parker — it is an admin assignment,
 not something you can fix locally.
 
-**2. Four `bbs-sales` skills shell out to software on your PC.** Step 1's bootstrap
+**2. Three `bbs-sales` skills shell out to software on your PC.** Step 1's bootstrap
 installs all of it; this table is here so you can tell *before* you start whether a job
 will run. Everything not listed is pure Claude plus connectors.
 
 | Skill | Needs on your machine |
 |---|---|
-| `obs-form-filler` | `pypdf`, `pymupdf` |
 | `ca-form-filler` | `pypdf`, `pymupdf`, `pdfplumber`, `pdftotext` (poppler) |
 | `bbs-quote-builder` | Node + `npm install docx`, and LibreOffice (`soffice`) for the PDF |
 | `grainger-promo-page` | `pdftotext` (poppler) |

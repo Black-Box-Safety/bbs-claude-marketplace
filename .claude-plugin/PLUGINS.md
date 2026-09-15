@@ -5,13 +5,14 @@
   stages, `price-list-cleaner` is its first), contract pricing, variant families,
   enrichment, storefront pages, and quote-bot lane tuning. `plugins/bbs-website`.
 - **bbs-sales** (live) — the California state quote desk, end to end. An inbound RFQ is
-  logged, its items are pulled out of whatever the agency sent (DWR PDF, Grainger cart,
-  a screenshot), checked against the DGS BPO, priced through the Grainger punch-out or
-  vendor sourcing, turned into a customer quote on BBS letterhead, and wrapped in the
-  CDCR or CA compliance packet. Also Grainger promo pages. Federal deck copy moved
-  to `bbs-foundations` — a federal pursuit needs none of the other 13 skills here, and
-  SDVOSB cert discipline does not belong among California DVBE skills.
-  `plugins/bbs-sales`.
+  logged, its items are pulled out of whatever the agency sent by `rfq-item-extract`
+  (DWR RFQ PDF, Grainger cart PDF, or a screenshot — one skill, three front doors),
+  checked against the DGS BPO, priced by `grainger-pricing` through the Grainger MCP or
+  sourced from vendors, turned into a customer quote on BBS letterhead, and wrapped in
+  the compliance packet by `ca-form-filler` — every CA form, with the CDCR OBS 4007(B)
+  packet as its scripted path. Also Grainger promo pages. Federal deck copy moved to
+  `bbs-foundations`: a federal pursuit needs none of the other skills here, and SDVOSB
+  cert discipline does not belong among California DVBE skills. `plugins/bbs-sales`.
 - **bbs-back-office** (live) — what happens after the bid is won, read out of Business
   Central: where an order stands, what a vendor still owes us, what a problem order
   actually needs, and what the deal earned once Grainger rebates are applied.
@@ -37,7 +38,7 @@
 
 ## Where the CA form skills live, and why
 
-`ca-form-filler` and `obs-form-filler` used to sit in the website plugin, which put the
+`ca-form-filler` and the OBS packet filler used to sit in the website plugin, which put the
 CDCR bid packet inside site maintenance. A rep who installed only the sales plugin — the
 one matching the work they actually do — did not get them. Both moved to `bbs-sales`
 alongside `naspo-quote`, together with `bbs-sourcing`.
@@ -60,6 +61,23 @@ belongs in one of those two files instead.
 FEIN and seller's permit are committed here deliberately. This repo is BBS-specific and
 private, so the canonical-facts rule against committing them — which exists for work that
 might be reused elsewhere — does not apply to this file.
+
+## Consolidating skills
+
+Three merges landed 2026-09-15, each collapsing skills that did **one job through
+different front doors**: the three item extractors became `rfq-item-extract`,
+`obs-form-filler` folded into `ca-form-filler` as its scripted OBS 4007(B) path, and
+`bbs-b2b-pricing` became `grainger-pricing` on the Grainger MCP.
+
+Overlap in *input* is not overlap in *job*. `dgs-bpo-item-check` and `grainger-pricing`
+both take a list of Grainger part numbers and were deliberately left apart, because "is
+this on the BPO" and "what does it cost" are different questions — and they route 5/5
+apart. Merge on the job, not on the input.
+
+Before merging, measure (`docs/evals/`). The cluster this repo *predicted* would collide
+routed perfectly; the ones that actually overlapped were a different cut. Merging also
+forces divergent copies into one file, which is where their disagreements become visible —
+the form merge surfaced two wrong form IDs and seven vendor-profile keys that do not exist.
 
 ## Adding a skill
 

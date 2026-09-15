@@ -69,7 +69,7 @@ to fulfill unless BBS is a named reseller.
 | Procurement intelligence (SCPRS) | Supabase `jsrcrprxoxlnphhcpnbu` via ca-procurement-intel MCP | |
 | Revenue dashboard | Supabase `hkogytbgmaucjjaeqrgd` | |
 | Customer documents (RFQs, POs, packets) | **SharePoint** `Black Box Safety - MASTER/Customers/…` | Repos hold pointers and lessons, not the documents |
-| Grainger pricing | BBS b2b punch-out (`b2b.blackboxsafety.com`), Grainger MCP | Never the open web |
+| Grainger pricing | **Grainger MCP** — per buying account. The `b2b.blackboxsafety.com` punch-out it replaced is retired | Never the open web; never from memory |
 | Pipeline / outreach | Dynamics 365 Sales | |
 | Storefront | Shopify `bbs-supabase-test.myshopify.com`, theme "BBS — Field Manual" | Verify the live theme id with `shopify theme list` before pushing |
 | BBS form values (FEIN, permit, certs) | `~/.bbs/vendor_profile.json` | Skills read it; never re-key it |

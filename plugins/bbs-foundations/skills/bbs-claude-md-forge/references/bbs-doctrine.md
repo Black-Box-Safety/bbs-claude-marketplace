@@ -84,9 +84,12 @@ do not paraphrase it weaker.
 18. **Price against the buying institution's own Grainger account.** "Discount is per
     account, so the wrong account returns a price that looks completely valid and is
     completely wrong." (`bbs-sales`). Account mapping: point at the seed data, never copy.
-19. **Grainger pricing comes from the punch-out, never the open web.** "Never look up
+19. **Grainger pricing comes from the Grainger MCP, never the open web.** "Never look up
     Grainger pricing via open web search — under any circumstance." (Bechtel Sentinel
-    tree). `b2b.blackboxsafety.com` and the facility account manager only.
+    tree). The MCP replaced the `b2b.blackboxsafety.com` punch-out. Price against the
+    account that will actually buy: the discount is per-account, so the wrong account
+    returns a wrong price that still looks valid. BBS sells Grainger at cost — the
+    returned `unitPrice` is the customer price, never marked up.
 20. **All-Grainger requests route to NASPO / Provision Connect.** "If all the items are on
     grainger.com, it's a NASPO request and goes through Provision Connect — not this
     skill." (`bbs-sourcing`). Two lanes, LPA/NASPO vs competitive; do not conflate.

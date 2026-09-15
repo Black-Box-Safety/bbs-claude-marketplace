@@ -1,22 +1,143 @@
 [
-{"id":"cart-1","expect":"grainger-cart-info","files":["grainger-cart.pdf"],"query":"The customer sent their saved Grainger cart as grainger-cart.pdf. Pull the item numbers and quantities out of it."},
-{"id":"cart-2","expect":"grainger-cart-info","files":["cart-printout.pdf"],"query":"cart-printout.pdf is a Grainger cart saved from the website. Get me ITEM#,QTY so I can paste it into the purchasing portal."},
-{"id":"shot-1","expect":"grainger-screenshot","files":["grainger-cart.png"],"query":"grainger-cart.png is a screenshot of the Grainger cart. Get the part numbers and quantities out of it."},
-{"id":"shot-2","expect":"grainger-screenshot","files":["items.png"],"query":"items.png is an image of a Grainger item table. Pull the part numbers and qty."},
-{"id":"dwr-1","expect":"dwr-pdf-info","files":["dwr-rfq.pdf"],"query":"DWR sent dwr-rfq.pdf. Pull the line items and quantities out of it, Grainger mode."},
-{"id":"dwr-2","expect":"dwr-pdf-info","files":["wr-quote-request.pdf"],"query":"wr-quote-request.pdf is a Department of Water Resources request for quotation. Extract the items and quantities, mixed mode."},
-{"id":"bpo-1","expect":"dgs-bpo-item-check","query":"Are 102WZ8, 103N88 and 10A236 on the BPO?"},
-{"id":"bpo-2","expect":"dgs-bpo-item-check","query":"Check these Grainger part numbers against the DGS blanket purchase order master list: 4CZ16, 6YPH8"},
-{"id":"bpo-3","expect":"dgs-bpo-item-check","query":"Is 38W367 approved for purchase under the active BPO?"},
-{"id":"price-1","expect":"bbs-b2b-pricing","query":"Price these Grainger items on account 887895111: 60KA44, 38W367, 1VXP2"},
-{"id":"price-2","expect":"bbs-b2b-pricing","query":"Run these part numbers through the punch-out and give me unit pricing: 5WL36, 4CZ16, 6YPH8."},
-{"id":"price-3","expect":"bbs-b2b-pricing","query":"What does Grainger sell 5WL36 for under our facility account?"},
-{"id":"naspo-1","expect":"naspo-quote","query":"CDCR Corcoran emailed asking us to quote these Grainger item numbers and sent along the blank state certs to complete."},
-{"id":"promo-1","expect":"grainger-promo-page","query":"Our Grainger rep sent a negotiated hot list for CAL FIRE. Build the promo landing page for it."},
-{"id":"quote-1","expect":"bbs-quote-builder","query":"Turn these items into a quote on BBS letterhead and give me the PDF: 3 safety vests at $12.40, 2 hard hats at $18.90."},
-{"id":"intake-1","expect":"ca-rfq-intake","query":"A new quote request just came in from CDCR Corcoran. Log it and start the record."},
-{"id":"vend-1","expect":"vendor-quote-email","query":"Draft an email to Allstar Fire asking them for pricing on turnout gear for a CalVet job."},
-{"id":"deck-1","expect":"bbs-deck-voice","query":"Write the slide headlines and speaker notes for the USACE capability briefing deck."},
-{"id":"obs-1","expect":"obs-form-filler","query":"Fill out the OBS 4007(B) Packet-B forms for this CDCR solicitation."},
-{"id":"src-1","expect":"bbs-sourcing","query":"This is a competitive SB/DVBE bid from Caltrans. Get me vendor pricing on these items."}
+ {
+  "id": "cart-1",
+  "expect": "rfq-item-extract",
+  "files": [
+   "grainger-cart.pdf"
+  ],
+  "query": "The customer sent their saved Grainger cart as grainger-cart.pdf. Pull the item numbers and quantities out of it."
+ },
+ {
+  "id": "cart-2",
+  "expect": "rfq-item-extract",
+  "files": [
+   "cart-printout.pdf"
+  ],
+  "query": "cart-printout.pdf is a Grainger cart saved from the website. Get me ITEM#,QTY so I can paste it into the purchasing portal."
+ },
+ {
+  "id": "shot-1",
+  "expect": "rfq-item-extract",
+  "files": [
+   "grainger-cart.png"
+  ],
+  "query": "grainger-cart.png is a screenshot of the Grainger cart. Get the part numbers and quantities out of it."
+ },
+ {
+  "id": "shot-2",
+  "expect": "rfq-item-extract",
+  "files": [
+   "items.png"
+  ],
+  "query": "items.png is an image of a Grainger item table. Pull the part numbers and qty."
+ },
+ {
+  "id": "dwr-1",
+  "expect": "rfq-item-extract",
+  "files": [
+   "dwr-rfq.pdf"
+  ],
+  "query": "DWR sent dwr-rfq.pdf. Pull the line items and quantities out of it, Grainger mode."
+ },
+ {
+  "id": "dwr-2",
+  "expect": "rfq-item-extract",
+  "files": [
+   "wr-quote-request.pdf"
+  ],
+  "query": "wr-quote-request.pdf is a Department of Water Resources request for quotation. Extract the items and quantities, mixed mode."
+ },
+ {
+  "id": "bpo-1",
+  "expect": "dgs-bpo-item-check",
+  "query": "Are 102WZ8, 103N88 and 10A236 on the BPO?"
+ },
+ {
+  "id": "bpo-2",
+  "expect": "dgs-bpo-item-check",
+  "query": "Check these Grainger part numbers against the DGS blanket purchase order master list: 4CZ16, 6YPH8"
+ },
+ {
+  "id": "bpo-3",
+  "expect": "dgs-bpo-item-check",
+  "query": "Is 38W367 approved for purchase under the active BPO?"
+ },
+ {
+  "id": "price-1",
+  "expect": "grainger-pricing",
+  "query": "Price these Grainger items on account 887895111: 60KA44, 38W367, 1VXP2"
+ },
+ {
+  "id": "price-2",
+  "expect": "grainger-pricing",
+  "query": "Pull the Grainger pricing for these part numbers on the Porterville account: 5WL36, 4CZ16, 6YPH8."
+ },
+ {
+  "id": "price-3",
+  "expect": "grainger-pricing",
+  "query": "What does Grainger sell 5WL36 for under our facility account?"
+ },
+ {
+  "id": "promo-1",
+  "expect": "grainger-promo-page",
+  "query": "Our Grainger rep sent a negotiated hot list for CAL FIRE. Build the promo landing page for it."
+ },
+ {
+  "id": "quote-1",
+  "expect": "bbs-quote-builder",
+  "query": "Turn these items into a quote on BBS letterhead and give me the PDF: 3 safety vests at $12.40, 2 hard hats at $18.90."
+ },
+ {
+  "id": "intake-1",
+  "expect": "ca-rfq-intake",
+  "query": "A new quote request just came in from CDCR Corcoran. Log it and start the record."
+ },
+ {
+  "id": "vend-1",
+  "expect": "vendor-quote-email",
+  "query": "Draft an email to Allstar Fire asking them for pricing on turnout gear for a CalVet job."
+ },
+ {
+  "id": "deck-1",
+  "expect": "bbs-deck-voice",
+  "query": "Write the slide headlines and speaker notes for the USACE capability briefing deck."
+ },
+ {
+  "id": "obs-1",
+  "expect": "ca-form-filler",
+  "query": "Fill out the OBS 4007(B) Packet-B forms for this CDCR solicitation."
+ },
+ {
+  "id": "src-1",
+  "expect": "bbs-sourcing",
+  "query": "This is a competitive SB/DVBE bid from Caltrans. Get me vendor pricing on these items."
+ },
+ {
+  "id": "forms-1",
+  "expect": "ca-form-filler",
+  "query": "The agency sent a packet of blank state forms - STD 204, DGS PD 843 and CalRecycle 74. Fill out what you can."
+ },
+ {
+  "id": "naspo-2",
+  "expect": "naspo-quote",
+  "query": "The Corcoran RFQ is already logged in its folder. Produce the response: price the Grainger item numbers, build the quote PDF, and fill the state compliance packet."
+ },
+ {
+  "id": "price-4",
+  "expect": "grainger-pricing",
+  "query": "Is 6GRH5 in stock and when would it ship to 95811?"
+ },
+ {
+  "id": "price-5",
+  "expect": "grainger-pricing",
+  "query": "What Grainger account does CSU Fullerton price on?"
+ },
+ {
+  "id": "amb-4",
+  "expect": "rfq-item-extract",
+  "files": [
+   "items.pdf"
+  ],
+  "query": "Pull the Grainger numbers out of items.pdf."
+ }
 ]

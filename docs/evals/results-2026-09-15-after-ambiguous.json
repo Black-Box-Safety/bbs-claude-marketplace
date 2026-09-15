@@ -46,15 +46,17 @@
       }
     },
     {
-      "id": "amb-4",
-      "query": "Pull the Grainger numbers out of items.pdf.",
+      "id": "naspo-1",
+      "query": "CDCR Corcoran just emailed asking us to quote these Grainger item numbers and sent along the blank state certs to complete.",
       "expect": "__unscored__",
       "runs": 5,
       "correct": 0,
       "accuracy": 0.0,
       "pass": false,
       "distribution": {
-        "__none__": 5
+        "naspo-quote": 3,
+        "__none__": 1,
+        "ca-rfq-intake": 1
       }
     }
   ]

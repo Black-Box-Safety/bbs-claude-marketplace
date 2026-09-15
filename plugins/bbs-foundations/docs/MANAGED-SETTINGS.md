@@ -96,9 +96,9 @@ question, so a teammate with the right connectors gets routed correctly without 
 ## Parker-local skills worth promoting to the marketplace
 
 Parker's machine carries skills under an `anthropic-skills:` namespace that the team would
-use daily but cannot install: `bbs-quote-builder`, `bbs-b2b-pricing`, `bbs-po-status`,
+use daily but cannot install: `bbs-quote-builder`, `grainger-pricing`, `bbs-po-status`,
 `bbs-pricelist-import`, `bbs-rebate-profitability`, `so-search`, `dgs-bpo-item-check`,
-`grainger-cart-info`, `vendor-quote-email`, `bbs-deck-voice`, `morning`, `schedule`. The
+`rfq-item-extract`, `vendor-quote-email`, `bbs-deck-voice`, `morning`, `schedule`. The
 right home for most is `bbs-sales` (quoting, PO status, Grainger) or `bbs-foundations`
 (deck voice, morning routine). Each move is a plan task, one skill per commit, the same way
 `naspo-quote` was vendored into `bbs-sales`.

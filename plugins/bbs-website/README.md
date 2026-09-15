@@ -62,7 +62,7 @@ Cross-cutting reviewers:
 
 The bid-form and vendor-sourcing skills that used to sit in the Quote bot row now
 live in **bbs-sales**, where the quoting workflow is: `ca-form-filler`,
-`obs-form-filler`, `bbs-sourcing`. Nothing in this plugin calls them.
+`bbs-sourcing`. Nothing in this plugin calls them.
 
 Generic Shopify/Liquid reference skills (`shopify-plugin:*`, `liquid-skills:*`, `impeccable`, `firecrawl`, `windsor-ai`, `pr-review-toolkit`) are **linked, not copied** — they update on their own and never drift.
 

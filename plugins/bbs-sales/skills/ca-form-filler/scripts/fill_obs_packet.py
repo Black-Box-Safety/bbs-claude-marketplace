@@ -35,7 +35,7 @@ import sys
 import os
 
 SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# .../plugins/bbs-sales/skills/obs-form-filler -> .../plugins/bbs-sales
+# .../plugins/bbs-sales/skills/ca-form-filler -> .../plugins/bbs-sales
 PLUGIN_ROOT = os.environ.get(
     "CLAUDE_PLUGIN_ROOT", os.path.dirname(os.path.dirname(SKILL_DIR)))
 VENDOR_PROFILE = os.path.join(PLUGIN_ROOT, "references", "vendor_profile.json")

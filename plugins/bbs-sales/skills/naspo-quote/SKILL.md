@@ -1,17 +1,17 @@
 ---
 name: naspo-quote
 description: >-
-  Produce the full response to a California state agency RFQ routed under NASPO ValuePoint:
-  pull live Grainger pricing for the requested item numbers, build the BBS sales quote PDF,
-  and fill and sign the CA compliance packet (OBS Line-Item Cost Worksheet, CalRecycle 74, DGS
-  PD 843, Darfur OBS 1500, OBS 1000 GenAI, Bidder Declaration GSPD-05-105). Use when a CDCR
-  institution, CalVet home, CSU/UC campus, Caltrans district or any State of California agency
-  asks for pricing on Grainger item numbers, sends blank state certs to complete, or both —
-  even if they never say NASPO, and even if the ask looks like only pricing or only paperwork,
-  because on state business the two halves ship together. Do NOT use to file or log a request
-  that just arrived (ca-rfq-intake does that first), for a competitive SB/DVBE bid needing
-  vendor sourcing (use bbs-sourcing), or for the CDCR OBS 4007(B) Packet-B (use obs-form-
-  filler).
+  Run a complete California state agency RFQ response end to end and deliver both halves: live
+  Grainger pricing for the requested item numbers, the BBS sales quote PDF, and the filled CA
+  compliance packet (OBS Line-Item Cost Worksheet, CalRecycle 74, DGS PD 843, Darfur OBS 1500,
+  OBS 1000 GenAI, Bidder Declaration GSPD-05-105). Use whenever a CDCR institution, CalVet
+  home, CSU/UC campus, Caltrans district or any State of California agency asks for pricing on
+  item numbers, sends blank state certs to complete, or both — even if they never say NASPO,
+  and even when the ask looks like only pricing or only paperwork, because on state business
+  the two halves ship together. An agency email that asks for a quote is this skill, not an
+  intake task: ca-rfq-intake only files a request and opens its folder, and does not price or
+  fill anything. Do NOT use for a competitive SB/DVBE bid needing vendor sourcing (use bbs-
+  sourcing), or when the rep wants the forms alone with no pricing (use ca-form-filler).
 ---
 
 # NASPO quote — CA state agency RFQ

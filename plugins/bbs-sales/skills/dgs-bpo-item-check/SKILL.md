@@ -7,7 +7,7 @@ description: >-
   Grainger part numbers against the BPO, the DGS blanket purchase order, or the BPO list — "is
   this on the BPO", "BPO check", "are these approved". Answers on-list or off-list from the
   bundled file only; never from memory and never a guess. Do NOT use to obtain a price (use
-  bbs-b2b-pricing) or to extract item numbers from a PDF, cart or screenshot. If a rep says
+  grainger-pricing) or to extract item numbers from a PDF, cart or screenshot. If a rep says
   only "check these Grainger items" without making clear whether they mean BPO eligibility or
   price, ask which before running.
 ---

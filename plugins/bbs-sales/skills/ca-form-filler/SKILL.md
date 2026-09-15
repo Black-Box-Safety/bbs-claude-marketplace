@@ -1,462 +1,239 @@
 ---
 name: ca-form-filler
-description: >
-  Use this skill whenever a Black Box Safety sales rep needs to fill out California
-  state compliance forms for a bid or RFQ response. Triggers include: any mention
-  of "state forms", "bid packet", "compliance forms", "STD 204", "STD 205",
-  "DGS PD 843", "CV 012", "DGS PD 1", "STD 1000", "CalRecycle 74", "form packet",
-  "fill out the forms", "bid submission forms", or any upload of a PDF that appears
-  to contain blank California state government forms. Also trigger when the rep says
-  "I need to respond to this RFQ" alongside a form packet upload. The skill reads
-  the vendor profile, extracts RFQ-specific data from the uploaded documents, maps
-  all fields across all required forms, fills what can be pre-filled, flags all
-  signature lines, and produces filled PDFs ready for rep review and submission.
+description: >-
+  Fill any California state compliance form or bid packet for Black Box Safety — the CDCR OBS
+  4007(B) "Packet B", and standalone forms including STD 204, STD 205, DGS PD 843, GSPD-05-105
+  Bidder Declaration, DGS PD 1 and OBS 1500 Darfur, OBS 1000 GenAI, CalRecycle 74 and CV 012.
+  Use whenever a rep uploads blank state forms or a bid packet, mentions any of those form
+  numbers, or says "Packet B", "OBS 4007", "the CDCR forms", "the bid packet", "state forms",
+  "compliance forms", or "fill out the forms". It merges BBS's canonical vendor profile with
+  the solicitation, fills every field it can verify, flags every signature line rather than
+  signing it, and reports what it could not fill. Do NOT use to price items (grainger-
+  pricing), build the customer quote (bbs-quote-builder), extract line items from a cart PDF
+  or screenshot (rfq-item-extract), or run a whole NASPO response end to end (naspo-quote,
+  which calls this for the paperwork).
 compatibility: claude-code
 ---
 
-# California State Compliance Form Filler
+# California compliance forms — Black Box Safety
 
-## Overview
+One skill for every CA form BBS files. Two paths through it:
 
-This skill automates the completion of California state bid compliance forms for
-Black Box Safety. It combines static vendor profile data with RFQ-specific data
-extracted from uploaded documents to produce a filled form packet.
+- **A known packet** — the CDCR OBS 4007(B) 9-form "Packet B" — has an exact, scripted
+  fill. Take it whenever the packet matches; it is faster and it validates.
+- **Anything else** — standalone forms, or a packet this skill has no profile for — goes
+  through the general map-and-fill path.
 
-**Optimized for Claude Code** — persistent filesystem, browser PDF preview,
-iterative fix/verify loop without re-uploading source files.
+Both paths share the same vendor facts, the same signing rules, and the same refusal to
+guess. Those live in `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md` — who signs which
+lines, what the State fills in, why CalRecycle 74 is never left blank, and which
+certification language applies. Put a new signing or leave-blank rule there, not here, so
+this skill and `naspo-quote` stay in agreement.
 
-**Inputs:**
-- RFQ document (PDF) — for agency info, solicitation number, due date, line items
-- Form packet (PDF) — blank CA state forms to be filled
+## Critical rules
 
-**Output:**
-- Filled PDF(s) with all pre-fillable fields completed
-- Signature lines clearly flagged with `⚑ SIGNATURE REQUIRED`
-- Cover summary (markdown) with fields filled, signature requirements, and gap report
+1. **Never invent data.** A value that is not in the vendor profile and cannot be read out
+   of the solicitation is `[MISSING — NEEDS INPUT]` in the output and a line in the gap
+   report. These are binding documents; a plausible guess is worse than a blank.
+2. **Never pre-fill a signature.** Leave `/Sig` fields empty and annotate the line
+   `⚑ SIGNATURE REQUIRED — <name>, <title>`. Dates are signed at submission too.
+3. **The vendor profile is the authority** for every static BBS fact. If the solicitation
+   pre-fills a BBS field with something different, flag it — do not accept the correction.
+4. **Check the DVBE cert against the due date before filling anything.** Expired, or
+   inside 30 days of expiry, is a hard stop.
+5. **Two different people sign, and conflating them is the most common error.** The
+   quoting **rep** signs bidder lines (OBS 4007(B) bidder signature, Darfur, CalRecycle
+   74). **Jackson Dalton**, DV owner and President, signs ownership lines (DGS PD 843,
+   STD 204 authorized payee) — those follow who *owns* the certified DVBE, not who quoted
+   the job, so they do not change with the rep.
+6. **Agency-side fields stay blank** — method of award, SCPRS ref, PO#, and the STD 204
+   paying-agency block are the State's to complete.
+7. **Verify by looking.** Rasterize the pages that matter and inspect them before
+   delivering. A checkbox can hold the right value and still render blank if the packet
+   revision renamed its checked state.
 
-**Vendor profile:** `~/.bbs/vendor_profile.json`, copied on first run from the
-plugin's canonical `references/vendor_profile.json` — the one place BBS's vendor
-facts are written down. `obs-form-filler` reads the same file.
-**Shared form rules:** `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md` — who
-signs what, what the State fills, what disqualifies a bid.
-**Output directory:** `~/bbs_forms/[YYYYMMDD_AgencyShortName]/`
+## Vendor facts
 
----
-
-## Setup (First Run Only)
-
-On first use, create the persistent directory structure and copy the pdf skill
-scripts so they persist across sessions:
-
-```bash
-mkdir -p ~/.bbs ~/bbs_forms
-
-# The vendor profile ships with this skill — copy it, don't retype it.
-cp "$CLAUDE_PLUGIN_ROOT/references/vendor_profile.json" ~/.bbs/vendor_profile.json
-
-# PDF form work needs these two libraries:
-pip install pypdf pymupdf --break-system-packages -q
-```
-
-`CLAUDE_PLUGIN_ROOT` is the installed bbs-sales plugin directory. `SKILL_DIR`,
-used further down, is the folder holding this SKILL.md — in both cases, wherever
-the plugin was installed, not the directory you happen to be standing in.
-
-Earlier revisions of this skill copied form-filling helpers out of
-`/mnt/skills/public/pdf`, which exists only inside a Claude session and not on a
-rep's machine. Everything below uses `pypdf`/`pymupdf` directly instead, so the
-skill behaves the same wherever it runs.
-
-Check setup is complete:
-```bash
-ls ~/.bbs/vendor_profile.json
-cat ~/.bbs/vendor_profile.json | python3 -c "import json,sys; d=json.load(sys.stdin); print('Profile OK:', d['business_identity']['legal_name'])"
-```
-
----
-
-## CRITICAL RULES
-
-1. **Never invent data.** If a field value is not in the vendor profile or cannot
-   be extracted from the RFQ, mark it `[MISSING — NEEDS INPUT]` in the output
-   and list it in the cover summary gap report. Do not guess or approximate.
-
-2. **Never pre-fill signature fields.** Leave all `/Sig` type fields blank.
-   Add a text annotation adjacent to each signature line:
-   `⚑ SIGNATURE REQUIRED — Parker Marshall, Sales Manager`
-   Date of signing is also left blank — completed at submission time.
-
-3. **Vendor profile is the authority for all static BBS data.** Do not accept
-   corrections to legal name, FEIN, cert numbers, or other static fields from
-   the RFQ document. If the RFQ pre-fills a BBS field incorrectly, flag it.
-
-4. **DVBE cert expiration must be checked** against the RFQ due date before
-   filling any form. If expired or within 30 days of expiry, hard stop and flag.
-
-5. **CalRecycle 74 is always RFQ-specific.** No static vendor data applies to
-   line items. All recycled content % and SABRC codes must come from the rep.
-
-6. **Always verify output visually.** After filling, rasterize key pages and
-   inspect before delivering. Fix and re-run if any field is misplaced.
-
----
-
-## Step 1 — Load Vendor Profile
+Read them from the plugin's canonical profile. There is exactly one copy:
 
 ```python
-import json
-from pathlib import Path
+import json, os
+root = os.environ["CLAUDE_PLUGIN_ROOT"]
+vp = json.load(open(f"{root}/references/vendor_profile.json"))
 
-profile_path = Path.home() / ".bbs" / "vendor_profile.json"
-with open(profile_path) as f:
-    vp = json.load(f)
-
-# Convenience accessors
-legal_name  = vp["business_identity"]["legal_name"]
-fein        = vp["business_identity"]["fein"]
-address     = f"{vp['address']['mailing_street']}, {vp['address']['city']}, {vp['address']['state']} {vp['address']['zip']}"
-phone       = vp["contact"]["phone"]
-email       = vp["contact"]["email"]
-# Look signers up by role — never by list position.
-owner       = next(r for r in vp["authorized_representatives"] if r["role"] == "dvbe_owner")
-cert        = vp["certifications"]["sb_dvbe"]   # ONE cert carrying both SB and DVBE
-dvbe_cert   = cert["osds_ref_number"]
-dvbe_exp    = cert["expiration"]  # MM/DD/YYYY
-sellers_permit = vp["business_identity"]["ca_sellers_permit"]
+legal_name = vp["business_identity"]["legal_name"]
+fein       = vp["business_identity"]["fein"]
+cert       = vp["certifications"]["sb_dvbe"]      # ONE cert carrying both SB and DVBE
+owner      = next(r for r in vp["authorized_representatives"] if r["role"] == "dvbe_owner")
 ```
 
-Check `_meta.notes` and surface any warnings before proceeding.
+Look signers up **by `role`**, never by list position. Surface anything in `_meta.notes`
+before proceeding. Do not copy this file anywhere; earlier revisions of this skill read a
+per-machine copy at `~/.bbs/vendor_profile.json`, which is how a cert expiry could go
+stale in one place while binding bids went out from another.
 
----
-
-## Step 2 — Extract RFQ Data
-
-```bash
-# Quick text check first
-pdftotext -f 1 -l 2 /path/to/rfq.pdf - | head -60
-```
-
-```python
-import pdfplumber
-
-rfq_data = {
-    "solicitation_number": None,
-    "agency_name": None,
-    "agency_address": None,
-    "agency_phone": None,
-    "agency_fax": None,
-    "agency_email": None,
-    "quote_due_date": None,
-    "date_of_request": None,
-    "description_of_purchase": None,
-    "line_items": []
-}
-
-with pdfplumber.open("/path/to/rfq.pdf") as pdf:
-    for page in pdf.pages:
-        text = page.extract_text() or ""
-        # Parse fields from text using string search
-        # Look for: RFQ #, solicitation number, agency name, due date, contact info
-```
-
-**DVBE expiration check** — run immediately after loading rfq_data:
+Check the cert against the due date immediately:
 
 ```python
 from datetime import datetime
-
-dvbe_exp_date = datetime.strptime(dvbe_exp, "%m/%d/%Y")
-due_date = datetime.strptime(rfq_data["quote_due_date"], "%m/%d/%Y") if rfq_data["quote_due_date"] else datetime.today()
-days_to_exp = (dvbe_exp_date - due_date).days
-
-if days_to_exp < 0:
-    raise SystemExit("⛔ DVBE CERT EXPIRED — do not proceed. Cert expired on " + dvbe_exp)
-elif days_to_exp < 30:
-    print(f"⚠️  WARNING: DVBE cert expires in {days_to_exp} days ({dvbe_exp}). Flag to rep.")
+exp = datetime.strptime(cert["expiration"], "%m/%d/%Y")
+due = datetime.strptime(due_date, "%m/%d/%Y")
+days = (exp - due).days
+if days < 0:
+    raise SystemExit(f"STOP — DVBE cert expired {cert['expiration']}, before the {due_date} due date")
+if days < 30:
+    print(f"WARNING: DVBE cert expires in {days} days ({cert['expiration']}) — flag to the rep")
 ```
 
 ---
 
-## Step 3 — Identify Forms and Check Fields
+# Path A — CDCR OBS 4007(B) "Packet B"
+
+Take this path whenever the packet is the CDCR 9-form Packet B: OBS 4007(B), Line-Item
+Cost Worksheet, Bidder Declaration (GSPD-05-105), Darfur (OBS 1500), CalRecycle 74, GenAI
+Factsheet (OBS 1000), DVBE Declaration (DGS PD 843), Supplement Vendor Payee Data Record,
+and Payee Data Record (STD 204).
+
+The packet is identical every time except the quote line items, the dates and solicitation
+number, the agency requestor and ship-to, and which rep signs. Everything else comes from
+the vendor profile.
+
+### 1. Collect the inputs
+
+The rep supplies the quote (pasted, or as a PDF/xlsx), the solicitation number, dates,
+agency contact, and their own name/title/email. If the items arrive as a Grainger cart
+PDF, a screenshot, or a DWR RFQ, run `rfq-item-extract` first and bring the list here.
+
+Defaults when unspecified: `signature_date` today in `M.D.YY` (BBS house style, e.g.
+`5.28.26`), `delivery_days_aro` 30, `shipping_handling` 0.0 (BBS quotes FOB destination),
+CalRecycle PCRC/SABRC "NA", rep `default_rep` from the profile.
+
+### 2. Build the inputs JSON
+
+Copy `assets/inputs_template.json`. Schema: `solicitation_number`, `release_date` and
+`due_date` (MM/DD/YYYY), `signature_date` (`M.D.YY`, or `""` to hand-date),
+`delivery_days_aro`, `product_summary` (one line, used on OBS 1000, CalRecycle 74 and PD
+843), `shipping_handling`, `rep{name,title,email,signature}`,
+`agency{requestor_name,requestor_email,requestor_phone,ship_to_line1..3}`,
+`calrecycle_pcrc`, `calrecycle_sabrc`, and `line_items[]` of
+`{qty, unit, description, part_number, pcrc, unit_price}`. Extended prices, subtotal, S&H
+and grand total are computed.
+
+### 3. Fill
 
 ```bash
-# What fields does this packet actually have, on which pages, with which
-# checkbox on-states? obs-form-filler's inspector reads any CA form PDF:
-python3 "$CLAUDE_PLUGIN_ROOT/skills/obs-form-filler/scripts/fill_obs_packet.py" \
-  --inspect /path/to/forms.pdf
+SKILL_DIR=<the folder containing this SKILL.md>
+python "$SKILL_DIR/scripts/fill_obs_packet.py" <blank_packet.pdf> <inputs.json> <output.pdf>
 ```
 
-A packet with no fields listed is a flat scan — fall through to the coordinate
-stamping path below.
+It fills every AcroForm field, then writes the four company-name lines that have no
+fillable field as text annotations at known coordinates. It needs `pypdf` and `pymupdf`,
+checks for both before touching the packet, and prints the install command if either is
+missing (`pip install pypdf pymupdf --break-system-packages -q`).
+
+**It writes the packet only if every field validates**, so a non-zero exit means there is
+no output file rather than a half-filled one. Read any `NOTE:` lines: a checkbox ticked
+under a different state name means this revision differs from Rev. 08/2025 and the rest of
+the layout deserves a closer look.
+
+### 4. Verify
 
 ```bash
-# Extract text structure to identify which forms are present and on which pages
-pdftotext /path/to/forms.pdf - | grep -n "STD 204\|STD 205\|PD 843\|CV 012\|Darfur\|CalRecycle\|STD 1000\|GenAI\|GSPD"
+python "$SKILL_DIR/scripts/render_pages.py" <output.pdf> <verify_dir>/ 2 12 16 21 24
 ```
 
-**Canonical form detection:**
+Those are the pages that carry the risk: OBS 4007(B) front (2), line-item worksheet (12),
+CalRecycle 74 (16), PD 843 (21), STD 204 (24). Pass no page numbers to render everything.
+Confirm, in this order:
 
-| Form ID       | Key Text to Match                              |
-|---------------|------------------------------------------------|
-| STD 204       | "PAYEE DATA RECORD" / "STD 204"               |
-| STD 205       | "PAYEE DATA SUPPLEMENT" / "STD 205"           |
-| DGS PD 843    | "DISABLED VETERAN BUSINESS ENTERPRISE" / "843"|
-| GSPD-05-106   | "BIDDER DECLARATION" / "GSPD-05-106"          |
-| DGS PD 1      | "DARFUR" / "PD 1"                             |
-| STD 1000      | "GENERATIVE AI" / "STD 1000"                  |
-| CalRecycle 74 | "CALRECYCLE" / "RECYCLED CONTENT" / "SABRC"   |
-| CV 012        | "COMMERCIALLY USEFUL FUNCTION" / "CV 012"     |
+1. **The DVBE box on page 2 is actually ticked**, with the PD 843 "not a broker" box (21)
+   and the STD 204 entity boxes (24). Check the rendered image, not the field value.
+2. Every line item appears and the grand total matches the quote.
+3. The rep signed the bidder lines and Jackson the ownership lines.
+4. No company-name line is blank.
 
-Report identified forms to rep before filling. Flag any unrecognized forms.
+If a field lands wrong, the packet revision has changed. The script refuses to write when a
+field ID is unknown, sits on an unexpected page, or is a checkbox it cannot tick, and names
+every offender. To see what the new packet contains:
+
+```bash
+python "$SKILL_DIR/scripts/fill_obs_packet.py" --inspect <blank_packet.pdf>
+```
+
+Reconcile that against the `add(...)` calls and `LINE_FIELD_IDS` in the script, update
+`references/packet-obs-4007b.md`, and re-check the four annotation coordinates — they are
+tied to the Rev. 08/2025 layout.
+
+`references/packet-obs-4007b.md` has the page-by-page map, the annotation coordinates, and
+the list of irregular field names in this packet. They are irregular: one extended-price
+field is literally named `"OBS Line-Item Cost Wrksht - Ext Price LOBS Line-Item Cost
+Wrksht - Ext Price L5"`, and rows 13/18/23 use a different pattern again. If the script
+reports an invalid field ID, re-extract and update the map rather than guessing.
 
 ---
 
-## Step 4 — Field Mapping Reference
+# Path B — standalone forms and unknown packets
 
-Source key: **VP** = vendor_profile | **RFQ** = rfq_data | **DERIVED** = runtime | **⚑ SIG** = leave blank
-
-### STD 204 — Payee Data Record
-| Field | Source | Value |
-|-------|--------|-------|
-| Legal Name (Section 1) | VP | `legal_name` |
-| Mailing Address | VP | `address` |
-| City / State / Zip | VP | parsed from `address` |
-| Email | VP | `email` |
-| Entity Type checkbox | VP | S-Corp → check "Corporation — All Others" |
-| FEIN (Section 3) | VP | `fein` (format: XX-XXXXXXX) |
-| CA Resident (Section 4) | VP | Check "California Resident" |
-| Rep Name (Section 5) | VP | `rep.full_name` |
-| Rep Title (Section 5) | VP | `rep.title` |
-| Rep Phone (Section 5) | VP | `phone` |
-| Rep Email (Section 5) | VP | `email` |
-| Agency Name (Section 6) | RFQ | `rfq_data.agency_name` |
-| Agency Address (Section 6) | RFQ | `rfq_data.agency_address` |
-| Agency Phone/Fax (Section 6) | RFQ | `rfq_data.agency_phone` / `agency_fax` |
-| Signature (Section 5) | ⚑ SIG | Leave blank |
-| Date (Section 5) | ⚑ SIG | Leave blank |
-
-**Critical note on STD 204 field IDs:** The fillable field IDs on this form
-frequently do NOT match visual section labels. After extracting field info,
-**always rasterize the page and visually confirm coordinate positions** before
-mapping field IDs to values. The FEIN field and Section 5 rep fields are
-commonly misnamed in the PDF metadata.
+### 1. See what the PDF actually is
 
 ```bash
-# Rasterize page 1 at 150 DPI to confirm field positions
-pdftoppm -jpeg -r 150 -f 1 -l 1 /path/to/forms.pdf /tmp/std204_verify
-# Then open /tmp/std204_verify-1.jpg to inspect
+python3 "$SKILL_DIR/scripts/fill_obs_packet.py" --inspect /path/to/forms.pdf
 ```
 
-### DGS PD 843 — DVBE Declaration
-| Field | Source | Value |
-|-------|--------|-------|
-| DVBE Name (Section 1) | VP | `legal_name` |
-| DVBE Ref Number (Section 1) | VP | `dvbe_cert` |
-| Solicitation # (Section 1) | RFQ | `rfq_data.solicitation_number` |
-| Not broker/agent checkbox (Section 2) | VP | Check (broker_or_agent = false) |
-| DV Owner Name (Section 3) | VP | `dvbe_details.veteran_owner_name` |
-| DV Owner Address (Section 3) | VP | `dvbe_details.veteran_owner_address` |
-| DV Owner Phone (Section 3) | VP | `dvbe_details.veteran_owner_phone` |
-| DV Owner Tax ID (Section 3) | VP | `dvbe_details.veteran_owner_tax_id` |
-| All signatures | ⚑ SIG | Leave blank — perjury certification |
-| All dates | ⚑ SIG | Leave blank |
+The inspector reads any CA form PDF, not just Packet B — it reports each field's page,
+type and checkbox on-states. **No fields listed means a flat scan**; use the coordinate
+path in step 3.
 
-### GSPD-05-106 — Bidder Declaration
-| Field | Source | Value |
-|-------|--------|-------|
-| Certification(s) | VP | "DVBE" |
-| Certification # | VP | `dvbe_cert` |
-| Subcontractors used | VP | Check "No" |
-| Broker or agent (1c-1) | VP | Check "No" |
-| Equipment rental 51% (1c-2) | VP | Check "N/A" |
-| Distinct element of work | VP | `cuf_statement` (abbreviated) |
-| Solicitation # | RFQ | `rfq_data.solicitation_number` |
-| Page # | DERIVED | "1 of 1" |
+Then identify which forms are present:
 
-### DGS PD 1 — Darfur Act Certification
-| Field | Source | Value |
-|-------|--------|-------|
-| Company Name | VP | `legal_name` |
-| FEIN | VP | `fein` |
-| Paragraph 1 initials | VP | `rep.full_name` initials (darfur = no foreign ops) |
-| Printed Name + Title | VP | `rep.full_name`, `rep.title` |
-| County and State | DERIVED | "San Diego County, California" |
-| Signature | ⚑ SIG | Leave blank |
-| Date | ⚑ SIG | Leave blank |
+```bash
+pdftotext /path/to/forms.pdf - | grep -n "STD 204\|STD 205\|PD 843\|CV 012\|Darfur\|CalRecycle\|OBS 1000\|GenAI\|GSPD"
+```
 
-### STD 1000 — GenAI Disclosure
-| Field | Source | Value |
-|-------|--------|-------|
-| Company Name | VP | `legal_name` |
-| Address | VP | `address` |
-| Phone | VP | `phone` |
-| Solicitation # | RFQ | `rfq_data.solicitation_number` |
-| Contract Description | RFQ | `rfq_data.description_of_purchase` |
-| Uses GenAI? | VP | Check "No" (uses_genai = false) |
-| All conditional fields | VP | Skip — uses_genai = false |
-| Rep Name | VP | `rep.full_name` |
-| Signature | ⚑ SIG | Leave blank |
-| Date | ⚑ SIG | Leave blank |
+Match on text, using the detection table in `references/field-maps.md`. Report the forms
+you identified to the rep before filling, and flag anything unrecognized.
 
-### CalRecycle 74 — Recycled Content Certification
-| Field | Source | Value |
-|-------|--------|-------|
-| Contractor/Company Name | VP | `legal_name` |
-| Address | VP | `address` |
-| Phone | VP | `phone` |
-| RFQ # | RFQ | `rfq_data.solicitation_number` |
-| Item # / Description | RFQ | From `rfq_data.line_items` |
-| Postconsumer Recycled % | REP | `[MISSING — REP TO CONFIRM]` |
-| SABRC Category Code | REP | `[MISSING — REP TO CONFIRM]` |
-| Print Name | VP | `rep.full_name` |
-| Title | VP | `rep.title` |
-| Signature | ⚑ SIG | Perjury cert — leave blank, flag prominently |
-| Date | ⚑ SIG | Leave blank |
+### 2. Map the fields
+
+`references/field-maps.md` holds the per-form maps — STD 204, DGS PD 843, GSPD-05-105,
+DGS PD 1, OBS 1000, CalRecycle 74 — and, first, the list of keys the vendor profile
+actually has. Check a key exists before mapping it.
+
+### 3. Fill
+
+**Fillable PDFs** are the preferred path: set the AcroForm values, then validate the same
+way Path A does before writing anything.
+
+**Flat or scanned PDFs** fall back to coordinate stamping. Rasterize every page, map the
+coordinates visually, then stamp. This is slower and more error-prone, so verify harder.
+
+### 4. Verify
+
+Rasterize and inspect every page you touched. Same rule as Path A: look at the render, not
+the field value.
 
 ---
 
-## Step 5 — Fill the Forms
+# Deliver (both paths)
 
-### 5A — Fillable PDFs (preferred path)
+Write outputs as `BBS_<FormID>_<Agency>_<SolNum>_<YYYYMMDD>.pdf`, then give the rep a
+cover summary:
 
-Fill with `pypdf`, following the pattern in
-`obs-form-filler/scripts/fill_obs_packet.py` — read `fill_acroform()` before
-writing your own. What matters there, and applies equally here:
+```
+# BBS Form Packet — <Agency>
 
-- **Validate every field against the PDF in hand before writing anything.** An
-  unknown field ID, a field on an unexpected page, or a checkbox whose declared
-  on-state is not what you are about to write is an error, not a warning. Abort
-  and write no file.
-- **Never write a hardcoded `/Yes` to a checkbox.** Read its real on-state from
-  the widget's appearance dictionary and write that. A box can carry the "right"
-  value and still render unticked — which on the SB/DVBE line is the difference
-  between claiming a preference and silently forfeiting it.
-- **Fill a scratch copy and move it into place**, so a failure part-way through
-  never leaves a half-filled packet looking finished.
+## Fields filled
+<form: what was filled, from where>
 
-```bash
-# Same validation the OBS filler does, against any CA form PDF:
-python3 "$CLAUDE_PLUGIN_ROOT/skills/obs-form-filler/scripts/fill_obs_packet.py" \
-  --inspect /path/to/forms.pdf
+## Signature requirements
+⚑ <form> — <who signs>, <which line>
+
+## Gap report
+[MISSING — NEEDS INPUT] <field>: <why it could not be filled>
 ```
 
-**field_values.json format:**
-```json
-[
-  {
-    "field_id": "exact_id_from_extract_form_field_info",
-    "description": "human readable label",
-    "page": 1,
-    "value": "the value to fill"
-  }
-]
-```
-
-### 5B — Flat/Scanned PDFs (fallback)
-
-```bash
-# Extract structure for coordinate-based placement
-python3 -c "from pypdf import PdfReader; import json,sys; \
-print(json.dumps(sorted((PdfReader(sys.argv[1]).get_fields() or {})), indent=2))" /path/to/forms.pdf
-
-# Rasterize all pages for visual coordinate mapping
-pdftoppm -jpeg -r 150 /path/to/forms.pdf /tmp/form_pages
-```
-
-Then write the values with `pypdf` and stamp any non-AcroForm lines with
-`pymupdf` at measured coordinates. The sibling `obs-form-filler` skill in this
-plugin does exactly that in `scripts/fill_obs_packet.py` — read it for the
-working pattern, including how it validates every field against the packet in
-hand before writing (checkbox on-states included) rather than trusting a map.
-
-### 5C — Verify Every Output
-
-After filling each form, **always** rasterize and inspect before delivery:
-
-```bash
-pdftoppm -jpeg -r 150 -f 1 -l 2 ~/bbs_forms/[output]/filled.pdf /tmp/verify
-# Inspect /tmp/verify-1.jpg, /tmp/verify-2.jpg
-```
-
-If any field is misplaced: adjust coordinates or field ID mapping, re-fill, re-verify.
-Do not deliver until visual inspection confirms correct placement.
-
-### Output naming convention:
-```
-~/bbs_forms/YYYYMMDD_[AgencyShortName]/
-  BBS_STD204_[Agency]_[SolNum]_[YYYYMMDD].pdf
-  BBS_PD843_[Agency]_[SolNum]_[YYYYMMDD].pdf
-  BBS_GSPD05106_[Agency]_[SolNum]_[YYYYMMDD].pdf
-  BBS_Darfur_[Agency]_[SolNum]_[YYYYMMDD].pdf
-  BBS_CalRecycle74_[Agency]_[SolNum]_[YYYYMMDD].pdf
-  BBS_STD1000_[Agency]_[SolNum]_[YYYYMMDD].pdf
-  cover_summary.md
-```
+Close with the reminder to hand-date at submission if `signature_date` was left blank.
 
 ---
 
-## Step 6 — Generate Cover Summary
-
-Write `cover_summary.md` to the output directory:
-
-```markdown
-# BBS Form Packet — [Agency Name]
-**RFQ/Solicitation:** [number or MISSING]
-**Due Date:** [date]
-**Generated:** [today]
-
-## A — Fields Filled
-| Form | Field | Value | Source |
-|------|-------|-------|--------|
-| STD 204 | Legal Name | Black Box Safety, Inc. | VP |
-...
-
-## B — Signature Requirements
-⚑ All forms require wet signature from Parker Marshall, Sales Manager.
-Date of signing to be completed at time of submission.
-Forms requiring signature: [list]
-
-⚑ PERJURY CERTIFICATIONS (sign only after verifying content):
-- CalRecycle 74 — verify all recycled content % and SABRC codes before signing
-- DGS PD 843 — perjury certification for DVBE declarations
-
-## C — Gap Report
-[List any MISSING fields with form name, field name, and what rep needs to provide]
-[If none: "No missing fields — packet is complete pending signatures."]
-```
-
----
-
-## Step 7 — Deliver
-
-```bash
-# Open output directory for rep to access files
-ls -la ~/bbs_forms/[output_dir]/
-
-# Open filled PDFs in browser for final visual review
-open ~/bbs_forms/[output_dir]/*.pdf   # macOS
-xdg-open ~/bbs_forms/[output_dir]/   # Linux
-```
-
-Print the cover summary to chat. Explicitly call out:
-- Any DVBE cert expiration warnings
-- CalRecycle 74 perjury certification reminder
-- All gap report items requiring rep input
-
----
-
-## Edge Cases
-
-| Situation | Handling |
-|-----------|----------|
-| STD 204 field IDs misaligned to visual sections | Always rasterize page 1 and verify before filling; adjust field_id mapping |
-| Form not in canonical list | Flag to rep; do not fill; ask for guidance |
-| DVBE cert expired or within 30 days | Hard stop before any filling |
-| RFQ solicitation number not found | Flag in gap report; ask rep to provide; use `[MISSING]` as placeholder |
-| Form packet is flat/scanned PDF | Use coordinate-based annotation approach (Step 5B) |
-| Agency includes non-standard forms | Flag as unrecognized; ask rep to confirm requirements |
-| Rep uploads forms only, no RFQ | Ask for RFQ or collect solicitation data manually before proceeding |
-| Multiple authorized signers | Ask rep which signer before filling |
-| CalRecycle 74 — no line items provided | Fill company header; mark all item rows `[MISSING — REP TO PROVIDE]` |
-| DGS PD 843 DVBE owner fields null | Halt on PD 843 only; fill remaining forms; list missing fields |
-| Font not found warning during fill | Non-blocking; proceed — output will use default font substitution |
-| Field value truncated in small box | Abbreviate to fit; note full value in cover summary |
+Owner: Parker. Last verified 2026-09-15.

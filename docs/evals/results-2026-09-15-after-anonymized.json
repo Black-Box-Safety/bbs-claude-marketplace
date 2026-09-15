@@ -4,94 +4,109 @@
   "runs_per_query": 5,
   "pass_threshold": 0.8,
   "summary": {
-    "queries": 20,
-    "passed": 20,
-    "failed": 0
+    "queries": 24,
+    "passed": 22,
+    "failed": 2
   },
   "results": [
     {
-      "id": "naspo-1",
-      "query": "CDCR Corcoran emailed asking us to quote these Grainger item numbers and sent along the blank state certs to complete.",
-      "expect": "naspo-quote",
+      "id": "dwr-2",
+      "query": "wr-quote-request.pdf is a Department of Water Resources request for quotation. Extract the items and quantities, mixed mode.",
+      "expect": "rfq-item-extract",
+      "runs": 5,
+      "correct": 3,
+      "accuracy": 0.6,
+      "pass": false,
+      "distribution": {
+        "rfq-item-extract": 3,
+        "__none__": 2
+      }
+    },
+    {
+      "id": "promo-1",
+      "query": "Our Grainger rep sent a negotiated hot list for CAL FIRE. Build the promo landing page for it.",
+      "expect": "grainger-promo-page",
+      "runs": 5,
+      "correct": 3,
+      "accuracy": 0.6,
+      "pass": false,
+      "distribution": {
+        "grainger-promo-page": 3,
+        "__none__": 2
+      }
+    },
+    {
+      "id": "dwr-1",
+      "query": "DWR sent dwr-rfq.pdf. Pull the line items and quantities out of it, Grainger mode.",
+      "expect": "rfq-item-extract",
       "runs": 5,
       "correct": 4,
       "accuracy": 0.8,
       "pass": true,
       "distribution": {
-        "naspo-quote": 4,
+        "rfq-item-extract": 4,
+        "__none__": 1
+      }
+    },
+    {
+      "id": "src-1",
+      "query": "This is a competitive SB/DVBE bid from Caltrans. Get me vendor pricing on these items.",
+      "expect": "bbs-sourcing",
+      "runs": 5,
+      "correct": 4,
+      "accuracy": 0.8,
+      "pass": true,
+      "distribution": {
+        "bbs-sourcing": 4,
         "__none__": 1
       }
     },
     {
       "id": "cart-1",
       "query": "The customer sent their saved Grainger cart as grainger-cart.pdf. Pull the item numbers and quantities out of it.",
-      "expect": "grainger-cart-info",
+      "expect": "rfq-item-extract",
       "runs": 5,
       "correct": 5,
       "accuracy": 1.0,
       "pass": true,
       "distribution": {
-        "grainger-cart-info": 5
+        "rfq-item-extract": 5
       }
     },
     {
       "id": "cart-2",
       "query": "cart-printout.pdf is a Grainger cart saved from the website. Get me ITEM#,QTY so I can paste it into the purchasing portal.",
-      "expect": "grainger-cart-info",
+      "expect": "rfq-item-extract",
       "runs": 5,
       "correct": 5,
       "accuracy": 1.0,
       "pass": true,
       "distribution": {
-        "grainger-cart-info": 5
+        "rfq-item-extract": 5
       }
     },
     {
       "id": "shot-1",
       "query": "grainger-cart.png is a screenshot of the Grainger cart. Get the part numbers and quantities out of it.",
-      "expect": "grainger-screenshot",
+      "expect": "rfq-item-extract",
       "runs": 5,
       "correct": 5,
       "accuracy": 1.0,
       "pass": true,
       "distribution": {
-        "grainger-screenshot": 5
+        "rfq-item-extract": 5
       }
     },
     {
       "id": "shot-2",
       "query": "items.png is an image of a Grainger item table. Pull the part numbers and qty.",
-      "expect": "grainger-screenshot",
+      "expect": "rfq-item-extract",
       "runs": 5,
       "correct": 5,
       "accuracy": 1.0,
       "pass": true,
       "distribution": {
-        "grainger-screenshot": 5
-      }
-    },
-    {
-      "id": "dwr-1",
-      "query": "DWR sent dwr-rfq.pdf. Pull the line items and quantities out of it, Grainger mode.",
-      "expect": "dwr-pdf-info",
-      "runs": 5,
-      "correct": 5,
-      "accuracy": 1.0,
-      "pass": true,
-      "distribution": {
-        "dwr-pdf-info": 5
-      }
-    },
-    {
-      "id": "dwr-2",
-      "query": "wr-quote-request.pdf is a Department of Water Resources request for quotation. Extract the items and quantities, mixed mode.",
-      "expect": "dwr-pdf-info",
-      "runs": 5,
-      "correct": 5,
-      "accuracy": 1.0,
-      "pass": true,
-      "distribution": {
-        "dwr-pdf-info": 5
+        "rfq-item-extract": 5
       }
     },
     {
@@ -133,49 +148,37 @@
     {
       "id": "price-1",
       "query": "Price these Grainger items on account 887895111: 60KA44, 38W367, 1VXP2",
-      "expect": "bbs-b2b-pricing",
+      "expect": "grainger-pricing",
       "runs": 5,
       "correct": 5,
       "accuracy": 1.0,
       "pass": true,
       "distribution": {
-        "bbs-b2b-pricing": 5
+        "grainger-pricing": 5
       }
     },
     {
       "id": "price-2",
-      "query": "Run these part numbers through the punch-out and give me unit pricing: 5WL36, 4CZ16, 6YPH8.",
-      "expect": "bbs-b2b-pricing",
+      "query": "Pull the Grainger pricing for these part numbers on the Porterville account: 5WL36, 4CZ16, 6YPH8.",
+      "expect": "grainger-pricing",
       "runs": 5,
       "correct": 5,
       "accuracy": 1.0,
       "pass": true,
       "distribution": {
-        "bbs-b2b-pricing": 5
+        "grainger-pricing": 5
       }
     },
     {
       "id": "price-3",
       "query": "What does Grainger sell 5WL36 for under our facility account?",
-      "expect": "bbs-b2b-pricing",
+      "expect": "grainger-pricing",
       "runs": 5,
       "correct": 5,
       "accuracy": 1.0,
       "pass": true,
       "distribution": {
-        "bbs-b2b-pricing": 5
-      }
-    },
-    {
-      "id": "promo-1",
-      "query": "Our Grainger rep sent a negotiated hot list for CAL FIRE. Build the promo landing page for it.",
-      "expect": "grainger-promo-page",
-      "runs": 5,
-      "correct": 5,
-      "accuracy": 1.0,
-      "pass": true,
-      "distribution": {
-        "grainger-promo-page": 5
+        "grainger-pricing": 5
       }
     },
     {
@@ -229,25 +232,73 @@
     {
       "id": "obs-1",
       "query": "Fill out the OBS 4007(B) Packet-B forms for this CDCR solicitation.",
-      "expect": "obs-form-filler",
+      "expect": "ca-form-filler",
       "runs": 5,
       "correct": 5,
       "accuracy": 1.0,
       "pass": true,
       "distribution": {
-        "obs-form-filler": 5
+        "ca-form-filler": 5
       }
     },
     {
-      "id": "src-1",
-      "query": "This is a competitive SB/DVBE bid from Caltrans. Get me vendor pricing on these items.",
-      "expect": "bbs-sourcing",
+      "id": "forms-1",
+      "query": "The agency sent a packet of blank state forms - STD 204, DGS PD 843 and CalRecycle 74. Fill out what you can.",
+      "expect": "ca-form-filler",
       "runs": 5,
       "correct": 5,
       "accuracy": 1.0,
       "pass": true,
       "distribution": {
-        "bbs-sourcing": 5
+        "ca-form-filler": 5
+      }
+    },
+    {
+      "id": "naspo-2",
+      "query": "The Corcoran RFQ is already logged in its folder. Produce the response: price the Grainger item numbers, build the quote PDF, and fill the state compliance packet.",
+      "expect": "naspo-quote",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "naspo-quote": 5
+      }
+    },
+    {
+      "id": "price-4",
+      "query": "Is 6GRH5 in stock and when would it ship to 95811?",
+      "expect": "grainger-pricing",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "grainger-pricing": 5
+      }
+    },
+    {
+      "id": "price-5",
+      "query": "What Grainger account does CSU Fullerton price on?",
+      "expect": "grainger-pricing",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "grainger-pricing": 5
+      }
+    },
+    {
+      "id": "amb-4",
+      "query": "Pull the Grainger numbers out of items.pdf.",
+      "expect": "rfq-item-extract",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "rfq-item-extract": 5
       }
     }
   ]
