@@ -1,0 +1,61 @@
+{
+  "model": "default",
+  "anonymized": true,
+  "runs_per_query": 5,
+  "pass_threshold": 0.8,
+  "summary": {
+    "queries": 4,
+    "passed": 0,
+    "failed": 4
+  },
+  "results": [
+    {
+      "id": "amb-1",
+      "query": "Here are some Grainger part numbers: 102WZ8, 103N88, 10A236",
+      "expect": "__unscored__",
+      "runs": 5,
+      "correct": 0,
+      "accuracy": 0.0,
+      "pass": false,
+      "distribution": {
+        "__none__": 5
+      }
+    },
+    {
+      "id": "amb-2",
+      "query": "Can you check these Grainger items for me? 4CZ16, 6YPH8",
+      "expect": "__unscored__",
+      "runs": 5,
+      "correct": 0,
+      "accuracy": 0.0,
+      "pass": false,
+      "distribution": {
+        "__none__": 5
+      }
+    },
+    {
+      "id": "amb-3",
+      "query": "I need pricing on the items in rfq.pdf.",
+      "expect": "__unscored__",
+      "runs": 5,
+      "correct": 0,
+      "accuracy": 0.0,
+      "pass": false,
+      "distribution": {
+        "__none__": 5
+      }
+    },
+    {
+      "id": "amb-4",
+      "query": "Pull the Grainger numbers out of items.pdf.",
+      "expect": "__unscored__",
+      "runs": 5,
+      "correct": 0,
+      "accuracy": 0.0,
+      "pass": false,
+      "distribution": {
+        "__none__": 5
+      }
+    }
+  ]
+}

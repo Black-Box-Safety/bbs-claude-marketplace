@@ -1,6 +1,6 @@
 ---
 name: so-search
-description: Looks up a Black Box Safety Sales Order (SO) by customer PO number using the BBS Business Central MCP. Searches Posted Sales Invoices by customerPurchaseOrderReference. Returns a summary of all invoices tied to that PO and their associated SO number. If no invoices are found (PO not yet invoiced), prompts Aanya for agency name, approximate dollar value, and date range, then searches open Sales Orders and returns the best match with a BC deep link. Trigger immediately whenever Aanya types "SOSearch [PO#]", "/SOSearch [PO#]", "SO search [PO#]", "look up PO [PO#]", "find SO for PO [PO#]", or any similar request to locate a Sales Order by a customer PO number. Always use this skill for that request — never attempt to search BC manually without it.
+description: Looks up a Black Box Safety Sales Order (SO) by customer PO number using the BBS Business Central MCP. Searches Posted Sales Invoices by customerPurchaseOrderReference. Returns a summary of all invoices tied to that PO and their associated SO number. If no invoices are found (PO not yet invoiced), prompts the rep for agency name, approximate dollar value, and date range, then searches open Sales Orders and returns the best match with a BC deep link. Trigger immediately whenever a rep types "SOSearch [PO#]", "/SOSearch [PO#]", "SO search [PO#]", "look up PO [PO#]", "find SO for PO [PO#]", or any similar request to locate a Sales Order by a customer PO number. Always use this skill for that request — never attempt to search BC manually without it.
 ---
 
 # SOSearch Skill
@@ -9,7 +9,7 @@ Looks up a BBS Sales Order by customer PO number via the BC MCP. Searches `ListS
 
 ## Trigger
 
-Aanya invokes this with:
+a rep invokes this with:
 - `SOSearch [PO#]`
 - `/SOSearch [PO#]`
 - `SO search [PO#]`
@@ -23,7 +23,7 @@ The PO number is always the argument following the command. Extract it exactly a
 
 ### 1. Load the BC MCP tool
 
-Call `tool_search` with query `"ListSalesInvoices customerPurchaseOrderReference"` to load the `bc-mcp-proxy:ListSalesInvoices_PAG30012` tool. Do this silently — do not narrate it to Aanya.
+Call `tool_search` with query `"ListSalesInvoices customerPurchaseOrderReference"` to load the `bc-mcp-proxy:ListSalesInvoices_PAG30012` tool. Do this silently — do not narrate it to the rep.
 
 ### 2. Search by PO number
 
@@ -72,12 +72,12 @@ If the API returns an empty `value` array, respond with:
 
 > **PO has not been invoiced. Please provide additional search criteria.**
 
-Then ask Aanya for all three of the following in a single message:
+Then ask the rep for all three of the following in a single message:
 1. **Agency name** (e.g. "DSH Metro", "Mule Creek", "ARB")
 2. **Approximate dollar value** (e.g. "~$28k", "$15,000")
 3. **Rough month or month range the SO was created** (e.g. "June 2026", "May–June 2026")
 
-Once Aanya provides all three, proceed to **Step 4**.
+Once the rep provides all three, proceed to **Step 4**.
 
 ---
 
@@ -119,6 +119,6 @@ If only one result exists, skip the additional options entirely.
 
 ## Error handling
 
-- If the BC MCP tool call fails or throws an error, tell Aanya: "BC MCP returned an error — you may need to reconnect the connector and try again."
+- If the BC MCP tool call fails or throws an error, tell the rep: "BC MCP returned an error — you may need to reconnect the connector and try again."
 - If the PO number was not clearly provided, ask: "Please provide the PO number you'd like to search."
 - Never fabricate SO numbers or invoice data.

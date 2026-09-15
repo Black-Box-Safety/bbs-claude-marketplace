@@ -1,6 +1,17 @@
 ---
 name: bbs-order-reconciliation
-description: Diagnose and resolve a problem on an order BBS has already taken — wrong item delivered, wrong size, price or unit-of-measure discrepancy on the PO line, shortage, lost shipment, extras shipped free of charge, a discontinued item mid-order, a pending return or credit, a vendor credit that never arrived, or a customer asking for an amended purchase order. Use this whenever someone reports that something is wrong with an existing order, invoice, shipment, or PO line — including vague reports like "the customer says the gloves are wrong," "there's a price discrepancy," "they got the wrong size," "we're short on this line," "can we get an amended PO," "who do I send this to," "did we ever get that credit," or "what happened on this order." Use it when a purchasing or AR person needs to reconcile a customer PO against what we quoted, what we ordered, and what actually shipped. Use it before replying to the customer, before processing a return, and before reordering, because the fix depends on which of those three records is actually wrong. Do NOT use it for new quotes or bids that have not been awarded — that is naspo-quote and ca-rfq-intake.
+description: >-
+  Diagnose and resolve a problem on an order BBS has already taken — wrong item or size
+  delivered, a price or unit-of-measure discrepancy on a PO line, a shortage, a lost shipment,
+  extras shipped free of charge, an item discontinued mid-order, a pending return or credit, a
+  vendor credit that never arrived, or a customer asking for an amended purchase order. Use
+  whenever someone reports that something is wrong with an existing order, invoice, shipment
+  or PO line, however vaguely — "the gloves are wrong", "there's a price discrepancy", "we're
+  short on this line", "did we ever get that credit" — and whenever purchasing or AR needs to
+  reconcile a customer PO against what we quoted, what we ordered and what actually shipped.
+  Use it before replying to the customer, before processing a return and before reordering,
+  because the fix depends on which of those three records is wrong. Do NOT use for new quotes
+  or bids that have not been awarded — those are naspo-quote and ca-rfq-intake.
 ---
 
 # Reconciling a problem on an existing order

@@ -8,7 +8,9 @@
   logged, its items are pulled out of whatever the agency sent (DWR PDF, Grainger cart,
   a screenshot), checked against the DGS BPO, priced through the Grainger punch-out or
   vendor sourcing, turned into a customer quote on BBS letterhead, and wrapped in the
-  CDCR or CA compliance packet. Also Grainger promo pages and federal deck copy.
+  CDCR or CA compliance packet. Also Grainger promo pages. Federal deck copy moved
+  to `bbs-foundations` — a federal pursuit needs none of the other 13 skills here, and
+  SDVOSB cert discipline does not belong among California DVBE skills.
   `plugins/bbs-sales`.
 - **bbs-back-office** (live) — what happens after the bid is won, read out of Business
   Central: where an order stands, what a vendor still owes us, what a problem order
@@ -18,7 +20,8 @@
   `bbs-claude-md-forge` (BBSClaudeMDForge): the BBS way to write, audit, and repair
   CLAUDE.md files, with a deterministic checker and the canonical facts every repo must
   agree on. Also `bbs-voice-template`: how a teammate builds a personal `<first>-voice`
-  skill from their own sent mail, with `parker-voice` as the worked example.
+  skill from their own sent mail, with `parker-voice` as the worked example, and
+  `bbs-deck-voice`, the voice standard for federal (SDVOSB/GSA) slide copy.
   `plugins/bbs-foundations`. Spec:
   `docs/superpowers/specs/2026-09-02-bbs-foundations-claude-md-forge-design.md`.
   `bbs-grounding-doctrine` lives here and only here; `bbs-website` no longer carries a copy,

@@ -1,6 +1,13 @@
 ---
 name: grainger-screenshot
-description: Extracts part numbers and quantities from a Grainger screenshot — typically a screenshot of a table or cart view showing items and quantities. Use this skill whenever Aanya uploads a screenshot (PNG, JPG, or similar image) of a Grainger page and asks to extract item/part numbers and quantities. Trigger phrases include "Grainger screenshot", "pull items from this screenshot", "extract from this Grainger image", "get the part numbers from this screenshot", or any time a Grainger table or cart is shared as an image rather than a PDF or text. Always output results in the [Part Number or Grainger Item #],[QTY] format — never a table or prose description.
+description: >-
+  Extract part numbers and quantities from a screenshot or image of a Grainger page — a cart,
+  order or item table shared as PNG, JPG or similar. Use when Grainger items arrive as a
+  picture rather than as a PDF or text and the rep wants them pulled out. Always output [Part
+  Number or Grainger Item #],[QTY] lines, never a table or prose. Do NOT use for a Grainger
+  cart saved as a PDF (use grainger-cart-info), a DWR Request for Quotation PDF (use dwr-pdf-
+  info), checking DGS BPO eligibility (use dgs-bpo-item-check), or pricing items (use
+  bbs-b2b-pricing).
 ---
 
 # Grainger Screenshot

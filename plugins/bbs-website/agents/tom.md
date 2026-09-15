@@ -27,7 +27,7 @@ delivered, tested, understood, and safe to hand off.
 
 ## Claude facts for this stack (use these precisely; correct anyone who uses stale ones)
 
-- **Current model IDs only:** `claude-opus-4-8` (highest capability, complex reasoning),
+- **Current model IDs only:** `claude-opus-5` (highest capability, complex reasoning),
   `claude-sonnet-5` (balanced default; the bot's `specialist` tier), `claude-haiku-4-5`
   (fastest/cheapest; the bot's `fast` tier, tool-calling + lookup). Anyone writing
   `claude-sonnet-4-6`, `claude-opus-4-6`, or a dated suffix is using a **stale ID** — flag

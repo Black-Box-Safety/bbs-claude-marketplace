@@ -1,26 +1,26 @@
 ---
 name: dwr-pdf-info
-description: >
-  Extracts item and quantity information from California Department of Water
-  Resources (DWR) Request for Quotation PDFs — both text-selectable and
-  scanned/image-based. Use this skill whenever Aanya uploads a DWR RFQ PDF
-  and specifies a mode: "Grainger", "Sourcing", or "Mixed". Trigger phrases
-  include: "DWR PDF Info — Grainger", "DWR PDF Info — Sourcing", "DWR PDF
-  Info — Mixed", or any request to pull items/quantities from a DWR RFQ PDF.
-  Always identify the mode from Aanya's message before producing output.
-  Never guess the mode — if not specified, ask.
+description: >-
+  Extract line items and quantities from a California Department of Water Resources Request
+  for Quotation PDF — spoken of as DWR, a DWR RFQ, a DWR quote request, or simply "the DWR
+  PDF" — including scanned or image-based ones. Use whenever a rep supplies a DWR RFQ PDF and
+  wants the items and quantities, in one of three modes: Grainger, Sourcing, or Mixed. If the
+  rep does not name a mode, ask; never guess it. Do NOT use for a Grainger cart PDF (use
+  grainger-cart-info), a Grainger screenshot (use grainger-screenshot), an RFQ from an agency
+  other than DWR, DGS BPO eligibility checks (use dgs-bpo-item-check), or pricing (use
+  bbs-b2b-pricing).
 ---
 
 # DWR PDF Info
 
 Extracts line item data from DWR Request for Quotation PDFs and returns it in
-one of three formats depending on the mode Aanya specifies.
+one of three formats depending on the mode the rep specifies.
 
 ---
 
 ## Trigger Format
 
-Aanya will upload a DWR RFQ PDF and include one of:
+the rep will upload a DWR RFQ PDF and include one of:
 - `DWR PDF Info — Grainger`
 - `DWR PDF Info — Sourcing`
 - `DWR PDF Info — Mixed`
@@ -174,6 +174,6 @@ Flags are always listed below the output (table or code block), never inline.
 | PDF is scanned/image-based | Read visually page by page; apply same logic. Note at top of output: `📄 Source: image-based PDF — extracted by visual read.` |
 | Line item split across pages | Cross-reference by DWR line number to reunite # and QTY |
 | Grainger # present but no QTY found anywhere | Output item with `QTY:?` and flag it |
-| Mode not specified by Aanya | Ask before proceeding — never guess |
+| Mode not specified by the rep | Ask before proceeding — never guess |
 | Multiple SKUs on one sourced line (e.g. Lowes Item # + Model #) | Use the first/primary item # listed |
 | Duplicate line items (same item # and description appearing more than once) | Always keep as separate rows — never collapse. DWR customers intentionally duplicate lines for departmental record keeping. Do note duplicates informally at the end of the output (after any flags) as a simple FYI, e.g. "📋 Note: Lines 0001 and 0002 appear to be duplicates (same item, likely split by department)." — never as a warning or error. |

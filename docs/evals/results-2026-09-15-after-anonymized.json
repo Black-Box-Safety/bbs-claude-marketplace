@@ -1,0 +1,254 @@
+{
+  "model": "default",
+  "anonymized": true,
+  "runs_per_query": 5,
+  "pass_threshold": 0.8,
+  "summary": {
+    "queries": 20,
+    "passed": 20,
+    "failed": 0
+  },
+  "results": [
+    {
+      "id": "naspo-1",
+      "query": "CDCR Corcoran emailed asking us to quote these Grainger item numbers and sent along the blank state certs to complete.",
+      "expect": "naspo-quote",
+      "runs": 5,
+      "correct": 4,
+      "accuracy": 0.8,
+      "pass": true,
+      "distribution": {
+        "naspo-quote": 4,
+        "__none__": 1
+      }
+    },
+    {
+      "id": "cart-1",
+      "query": "The customer sent their saved Grainger cart as grainger-cart.pdf. Pull the item numbers and quantities out of it.",
+      "expect": "grainger-cart-info",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "grainger-cart-info": 5
+      }
+    },
+    {
+      "id": "cart-2",
+      "query": "cart-printout.pdf is a Grainger cart saved from the website. Get me ITEM#,QTY so I can paste it into the purchasing portal.",
+      "expect": "grainger-cart-info",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "grainger-cart-info": 5
+      }
+    },
+    {
+      "id": "shot-1",
+      "query": "grainger-cart.png is a screenshot of the Grainger cart. Get the part numbers and quantities out of it.",
+      "expect": "grainger-screenshot",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "grainger-screenshot": 5
+      }
+    },
+    {
+      "id": "shot-2",
+      "query": "items.png is an image of a Grainger item table. Pull the part numbers and qty.",
+      "expect": "grainger-screenshot",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "grainger-screenshot": 5
+      }
+    },
+    {
+      "id": "dwr-1",
+      "query": "DWR sent dwr-rfq.pdf. Pull the line items and quantities out of it, Grainger mode.",
+      "expect": "dwr-pdf-info",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "dwr-pdf-info": 5
+      }
+    },
+    {
+      "id": "dwr-2",
+      "query": "wr-quote-request.pdf is a Department of Water Resources request for quotation. Extract the items and quantities, mixed mode.",
+      "expect": "dwr-pdf-info",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "dwr-pdf-info": 5
+      }
+    },
+    {
+      "id": "bpo-1",
+      "query": "Are 102WZ8, 103N88 and 10A236 on the BPO?",
+      "expect": "dgs-bpo-item-check",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "dgs-bpo-item-check": 5
+      }
+    },
+    {
+      "id": "bpo-2",
+      "query": "Check these Grainger part numbers against the DGS blanket purchase order master list: 4CZ16, 6YPH8",
+      "expect": "dgs-bpo-item-check",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "dgs-bpo-item-check": 5
+      }
+    },
+    {
+      "id": "bpo-3",
+      "query": "Is 38W367 approved for purchase under the active BPO?",
+      "expect": "dgs-bpo-item-check",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "dgs-bpo-item-check": 5
+      }
+    },
+    {
+      "id": "price-1",
+      "query": "Price these Grainger items on account 887895111: 60KA44, 38W367, 1VXP2",
+      "expect": "bbs-b2b-pricing",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-b2b-pricing": 5
+      }
+    },
+    {
+      "id": "price-2",
+      "query": "Run these part numbers through the punch-out and give me unit pricing: 5WL36, 4CZ16, 6YPH8.",
+      "expect": "bbs-b2b-pricing",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-b2b-pricing": 5
+      }
+    },
+    {
+      "id": "price-3",
+      "query": "What does Grainger sell 5WL36 for under our facility account?",
+      "expect": "bbs-b2b-pricing",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-b2b-pricing": 5
+      }
+    },
+    {
+      "id": "promo-1",
+      "query": "Our Grainger rep sent a negotiated hot list for CAL FIRE. Build the promo landing page for it.",
+      "expect": "grainger-promo-page",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "grainger-promo-page": 5
+      }
+    },
+    {
+      "id": "quote-1",
+      "query": "Turn these items into a quote on BBS letterhead and give me the PDF: 3 safety vests at $12.40, 2 hard hats at $18.90.",
+      "expect": "bbs-quote-builder",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-quote-builder": 5
+      }
+    },
+    {
+      "id": "intake-1",
+      "query": "A new quote request just came in from CDCR Corcoran. Log it and start the record.",
+      "expect": "ca-rfq-intake",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "ca-rfq-intake": 5
+      }
+    },
+    {
+      "id": "vend-1",
+      "query": "Draft an email to Allstar Fire asking them for pricing on turnout gear for a CalVet job.",
+      "expect": "vendor-quote-email",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "vendor-quote-email": 5
+      }
+    },
+    {
+      "id": "deck-1",
+      "query": "Write the slide headlines and speaker notes for the USACE capability briefing deck.",
+      "expect": "bbs-deck-voice",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-deck-voice": 5
+      }
+    },
+    {
+      "id": "obs-1",
+      "query": "Fill out the OBS 4007(B) Packet-B forms for this CDCR solicitation.",
+      "expect": "obs-form-filler",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "obs-form-filler": 5
+      }
+    },
+    {
+      "id": "src-1",
+      "query": "This is a competitive SB/DVBE bid from Caltrans. Get me vendor pricing on these items.",
+      "expect": "bbs-sourcing",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-sourcing": 5
+      }
+    }
+  ]
+}

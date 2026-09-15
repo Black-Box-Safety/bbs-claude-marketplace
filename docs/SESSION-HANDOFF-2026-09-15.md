@@ -55,7 +55,7 @@ RFQ intake, item extraction, BPO eligibility, pricing, the customer quote docume
 CDCR/CA compliance packets.
 **Does not own:** anything after the bid is won (→ `bbs-back-office`), the website
 (→ `bbs-website`), or company-wide doctrine (→ `bbs-foundations`).
-**Installed by:** sales reps. 14 skills · 1 agent · 2 commands · 4 hooks.
+**Installed by:** sales reps. 13 skills · 1 agent · 2 commands · 4 hooks.
 
 ### `bbs-website` — the storefront pipeline
 **Owns:** a manufacturer price list becoming a live product page. Catalog import, contract
@@ -133,14 +133,14 @@ a clear message rather than a half-written document.
 
 | # | Item | Owner | Notes |
 |---|---|---|---|
-| 1 | **Personal-copy cutover — 15 skills exist twice** | Parker | The big one. See `HANDOFF.md`. Parker's own sessions load the personal copy first, so he is the one person not receiving the `obs-form-filler` fixes. Tier 1 (5 skills) first, one commit each. |
+| 1 | **Personal-copy cutover — 15 skills exist twice** | Parker | **Mechanics now confirmed (2026-09-15), and it is not a repo task.** The 15 copies are *account-synced*: removing one from disk did not retire it — a new session re-synced it byte-identical within seconds, and the skill stayed available throughout. It must be removed in Parker's claude.ai account (Settings → Capabilities → Skills). Also confirmed: **there is nothing to merge.** 9 of 15 are byte-identical to the marketplace; the other 6 differ only by being *worse* — `/mnt/skills/...` and `/Users/parkermarshall/...` paths, an unquoted `description:` with a colon, and a `PASTE_VENDOR_PROFILE_JSON_HERE` step. The marketplace copy is canonical in every case, so the cutover is a delete, not a merge. |
 | 2 | PR #10 — `HANDOFF.md` rewrite | — | Open, ready |
 | 3 | Acceptance gate never recorded | Parker | `docs/acceptance/` — a non-Parker rep completing real work unaided |
 | 4 | `bbs-sourcing` references files that exist nowhere | `/bbs-review` | Verified open |
 | 5 | `image-pipeline` is a documented stub | `/bbs-review` | Verified open |
 | 6 | `family-rollup` depends on an unmerged `bbs-database` branch | — | **Unverified** — lives in that repo |
 | 7 | Real-packet test of `obs-form-filler` | Parker | Validated against synthetic stubs only; the Rev. 08/2025 blank packet isn't in the repo. Run `--inspect` on a real one before a rep relies on it. |
-| 8 | **Canonical model IDs are stale, and the checker enforces the stale value** | Parker | `canonical-facts.md` and `check_claude_md.py:44` name `claude-opus-4-8` as current. The current Opus is `claude-opus-5`. The checker's regex doesn't flag the superseded ID and its advice string tells authors to write it, so the stale value propagates into every CLAUDE.md the forge touches. Same failure class as the SB-cert error. |
+| 8 | ~~Canonical model IDs are stale~~ | — | **Fixed 2026-09-15.** Blast radius was 11 live files, not the 2 recorded here — including `bbs-foundations/hooks/skill-bus.json` (injected into every skill run) and `bbs-managed-settings.json` (the company-wide CLAUDE.md on every machine). `CURRENT_MODELS` now lives once in `check_claude_md.py`, and `--self-test` fails if `canonical-facts.md` disagrees. **Parker must re-paste the managed settings** for the fix to reach machines. |
 
 ---
 
@@ -163,10 +163,33 @@ wrong skill wins — silently, and differently each time.
 these Grainger items"). A rep who pastes a list of Grainger numbers could plausibly land on
 any of three.
 
-**Do:** use `skill-creator`'s eval support to test triggering — does each fire when it
-should, and stay quiet when a sibling should win? Fix by sharpening descriptions and their
-"do NOT use for" clauses, not by merging skills. This is measurable; do it before adding a
-16th skill.
+**Measured 2026-09-15, and the hypothesis above was wrong.** `skill-creator`'s
+`run_eval.py` registers one description at a time and asks "did it fire?", which cannot
+answer "which sibling won". A discrimination harness was built instead
+(`docs/evals/`): it registers all 13 `bbs-sales` descriptions at once in an isolated
+project root and records which one the model actually invokes, 5 runs per query.
+
+| Condition | Baseline | After |
+|---|---|---|
+| Real-world (name + description) | 20/20 | 20/20 |
+| Description alone (names anonymized) | **18/20** | **20/20** |
+
+The Grainger cluster this section predicted would collide never did — cart PDF,
+screenshot, DWR PDF, BPO check and punch-out pricing each routed 5/5 in both conditions.
+The two real failures were elsewhere: `naspo-quote` lost 40% of its runs to
+`ca-rfq-intake`, and `dwr-pdf-info` missed the bare acronym "DWR" (its description led
+with the spelled-out agency name). Both now route 100%.
+
+The more valuable finding came from deliberately ambiguous queries. Baseline, "can you
+check these Grainger items?" silently ran the **punch-out pricing** skill in 4 of 5 runs,
+and "pull the Grainger numbers out of items.pdf" silently ran the **cart** skill in 3 of
+5 — a wrong skill, no error. After adding reciprocal "if the rep means eligibility or
+price, ask which" clauses, all four ambiguous queries now ask instead of guessing, 5/5.
+That is the binding-document rule applied to routing.
+
+Also found and fixed: `bbs-order-reconciliation`'s description was 1,155 characters
+against a 1,024 hard limit, so it was **truncated exactly through its entire "Do NOT use
+for" clause** — the skill had no negative boundary at selection time at all.
 
 ### One source of truth, and nothing invented
 

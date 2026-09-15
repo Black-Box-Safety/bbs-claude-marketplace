@@ -114,7 +114,7 @@ Modelled on `bbs-website` and `bbs-sales`. The plugin README carries the story; 
 
 ## Contributing
 - One change per skill; `/bbs-review` before shipping; fold findings back into a skill.
-- Model IDs: `claude-opus-4-8` · `claude-sonnet-5` · `claude-haiku-4-5` only.
+- Model IDs: `claude-opus-5` · `claude-sonnet-5` · `claude-haiku-4-5` only.
 - Internal paths via `${CLAUDE_PLUGIN_ROOT}`, never `~/`.
 
 *Owner: <name> · Last verified: <YYYY-MM-DD>*

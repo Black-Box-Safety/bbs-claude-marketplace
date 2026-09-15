@@ -24,6 +24,49 @@ Claude is reading, side by side. Screenshots will be pinned in the Teams sales c
    exact sentence to send Parker — send it, use the Desktop app meanwhile.
 7. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
 
+## What you just installed, and what each plugin needs
+
+Install only the plugin for your desk. Everyone gets `bbs-foundations`.
+
+```bash
+/plugin marketplace add Black-Box-Safety/bbs-claude-marketplace   # once
+/plugin install bbs-foundations@bbs-claude-marketplace            # everyone
+/plugin install bbs-sales@bbs-claude-marketplace                  # sales reps
+/plugin install bbs-back-office@bbs-claude-marketplace            # purchasing / accounting
+/plugin install bbs-website@bbs-claude-marketplace                # whoever maintains the site
+```
+
+**An install gives you the skills, commands and hooks — and nothing else.** Two things it
+does not give you, and they are the two reasons a skill fails on a fresh machine.
+
+**1. Connectors are assigned by Parker, not installed by you.** Run `/mcp` to see which
+ones you have. Without them the skills still load, they just have nothing to read.
+
+| Your plugin | Connectors it needs | What breaks without them |
+|---|---|---|
+| `bbs-foundations` | none | nothing — works standalone |
+| `bbs-sales` | BC MCP, SCPRS, Microsoft 365, Firecrawl | pricing and precedent lookups degrade; intake can't pull from Outlook |
+| `bbs-back-office` | **BC MCP** | all 4 skills have nothing to read at all |
+| `bbs-website` | Supabase, Shopify, Grainger MCP, Firecrawl | catalog and storefront skills can't act |
+
+Missing one? That is the `/bbs-checkup` line you send Parker — it is an admin assignment,
+not something you can fix locally.
+
+**2. Four `bbs-sales` skills shell out to software on your PC.** Step 1's bootstrap
+installs all of it; this table is here so you can tell *before* you start whether a job
+will run. Everything not listed is pure Claude plus connectors.
+
+| Skill | Needs on your machine |
+|---|---|
+| `obs-form-filler` | `pypdf`, `pymupdf` |
+| `ca-form-filler` | `pypdf`, `pymupdf`, `pdfplumber`, `pdftotext` (poppler) |
+| `bbs-quote-builder` | Node + `npm install docx`, and LibreOffice (`soffice`) for the PDF |
+| `grainger-promo-page` | `pdftotext` (poppler) |
+| `dgs-bpo-item-check` | nothing — it ships its own 19,390-part lookup |
+
+Each of these checks its dependencies before touching a file and prints the exact install
+command, so a missing library is a clear message, never a half-written bid document.
+
 ## Daily use
 
 - New RFQ lands in your mailbox (an `_inbox/` folder arrives once Parker's intake flow is

@@ -121,4 +121,4 @@ Imperative, second person, terse. Bold the rule word, not the sentence. Name the
 mode. Parenthetical rationales ("because it came from the buyer"). Numbers over
 adjectives. No corporate filler: no "leverage," "robust," "seamless," "best-in-class."
 Expert advisor, earnest and technical, never consumer-retail. Model IDs in any file:
-`claude-opus-4-8`, `claude-sonnet-5`, `claude-haiku-4-5` only.
+`claude-opus-5`, `claude-sonnet-5`, `claude-haiku-4-5` only.

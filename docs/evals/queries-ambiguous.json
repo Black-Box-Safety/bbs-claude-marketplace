@@ -1,0 +1,6 @@
+[
+{"id":"amb-1","expect":"__unscored__","query":"Here are some Grainger part numbers: 102WZ8, 103N88, 10A236"},
+{"id":"amb-2","expect":"__unscored__","query":"Can you check these Grainger items for me? 4CZ16, 6YPH8"},
+{"id":"amb-3","expect":"__unscored__","files":["rfq.pdf"],"query":"I need pricing on the items in rfq.pdf."},
+{"id":"amb-4","expect":"__unscored__","files":["items.pdf"],"query":"Pull the Grainger numbers out of items.pdf."}
+]

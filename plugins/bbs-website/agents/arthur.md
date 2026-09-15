@@ -109,7 +109,7 @@ Client tools are defined in `BBSQuoteFormsBot.jsx` (`callClaude` tool list, disp
 
 ## Model routing & prompt-cache discipline (`MODELS` + `/api/anthropic`)
 
-- **Current model IDs only:** `claude-opus-4-8`, `claude-sonnet-5`, `claude-haiku-4-5`.
+- **Current model IDs only:** `claude-opus-5`, `claude-sonnet-5`, `claude-haiku-4-5`.
   Treat any prompt/code/doc referencing `claude-sonnet-4-6`, `claude-opus-4-6/4-7`, or dated
   suffixes as stale and flag it — this team has been burned by stale IDs before.
 - **Haiku has no `effort` and no extended thinking** — setting them 400s the call. Opus and

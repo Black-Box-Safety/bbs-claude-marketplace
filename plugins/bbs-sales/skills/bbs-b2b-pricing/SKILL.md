@@ -1,6 +1,16 @@
 ---
 name: bbs-b2b-pricing
-description: Pull account-specific Grainger pricing for Black Box Safety (BBS) through the b2b.blackboxsafety.com punch-out. Use whenever the user asks to price items, quote an RFQ or NASPO line-item worksheet, look up Grainger pricing for a specific facility account, check what Grainger sells a part for under a BBS account, or "run this through the punch-out." Also triggers on phrases like "price these Grainger items," "check b2b pricing," "pull NASPO pricing," "run the Grainger punch-out," or when a spreadsheet / PDF / list of manufacturer part numbers is provided alongside a BBS facility account number. This is the authorized path for Grainger pricing at BBS — always prefer it over open-web Grainger searches.
+description: >-
+  Pull account-specific Grainger pricing for Black Box Safety through the
+  b2b.blackboxsafety.com punch-out — the authorized path for Grainger pricing at BBS, always
+  preferred over open-web Grainger searches. Use when a rep wants unit prices for Grainger
+  part numbers under a BBS facility account, is filling the Unit Price column of an RFQ or
+  NASPO line-item worksheet, or says "price these items", "run this through the punch-out", or
+  "pull the B2B pricing". The input is a list of part numbers that already exists. Do NOT use
+  to produce that list from a cart PDF, screenshot or DWR RFQ (use grainger-cart-info,
+  grainger-screenshot, dwr-pdf-info first), or to check DGS BPO eligibility (use dgs-bpo-item-
+  check). If a rep says only "check these Grainger items" without naming price or an account,
+  ask whether they mean pricing or BPO eligibility before opening the punch-out.
 ---
 
 # BBS B2B Grainger Pricing
