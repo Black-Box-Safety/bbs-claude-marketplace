@@ -11,11 +11,12 @@ skills report, they don't post.
 | "What SO is this customer PO?" / "where's my order?" | `so-search` |
 | "What has this vendor actually shipped us?" / "what's still outstanding on PO-xxxx?" | `bbs-po-status` |
 | "Did we actually make money on this?" / margin by account or contract vehicle | `bbs-rebate-profitability` |
+| "They sent the wrong item" / short shipment / the price on the PO is wrong | `bbs-order-reconciliation` |
 
-## Why these three are together
+## Why these four are together
 
-They share a data source and a failure mode: **Business Central's surface answer is
-wrong**, and each skill exists to stop someone trusting it.
+They share a data source and a failure mode: **the surface answer is wrong**, and each
+skill exists to stop someone trusting it.
 
 - `bbs-po-status` — the PO header's `fullyReceived` flag is systematically unreliable.
   Answer from the receipt lines, never the flag.
@@ -25,6 +26,11 @@ wrong**, and each skill exists to stop someone trusting it.
 - `so-search` — an order that has not been invoiced yet does not appear where people
   look for it, so the skill falls back to open sales orders rather than reporting
   "not found".
+- `bbs-order-reconciliation` — the reported symptom is the last link in a chain. "The
+  price is wrong on the PO" is usually a quote that mirrored a sourcing sheet that
+  mirrored something a rep pasted in months ago; the fix has to attach to the cause.
+  Moved here from `bbs-foundations`, where it sat apart from the rest of the post-award
+  work.
 
 ## Install
 

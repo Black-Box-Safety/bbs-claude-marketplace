@@ -1,5 +1,7 @@
 # HANDOFF — bbs-ops plugin, remaining steps
 
+> **2026-09-02:** the plugin described below was renamed `bbs-ops` → `bbs-website` (directory `plugins/bbs-website`, install `bbs-website@bbs-claude-marketplace`). Paths and names in this handoff are as they were on 2026-07-23.
+
 **State as of 2026-07-23:** the `bbs-ops` plugin is fully built, statically validated, and
 committed locally in this repo (`bbs-claude-marketplace`). It has NOT been pushed, NOT been
 installed live, and the source repos have NOT been cut over. Everything below is what's left.
@@ -33,7 +35,7 @@ At the office machine after that: `git clone https://github.com/Black-Box-Safety
 
 Then confirm skill-bus fires on the plugin's own skills (this was the old gap): invoke the
 `product-page` skill and check `.claude/skill-bus-telemetry.jsonl` shows a `match` (not
-`no_match`) for `bbs-ops:product-page` with `bbs-storefront-doctrine`.
+`no_match`) for `bbs-website:product-page` with `bbs-storefront-doctrine`.
 
 ## Step 3 — Acceptance gate (the real test)
 

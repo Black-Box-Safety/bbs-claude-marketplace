@@ -2,7 +2,6 @@
 name: bbs-sourcing
 description: Source pricing from vendors for a competitive bid RFQ at Black Box Safety. Use this skill whenever a BBS sales rep needs to turn an inbound competitive RFQ from a California state agency into vendor outreach — including when they say "source this RFQ," "get me pricing on these items," "reach out to vendors for this bid," "help me quote this," or paste/upload an RFQ worksheet and ask what to do next. Also use when the rep wants to follow up with non-responding vendors or leverage one vendor's quote against another's. Always use this skill for competitive, SB/DVBE, or Fair-and-Reasonable bids. DO NOT use when the RFQ is NASPO-routed or every item is available on grainger.com — those go through Provision Connect instead. Output is a sourcing brief plus vendor emails drafted in BBS's voice, rendered inline with pop-out buttons for Outlook.
 ---
-> **BBS Ops pipeline — stage: Quote bot.** See `site-wiring-map` for how this fits the whole flow.
 
 > **Known gap:** this skill references companion files under `references/` (vendor directory, email templates, triage, input-handling) that are not yet included in the package. Until they are added, follow the inline guidance and flag the gap via `/bbs-review`.
 
@@ -116,9 +115,9 @@ Look up the vertical in `references/vendor-directory.md`. Pick candidates per th
 
 If the vertical has DPA members available, at least one of them should be in the outreach list.
 
-### 5c. Search online for new vendors
+### 5c. Scout suppliers for items the directory doesn't cover
 
-Do this when the BBS directory doesn't cover the item, or when the rep wants more options for a high-dollar line.
+Do this when the BBS directory doesn't cover the item, or when the rep wants more options for a high-dollar line. Dispatch the `supplier-scout` agent (bbs-sales plugin) with the line item, quantity, and buying agency; it checks SCPRS and Business Central first, then the web (Firecrawl when assigned, `WebSearch`/`WebFetch` otherwise), and returns a supplier-options table with every price tied to a fetched URL and date. Rank its rows with the credibility list below before presenting them.
 
 **Credibility ranking for online finds:**
 1. Authorized distributor (verified on manufacturer's site — look for a "Where to Buy" or "Find a Distributor" page)

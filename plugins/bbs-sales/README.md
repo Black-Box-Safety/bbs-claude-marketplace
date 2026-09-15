@@ -32,7 +32,7 @@ between two of these.
 | 1 | An RFQ arrives and the clock starts | `ca-rfq-intake` |
 | 2 | Get the items out of whatever they sent | `dwr-pdf-info` (DWR RFQ PDFs) · `grainger-cart-info` (saved cart PDF) · `grainger-screenshot` (a screenshot of a cart or table) |
 | 3 | Can we even sell it on this vehicle? | `dgs-bpo-item-check` — is the Grainger part on the active DGS BPO |
-| 4 | Price it | `bbs-b2b-pricing` (the authorized Grainger punch-out path) · `bbs-sourcing` (competitive bids that need real vendor outreach) · `vendor-quote-email` (one vendor, one ask) |
+| 4 | Price it | `bbs-b2b-pricing` (the authorized Grainger punch-out path) · `bbs-sourcing` (competitive bids needing real vendor outreach, dispatching `supplier-scout` for items BBS has never sourced) · `vendor-quote-email` (one vendor, one ask) |
 | 5 | Build the customer's quote | `bbs-quote-builder` — BBS letterhead, SQ-104032 format, as a PDF |
 | 6 | Fill the compliance packet | `naspo-quote` (NASPO-routed) · `obs-form-filler` (CDCR OBS 4007(B) Packet-B) · `ca-form-filler` (general CA state packets) |
 | 7 | Go find the next one | `grainger-promo-page` (outbound campaign) · `bbs-deck-voice` (federal pursuit deck copy) |
@@ -43,9 +43,16 @@ price is not the price BBS's account actually pays.
 
 `bbs-deck-voice` is the exception to this plugin's California framing: it writes
 **federal** pursuit copy, where BBS is SDVOSB and never DVBE. Do not use it for a CA
-agency deck, and do not let its certification language leak into a state bid.
+agency deck, and do not let its certification language leak into a state bid. On
+California competitive solicitations the opposite discipline applies — OSDS 2009473
+carries both SB and DVBE, so claim the 5% SB preference and the DVBE incentive.
+
+An order that has already been taken is not this plugin's work. A wrong item, a short
+shipment, a price discrepancy on the PO — those go to `bbs-back-office`.
 
 ### The three the plugin was built around
+
+The work splits into inbound and outbound.
 
 | Skill | Fires when | Stops at |
 |---|---|---|
@@ -85,12 +92,12 @@ Start from the copy already in this marketplace:
 
 ```bash
 mkdir -p ~/.bbs
-cp plugins/bbs-sales/skills/ca-form-filler/references/vendor_profile.json ~/.bbs/vendor_profile.json
+cp plugins/bbs-website/skills/obs-form-filler/assets/bbs_vendor_profile.json ~/.bbs/vendor_profile.json
 ```
 
 Then open it and confirm every value is current. If an RFQ arrives pre-filled with a BBS field that disagrees with this file, the RFQ is wrong: flag it, don't adopt it.
 
-TODO: confirm whether `~/.bbs/vendor_profile.json` needs a `cuf_statement` key beyond what the bbs-ops copy carries, and whether the signature paths below should also live in this file rather than being passed per-run.
+TODO: confirm whether `~/.bbs/vendor_profile.json` needs a `cuf_statement` key beyond what the bbs-website copy carries, and whether the signature paths below should also live in this file rather than being passed per-run.
 
 **3. Point at the signature images.** Both PNGs live in OneDrive, not in this repo:
 
@@ -118,6 +125,8 @@ This skill does not touch the PDF stack or `vendor_profile.json` above: it has i
 | `/ca-rfq-log` | Log a request you just received: find or create the folder, save the attachments, open `RFQ.md`, update the buyer's quote log. Stops before pricing. |
 | `/ca-rfq-quote` | Take a logged RFQ folder through pricing, quote, cert packet, visual verification, and delivery. |
 
+Agent: `supplier-scout` — supplier options for an item BBS has never sourced; dispatched by `bbs-sourcing` step 5c or directly ("find supplier options for MSA 10082709").
+
 Run them in that order. `/ca-rfq-quote` on an unlogged request works, but you lose the deadline record and the buyer history that makes the next quote faster.
 
 `grainger-promo-page` has no slash command yet. Describe the ask ("build a promo page for CAL FIRE from this hot list") and it fires on its own.
@@ -136,10 +145,23 @@ These four come up on every state quote, and each one exists for a reason worth 
 
 One more that is not a rule but behaves like one: the `Customers/State of CA Agencies/` tree is the training data. Every blank the agency sent and every filled version BBS returned is in there. When history can answer a question (which form revision this agency uses, what BBS wrote in that field last time, whether this buyer accepted a 0% recycled-content answer), read the corpus instead of guessing or asking the rep.
 
+## Hooks (v1.1)
+
+Deterministic guards, PowerShell, shipped with the plugin. They fire on Windows rep machines
+without any per-machine setup.
+
+| Hook | When | What it does |
+|---|---|---|
+| `guard-tree.ps1` | Before Bash / PowerShell / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/`, including a shell delete or a redirect into a submitted packet (reading one stays allowed) |
+| `desk-context.ps1` | Session start inside a buyer folder | Puts the last rows of `quote-log.md` and the latest `FLAGS.md` entries in front of Claude before the first prompt |
+
+A denial shows up as a permission refusal with a one-line reason Claude relays. Test locally:
+`powershell -File plugins/bbs-sales/hooks/tests/run-tests.ps1`.
+
 ## Rollout guide
 
 How this gets introduced to the team, and what "working" looks like: <https://claude.ai/code/artifact/6fd0a004-8323-477d-b461-332fb35afd7e>
 
 ---
 
-<sub>Part of the Black Box Safety plugin marketplace. Sibling to `bbs-ops`, which maintains the website.</sub>
+<sub>Part of the Black Box Safety plugin marketplace. Sibling to `bbs-website`, which maintains the website.</sub>

@@ -4,15 +4,14 @@
     "name": "Black Box Safety, Inc."
   },
   "metadata": {
-    "description": "Black Box Safety internal Claude plugins \u2014 the state sales desk, the website pipeline, and the Business Central back office.",
-    "version": "0.2.0"
+    "description": "Black Box Safety internal Claude plugins \u2014 site operations, state sales, and AI foundations.",
+    "version": "0.5.0"
   },
   "plugins": [
     {
-      "name": "bbs-ops",
-      "source": "./plugins/bbs-ops",
+      "name": "bbs-website",
+      "source": "./plugins/bbs-website",
       "description": "Maintain the BBS website end to end \u2014 price list to live product page. Catalog intake and import, contract pricing, variant families, enrichment, storefront pages, quote-bot lane tuning, QA and cross-sell.",
-      "version": "0.3.0",
       "author": {
         "name": "Black Box Safety, Inc."
       },
@@ -31,7 +30,6 @@
       "name": "bbs-sales",
       "source": "./plugins/bbs-sales",
       "description": "The California state quote desk, end to end: log an inbound RFQ, pull items out of whatever the agency sent, check BPO eligibility, price it through the Grainger punch-out or vendor sourcing, build the customer quote, and fill the CDCR and CA compliance packets. Plus Grainger promo pages and federal deck copy.",
-      "version": "0.3.0",
       "author": {
         "name": "Black Box Safety, Inc."
       },
@@ -46,7 +44,7 @@
         "quoting",
         "rfq",
         "sales",
-        "sdvosb",
+        "sb-dvbe",
         "sourcing",
         "state-of-california"
       ],
@@ -55,8 +53,7 @@
     {
       "name": "bbs-back-office",
       "source": "./plugins/bbs-back-office",
-      "description": "What happens after the bid is won: read the truth out of Business Central. Where an order stands, what a vendor still owes us, and what the deal actually earned once Grainger rebates are applied.",
-      "version": "0.1.0",
+      "description": "What happens after the bid is won: read the truth out of Business Central. Where an order stands, what a vendor still owes us, what a problem order actually needs, and what the deal earned once Grainger rebates are applied.",
       "author": {
         "name": "Black Box Safety, Inc."
       },
@@ -67,9 +64,144 @@
         "margin",
         "orders",
         "purchasing",
-        "rebates"
+        "rebates",
+        "reconciliation"
       ],
       "category": "operations"
+    },
+    {
+      "name": "bbs-foundations",
+      "source": "./plugins/bbs-foundations",
+      "description": "Company-wide AI foundations: the BBS way to write CLAUDE.md files (BBSClaudeMDForge), the doctrine every skill inherits, the shared company facts, systems of record, and certification rules that keep every repo and customer folder consistent, and order reconciliation \u2014 diagnosing and resolving problems on orders already placed.",
+      "author": {
+        "name": "Black Box Safety, Inc."
+      },
+      "keywords": [
+        "bbs",
+        "business-central",
+        "claude-md",
+        "context-management",
+        "doctrine",
+        "foundations",
+        "onboarding",
+        "order-reconciliation",
+        "post-award",
+        "purchasing",
+        "standards"
+      ],
+      "category": "foundations"
+    },
+    {
+      "name": "claudeforge",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/Black-Box-Safety/ClaudeForge.git",
+        "ref": "dev"
+      },
+      "description": "Pinned external dependency of bbs-foundations: the generic CLAUDE.md engine (150-line cap, @path chaining, /enhance-claude-md, /sync-claude-md, drift/link/dependency audits). BBS fork of alirezarezvani/ClaudeForge; bbs-claude-md-forge supplies the BBS doctrine on top of it.",
+      "version": "2.1.0",
+      "author": {
+        "name": "Alireza Rezvani"
+      },
+      "keywords": [
+        "claude-md",
+        "context-management",
+        "external",
+        "modular",
+        "sync"
+      ],
+      "category": "foundations"
+    },
+    {
+      "name": "impeccable",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/Black-Box-Safety/impeccable.git",
+        "ref": "main",
+        "path": "plugin"
+      },
+      "description": "Pinned external design skill for anything with a frontend: /impeccable polish, audit, critique, typeset, layout, and 61 deterministic anti-pattern detector rules. Used on customer-facing HTML (dossiers, landing pages, quote bot, storefront). BBS fork of pbakaus/impeccable (v4.3.1); update by syncing the fork from upstream.",
+      "version": "4.3.1",
+      "author": {
+        "name": "Paul Bakaus"
+      },
+      "keywords": [
+        "design",
+        "frontend",
+        "ui",
+        "ux",
+        "external",
+        "polish",
+        "audit"
+      ],
+      "category": "design"
+    },
+    {
+      "name": "superpowers-chrome",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/obra/superpowers-chrome.git",
+        "ref": "v3.0.5"
+      },
+      "description": "Commons: drives the rep's real Chrome over the DevTools protocol (logged-in sessions, product research on distributor and agency sites). Skill mode needs Node.js (bbs-setup.ps1 installs it). Upstream self-labels beta; pinned to a release tag, refreshed quarterly per docs/COMMONS.md.",
+      "version": "3.0.5",
+      "author": {
+        "name": "Jesse Vincent"
+      },
+      "keywords": [
+        "browser",
+        "chrome",
+        "commons",
+        "external",
+        "research"
+      ],
+      "category": "commons"
+    },
+    {
+      "name": "caveman",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/JuliusBrussee/caveman.git",
+        "ref": "v2.6.0"
+      },
+      "description": "Commons: terse output mode (/caveman lite|full|ultra) that cuts roughly two-thirds of output tokens while keeping technical content exact. Opt-in per session; ruled in 2026-09-13. Pinned to a release tag.",
+      "version": "2.6.0",
+      "author": {
+        "name": "Julius Brussee"
+      },
+      "keywords": [
+        "commons",
+        "external",
+        "tokens",
+        "style"
+      ],
+      "category": "commons"
+    },
+    {
+      "name": "document-skills",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/anthropics/skills.git",
+        "ref": "34040c9c568585f6929bedeaad110ad08f079624"
+      },
+      "strict": false,
+      "skills": [
+        "./skills/docx",
+        "./skills/pdf",
+        "./skills/xlsx"
+      ],
+      "description": "Commons: Anthropic's official document skills \u2014 Word (tracked changes, comments), PDF (extract, merge, fill, annotate), Excel (formulas, charts). RFQ worksheets, bid PDFs, price lists. Pinned to a commit of anthropics/skills; pptx deliberately excluded.",
+      "author": {
+        "name": "Anthropic"
+      },
+      "keywords": [
+        "commons",
+        "docx",
+        "external",
+        "pdf",
+        "xlsx"
+      ],
+      "category": "commons"
     }
   ]
 }

@@ -13,7 +13,6 @@ description: >
   signature lines, and produces filled PDFs ready for rep review and submission.
 compatibility: claude-code
 ---
-> **BBS Ops pipeline — stage: Quote bot.** See `site-wiring-map` for how this fits the whole flow.
 
 > **Note:** the vendor-profile JSON this skill reads from `references/` is created on first-run setup (see the setup section); it is not shipped in the package.
 

@@ -1,161 +1,161 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/scope-catalog%20→%20storefront%20→%20quote%20bot-051c2c" alt="Covers the full product pipeline">
-  <img src="https://img.shields.io/badge/install-one%20plugin-b19800" alt="One plugin">
-  <img src="https://img.shields.io/badge/works%20in-Claude%20Code%20CLI%20·%20VS%20Code%20·%20Desktop-6E56CF" alt="Works in Claude Code CLI, VS Code, and Desktop">
+  <img src="https://img.shields.io/badge/company-Black%20Box%20Safety%2C%20Inc.-051c2c" alt="Black Box Safety, Inc.">
+  <img src="https://img.shields.io/badge/certified-SDVOSB%20%C2%B7%20CA%20SB%2FDVBE%202009473-b19800" alt="SDVOSB and California SB/DVBE 2009473">
+  <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, VS Code, and Desktop">
+  <img src="https://img.shields.io/badge/plugins-3%20BBS%20%2B%205%20pinned-2dd4bf" alt="Three BBS plugins plus five pinned external">
 </p>
 
-# BBS Ops
+# Black Box Safety — Claude Marketplace
 
-This marketplace ships three plugins, split by the desk that owns the work. This README
-covers **bbs-ops**, the one that maintains the website: everything from a manufacturer's
-price list to a live product page. The other two have their own READMEs — **bbs-sales**
-is the California state quote desk, and **bbs-back-office** is what happens after the bid
-is won. Install whichever matches your job; install more than one if you do more than one.
+**How a nine-person government distributor runs its sales desk and storefront with Claude,
+packaged so every machine works the same way on the same rules.**
 
-bbs-ops covers three repos that together make one storefront: the product **database**, the
-**Shopify** store, and the customer-facing **quote bot**. Install it once and Claude knows how
-BBS does each job, the same way every time. No one person has to hold it all in their head.
+## The company, in one paragraph
 
-**Jump to:** [Plugins in this marketplace](#plugins-in-this-marketplace) · [See it work](#see-it-work) · [Use it](#using-it-team-start-here) · [Set it up](#setting-it-up-admins) · [What you can do](#what-you-can-do) · [What's inside](#whats-inside) · [Limits](#what-it-wont-do) · [Docs](#documentation) · [Technical details](#for-developers)
+Black Box Safety, Inc. sells safety, tactical, and MRO equipment to government buyers: California
+state agencies (CDCR, CalFire, CalTrans, DSH, CalVet), federal primes (Bechtel, USACE), and local
+fire and law enforcement. Service-disabled-veteran owned, El Cajon, California, founded 2017.
+Contract vehicles include NASPO MRO, the California Body Armor LPA, Sourcewell, GSA MAS, and
+NPPGov. The work arrives as inbound RFQs. The bottleneck has never been selling skill; it is the
+sourcing labor between "RFQ received" and "compliant quote sent." This repo moves that labor to
+Claude and keeps people on the two decisions that need judgment: what to promise a buyer, and
+what to send.
 
-## Plugins in this marketplace
+## What this repo is
 
-| Plugin | Covers | Who installs it | README |
-|---|---|---|---|
-| `bbs-sales` | The CA state quote desk end to end: RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled. Plus promo pages and federal deck copy. | Sales reps | [plugins/bbs-sales/README.md](plugins/bbs-sales/README.md) |
-| `bbs-ops` | Maintaining the website: price list to product page, across the database, Shopify, and the quote bot. | Whoever maintains the site | This file |
-| `bbs-back-office` | After the bid is won, out of Business Central: order status, vendor PO receipts, true margin after Grainger rebates. | Purchasing, accounting, anyone answering "where is it?" | [plugins/bbs-back-office/README.md](plugins/bbs-back-office/README.md) |
+The canon. One place holds everything a BBS machine needs to do the job the BBS way:
 
-The rest of this README is about `bbs-ops` specifically.
+- **Plugins** (skills, agents, commands, hooks) for the quote desk, the storefront, and the
+  company-wide doctrine every skill inherits.
+- **Managed settings** the admin pushes from the Claude console: permissions, guardrails, the
+  company memory every session starts with.
+- **The rep workspace**: a VS Code workspace pointed at the shared quote-desk folder tree.
+- **Operating docs**: setup guides, runbook, metrics, registry of what is canon and what is
+  archived.
 
-## See it work
+Push to `main` and every registered machine picks it up. Nothing is copied between computers.
+Nothing drifts.
 
-> **You:** We just got a price list from Avon Protection. Get it into the store.
->
-> **Claude:** Cleaning the list into the BBS import template (17 SKUs), loading it into the products database, and checking Avon's contract eligibility (they're on NPPGov PS25650, so contract pricing applies). Enriching descriptions and images, then building the Avon brand page in the Field Manual style like the other 24. Last step: a "Customers Also Bought" strip so the new gear surfaces next to related items.
+## Pick your path
 
-One request walks the whole pipeline. Each step is owned by an agent that knows the BBS way of doing it, and the rules (pricing, certifications, design) apply automatically whether or not you've read them.
+| You are | Start here | Time |
+|---|---|---|
+| A sales rep | [`docs/REP-SETUP.md`](docs/REP-SETUP.md), then `/bbs-checkup` | ~20 min, once |
+| The admin | [`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §0 → §3a | One morning |
+| Maintaining the website | [`plugins/bbs-website/README.md`](plugins/bbs-website/README.md), then `/bbs-onboard` | ~15 min |
+| Changing a skill | [`plugins/bbs-website/docs/CONTRIBUTING.md`](plugins/bbs-website/docs/CONTRIBUTING.md) and the [design spec](docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md) | As needed |
 
-## Using it (team, start here)
+## Sixty-second install
 
-Once it's installed, there's nothing to configure:
-
-1. Open the repo in Claude Code (CLI, the VS Code extension, or Desktop).
-2. Run **`/bbs-onboard`**. It walks you through the pipeline and the agent roster.
-3. It points you at **`site-wiring-map`**, the single "how it all connects" reference.
-4. Try a real task: *"Add a product,"* *"Build a brand page for Streamlight,"* or *"Why is the Supply lane showing too many options?"*
-
-You should be able to upload one product and see it render as a card and PDP without asking anyone. The [onboarding guide](plugins/bbs-ops/docs/ONBOARDING.md) has more.
-
-## Setting it up (admins)
-
-One person adds the marketplace once; the whole team installs from it and stays current through git.
-
-```bash
-# add the marketplace (one time)
+```text
 /plugin marketplace add Black-Box-Safety/bbs-claude-marketplace
-
-# install what matches the job
-/plugin install bbs-sales@bbs-claude-marketplace         # sales reps
-/plugin install bbs-ops@bbs-claude-marketplace           # site maintenance
-/plugin install bbs-back-office@bbs-claude-marketplace   # purchasing / accounting
-
-# wire the guardrails and learn the layout (bbs-ops)
+/plugin install bbs-foundations@bbs-claude-marketplace
+/plugin install bbs-sales@bbs-claude-marketplace
+/plugin install bbs-back-office@bbs-claude-marketplace
+/plugin install bbs-website@bbs-claude-marketplace
 /bbs-onboard
+/bbs-checkup
 ```
 
-Updating later is `/plugin marketplace update`: new skill and agent versions arrive through git, so nobody copies files between machines and nothing drifts.
+On a managed machine the plugins are already enabled; run the last two lines and read the
+report. Anything red prints the exact sentence to send the admin.
 
-## What you can do
+## What a quote looks like now
 
-- **Load a new price list**: *"Clean this Damascus price sheet and import it."*
-- **Apply a contract**: *"Load the new Sourcewell discounts by manufacturer."*
-- **Onboard a manufacturer**: *"Add a brand page for Avon, like the others."*
-- **Fix the storefront**: *"This product card is missing its logo and shows the wrong price mode."*
-- **Tune the quote bot**: *"The Direct lane isn't recommending the right brands."*
-- **Merchandise**: *"Add a Customers-Also-Bought strip to the PDPs."*
-- **Audit quality**: *"Find products with broken images or descriptions that don't match."*
+> **Rep:** CDCR at Mule Creek just sent an RFQ for 40 cases of nitrile gloves and two confined-space
+> blowers. Log it and price it.
+>
+> **Claude:** Filed under `CDCR (ALL)/Mule Creek State Prison/` — no duplicate buyer folder, checked
+> by name and by item. Last quoted this buyer gloves in March at $Y (won). Gloves are NASPO: Grainger
+> price against Mule Creek's own account. Blowers are not on any schedule, so this is a competitive
+> lane with the 5% SB preference; drafting vendor outreach for two suppliers. Packet B forms filled,
+> signature lines flagged. Every number is in the cover summary with its source. Ready for your review.
 
-## What's inside
-
-| | |
-|---|---|
-| Pipeline stages | **7**: intake, pricing, enrichment, storefront, quote bot, data-QA, cross-sell |
-| Agents | **10**: one owner per stage, plus Arthur (architecture), Tom (delivery), business-review |
-| Skills | Catalog import pipeline, price-list cleaning, contract pricing, variant families, product pages, brand pages, image pipeline, lane tuning, and `site-wiring-map` |
-| Commands | `/bbs-onboard` · `/bbs-add-product` · `/bbs-new-brand` · `/bbs-review` |
-| Guardrails | Skill-bus doctrine that auto-applies BBS design, cert, pricing, and grounding rules |
-| Repos covered | `bbs-database` · `bbs-shopify` · `bbs-quote-bot` |
+The rep reviews every number. The rep sends. Claude cannot.
 
 ```mermaid
 flowchart LR
-  A["Price list"] --> B["1 · Intake<br/>clean + import"]
-  B --> C["2 · Pricing<br/>contracts + eligibility"]
-  C --> D["3 · Enrichment<br/>copy · images · families"]
-  D --> E["4 · Storefront<br/>cards · PDPs · brand pages"]
-  E --> F["5 · Quote bot<br/>lanes + bid forms"]
-  D --> G["6 · Data-QA"]
-  E --> H["7 · Cross-sell"]
+  A["RFQ arrives"] --> B["Intake<br/>file it, no duplicates"]
+  B --> C["Precedent<br/>quote-log + Business Central"]
+  C --> D["Price<br/>Grainger account · vendor quotes · SCPRS"]
+  D --> E["Packet<br/>CA forms, signatures flagged"]
+  E --> F["Human reviews and sends"]
 ```
 
-## What it won't do
+## The plugins
 
-It doesn't replace the three repos or run the site: it's how you *maintain* them. The quote bot it tunes is advisory: it searches, recommends, quotes, and generates forms, but it never places orders or writes to Business Central on its own. And it's honest by design: the bot states only facts from the database and knowledge files, never invented prices or stock. Sanity-check any number before it goes to a customer, same as any tool.
+| Plugin | What it covers | Detail |
+|---|---|---|
+| `bbs-sales` | The California quote desk end to end: RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled — plus promo pages and federal deck copy; `/ca-rfq-log`, `/ca-rfq-quote` | [README](plugins/bbs-sales/README.md) |
+| `bbs-back-office` | After the bid is won, out of Business Central: order status, vendor PO receipts, problem-order reconciliation, true margin after Grainger rebates | [README](plugins/bbs-back-office/README.md) |
+| `bbs-foundations` | Company memory, doctrine every skill inherits, the BBS way to write a CLAUDE.md, personal voice skills, `/bbs-checkup`, managed settings, the one-page AUP | [README](plugins/bbs-foundations/README.md) |
+| `bbs-website` | The storefront: price list to product page across the database, Shopify, and the quote bot | [README](plugins/bbs-website/README.md) |
+| `claudeforge` | Pinned external CLAUDE.md engine used by `bbs-foundations` | [fork](https://github.com/Black-Box-Safety/ClaudeForge) |
+| `impeccable` | Pinned external design skill for anything with a frontend | [fork](https://github.com/Black-Box-Safety/impeccable) |
+| `superpowers-chrome` · `caveman` · `document-skills` | **Commons**: pinned third-party plugins reps get by default — real-Chrome browsing, opt-in terse mode, Anthropic's Word/PDF/Excel skills | [docs/COMMONS.md](docs/COMMONS.md) |
 
-## Documentation
+## The rules that never bend
 
-| Guide | Who it's for |
-|---|---|
-| [ONBOARDING](plugins/bbs-ops/docs/ONBOARDING.md) | Anyone new to maintaining the site |
-| [site-wiring-map](plugins/bbs-ops/skills/site-wiring-map/SKILL.md) | The "how it all connects" reference |
-| [CONTRIBUTING](plugins/bbs-ops/docs/CONTRIBUTING.md) | Changing or adding a skill/agent |
-| [plugins/bbs-ops](plugins/bbs-ops/README.md) | The plugin's own detailed README |
+These are enforced in settings and doctrine, not left to memory.
 
-## For developers
+- **Claude drafts; a human sends.** Send-class email and e-signature tools are denied by managed
+  policy. Every quote, price, and form is a draft until a rep reviews it.
+- **Never an invented number.** No price, stock, lead time, or certification fact from memory or the
+  open web. Unknown becomes `[FLAG: why]`, never a guess.
+- **Certification language follows the channel.** SDVOSB for federal and primes; OSDS SB/DVBE
+  2009473 for California state. Never mixed.
+- **Systems of record win.** Business Central for money, Supabase for the catalog, SharePoint for
+  documents. Point at the record; never re-type it.
+- **When it goes wrong, log it.** One line in the folder's `FLAGS.md`. A caught error means the
+  review worked. Monthly triage turns entries into skill fixes.
 
-<details>
-<summary>How it's built, the layout, and the quick start</summary>
+## What it will not do
 
-### Layout
+Place orders. Send anything. Write to Business Central. Rename a customer folder (account numbers
+ride on the names). Invent a price. It searches, files, drafts, prices from real sources, fills
+forms, and tells you where every number came from. The judgment stays with the person.
 
-```
+## Repo layout
+
+```text
 bbs-claude-marketplace/
-├── .claude-plugin/marketplace.json   # marketplace manifest, lists every plugin
-├── README.md                         # this file
+├── .claude-plugin/marketplace.json     # manifest: 3 BBS plugins (unpinned) + 5 external (pinned)
+├── README.md                           # this file
+├── REGISTRY.md                         # every BBS repo and asset: canon, harvest, parked, archived
+├── workspace/                          # bbs-rep.code-workspace + desk CLAUDE.md template
+├── docs/
+│   ├── REP-SETUP.md · ADMIN-RUNBOOK.md · ADMIN-CLEANUP.md · MEASUREMENT.md
+│   ├── acceptance/                     # one file per pilot gate run
+│   ├── assessments/                    # what we found, dated
+│   └── superpowers/                    # design specs and implementation plans
 └── plugins/
-    ├── bbs-ops/
-    │   ├── .claude-plugin/plugin.json
-    │   ├── skills/                   # one folder per skill, each with SKILL.md
-    │   ├── agents/                   # one file per agent
-    │   ├── commands/                 # /bbs-onboard, /bbs-add-product, …
-    │   └── docs/                     # onboarding + contributor guides
-    ├── bbs-sales/                    # same shape: plugin.json + skills/, no agents/commands yet
-    └── bbs-back-office/              # same shape: plugin.json + skills/
+    ├── bbs-foundations/                # commands, docs (managed settings, AUP), hooks, skills
+    ├── bbs-sales/                      # commands, skills
+    ├── bbs-back-office/                # skills
+    └── bbs-website/                    # agents, commands, docs, hooks, skills
 ```
 
-### How the pieces fit
+## How we keep it honest
 
-- **Skills** teach the BBS way of each task; **agents** own a pipeline stage and route work to the right skill; **commands** are thin orchestration over both.
-- **Two data planes, one product truth**: the Supabase products database (`bbs-database`) is the source, Shopify renders it, and the quote bot advises over a frozen snapshot plus live search. A database change reaches the storefront only after sync, and the bot only after a `gen-*.mjs` regen is committed.
-- **Docs teach, the skill-bus enforces**: three doctrine inserts (storefront design/cert/pricing, catalog rules, quote-bot grounding) auto-inject as context whenever a relevant skill runs, so the rules hold even for someone who hasn't read them. `/bbs-review` reads `skill-bus-telemetry.jsonl` to catch coverage gaps.
-- **Reviewers keep it living**: Arthur (architecture) and Tom (delivery/quality) review recent changes and write findings back into the skills, so the plugin sharpens like the site does.
-- **Reference skills are linked, not copied**: generic Shopify/Liquid skills update on their own and never drift.
+- **Version policy:** the three BBS plugins carry no version pin. Every push updates every machine.
+  Freeze only for a pilot, then unfreeze.
+- **Registry:** [`REGISTRY.md`](REGISTRY.md) gives every repo and asset exactly one status. Change
+  the status in the same commit as the change.
+- **Measurement:** [`docs/MEASUREMENT.md`](docs/MEASUREMENT.md) — four inbound numbers (capacity),
+  four outbound (growth), a baseline captured before anything is claimed.
+- **Acceptance:** a rep who is not the admin runs a real RFQ end to end, unaided. Result recorded in
+  [`docs/acceptance/`](docs/acceptance/README.md). That is the definition of done.
+- **Models:** `claude-opus-4-8` · `claude-sonnet-5` · `claude-haiku-4-5` only. Anything else is
+  stale.
 
-### Quick start (contributor)
+## Contributing
 
-```bash
-git clone https://github.com/Black-Box-Safety/bbs-claude-marketplace
-cd bbs-claude-marketplace
-# add it as a local marketplace to test before pushing
-/plugin marketplace add ./
-/plugin install bbs-ops@bbs-claude-marketplace
-/bbs-review        # run Arthur + Tom against your changes before shipping
-```
-
-**Model IDs (current only):** `claude-opus-4-8` · `claude-sonnet-5` · `claude-haiku-4-5`. Anything referencing a dated or older suffix is stale. Fix it.
-
-</details>
+Scope a change to one skill or one stage. Write the acceptance criterion before the change. Run the
+plugin's validation (`claude plugin validate .` and the plugin directory). Commit with a
+conventional message. Never push a model update and a skill update the same week. Details in
+[`CONTRIBUTING.md`](plugins/bbs-website/docs/CONTRIBUTING.md).
 
 ---
 
-<sub>Maintained by the Black Box Safety team, DVBE/SDVOSB government distributor, El Cajon, CA. No single point of failure by design. Design & plans in `docs/superpowers/`.</sub>
+<sub>Maintained by Black Box Safety, Inc. · DVBE/SDVOSB government distributor · El Cajon, CA ·
+Internal use. No single point of failure by design.</sub>

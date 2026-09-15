@@ -1,0 +1,18 @@
+{
+  "name": "bbs-website",
+  "description": "Maintain the BBS website end to end \u2014 price list to live product page. Catalog intake and import, contract pricing, variant families, enrichment, storefront pages, quote-bot lane tuning, and the skill-bus doctrine that keeps BBS design, cert and pricing rules consistent.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Black Box Safety, Inc."
+  },
+  "keywords": [
+    "bbs",
+    "catalog",
+    "operations",
+    "pricing",
+    "shopify",
+    "supabase",
+    "quote-bot"
+  ],
+  "skills": "./skills/"
+}
