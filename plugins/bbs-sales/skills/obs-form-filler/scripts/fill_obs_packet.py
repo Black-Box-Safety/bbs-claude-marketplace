@@ -6,7 +6,8 @@ Usage:
     python fill_obs_packet.py <blank_packet.pdf> <inputs.json> <output.pdf>
 
 The script:
-  1. Loads the hardcoded BBS vendor profile (assets/bbs_vendor_profile.json).
+  1. Loads BBS's vendor facts from the plugin's canonical profile
+     (../references/vendor_profile.json), shared with ca-form-filler.
   2. Merges it with the rep / agency / line-item inputs supplied in inputs.json.
   3. Fills every AcroForm field in-process with pypdf.
   4. Adds 4 text annotations for the company-name lines that have no AcroForm
@@ -34,11 +35,60 @@ import sys
 import os
 
 SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# .../plugins/bbs-sales/skills/obs-form-filler -> .../plugins/bbs-sales
+PLUGIN_ROOT = os.environ.get(
+    "CLAUDE_PLUGIN_ROOT", os.path.dirname(os.path.dirname(SKILL_DIR)))
+VENDOR_PROFILE = os.path.join(PLUGIN_ROOT, "references", "vendor_profile.json")
+
+
+def _rep(profile, role):
+    for person in profile.get("authorized_representatives", []):
+        if person.get("role") == role:
+            return person
+    raise KeyError(f"no authorized representative with role {role!r} in {VENDOR_PROFILE}")
 
 
 def load_profile():
-    with open(os.path.join(SKILL_DIR, "assets", "bbs_vendor_profile.json")) as f:
-        return json.load(f)
+    """Return BBS's vendor facts in the flat shape this script fills from.
+
+    The facts themselves live once, in the plugin's canonical profile, which
+    ca-form-filler reads too. This adapter is the only thing that knows both
+    shapes: the ~130 field mappings below stay written against the flat keys,
+    and a cert expiry can no longer go stale in one copy while bids go out from
+    the other.
+    """
+    try:
+        with open(VENDOR_PROFILE) as f:
+            vp = json.load(f)
+    except FileNotFoundError:
+        sys.exit(f"vendor profile not found at {VENDOR_PROFILE}. It ships with the "
+                 f"bbs-sales plugin; set CLAUDE_PLUGIN_ROOT if the plugin lives "
+                 f"somewhere this script cannot infer.")
+
+    ident, addr, contact = vp["business_identity"], vp["address"], vp["contact"]
+    cert = vp["certifications"]["sb_dvbe"]
+    owner, acct = _rep(vp, "dvbe_owner"), _rep(vp, "accounting")
+
+    return {
+        "legal_name": ident["legal_name"],
+        "short_name": ident["short_name"],
+        "fein": ident["fein"],
+        "fein_digits": ident["fein"].replace("-", ""),
+        "seller_permit": ident["ca_sellers_permit"],
+        "address_line": addr["mailing_street"],
+        "city": addr["city"],
+        "state": addr["state"],
+        "zip": addr["zip"],
+        "city_state_zip": f"{addr['city']}, {addr['state']} {addr['zip']}",
+        "phone": contact["phone"],
+        "website": contact["website"],
+        "dvbe_cert": cert["osds_ref_number"],
+        "dvbe_cert_exp": cert["expiration"],
+        "product_type": vp["product_type"],
+        "dvbe_owner": {k: owner[k] for k in ("name", "title", "email")},
+        "accounting_contact": {k: acct[k] for k in ("name", "title", "phone", "email")},
+        "_notes": vp["_meta"]["notes"],
+    }
 
 
 def build_field_values(profile, inp):
@@ -647,6 +697,12 @@ def main():
 
     print(f"Filled packet written to: {output_pdf}")
     print(f"Fields written: {len(field_values)}")
+
+    # The certification rules are the expensive thing to get wrong on a bid, and
+    # they change without the packet changing. Put them in front of the rep.
+    print("\nBefore submitting, check these against the bid:")
+    for note in profile["_notes"]:
+        print(f"  - {note}")
 
 
 if __name__ == "__main__":

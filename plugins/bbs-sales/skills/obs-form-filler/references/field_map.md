@@ -1,5 +1,11 @@
 # OBS 4007(B) Packet-B — Field & Page Reference
 
+> **Scope:** this file maps the AcroForm field IDs and coordinates of the CDCR
+> OBS 4007(B) packet PDF specifically. The rules that apply to these forms whoever
+> fills them — who signs what, what the State fills, what disqualifies a bid — live
+> once in `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md`. Field IDs belong to a
+> PDF; rules belong to the forms.
+
 CDCR "Request For Quote (RFQ) Packet – B", OBS 4007(B) Rev. 08/2025. Ships as a
 fillable AcroForm PDF (~480 fields) plus four flat (non-fillable) company-name lines.
 `scripts/fill_obs_packet.py` handles both. This file is a human-readable map of what

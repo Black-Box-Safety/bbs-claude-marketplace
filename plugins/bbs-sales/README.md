@@ -92,7 +92,7 @@ Start from the copy already in this marketplace:
 
 ```bash
 mkdir -p ~/.bbs
-cp plugins/bbs-website/skills/obs-form-filler/assets/bbs_vendor_profile.json ~/.bbs/vendor_profile.json
+cp plugins/bbs-sales/references/vendor_profile.json ~/.bbs/vendor_profile.json
 ```
 
 Then open it and confirm every value is current. If an RFQ arrives pre-filled with a BBS field that disagrees with this file, the RFQ is wrong: flag it, don't adopt it.

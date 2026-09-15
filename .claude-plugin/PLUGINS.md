@@ -39,17 +39,24 @@ CDCR bid packet inside site maintenance. A rep who installed only the sales plug
 one matching the work they actually do — did not get them. Both moved to `bbs-sales`
 alongside `naspo-quote`, together with `bbs-sourcing`.
 
-The overlap this file used to warn about is real and is **not yet resolved**: the three
-form skills cover five of the same nine CA sub-forms, and BBS's vendor facts are written
-down twice, in two shapes — `ca-form-filler/references/vendor_profile.json` (nested) and
-`obs-form-filler/assets/bbs_vendor_profile.json` (flat, read by its fill script).
-**Change a cert, address or permit in one and you must change the other.** Collapsing
-them into a single shared reference is the next step; co-locating them was the
-prerequisite, not the fix.
+The overlap this file used to warn about is **resolved**. BBS's vendor facts now live
+once, at `plugins/bbs-sales/references/vendor_profile.json`, and every form skill reads
+that file — `fill_obs_packet.py` derives its flat view from it rather than keeping a
+second copy, so a cert expiry can no longer go stale in one place while a rep submits
+binding bids from another.
+
+The rules those forms share — who signs which lines, what the State fills in, why
+CalRecycle 74 is never left blank, which certification language applies — live once in
+`plugins/bbs-sales/references/ca-form-rules.md`. Field IDs stay in each skill, because a
+field ID belongs to a specific PDF: the same STD 204 has different internal names inside
+a bound packet than as a standalone download. **Semantics shared, field IDs local.**
+
+If you are about to write a BBS address, cert number or signing rule into a skill, it
+belongs in one of those two files instead.
 
 FEIN and seller's permit are committed here deliberately. This repo is BBS-specific and
 private, so the canonical-facts rule against committing them — which exists for work that
-might be reused elsewhere — does not apply to these two files.
+might be reused elsewhere — does not apply to this file.
 
 ## Adding a skill
 

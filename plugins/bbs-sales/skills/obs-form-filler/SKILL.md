@@ -17,7 +17,10 @@ The packet is the same every time except for (a) the quote line items, (b) the d
 and solicitation number, (c) the agency requestor/ship-to info, and (d) which rep is
 signing the bidder line. Everything else — BBS's address, FEIN, seller's permit, DVBE
 cert, the DVBE owner's signature, the accounting contact — is fixed and lives in the
-bundled vendor profile so the rep never re-keys it.
+plugin's canonical vendor profile at `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json`,
+so the rep never re-keys it. `ca-form-filler` reads that same file: BBS's vendor facts are
+written down once, in one place, and a cert expiry cannot go stale in one copy while bids
+go out from another. Do not add a second copy here.
 
 ## The model behind the form (read this — it prevents the common mistakes)
 
@@ -134,9 +137,16 @@ Copy the final PDF to the outputs directory and present it. Then give the rep a 
 status: which forms were completed, who signed what, and the reminder to add the
 signature date by hand at submission if it was left blank.
 
-For a full page-by-page map of what goes where, who signs each form, the four
-flat-text annotation coordinates, and the list of irregular field names, see
+For a full page-by-page map of what goes where, the four flat-text annotation
+coordinates, and the list of irregular field names in *this* packet, see
 `references/field_map.md`.
+
+For the rules that are the same whoever fills a CA form — who signs which lines, what
+the State fills in, why CalRecycle 74 is never left blank, and the certification
+language that decides whether BBS claims the 5% SB preference — see
+`${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md`. That file is shared with
+`ca-form-filler` and `naspo-quote`; put a new signing or leave-blank rule there, not
+here, so all three skills stay in agreement.
 
 ## Field-name caution
 
