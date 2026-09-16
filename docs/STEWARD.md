@@ -150,43 +150,14 @@ installs.
 
 ---
 
-## Yours to change — granted 2026-09-16
-
-Parker has granted the steward authority over **the saved preferences and the settings**.
-
-**The saved preference still carrying the removed signature rule** is the live one. It
-says "Never pre-fill signature lines on any compliance form." That rule was removed from
-this repo — Parker states it was never BBS practice, and counsel confirmed the delegation
-(Parker and Jackson each know the forms their signature is used on and have authorized
-signing on their behalf). The preference is now the last place it survives, and it
-re-injects into every new session until it changes. Replace it with the rule that actually
-governs: **the right signer on the right line** — Parker on bidder and cert lines, Jackson
-on the ownership lines (DGS PD 843, STD 204 payee), never a customer's or a third party's,
-and never a line whose signer cannot be determined. `plugins/bbs-sales/references/ca-form-rules.md`
-is authoritative on the split.
-
-For `settings.json`, the `update-config` skill is the supported path.
-
-**Establish the mechanism before reporting it done.** This is the trap that caught the
-personal-skill cutover: we assumed removing a synced skill from disk would retire it,
-tested it, and a new session re-synced it byte-identical within seconds. Account-level
-saved preferences may not be editable from a Claude Code session at all. If no real
-mechanism exists, say so and leave it for Parker in the UI. Never report a preference as
-updated without verifying the change persisted.
-
-**Managed settings are not this.** `plugins/bbs-foundations/docs/bbs-managed-settings.json`
-is the source and editing it is yours; *deploying* it is an admin paste in the claude.ai
-console that only Parker can do.
-
 ## Escalate, do not decide
 
 Write it up with evidence and move to the next slice. Do not idle.
 
 - Anything changing a binding document: a signer, a form ID, a certification claim, a
   price rule.
-- Anything outside this repo **other than the preferences and settings granted above**:
-  the account-synced personal skills, managed-settings deployment, connector assignment.
-  **No repo change fixes these.**
+- Anything outside this repo: the account-synced personal skills, managed-settings
+  deployment, connector assignment. **No repo change fixes these.**
 - A business ruling — which workflow owns a step, whether a vehicle applies.
 - Removing a control. Say it is wrong; do not delete it.
 
@@ -194,6 +165,8 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 - **Re-paste managed settings** — the model-ID and Grainger changes reach no machine from
   the repo alone.
+- **Edit the saved preference** that still says "Never pre-fill signature lines on any
+  compliance form." It re-injects the removed rule into every new session.
 - **The personal-copy cutover** is account-side, in claude.ai → Settings → Capabilities →
   Skills. Five orphans now contradict what replaced them; `bbs-b2b-pricing` still drives
   the retired punch-out.
