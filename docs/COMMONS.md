@@ -10,11 +10,59 @@ a veto. Anything that needs a per-machine API key stays out.
 
 **How it ships.** Each item is a pinned external entry in `.claude-plugin/marketplace.json`
 under `category: "commons"`, enabled for everyone through managed settings. Nothing is
-copied into this repo. Where an upstream ships more than reps should receive, the entry
-narrows it with a `skills:` filter rather than taking the whole tree.
+copied into this repo.
+
+**A commons entry is all-or-nothing.** Read "`skills:` does not filter" below before
+assuming otherwise. Because there is no working way to take part of a tree, **the unit of
+decision is the whole upstream**: if half of a repo is wrong for reps, the answer is to
+reject the repo, not to select from it.
 
 **Who keeps it true.** `.claude/agents/commons-curator.md`. One agent for one durable
 domain, across the whole lifecycle.
+
+---
+
+## Known platform limitation — `skills:` does not filter
+
+A `skills:` list on a marketplace entry is **additive, not restrictive**. It adds paths to
+the scan; it does not narrow it. The plugin's whole `skills/` directory registers either
+way.
+
+**Established here, not assumed.** Three fixture plugins, each with three inert skills, in
+an isolated `CLAUDE_CONFIG_DIR` on **Claude Code 2.1.273**: one declaring `skills:` on the
+marketplace entry, one declaring it in `plugin.json`, one control declaring nothing. A live
+session was asked to list every fixture skill it could see. All nine came back, in all
+three configurations. The installed bundle agrees: `getPluginSkills` loads the default
+`skillsPath` **and then appends** the entry's `skillsPaths`.
+
+**What this costs us, today:**
+
+- **`caveman` reps receive all 20 skills**, not the 2 the entry names — plus 6 command
+  files and 3 `cavecrew-*` agents, which a `skills:` list never covered in the first place.
+- **The `document-skills` filter has never worked either.** Reps have been receiving all 19
+  skills in `anthropics/skills` — `academy-guide`, `slack-gif-creator`, `frontend-design`
+  and `webapp-testing` among them. The line "pptx deliberately excluded" was already false
+  before this revision touched it.
+- **Adding `./skills/pptx` is therefore a runtime no-op.** Reps already have `pptx` from
+  that pin. It is kept because the *documentation* defect it fixes is real:
+  `bbs-deck-voice`'s description ends "use the pptx skill for assembly," and the manifest
+  claimed to withhold it. **It changes no rep's capability.**
+
+**Mechanisms tried, none of which restricts the listing:**
+
+| Mechanism | Result on 2.1.273 |
+|---|---|
+| `skills:` on the marketplace entry | No effect. Additive |
+| `skills:` in the plugin's own `plugin.json` | No effect. Additive |
+| `skillOverrides: {"<name>": "off"}` in user, project, or local settings | **Did not reproduce.** The key is in the settings schema (`on` / `name-only` / `user-invocable-only` / `off`, described as a per-skill *listing* override) and is managed-settings-mergeable, but neither the bare nor the `plugin:skill` key form removed a fixture skill from a session's listing |
+| `permissions.deny: ["Skill(<name>)"]` | Skill stayed in the listing. The bundle does carry a "Skill execution blocked by permission rules" path, so this may block *invocation* — but it does not reduce the selection surface or the context cost, and the block itself was not confirmed |
+
+**So: the `skills:` lists in `marketplace.json` record intent and nothing more.** They are
+kept because they are harmless, they say what BBS decided, and they become correct if the
+loader ever changes. They are not a control. Nothing in this file may describe them as one.
+
+`skillOverrides` is the only candidate that could work, and it lives in **managed
+settings** — Parker's, not this repo's. Escalated below.
 
 ---
 
@@ -26,20 +74,20 @@ evaluate → pin → validate → refresh (on cadence) → retire
 
 **Evaluate.** Three hard filters: API key, license, rep-appropriateness. An independent
 upstream has to exist — see the `awesome-claude-skills` entry below for why that is not a
-formality.
+formality. And because selection does not work, judge the **whole tree**.
 
 **Pin.** A pin is a fact from a system of record. It is read off the upstream or it is not
-written. All three current upstreams tag **annotated**, so the recorded SHA must be the
-**peeled commit** (`git rev-list -n1 <tag>`), not the tag object (`git rev-parse <tag>`).
-The tag object exists, looks plausible, and is not the code.
+written. `caveman` and `superpowers-chrome` both tag **annotated**, so the recorded SHA
+must be the **peeled commit**, not the tag object — the tag object exists, looks plausible,
+and is not the code. (`anthropics/skills` has no tags at all, so the question does not
+arise there; its pin is a commit SHA by necessity.)
 
-**Validate.** `python3 scripts/check_marketplace.py` and, where available,
-`claude plugin validate . --strict`.
+**Validate.** `python3 scripts/check_marketplace.py` and `claude plugin validate . --strict`.
 
 **Refresh.** On the entry's own cadence, not the calendar's. What gets diffed is what reps
-receive: the plugin manifest (**especially `hooks`**), the `skills:` paths the entry
-selects together with the skill and command **counts**, and `LICENSE*` / `LICENSING.md`.
-The three hard filters are re-applied every refresh, not grandfathered from intake.
+receive: the plugin manifest (**especially `hooks`**), the tree's skill, command and agent
+**counts**, and `LICENSE*` / `LICENSING.md`. The three hard filters are re-applied every
+refresh, not grandfathered from intake.
 
 **Retire.** The liveness clock is the **last commit on the default branch**, not the last
 release — a repo can go six months without a tag and be under daily development. Two
@@ -54,8 +102,17 @@ cadence periods of silence raises fork-or-drop. The curator raises it; Parker de
 | `multi-train` (interleaved prefixes) | monthly | A release you want can sit between four you must not take, and the trains move at different speeds |
 
 A `tagged` upstream that in practice ships faster than quarterly is treated as
-`multi-train`. Evidence: `caveman` shipped `v2.7.0` on 2026-09-14 — **ten days** after the `v2.6.0`
-release the pin was taken from, and **one day** after the ruling was last verified.
+`multi-train`. Evidence: `caveman` shipped `v2.7.0` on 2026-09-14 — ten days after the
+`v2.6.0` release the pin was taken from, and one day after the ruling was last verified.
+
+### Pins are tag refs, and tags move
+
+`caveman` and `superpowers-chrome` are pinned to `v2.7.0` and `v3.0.5` — **mutable refs.**
+A force-moved upstream tag silently changes what every rep gets, and the recorded peeled
+commit below would no longer describe the code. Until the pins are commit SHAs, **every
+refresh re-checks that the tag still peels to the recorded commit** (step 2 of the
+procedure). Moving the pins to SHAs outright costs the readability of a version number and
+is Parker's call; the re-check is the interim control.
 
 ---
 
@@ -63,9 +120,9 @@ release the pin was taken from, and **one day** after the ruling was last verifi
 
 | Plugin | Pin | Release model · cadence | Why reps have it | Watch for |
 |---|---|---|---|---|
-| `superpowers-chrome` | `v3.0.5` | `tagged`, single `vX.Y.Z` train · quarterly | Drives the rep's own Chrome: product research on distributor and agency sites, logged-in sessions included. Full browser access is a standing ruling; no deny rules touch it | Upstream says beta. Needs Node.js (`bbs-setup.ps1` installs it). If a rep hits a crash, log it in FLAGS |
-| `caveman` | `v2.7.0` | `multi-train`, **nine** tag prefixes, authoritative train is bare `vX.Y.Z` · monthly | Opt-in terse mode. Cuts output tokens roughly two-thirds; technical content stays exact. `/caveman lite` is a good default for long sessions | Off by default via managed env (`CAVEMAN_DEFAULT_MODE=off`); never forced on. The entry is narrowed to 2 of the 20 skills in the tree — re-check the count each refresh. Split license, see below |
-| `document-skills` (Anthropic) | commit `34040c9c` | `rolling`, **zero tags** · monthly | Word, PDF, Excel and PowerPoint with real scripts: fill and merge PDFs, read tracked changes, build spreadsheets with formulas, assemble decks. RFQ worksheets and bid packets are exactly this | **`pptx` visual QA and PDF conversion go through LibreOffice (`soffice`), which `bbs-setup.ps1` does not install, and behaviour on a rep's Windows box is unverified.** `docx` and `xlsx` reference `soffice` too and have the same gap. `pptx` also assumes `pptxgenjs` is preinstalled; on a rep machine it is an `npm install`. Skills carry Python scripts; `uv` from the bootstrap covers that runtime, and Poppler covers `pdftoppm` |
+| `superpowers-chrome` | `v3.0.5` | `tagged`, single `vX.Y.Z` train · quarterly | Drives the rep's own Chrome: product research on distributor and agency sites, logged-in sessions included. Full browser access is a standing ruling; no deny rules touch it | Upstream says beta. Needs Node.js (`bbs-setup.ps1` installs it). Pin is a mutable tag ref. If a rep hits a crash, log it in FLAGS |
+| `caveman` | `v2.7.0` | `multi-train`, nine tag prefixes, authoritative train is bare `vX.Y.Z` · monthly | Opt-in terse mode. Cuts output tokens roughly two-thirds; technical content stays exact. `/caveman lite` is a good default for long sessions | Off by default via managed env (`CAVEMAN_DEFAULT_MODE=off`); never forced on. **Reps receive the whole tree** — 20 skills, 6 command files, 3 `cavecrew-*` agents — because `skills:` does not filter. **`caveman-init` (`.md` and `.toml`) runs `curl … raw.githubusercontent.com/JuliusBrussee/caveman/main/src/tools/caveman-init.js \| node -`: download-and-execute from upstream `main`, bypassing the pin entirely and writing rule files into the rep's current repo.** Pre-existing at v2.6.0. Commands ship regardless of any `skills:` list. `caveman-help` advertises `/caveman-compress`, for which no command file exists. Split license, see below. Pin is a mutable tag ref |
+| `document-skills` (Anthropic) | commit `34040c9c` | `rolling`, zero tags · monthly | Word, PDF, Excel and PowerPoint with real scripts: fill and merge PDFs, read tracked changes, build spreadsheets with formulas, assemble decks. RFQ worksheets and bid packets are exactly this | **`pptx` visual QA and PDF conversion go through LibreOffice (`soffice`), which `bbs-setup.ps1` does not install, and behaviour on a rep's Windows box is unverified.** `docx` and `xlsx` reference `soffice` too and have the same gap. `pptx` also assumes `pptxgenjs` is preinstalled; on a rep machine it is an `npm install`. **Reps receive all 19 skills in the tree**, not the 4 named — the filter has never worked. `uv` from the bootstrap covers the Python runtime; Poppler covers `pdftoppm` |
 
 ### Provenance
 
@@ -80,9 +137,9 @@ missing.**
 | `caveman` `v2.7.0` | 2026-09-16, agent | `e6c5e68b0064758b8106b83df41cf3829dde3216` | `8b0c1d3699b8d83e87fe4605b378da20c41555e0` | 2026-09-14 |
 | `document-skills` `34040c9c` | 2026-09-16, agent | — (no tags in repo) | `34040c9c568585f6929bedeaad110ad08f079624` | 2026-09-10 — is exactly current HEAD |
 
-### Why `caveman` moved to v2.7.0
+### Why `caveman` moved to v2.7.0 — and how big the move actually is
 
-Not because it is newer. v2.7.0 rewrites both hook commands to prepend
+The reason for taking it is a Windows fix. v2.7.0 rewrites both hook commands to prepend
 
 ```
 HOOK_ROOT=$(printf %s "${CLAUDE_PLUGIN_ROOT}" | sed 's|^/\([a-zA-Z]\)/|\1:/|')
@@ -90,15 +147,29 @@ HOOK_ROOT=$(printf %s "${CLAUDE_PLUGIN_ROOT}" | sed 's|^/\([a-zA-Z]\)/|\1:/|')
 
 which converts an MSYS/Git-Bash `/c/...` path back into `C:/...` before invoking `node`.
 v2.6.0 invokes `node` against the unconverted path. **BBS reps are on Windows** and their
-Bash tool runs through Git Bash, which is why `bbs-setup.ps1` installs `Git.Git`. This is a
-fix for our platform.
+Bash tool runs through Git Bash, which is why `bbs-setup.ps1` installs `Git.Git`.
+
+**The bump is not two lines.** `v2.6.0..v2.7.0` is **438 files changed, +42,604 / −6,024**.
+Inside `src/hooks/` alone it is 12 files, +555 / −415: `caveman-activate.js` (+78/−),
+`caveman-mode-tracker.js` (+71/−), a **new `caveman-config.js` (101 lines) that both hooks
+now depend on**, `caveman-stats.js` (425 lines rewritten), `caveman-parse.js`, the
+statusline scripts, the install/uninstall scripts, and `checksums.sha256`. **The hook
+runtime changed, not just the command strings that invoke it.** The two strings are quoted
+above because they are the visible part; they are not the size of the change.
+
+**Open risk, unresolved.** caveman's `plugin.json` declares no `shell` for its hooks, while
+`obra/superpowers` sets `"shell": "bash"` explicitly. v2.7.0's command is now **shell
+syntax** (`HOOK_ROOT=$(...); node ...`) where v2.6.0's was a bare `node` invocation. If
+hooks are not run through a POSIX shell on a rep's Windows box, the fix does not apply and
+**the hook breaks outright** — a worse outcome than the bug it fixes. Nobody on this side
+has a Windows machine to test it. This is the highest-blast-radius item in the tier: it
+runs at `SessionStart` and `UserPromptSubmit` on every machine with the plugin enabled.
 
 ### The `caveman` license split
 
-Recorded here, not changed — this was already true at v2.6.0 and went unrecorded at intake.
-`LICENSING.md` puts `engine/`, `proxy/`, `rewriter/`, `browse/`, `mcp/` and `shrink/` under
-**BSL-1.1** (also the `mem/` Go core and `shared/platform/`); `skills/` and the SDK, CLI and
-contract packages stay **MIT**.
+Recorded here, not changed. `LICENSING.md` puts `engine/`, `proxy/`, `rewriter/`, `browse/`,
+`mcp/` and `shrink/` under **BSL-1.1** (also the `mem/` Go core and `shared/platform/`);
+`skills/` and the SDK, CLI and contract packages stay **MIT**.
 
 The BSL Additional Use Grant permits internal evaluation, local development, CI, and
 self-hosted use for your own first-party traffic including production. **BBS reps running
@@ -107,9 +178,13 @@ to third parties as a hosted, managed or embedded service — which BBS does not
 versions convert to Apache-2.0 on the earlier of 2030-06-21 or four years from that
 version's first BSL distribution.
 
-The reason this matters beyond bookkeeping: `proxy/` is a hosted, token-gated lane that grew
-between quarterly checks. That is why the API-key and license filters are re-applied at every
-refresh instead of being treated as settled at intake.
+**This was already true at v2.6.0 and went unrecorded at intake** — `proxy/`, `engine/`,
+`LICENSE.BSL` and `LICENSING.md` all arrived in a single commit, `82864c8f`, on 2026-08-11,
+tagged `v2.0.0`, a month before the ruling that pinned v2.6.0. That is the reason the
+license and API-key filters are re-applied at **every** refresh rather than treated as
+settled at intake: the thing was there to be read and nobody read it. Nothing "grew between
+quarterly checks" — the tier was ruled on 2026-09-13 and no quarterly interval has elapsed
+since.
 
 ---
 
@@ -119,11 +194,11 @@ refresh instead of being treated as settled at intake.
 |---|---|
 | humanizer / avoid-ai-writing | Already inside `bbs-voice-template` (35 patterns vendored from blader/humanizer) |
 | superpowers (full) | Developer workflow; its session hook injects a large mandatory block. **Parker-only.** Ruling re-verified 2026-09-16: at `v6.3.0` the `SessionStart` hook is declared in `hooks/hooks.json` and **not** in `plugin.json`, so a check of the manifest alone would wrongly report it gone |
-| `brainstorming` | Ships inside the same `superpowers` tree, so it inherits that hook and that ruling. Parker-only, confirmed still correct |
+| `brainstorming` | Ships inside the same `superpowers` tree (`skills/brainstorming/`), so it inherits that hook and that ruling. There is no way to take it without the rest — see "`skills:` does not filter." Parker-only, confirmed still correct |
 | Playwright MCP | Isolated browser, no logins, ~25 tool schemas per session |
-| `internal-comms` | Free to add and correctly licensed, but it teaches **Anthropic's** internal comms formats, not BBS's. If the need is real it belongs in `bbs-foundations` carrying BBS formats, not pinned from outside |
+| `internal-comms` | Free to add and correctly licensed, but it teaches **Anthropic's** internal comms formats, not BBS's. If the need is real it belongs in `bbs-foundations` carrying BBS formats, not pinned from outside. (It already reaches reps anyway, inside the `document-skills` pin) |
 | `csv-data-summarizer` | Upstream `coffeefuelbump/csv-data-summarizer-claude-skill`, HEAD `9b3affd270f85aaf1c8a7a457f510034d5736cde`, **last commit 2025-10-16 — eleven months stale.** Fails the maintenance bar, and `xlsx` already covers the need |
-| `postgres` | Reps do not write SQL, the Supabase MCP is already configured for the catalog work, and the host repo is 24 skills of which roughly 9 are Google-stack — BBS is Microsoft 365 |
+| `postgres` | Reps do not write SQL, the Supabase MCP is already configured for the catalog work, and the host repo is 24 skills of which roughly 9 are Google-stack — BBS is Microsoft 365. All 24 would ship |
 | `kaizen` | Developer-aimed by its own frontmatter, and 204 `SKILL.md` files is a selection surface, not a toolbox |
 | `meeting-insights-analyzer` | No independent upstream — it is a directory inside an aggregator list. Pin unverified, and there is nothing maintained to pin |
 | claude-persona | Marketing tier, burns seat limits; admin only |
@@ -156,24 +231,46 @@ marketplace copy loses to a stale local one.
 
 ## Refresh procedure
 
-Run by `commons-curator`, per entry, on that entry's cadence.
+Run by `commons-curator`, per entry, on that entry's cadence. Every command below was run
+against a live upstream on 2026-09-16 and returns what it claims to.
 
 ```bash
-# 1. newest release on the authoritative train — filter to the train, then sort -V
-git ls-remote --tags --refs <url> | sed 's|.*refs/tags/||' \
+U=https://github.com/JuliusBrussee/caveman.git     # the entry's url
+
+# 1. Newest release on the authoritative train.
+#    No --refs: it strips the ^{} lines, which are the only way to read a peeled
+#    commit without cloning. Filter to the train first, then sort -V — lexical sort
+#    puts v1.9.0 above v1.10.0 and superpowers-chrome has both.
+git ls-remote --tags "$U" | grep '\^{}$' \
+  | sed 's|.*refs/tags/||; s|\^{}$||' \
   | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1
 
-# 2. peel it. rev-parse gives the tag object; rev-list -n1 gives the code
-git rev-list -n1 <tag>
+# 2. Peel it, and re-check the CURRENT pin still peels to the recorded commit.
+#    Tags are mutable; a force-move is silent.
+git ls-remote "$U" 'refs/tags/v2.7.0^{}'    # -> peeled commit, the pin
+git ls-remote "$U" 'refs/tags/v2.7.0'       # -> tag object, NOT the pin
 
-# 3. liveness: last commit on the default branch, not the last release
-git log -1 --format=%cI origin/HEAD
+# 3. Liveness: last commit on the UPSTREAM default branch.
+#    `git log -1 --format=%cI origin/HEAD` with no clone is the trap — run from this
+#    repo it reports BBS's own last commit wherever origin/HEAD is set, and errors
+#    where it is not. Either way it never measures the upstream. Clone shallow:
+git clone -q --filter=blob:none --no-checkout --depth 1 "$U" /tmp/liveness-probe
+git -C /tmp/liveness-probe log -1 --format=%cI HEAD
 ```
 
-Then diff the manifest (especially `hooks`), the selected `skills:` paths, the skill and
-command counts, and the license files. Re-apply the three hard filters. Bump the pin only
-with a reason that names what changed for a BBS rep. Update the provenance row. Run the
-validation. Open a PR; an agent that did not write it reviews it.
+Then diff the manifest (**especially `hooks`**, and read `hooks/hooks.json` too, not only
+`plugin.json`), the tree's skill, command and agent counts, and the license files.
+Re-apply the three hard filters. Bump the pin only with a reason that names what changed
+for a BBS rep, and state the **size** of the change, not only the part that motivated it.
+Update the provenance row.
+
+**Re-test whether `skills:` filters yet.** Three fixture plugins in an isolated
+`CLAUDE_CONFIG_DIR`, one skill named in `skills:` and two not; ask a live session what it
+can see. If it ever starts restricting, the roster's "reps receive the whole tree" rows
+become wrong on the same day, and several "Considered, not included" rulings can be
+revisited.
+
+Then validate, and open a PR; an agent that did not write it reviews it.
 
 A refresh that changes nothing is a successful refresh. Record "checked, current" with the
 date and move on.
@@ -181,8 +278,23 @@ date and move on.
 ## Propose an addition
 
 One line in the Teams sales channel: what it does, the task it would replace, a link.
-Parker tries it a week on live work first. Same bar as above, and the candidate must have
-an independent, maintained upstream to pin.
+Parker tries it a week on live work first. Same bar as above; the candidate must have an
+independent, maintained upstream to pin, and **the whole tree has to be acceptable**,
+because selection does not work.
+
+## Open for Parker
+
+- **`skillOverrides` in managed settings** is the only candidate mechanism for restricting
+  what reps receive from a pinned tree. It did not reproduce in testing here, and it is
+  account/managed-settings-side, not repo-side. Until it works, every commons pin is
+  all-or-nothing.
+- **`caveman-init` bypasses the pin** — download-and-execute from upstream `main`. Options
+  are to accept it, to deny the command, or to drop `caveman`.
+- **Windows hook shell**, above: untested and the highest blast radius in the tier.
+- **LibreOffice** is not in `bbs-setup.ps1` and three pinned document skills reference
+  `soffice`.
+- **Account-synced personal copies** of `docx`, `pdf`, `xlsx` and `pptx` compete with the
+  pinned copies. Account-side; no repo change fixes it.
 
 ---
 

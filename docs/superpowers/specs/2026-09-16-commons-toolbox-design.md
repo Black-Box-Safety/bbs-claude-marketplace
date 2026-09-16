@@ -40,6 +40,28 @@ line items out of PDFs and spreadsheets and screenshots, pricing against vendor 
 building quotes, filling California compliance packets, sourcing email, and prospecting.
 Every judgement below resolves toward that person, not toward an engineer.
 
+## Correction after review — `skills:` does not filter
+
+The design below was written on the assumption that a marketplace-entry `skills:` list
+restricts what a plugin contributes. **It does not.** It is additive: it adds paths to the
+scan and never narrows it. Verified on Claude Code 2.1.273 with three fixture plugins in an
+isolated `CLAUDE_CONFIG_DIR` — entry-level filter, `plugin.json`-level filter, and an
+unfiltered control — where a live session saw every skill in all three configurations. The
+installed bundle agrees: `getPluginSkills` loads the default `skillsPath` and then appends
+the entry's `skillsPaths`.
+
+Three things follow, folded into `docs/COMMONS.md` rather than left here:
+
+- **The unit of decision is the whole upstream.** Selection is not available, so a tree that
+  is half wrong for reps is a rejection, not a narrowing.
+- **The `document-skills` filter never worked either**, so "pptx deliberately excluded" was
+  already false before this work started, and change 3 is a runtime no-op.
+- **`skillOverrides` in managed settings** is the only candidate mechanism. It did not
+  reproduce in testing and is Parker's to resolve; it is not repo-side.
+
+Sections A and B are unaffected — they are about *which commit* a pin names, not about what
+a pin selects. Section C's "what gets diffed" now diffs the whole tree's counts.
+
 ## Design
 
 ### A. The commons entry gains a release model
@@ -70,13 +92,16 @@ Cadence follows the model rather than the calendar:
 
 Three mechanical rules, each of which produces a plausible wrong answer when skipped.
 
-1. **Resolve annotated tags to commits.** All three upstreams tag annotated, so
+1. **Resolve annotated tags to commits.** `caveman` and `superpowers-chrome` tag annotated
+   (`anthropics/skills` has no tags at all), so
    `git rev-parse v2.7.0` returns the **tag object**, not the code. Recording it yields a
    40-character SHA that exists, looks right, and is not the tree anyone will get.
    `git rev-list -n1 <tag>` is the peeled commit. For `caveman` v2.7.0 the tag object is
    `e6c5e68b…` and the commit is `8b0c1d36…`; nothing about either announces which is
    which.
-2. **Sort with `sort -V`, then filter to the train.** Lexical sort puts `v1.9.0` above
+2. **Sort with `sort -V`, then filter to the train.** Read tags with
+   `git ls-remote --tags` **without** `--refs`, which strips the `refs/tags/<tag>^{}`
+   lines that are the only way to read a peeled commit without cloning. Lexical sort puts `v1.9.0` above
    `v1.10.0`. `superpowers-chrome` has both, so this is not hypothetical.
 3. **Read `hooks/hooks.json`, not only `plugin.json`.** `obra/superpowers` at `v6.3.0`
    declares no `hooks` key in its manifest and still installs a `SessionStart` hook from
@@ -90,7 +115,8 @@ Not the repository — reps do not receive the repository. Three surfaces:
 - **The plugin manifest, especially `hooks`.** A hook runs on every session on every
   machine without anyone installing anything. This is the highest-blast-radius field in
   any third-party tree.
-- **The `skills:` paths the entry selects**, and the total skill and command **counts**.
+- **The whole tree's skill, command and agent counts** — not the `skills:` paths the entry
+  names, which select nothing (see the correction above).
   The count diff is the cheap machine-checkable proxy for scope creep: a jump from 20 to
   30 says "read the changelog" without anyone having to read it first.
 - **`LICENSE*` and `LICENSING.md`.** Licenses change between releases, and a split-license
@@ -99,10 +125,17 @@ Not the repository — reps do not receive the repository. Three surfaces:
 ### D. The three hard filters are re-checked, not grandfathered
 
 API key · license · rep-appropriateness. These are intake filters today. They become
-**every-refresh** filters, because an upstream's business model changes faster than its
-code. `caveman` grew a hosted, token-gated `proxy/` lane under BSL-1.1 with an explicit
-commercial boundary between two quarterly checks. Nothing about the pin bump would have
-surfaced that.
+**every-refresh** filters. The worked example is `caveman`'s BSL-1.1 `proxy/` lane with its
+explicit commercial boundary — **which was already there at v2.6.0 and went unrecorded at
+intake.** `proxy/`, `engine/`, `LICENSE.BSL` and `LICENSING.md` all arrived in a single
+commit, `82864c8f`, on 2026-08-11, tagged `v2.0.0`, a month *before* the 2026-09-13 ruling
+that pinned v2.6.0.
+
+An earlier draft of this spec said the lane "grew between quarterly checks." That was
+invented: it did not grow between checks, and no quarterly interval has elapsed since the
+tier was ruled three days ago. The true version is the stronger argument anyway — the
+filters have to be re-applied every refresh because a thing that was readable at intake can
+go unread, and a pin bump surfaces none of it.
 
 ### E. The liveness clock
 
@@ -134,16 +167,15 @@ that sit outside commons on moving refs.
    against the unconverted path. **BBS reps are on Windows** and their Bash tool runs
    through Git Bash (`scripts/bbs-setup.ps1` installs `Git.Git` for exactly that reason).
    This is a fix for our platform, which is why the bump is worth taking.
-2. **A `skills:` filter on `caveman`** — `./skills/caveman` and `./skills/caveman-help`.
-   This aligns the artifact to the 2026-09-13 ruling ("opt-in terse mode"); it does not
-   make a new ruling. `caveman-help` is included because it is a one-shot reference card
-   with a narrow `/caveman-help` trigger, and a non-technical rep needs to be able to ask
-   what the modes are.
-3. **`./skills/pptx` added to `document-skills`.** Same commit, no new pin. The reason is
-   a dangling pointer, not a capability wish: `bbs-deck-voice`'s own description ends
-   *"use the pptx skill for assembly"* — the marketplace ships a skill that points at
-   something it deliberately withholds. That is precisely the defect class this repo
-   exists to catch, and it is currently being shipped by the repo itself.
+2. **A `skills:` list on `caveman`** — `./skills/caveman` and `./skills/caveman-help` —
+   which **records intent and restricts nothing.** See the correction above; this was the
+   design's central error and review caught it, not this document.
+3. **`./skills/pptx` added to `document-skills`.** Same commit, no new pin. **A runtime
+   no-op** — reps already receive `pptx` from that pin, because the filter never worked.
+   Kept anyway, because the *documentation* defect is real: `bbs-deck-voice`'s own
+   description ends *"use the pptx skill for assembly"* and the manifest claimed to
+   withhold it. That is precisely the defect class this repo exists to catch, and the repo
+   was shipping it. It changes no rep's capability.
 4. **`superpowers-chrome` and the `document-skills` SHA are left alone.** Both verified
    current on 2026-09-16. A refresh that changes nothing is a successful refresh.
 

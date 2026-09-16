@@ -77,15 +77,28 @@ git rev-parse v2.7.0        # the TAG OBJECT — not the code
 git rev-list -n1 v2.7.0     # the peeled commit — this is the pin
 ```
 
-All three current upstreams tag annotated. Recording the tag-object SHA yields a
-40-character identifier that exists, looks right, and is not the tree anyone receives.
-Record **both**, labelled, so the next curator can tell which is which.
+`caveman` and `superpowers-chrome` tag annotated. (`anthropics/skills` has **no tags at
+all** — it is rolling `main`, so the question does not arise there and its pin is a commit
+SHA by necessity. Do not write "all three upstreams tag annotated"; it is false and this
+file's own roster says so.) Recording the tag-object SHA yields a 40-character identifier
+that exists, looks right, and is not the tree anyone receives. Record **both**, labelled,
+so the next curator can tell which is which.
+
+**Tags are mutable and the current pins are tag refs.** A force-moved upstream tag silently
+changes what every rep gets. Until the pins are commit SHAs, re-check on every refresh that
+the pinned tag still peels to the recorded commit:
+
+```bash
+git ls-remote "$U" 'refs/tags/v2.7.0^{}'   # must equal the recorded peeled commit
+```
 
 **2. Sort with `sort -V`, and filter to the train first.**
 
 ```bash
-git ls-remote --tags --refs <url> \
-  | sed 's|.*refs/tags/||' \
+# No --refs. It strips the refs/tags/<tag>^{} lines, which are the only way to read a
+# peeled commit without cloning.
+git ls-remote --tags "$U" | grep '\^{}$' \
+  | sed 's|.*refs/tags/||; s|\^{}$||' \
   | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
   | sort -V | tail -1
 ```
@@ -110,7 +123,14 @@ selects. Three surfaces, in this order:
    machine with the plugin enabled, without anyone installing anything. This is the
    highest-blast-radius field in any third-party tree. Quote the before and after hook
    command strings verbatim in your PR; do not summarise them.
-2. **The `skills:` paths the entry selects**, plus the **total skill and command counts**.
+
+   **And state the size of the whole bump, not only the part that motivated it.** Quoting
+   two changed command strings while the release also rewrites the hook *runtime* those
+   strings invoke puts a judgement in front of a reviewer that the reviewer cannot
+   actually make. `git diff --shortstat <old> <new>`, plus a per-file stat for the hook
+   directory, goes in the PR.
+2. **The whole tree's skill, command and agent counts** — not just the paths the entry
+   names, because the entry's names do not restrict anything.
    Count them every refresh and diff the count. It is a cheap machine-checkable proxy for
    scope creep: a jump from 20 to 30 says "read the changelog" before anyone has to.
    `caveman`'s 20 skills went unrecorded at intake and the ruling described it as one.
@@ -122,20 +142,57 @@ selects. Three surfaces, in this order:
 **API key · license · rep-appropriateness.** An upstream's business model changes faster
 than its code.
 
-- **API key.** Anything needing a per-machine key stays out. Re-check: a free tool can grow
-  a hosted, token-gated lane. `caveman` did, between quarters.
+- **API key.** Anything needing a per-machine key stays out, and re-check it: a free tool
+  can grow a hosted, token-gated lane. `caveman`'s BSL-1.1 `proxy/` lane is the worked
+  example, and the lesson is not that it appeared between checks — it arrived in one commit
+  on 2026-08-11, a month *before* the ruling that pinned v2.6.0. **It was there to be read
+  at intake and nobody read it.** That is the better argument for re-applying the filters
+  every refresh, and it has the advantage of being true. Do not write that anything "grew
+  between quarterly checks"; no quarterly interval has elapsed since the tier was ruled.
 - **License.** Read it, do not assume it carries forward. Say which grant BBS is relying
   on and why BBS is inside it.
 - **Rep-appropriateness.** Developer-facing skills compete for selection against BBS
-  skills in a rep's session. When an upstream ships a mix, narrow the entry with `skills:`
-  rather than taking the whole tree.
+  skills in a rep's session. **You cannot take part of a tree** — see below — so when an
+  upstream ships a mix, the decision is the whole repo: accept all of it or reject all of
+  it. Do not "narrow" with `skills:` and call the problem solved.
+
+## `skills:` does not filter — do not claim it does
+
+A `skills:` list on a marketplace entry is **additive, not restrictive**. It adds paths to
+the scan; the plugin's whole `skills/` directory registers either way. Verified on Claude
+Code 2.1.273 with three fixture plugins in an isolated `CLAUDE_CONFIG_DIR` (entry-level
+filter, `plugin.json`-level filter, and an unfiltered control): a live session saw every
+skill in all three. The bundle agrees — `getPluginSkills` loads the default `skillsPath`
+**and then appends** the entry's `skillsPaths`.
+
+Commands and agents were never covered by a `skills:` list at all, so those always ship
+whole.
+
+Consequences you must carry into every judgement:
+
+- **The unit of decision is the whole upstream.** Half-acceptable is a rejection.
+- **Never describe a `skills:` list as a control** in `docs/COMMONS.md`, in an entry
+  description, or in a PR. It records intent. That is all it does.
+- **Re-test it each refresh.** Three fixtures, one named in `skills:` and two not, and ask
+  a live session what it can see. If it ever starts restricting, several standing rulings
+  can be revisited on that day — say so rather than leaving them stale.
+- **Check the commands too.** A command can route around the pin entirely: `caveman`'s
+  `caveman-init` pipes `curl` from upstream `main` into `node`. Read every shipped command
+  for download-and-execute, and record what you find.
 
 ## Liveness
 
 The clock is the **last commit on the default branch**, not the last release:
 
+**Clone it. Do not run `git log` in whatever repo you happen to be standing in** —
+`git log -1 --format=%cI origin/HEAD` with no repository argument reports *this* repo's
+last commit wherever `origin/HEAD` is set, and errors where it is not. Either way it never
+measures the upstream, and the fork-or-drop trigger can never fire. That is the exact
+silent-failure class this section exists to prevent.
+
 ```bash
-git log -1 --format=%cI origin/HEAD
+git clone -q --filter=blob:none --no-checkout --depth 1 "$U" /tmp/liveness-probe
+git -C /tmp/liveness-probe log -1 --format=%cI HEAD
 ```
 
 A repo can go six months without a tag and be under daily development. `anthropics/skills`

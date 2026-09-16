@@ -143,7 +143,7 @@
         "url": "https://github.com/obra/superpowers-chrome.git",
         "ref": "v3.0.5"
       },
-      "description": "Commons: drives the rep's real Chrome over the DevTools protocol (logged-in sessions, product research on distributor and agency sites). Skill mode needs Node.js (bbs-setup.ps1 installs it). Upstream self-labels beta. Single tag train (vX.Y.Z), so the pin is a release tag and is checked quarterly per docs/COMMONS.md.",
+      "description": "Commons: drives the rep's real Chrome over the DevTools protocol (logged-in sessions, product research on distributor and agency sites). Skill mode needs Node.js (bbs-setup.ps1 installs it). Upstream self-labels beta. Pin, release model, cadence and provenance: docs/COMMONS.md.",
       "version": "3.0.5",
       "author": {
         "name": "Jesse Vincent"
@@ -168,7 +168,7 @@
         "./skills/caveman",
         "./skills/caveman-help"
       ],
-      "description": "Commons: terse output mode (/caveman lite|full|ultra) that cuts roughly two-thirds of output tokens while keeping technical content exact. Opt-in per session; ruled 2026-09-13. Narrowed with skills: to the mode skill and its /caveman-help reference card \u2014 the pinned tree ships 20 skills, and the other 18 are developer-facing and would compete for selection in a rep's session. Multi-train upstream (nine tag prefixes); the authoritative train is bare vX.Y.Z, checked monthly per docs/COMMONS.md. v2.7.0 is taken for a Windows fix: both hook commands now convert an MSYS /c/... path back to C:/... before invoking node.",
+      "description": "Commons: terse output mode (/caveman lite|full|ultra) that cuts roughly two-thirds of output tokens while keeping technical content exact. Opt-in per session; ruled 2026-09-13. The skills: list records which skills BBS intends reps to receive \u2014 on Claude Code 2.1.273 the loader treats it as additive rather than restrictive, so the whole tree still registers. v2.7.0 is taken for a Windows path fix in the session hooks. Release model, cadence, provenance, the license split and the open items: docs/COMMONS.md.",
       "version": "2.7.0",
       "author": {
         "name": "Julius Brussee"
@@ -195,7 +195,7 @@
         "./skills/pptx",
         "./skills/xlsx"
       ],
-      "description": "Commons: Anthropic's official document skills \u2014 Word (tracked changes, comments), PDF (extract, merge, fill, annotate), Excel (formulas, charts), PowerPoint (build with pptxgenjs, read with markitdown). RFQ worksheets, bid PDFs, price lists, and the deck assembly step bbs-deck-voice hands off to. Rolling upstream with no tags, so the pin is a commit SHA of anthropics/skills and is checked monthly per docs/COMMONS.md. Caveat recorded there: the pptx visual-QA and PDF paths need LibreOffice, which bbs-setup.ps1 does not install.",
+      "description": "Commons: Anthropic's official document skills \u2014 Word (tracked changes, comments), PDF (extract, merge, fill, annotate), Excel (formulas, charts), PowerPoint (build with pptxgenjs, read with markitdown). RFQ worksheets, bid PDFs, price lists, and the deck assembly step bbs-deck-voice hands off to. The skills: list records intent only; the loader treats it as additive, so the whole anthropics/skills tree registers. Pin, release model and the LibreOffice caveat: docs/COMMONS.md.",
       "author": {
         "name": "Anthropic"
       },
