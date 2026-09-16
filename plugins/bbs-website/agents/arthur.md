@@ -59,7 +59,7 @@ not conflate them — a change to the DB does not reach the storefront or the bo
   traffic routes through the `/api/anthropic` proxy to the Vercel AI Gateway — never a direct
   provider call from the client, and never a hardcoded API key in the SPA.
 - **Forms are generated client-side at session end only**, never mid-conversation. Signature
-  lines are never pre-filled — flagged `⚑ SIGNATURE REQUIRED`. CalRecycle 74 postconsumer %
+  lines are never pre-filled — flagged `⚑ SIGNATURE REQUIRED`. This is the customer-facing bot, which has no BBS rep in the loop, so it is not covered by the signing delegation that lets `bbs-sales` skills sign BBS's own forms. Do not "fix" this for consistency with those skills. CalRecycle 74 postconsumer %
   / SABRC codes and any perjury-cert field require rep confirmation before signing. DVBE cert
   (#2009473, exp 12/31/2027) is checked against the solicitation date before any form is
   generated. These are the system's human-in-the-loop gates — treat them as facts about the

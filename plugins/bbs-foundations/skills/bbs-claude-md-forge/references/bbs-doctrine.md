@@ -106,10 +106,12 @@ do not paraphrase it weaker.
     values' FIRST. Present → exact brand/part, return buyer's own worksheet unchanged,
     NEVER run crossover." (`ca-quote-hub`). Federal primes: substitutions need written
     approval before quoting; no "or equal" unless the solicitation says so.
-23. **Signatures split by form and owner; never pre-filled.** "Jackson Dalton ALWAYS signs
-    as DV owner — certification is tied to ownership." Parker Marshall signs bidder and
-    cert lines as authorized representative; Griffin Forsyth signs federal / Sourcewell
-    and most CalRecycle 74s. "No review, no signature." Never pre-fill a signature line.
+23. **Signatures split by form and owner.** "Jackson Dalton ALWAYS signs as DV owner —
+    certification is tied to ownership." Parker Marshall signs bidder and cert lines as
+    authorized representative; Griffin Forsyth signs federal / Sourcewell and most
+    CalRecycle 74s. The skills apply these signatures under delegated authority (counsel
+    confirmed 2026-09-16); getting the **signer right per line** is the rule, and signing
+    for a customer or any third party is never one of them.
 
 ## Structure and maintenance (every type)
 

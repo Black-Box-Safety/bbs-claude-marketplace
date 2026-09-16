@@ -84,7 +84,12 @@ to fulfill unless BBS is a named reseller.
 | Griffin Forsyth | Vice President | Federal / Sourcewell contracts; most CalRecycle 74s |
 | Parker Marshall | Sales Manager, primary responder | Bidder and cert lines: Darfur, OBS 1000, reps & certs; CalRecycle 74 on his own RFQs |
 
-Never pre-fill a signature line. "No review, no signature."
+Signatures are applied by the form skills: Parker and Jackson have each delegated
+authority for the forms those skills fill, confirmed with counsel 2026-09-16. The rule
+is **whose signature goes on which line** (above) — never a third party's, never a
+customer's. Signature images are credentials: they live outside git, like the Grainger
+`.env`, and are referenced at run time. Sending stays human: the managed settings deny
+the send-class tools.
 
 Quote desk (2026-07): Aanya Samarasinghe (quotes/crossovers), Kim Quezon (door/tactical),
 Joyce Newell (POs), Jeff Azar (body armor), Griffin (federal). Accounting: Amy Leath.

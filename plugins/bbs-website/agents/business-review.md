@@ -53,7 +53,7 @@ a fix. The quote-bot agent tunes against your ranking, not raw counts.
 - Channel naming is foundational: customer-facing copy says BBS Direct / BBS Supply,
   never "NPPGov" or "MRO" or "NASPO" as channel names (contract numbers may appear as
   plumbing details on forms/quotes).
-- Signature lines are never pre-filled. Compliance realities (DVBE cert expiry,
+- Signature lines are never pre-filled. This is the customer-facing bot, which has no BBS rep in the loop, so it is not covered by the signing delegation that lets `bbs-sales` skills sign BBS's own forms. Do not "fix" this for consistency with those skills. Compliance realities (DVBE cert expiry,
   perjury certifications) outrank convenience.
 - When you flag a problem, state it as: what the customer experiences → why it costs
   us → the smallest change that fixes it.

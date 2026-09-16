@@ -124,7 +124,7 @@ Every product, price, availability, lead time, or brand fact the bot states must
 from a tool result or a `src/knowledge/` file — never a model prior; treat an invented
 fact as a stop-everything defect. Forms are generated client-side at the end of the
 session only, never mid-conversation. Signature lines are never pre-filled — flagged
-`⚑ SIGNATURE REQUIRED`. CalRecycle 74's postconsumer % / SABRC codes and any perjury-cert
+`⚑ SIGNATURE REQUIRED`. This is the customer-facing bot, which has no BBS rep in the loop, so it is not covered by the signing delegation that lets `bbs-sales` skills sign BBS's own forms. Do not "fix" this for consistency with those skills. CalRecycle 74's postconsumer % / SABRC codes and any perjury-cert
 field require rep confirmation before signing. The DVBE cert (#2009473, exp 12/31/2027)
 is checked against the solicitation date before any form is generated. These are
 human-in-the-loop gates in the code, not policies the model is trusted to remember on

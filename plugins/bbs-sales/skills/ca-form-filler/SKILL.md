@@ -35,8 +35,12 @@ this skill and `naspo-quote` stay in agreement.
 1. **Never invent data.** A value that is not in the vendor profile and cannot be read out
    of the solicitation is `[MISSING — NEEDS INPUT]` in the output and a line in the gap
    report. These are binding documents; a plausible guess is worse than a blank.
-2. **Never pre-fill a signature.** Leave `/Sig` fields empty and annotate the line
-   `⚑ SIGNATURE REQUIRED — <name>, <title>`. Dates are signed at submission too.
+2. **Sign only BBS's own lines, only with BBS's own signatures.** Parker Marshall and
+   Jackson Dalton have each delegated authority to sign the forms in this skill's
+   profiles, so the packet is produced signed. Apply a signature **only** to the line its
+   owner signs (rule 5), and **never** on behalf of a customer, an agency, or any third
+   party. A line whose correct signer you cannot determine is
+   `⚑ SIGNATURE REQUIRED — <name>, <title>`, not a guess.
 3. **The vendor profile is the authority** for every static BBS fact. If the solicitation
    pre-fills a BBS field with something different, flag it — do not accept the correction.
 4. **Check the DVBE cert against the due date before filling anything.** Expired, or

@@ -70,7 +70,8 @@ history; the "tech stack" is the buyer's forms and the delivery gates.
 | Award basis · payment terms · delivery terms | |
 
 ## Certification rules (NON-NEGOTIABLE)
-<SDVOSB or DVBE by channel; authorized rep; federal signatory; DV owner; never pre-fill>
+<SDVOSB or DVBE by channel; authorized rep; federal signatory; DV owner;
+signer correct per line, never a third party's signature>
 
 ## Forms and compliance flowdowns
 <reps & certs tiers by award value; FAR/DFARS clauses; COO rule; substitution rule>
