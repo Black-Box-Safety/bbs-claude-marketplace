@@ -158,10 +158,16 @@ def walk(root, suffixes):
 
 
 def load_skills():
-    """Return {name: {plugin, dir, meta, body}} for every SKILL.md."""
-    out = {}
+    """Return ({name: {plugin, dir, meta, body}}, duplicates) for every SKILL.md.
+
+    Keyed on the bare folder name because that is what skill-bus subscriptions and
+    cross-references use. That makes a name reused in two plugins a silent data
+    loss — the second load overwrote the first and the first vanished from every
+    check — so collisions are collected and reported rather than swallowed.
+    """
+    out, dupes = {}, []
     if not os.path.isdir(PLUGINS):
-        return out
+        return out, dupes
     for plugin in sorted(os.listdir(PLUGINS)):
         sdir = os.path.join(PLUGINS, plugin, "skills")
         if not os.path.isdir(sdir):
@@ -190,9 +196,13 @@ def load_skills():
                     loaded = {"__not_mapping__": type(loaded).__name__}
                 meta = loaded
                 body = parts[2]
-            out[name] = {"plugin": plugin, "dir": os.path.join(sdir, name),
-                         "path": path, "meta": meta, "body": body, "folder": name}
-    return out
+            entry = {"plugin": plugin, "dir": os.path.join(sdir, name),
+                     "path": path, "meta": meta, "body": body, "folder": name}
+            if name in out:
+                dupes.append((name, out[name]["plugin"], plugin))
+                continue          # keep the first; never silently replace it
+            out[name] = entry
+    return out, dupes
 
 
 def check(findings):
@@ -202,7 +212,12 @@ def check(findings):
     def W(code, where, msg):
         findings.append({"level": "WARN", "code": code, "where": where, "msg": msg})
 
-    skills = load_skills()
+    skills, dupes = load_skills()
+    for name, first, second in dupes:
+        F("duplicate_skill_name", f"plugins/{second}/skills/{name}/SKILL.md",
+          f"skill folder {name!r} also exists in {first!r}. Skills are keyed on the bare "
+          f"name — skill-bus matches on plugin:skill and cross-references name it — so one "
+          f"of the two disappears from every check. Rename one, or finish the move")
     if not skills:
         F("no_skills", "plugins/", "no SKILL.md found; is this the marketplace root?")
         return skills

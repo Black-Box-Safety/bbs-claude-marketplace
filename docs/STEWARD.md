@@ -49,15 +49,16 @@ In dependency order. Each is one session.
 It carries the consolidation, the model-ID propagation fix, the invariant checker and the
 signature-doctrine change. Everything else branches off an unmerged base until it lands.
 
-Outstanding review findings to clear first — all confirmed by reproduction:
+Those five findings are cleared, and so are the six the independent review then raised in
+the consolidation itself — the inverted DWR de-duplication rule, the demoted
+"stop parsing before Recently Viewed" instruction, the CUF statement described as a vendor
+constant, the dropped Grainger substitution and pack-size rules, the signature reversal
+that never reached `ca-form-filler`'s Path B, and two `STD 1000` survivors. The routing
+eval was re-run on the fixed harness: 24/24, artifact committed.
 
-| Where | Defect |
-|---|---|
-| `scripts/check_marketplace.py` | A SKILL.md with no frontmatter makes `yaml.safe_load` return a string; the run aborts with `AttributeError` instead of reporting `no_name` |
-| `scripts/check_marketplace.py` | `COUNTER_EXAMPLE` + a ±2-line window: one ordinary "not" silences all three scans |
-| `docs/evals/discriminate.py` | stdout drained at process exit is never parsed, so a fast run discards its `tool_use` event and scores `__none__` |
-| `.../references/checklist.md` | documents `check_claude_md.py --self-test`, which does not exist |
-| `.../skills/dgs-bpo-item-check/SKILL.md` | the Aanya→"the rep" rewrite left "unless she asks" with no antecedent |
+Two of the review's findings are **open for Parker** and were deliberately not changed —
+the SB checkbox on CDCR Packet B, and whether Grainger at-cost is a reversal of the old
+margin practice. Both are certification or pricing rulings on binding documents.
 
 **Done:** findings cleared, `check_marketplace.py` exits 0, fresh review is clean, PR
 merged, the six verified-dead branches deleted (`v1.1` held back — it reads as a version

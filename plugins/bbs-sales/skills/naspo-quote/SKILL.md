@@ -10,8 +10,9 @@ description: >-
   and even when the ask looks like only pricing or only paperwork, because on state business
   the two halves ship together. An agency email that asks for a quote is this skill, not an
   intake task: ca-rfq-intake only files a request and opens its folder, and does not price or
-  fill anything. Do NOT use for a competitive SB/DVBE bid needing vendor sourcing (use bbs-
-  sourcing), or when the rep wants the forms alone with no pricing (use ca-form-filler).
+  fill anything. Do NOT use for a competitive SB/DVBE bid needing vendor sourcing
+  (use bbs-sourcing), or when the rep wants the forms alone with no pricing
+  (use ca-form-filler).
 ---
 
 # NASPO quote — CA state agency RFQ

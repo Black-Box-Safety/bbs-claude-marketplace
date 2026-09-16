@@ -56,7 +56,7 @@ Two harness details that are easy to get wrong:
   the tool — scoring a correct decision as a miss. Queries carry a `files` list and the
   harness writes a real 1×1 PNG / minimal PDF.
 
-## Results, 2026-09-15
+## Results, 2026-09-16
 
 The field is the 11 skills a sales rep has installed. 5 runs per query, pass = ≥80%.
 
@@ -64,6 +64,20 @@ The field is the 11 skills a sales rep has installed. 5 runs per query, pass = �
 |---|---|---|
 | Real-world (name + description) | 20/20 | 24/24 |
 | Description alone (`--anonymize`) | 18/20 | **24/24** |
+
+Artifact: `results-2026-09-16-after-anonymized.json` (24/24, every query 5/5,
+`--workers 4`).
+
+**The 2026-09-15 anonymized artifact recorded 22/24, not the 24/24 this table claimed.**
+The two failures, `dwr-2` and `promo-1`, were each `__none__` on 2 of 5 runs while naming
+the right skill on the other 3 — the signature of a harness fault, not a routing defect.
+It was one: `discriminate.py` appended the exit-time drain to its buffer and broke without
+parsing it, so a run that finished fast had its `tool_use` discarded and scored `__none__`.
+Fixed in `71e3008`.
+
+The re-run above is on the fixed harness and shows **zero `__none__` across all 120 runs**,
+where the old artifact had four. The number in this table is now measured rather than
+asserted, and the superseded artifact is kept beside it rather than deleted.
 
 Two description defects were found and fixed before any consolidation: `naspo-quote`
 (40% → 100%, was losing to `ca-rfq-intake`) and `dwr-pdf-info` (60% → 100%, its
