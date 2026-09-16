@@ -29,7 +29,7 @@ in `ca-form-rules.md` instead and cite it.
 ```yaml
 ---
 packet_id: obs-4007b          # required · must equal the filename stem
-title: ...                    # required · the packet's human name
+title: "CDCR RFQ Packet: B"   # required · the packet's human name
 revision: "Rev. 08/2025"      # required · the revision this map was built against
 status: active                # required · active | stub
 recognize:                    # required
@@ -48,10 +48,24 @@ rules: ${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md   # required, verbatim
 ---
 ```
 
+**Quote any value holding a colon**, or use a `>-` block scalar — `title: CDCR RFQ
+Packet: B` is two things to a YAML parser and neither of them is a title. This is the
+same rule AGENTS.md states for a skill's `description:`, and it bites the same way one
+level down: the profile does not parse, and the packet it describes loses its scripted
+fill. The resolver refuses rather than routing around the missing file, and
+`--validate` names the line.
+
+The front matter is parsed in `packet_profile.py` rather than by PyYAML, so Path A's
+first step needs nothing installed on a rep machine. It accepts exactly the shapes above
+— scalars, quoted strings, `>-` block scalars, `key:` mappings and lists, inline or
+dashed — and **raises on anything else** rather than guessing at it. If a profile needs a
+shape that is not here, add it to the parser deliberately; do not discover that it
+half-parsed.
+
 The body below the front matter is the human page map: a page/form/what-is-filled/signer
 table, the annotation coordinates if the packet has flat lines, the irregular field names,
-and the list of fields the State fills. The signer column names the signer; it does not
-restate why — `ca-form-rules.md` owns that.
+and where on this PDF the State's own fields sit. The signer column names the signer; it
+does not restate why — `ca-form-rules.md` owns that.
 
 ## `status: stub`
 
@@ -68,6 +82,14 @@ invented marker or an invented field ID would be worse than no profile at all.
 On text extracted from the PDF itself. Never on the filename, never on what the rep
 called it:
 
+0. **Check the profile set conforms first.** Every profile — stubs included — has its
+   `recognize:` block and `status:` checked before a single marker is evaluated, and a
+   profile that will not parse at all stops the resolution too. Both are a **refusal**,
+   not a fallthrough. The contract's claim is that routing is deterministic rather than
+   probabilistic, so the check that makes it so runs here, on the path the skill uses,
+   and not only under `--validate`. The slip this catches is the ordinary one:
+   `all: "MARKER"`, a scalar where a one-element list belongs, reads as *no* markers, and
+   a profile with no required markers matches every PDF in existence.
 1. `pdftotext <packet>.pdf -`.
 2. Evaluate every `active` profile: all of `all` present, at least one of `any` present
    when `any` is non-empty, none of `none` present. Case-insensitive, on whitespace-
@@ -106,5 +128,12 @@ python3 "$SKILL_DIR/scripts/packet_profile.py" --recognize-pdf <packet.pdf>
 python3 "$SKILL_DIR/scripts/test_packet_profiles.py"
 ```
 
-`--validate` is the machine-readable half of this document. `test_packet_profiles.py`
-demonstrates that a third profile resolves with `SKILL.md` unchanged.
+`--validate` is the machine-readable half of this document, and
+`scripts/check_marketplace.py` shells out to it, so a profile that breaks this contract
+fails the repo's structural gate rather than only a command someone remembers to run.
+`test_packet_profiles.py` demonstrates that a third profile resolves with `SKILL.md`
+unchanged.
+
+Exit codes: `0` success, `1` a failure or a refusal, `2` a missing input file or a
+`pdftotext` that is absent or broken. A refusal is never reported as a broken machine,
+and a broken machine is never reported as a refusal.

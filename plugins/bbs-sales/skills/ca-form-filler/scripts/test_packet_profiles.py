@@ -28,7 +28,9 @@ import traceback
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from packet_profile import (  # noqa: E402
-    Ambiguous, SKILL_DIR, DEFAULT_PROFILES_DIR, load_profiles, recognize, validate,
+    Ambiguous, FrontMatterError, Malformed, SKILL_DIR, DEFAULT_PROFILES_DIR,
+    load_profiles, parse_front_matter, recognize, validate,
+    main as cli,   # aliased: this module has a main() of its own
 )
 
 SKILL_MD = os.path.join(SKILL_DIR, "SKILL.md")
@@ -220,6 +222,196 @@ def test_extends_must_name_a_real_profile():
                                                  extends="nobody")))
         failures = validate(d)
         assert any("which is not a profile here" in f for f in failures), failures
+
+
+# --------------------------------------------------------------------------
+# The guard sits on the path the skill uses, not only under --validate
+# --------------------------------------------------------------------------
+
+GREEDY = """---
+packet_id: greedy
+title: the ordinary YAML slip
+revision: "test"
+status: active
+recognize:
+  all: "SOME MARKER"
+recognition_source: test fixture, not a real packet
+fill:
+  mode: scripted
+  script: scripts/fill_obs_packet.py
+rules: ${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md
+---
+
+# greedy
+"""
+
+
+def test_a_scalar_where_a_marker_list_belongs_refuses_recognition():
+    """`all: "MARKER"` is no markers at all, and no markers matches everything.
+
+    --validate caught this from the start. recognize() did not, and --validate
+    is not what SKILL.md tells anyone to run, so the one control that makes
+    routing deterministic sat off the path the skill uses.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        d = _sandbox(tmp, ("greedy.md", GREEDY))
+        profiles, errors = load_profiles(d)
+        assert not errors, errors
+        try:
+            match = recognize(UNRELATED_PACKET_TEXT, profiles)
+        except Malformed as exc:
+            assert any("must be a list" in f for f in exc.details), exc.details
+            return
+        raise AssertionError("an unrelated STD 204 resolved to %r" % match.packet_id)
+
+
+def test_recognize_exits_1_on_a_malformed_profile():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = _sandbox(tmp, ("greedy.md", GREEDY))
+        text = os.path.join(tmp, "packet.txt")
+        io.open(text, "w", encoding="utf-8").write(UNRELATED_PACKET_TEXT)
+        assert cli(["--profiles-dir", d, "--recognize", text]) == 1
+
+
+def test_an_unparseable_profile_refuses_rather_than_reporting_no_match():
+    """The OBS packet must not be hand-mapped because its profile lost a quote.
+
+    An unquoted colon in `title:` used to drop the file, leave `no match ->
+    Path B` on stdout and exit 0 — routing the one packet with a verified
+    scripted fill into the slower, more error-prone path with nobody told.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        d = _sandbox(tmp)
+        broken = os.path.join(d, "obs-4007b.md")
+        was = io.open(broken, encoding="utf-8").read()
+        io.open(broken, "w", encoding="utf-8").write(was.replace(
+            'title: CDCR "Request For Quote (RFQ) Packet – B", OBS 4007(B)',
+            "title: CDCR Request For Quote: Packet B, OBS 4007(B)"))
+
+        profiles, errors = load_profiles(d)
+        assert errors and "obs-4007b.md" in errors[0], errors
+        assert recognize(OBS_PACKET_TEXT, profiles) is None, (
+            "the fixture is wrong: the remaining profiles should not match, "
+            "which is exactly why a clean `no match` was so misleading")
+
+        text = os.path.join(tmp, "packet.txt")
+        io.open(text, "w", encoding="utf-8").write(OBS_PACKET_TEXT)
+        assert cli(["--profiles-dir", d, "--recognize", text]) == 1
+
+
+def test_a_missing_text_file_is_an_environment_error_not_a_refusal():
+    """Exit 2 is reserved for a broken machine; 1 must stay unambiguous."""
+    assert cli(["--recognize", os.path.join(SKILL_DIR, "no-such-file.txt")]) == 2
+
+
+def test_extends_cycle_longer_than_two_is_caught():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = os.path.join(tmp, "cycle")
+        os.makedirs(d)
+        for this, parent in (("a", "b"), ("b", "c"), ("c", "a")):
+            io.open(os.path.join(d, "%s.md" % this), "w", encoding="utf-8").write(
+                _profile(this, status="stub", extends=parent))
+        failures = validate(d)
+        assert any("closes a cycle" in f for f in failures), failures
+
+
+def test_duplicate_packet_id_is_reachable():
+    """The guard used to sit in the else: of `packet_id != stem`, where two
+    files in one directory can never both land."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = os.path.join(tmp, "dupes")
+        os.makedirs(d)
+        for fn in ("one.md", "two.md"):
+            io.open(os.path.join(d, fn), "w", encoding="utf-8").write(
+                _profile("shared", all_markers=["X"]))
+        failures = validate(d)
+        assert any("duplicate packet_id" in f for f in failures), failures
+
+
+def test_a_warning_about_a_rule_is_not_a_restatement():
+    """README tells an author to write this sentence; it must not FAIL.
+
+    Without counter-example awareness the only fix available to them is
+    deleting the warning, which AGENTS.md names as the way a checker gets
+    ignored.
+    """
+    warning = ('Do not write "leave it blank" into this profile — that is a '
+               "rule and it belongs in ca-form-rules.md.")
+    with tempfile.TemporaryDirectory() as tmp:
+        d = _sandbox(tmp, ("warner.md", _profile("warner", all_markers=["X"],
+                                                 extra=warning)))
+        failures = validate(d)
+        assert not failures, failures
+
+
+def test_the_obs_signer_paraphrase_would_now_be_caught():
+    """The exact prose this profile shipped with, which the first validator missed."""
+    paraphrase = (
+        "## The two-signer rule (most important)\n\n"
+        "- **Rep signs** the bidder/certification lines (OBS 4007(B), Darfur).\n"
+        "- **Jackson Dalton signs** the ownership lines. These are tied to "
+        "ownership of the certified DVBE, not to who quoted.\n")
+    with tempfile.TemporaryDirectory() as tmp:
+        d = _sandbox(tmp, ("paraphraser.md", _profile("paraphraser",
+                                                      all_markers=["X"],
+                                                      extra=paraphrase)))
+        failures = validate(d)
+        assert any("restates a shared rule" in f for f in failures), failures
+
+
+# --------------------------------------------------------------------------
+# Front matter, parsed without PyYAML
+# --------------------------------------------------------------------------
+
+def test_front_matter_parses_the_documented_shapes():
+    meta = parse_front_matter(
+        'packet_id: demo\n'
+        'title: "a: colon, quoted"\n'
+        'revision: Rev. 08/2025      # trailing comment\n'
+        'status: active\n'
+        'recognize:\n'
+        '  all:\n'
+        '    - "one"\n'
+        '    - two\n'
+        '  none: []\n'
+        'recognition_source: >-\n'
+        '  folded over\n'
+        '  two lines\n'
+        'fill:\n'
+        '  mode: scripted\n'
+        '  verify_pages: [2, 12, 16]\n')
+    assert meta["title"] == "a: colon, quoted", meta["title"]
+    assert meta["revision"] == "Rev. 08/2025", meta["revision"]
+    assert meta["recognize"] == {"all": ["one", "two"], "none": []}, meta["recognize"]
+    assert meta["recognition_source"] == "folded over two lines"
+    assert meta["fill"]["verify_pages"] == [2, 12, 16], meta["fill"]
+
+
+def test_front_matter_refuses_an_unquoted_colon():
+    try:
+        parse_front_matter("title: CDCR Request For Quote: Packet B\n")
+    except FrontMatterError as exc:
+        assert "unquoted colon" in str(exc), exc
+        return
+    raise AssertionError("an unquoted colon parsed as something")
+
+
+def test_front_matter_agrees_with_pyyaml_on_every_shipped_profile():
+    """Belt and braces while both parsers are around. Skipped without PyYAML.
+
+    The stdlib parser exists so Path A step 1 needs nothing installed; this
+    asserts it did not change what the shipped profiles mean while doing so.
+    """
+    try:
+        import yaml
+    except ImportError:
+        return
+    for p in sorted(os.listdir(DEFAULT_PROFILES_DIR)):
+        if not p.endswith(".md") or p == "README.md":
+            continue
+        text = io.open(os.path.join(DEFAULT_PROFILES_DIR, p), encoding="utf-8").read()
+        raw = text[text.index("\n", 3) + 1:text.find("\n---", 3) + 1]
+        assert parse_front_matter(raw) == yaml.safe_load(raw), p
 
 
 # --------------------------------------------------------------------------

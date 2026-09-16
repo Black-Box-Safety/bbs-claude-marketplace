@@ -19,7 +19,7 @@
      in its page table. `recognition_source` says so and says they were not re-verified
      against a rendered PDF.
 
-3. **`scripts/packet_profile.py`** — loader, validator, resolver. Stdlib + PyYAML, no PDF
+3. **`scripts/packet_profile.py`** — loader, validator, resolver. Stdlib only (the front matter is parsed in-script), no PDF
    dependency: it takes extracted text, so it is testable without a packet.
    - `--list`, `--validate`, `--recognize <textfile|->`, `--recognize-pdf <pdf>`.
    - Refuses on ambiguity rather than ranking.

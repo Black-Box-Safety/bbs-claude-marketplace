@@ -104,24 +104,36 @@ SKILL_DIR=<the folder containing this SKILL.md>
 python3 "$SKILL_DIR/scripts/packet_profile.py" --recognize-pdf <blank_packet.pdf>
 ```
 
-It reports one of three things, and each is an instruction:
+It reports one of four things, and each is an instruction. It checks the profile set
+conforms before it evaluates a single marker, so a malformed profile is a refusal here
+and never a quiet `no match`:
 
 - **A profile id** — you are on Path A. The output names the profile file, the fill
   script, the inputs template and the pages to verify. Read that profile before filling:
-  it holds the page map, the signers, the irregular field IDs and the fields the State
-  fills.
+  it holds the page map, which page carries whose signature line, the irregular field IDs
+  and where this packet puts the State's own fields. Who signs and what stays blank are in
+  `ca-form-rules.md`, which the profile cites rather than copies.
 - **`no match -> Path B`** — no profile recognises this PDF. Go to Path B. This is the
   normal answer for standalone forms and for any packet whose profile has not been built
   yet; it is not an error.
-- **`REFUSED`** — several profiles matched and none subsumes the rest. **Stop.** Two maps
-  cannot both be right for one PDF. Report it; do not pick one, and do not fall back to
-  Path B to get moving, because a packet that matches two profiles is one whose markers
-  are wrong and that is worth knowing before the next bid.
+- **`REFUSED`** (exit 1) — **Stop.** Either several profiles matched and none subsumes the
+  rest, or a profile does not parse or breaks the recognition contract. Report it; do not
+  pick one, and **do not fall back to Path B to get moving**. A packet that matches two
+  profiles is one whose markers are wrong, and a profile set with a broken file in it may
+  be missing the very profile for the packet in hand — falling through would hand-map a
+  packet that has a verified scripted fill, silently. Both are worth knowing before the
+  next bid. `packet_profile.py --validate` names the file and line.
+- **`ERROR`** (exit 2) — a missing input file, or `pdftotext` absent or failing. A broken
+  machine, not a decision about this packet. Fix it and re-run.
 
 `references/packets/README.md` is the profile contract — what a profile file must
 contain, how recognition resolves, and what to fill in before a new one goes live. Adding
 a packet is one file in that directory; nothing in this SKILL.md names a packet or needs
 editing for it.
+
+This step needs nothing installed — `packet_profile.py` is stdlib only and reads the
+profile front matter itself, so it never stops a bid to ask for a package. `pdftotext`
+is the one external tool, and `bbs-checkup` installs it.
 
 Recognition picks a candidate. It does not authorise the write: the fill script validates
 every field ID, its type and its page against the PDF in hand and refuses to write if one
@@ -156,11 +168,14 @@ and grand total are computed.
 
 ### 4. Fill
 
-Run the `script` the resolver named:
+Run the `script` the resolver named — **that path, not a remembered one**:
 
 ```bash
-python "$SKILL_DIR/scripts/fill_obs_packet.py" <blank_packet.pdf> <inputs.json> <output.pdf>
+python "$SKILL_DIR/<the resolver's script>" <blank_packet.pdf> <inputs.json> <output.pdf>
 ```
+
+For the CDCR OBS 4007(B) packet the resolver names `scripts/fill_obs_packet.py`. That is
+the worked example, not the command for every packet.
 
 It fills every AcroForm field, then writes the company-name lines that have no fillable
 field as text annotations at the coordinates in the profile. It needs `pypdf` and
@@ -174,20 +189,25 @@ built against, and the rest of the layout deserves a closer look.
 
 ### 5. Verify
 
-Render the pages the profile lists under `verify_pages` and look at them:
+Render **the pages this profile lists under `verify_pages`** — the resolver printed them
+— and look at them:
 
 ```bash
-python "$SKILL_DIR/scripts/render_pages.py" <output.pdf> <verify_dir>/ 2 12 16 21 24
+python "$SKILL_DIR/<the resolver's verify_script>" <output.pdf> <verify_dir>/ <verify_pages>
 ```
 
-Those five are the OBS 4007(B) pages that carry the risk: front page (2), line-item
-worksheet (12), CalRecycle 74 (16), PD 843 (21), STD 204 (24). Pass no page numbers to
-render everything. Confirm, in this order:
+Every packet puts its risk on different pages, so take the numbers from the resolver
+output and never from a command you have run before. For the CDCR OBS 4007(B) packet they
+are `2 12 16 21 24` — front page (2), line-item worksheet (12), CalRecycle 74 (16), PD 843
+(21), STD 204 (24) — which is what that example looks like, not a default. Pass no page
+numbers to render everything; when a profile lists none, do that. Then confirm, in this
+order, reading the profile's page table for where each lands in *this* packet:
 
-1. **The DVBE box on page 2 is actually ticked**, with the PD 843 "not a broker" box (21)
-   and the STD 204 entity boxes (24). Check the rendered image, not the field value.
+1. **The DVBE/SB certification box is actually ticked**, with the PD 843 "not a broker"
+   box and the STD 204 entity boxes. Check the rendered image, not the field value.
 2. Every line item appears and the grand total matches the quote.
-3. The rep signed the bidder lines and Jackson the ownership lines.
+3. The rep signed the bidder lines and Jackson the ownership lines — the profile's Signer
+   column says which page is which, and `ca-form-rules.md` says who.
 4. No company-name line is blank.
 
 ### When a field lands wrong
