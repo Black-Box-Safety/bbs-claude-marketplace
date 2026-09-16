@@ -67,13 +67,13 @@ Item 102WZ8: ✅ Found
 Item FAKE123: ❌ Not Found
 ```
 
-After running the script, return that output to the rep as-is — do not add a summary, table, or extra commentary unless she asks. Do not reformat into a table. Do not add prices, descriptions, or other columns — the rep only wants the found/not-found status.
+After running the script, return that output to the rep as-is — do not add a summary, table, or extra commentary unless the rep asks. Do not reformat into a table. Do not add prices, descriptions, or other columns — the rep only wants the found/not-found status.
 
 ## Important notes
 
 - **The bundled list is the source of truth.** Do not search the web, do not check Grainger.com, do not guess. The skill uses the file at `assets/bpo_part_numbers.txt` which contains 19,390 unique Grainger part numbers from the active BPO.
 - **Case-insensitive matching.** `102wz8`, `102WZ8`, and `102Wz8` all match the same record.
-- **Coverage period.** This file covers BPO pricing for calendar years 2025 and 2026 only. the rep will replace the bundled file in late 2026 or early 2027 when the new BPO list is published. Until then, never substitute another source.
+- **Coverage period.** This file covers BPO pricing for calendar years 2025 and 2026 only. The rep will replace the bundled file in late 2026 or early 2027 when the new BPO list is published. Until then, never substitute another source.
 - **Duplicates in input.** If the same item appears twice in the rep's input, it's reported once (first occurrence wins, original casing preserved in output).
 
 ## Files in this skill
