@@ -604,7 +604,7 @@ def fill_acroform(blank_pdf, field_values, output_pdf):
         print("\n".join(errors))
         print(f"\n{len(errors)} field(s) could not be filled. The packet revision has "
               f"probably changed — run `--inspect` on the blank packet and reconcile "
-              f"LINE_FIELD_IDS / the add() calls. See references/field_map.md.")
+              f"LINE_FIELD_IDS / the add() calls. See references/packets/obs-4007b.md.")
         sys.exit(1)
     if notes:
         print("\n".join(notes))

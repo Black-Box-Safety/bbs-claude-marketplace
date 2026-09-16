@@ -20,10 +20,13 @@ compatibility: claude-code
 
 One skill for every CA form BBS files. Two paths through it:
 
-- **A known packet** — the CDCR OBS 4007(B) 9-form "Packet B" — has an exact, scripted
-  fill. Take it whenever the packet matches; it is faster and it validates.
-- **Anything else** — standalone forms, or a packet this skill has no profile for — goes
-  through the general map-and-fill path.
+- **A recognised packet** has a **profile** in `references/packets/` — an exact page map
+  and a scripted fill. Take it whenever a profile matches; it is faster and it validates.
+- **Anything else** — standalone forms, or a packet no profile recognises — goes through
+  the general map-and-fill path.
+
+Which one you are on is decided by text read out of the PDF, not by what the rep called
+the file and not by judgement. Run the resolver (Path A step 1) before anything else.
 
 Both paths share the same vendor facts, the same signing rules, and the same refusal to
 guess. Those live in `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md` — who signs which
@@ -92,18 +95,44 @@ if days < 30:
 
 ---
 
-# Path A — CDCR OBS 4007(B) "Packet B"
+# Path A — a packet with a profile
 
-Take this path whenever the packet is the CDCR 9-form Packet B: OBS 4007(B), Line-Item
-Cost Worksheet, Bidder Declaration (GSPD-05-105), Darfur (OBS 1500), CalRecycle 74, GenAI
-Factsheet (OBS 1000), DVBE Declaration (DGS PD 843), Supplement Vendor Payee Data Record,
-and Payee Data Record (STD 204).
+### 1. Recognise the packet
 
-The packet is identical every time except the quote line items, the dates and solicitation
-number, the agency requestor and ship-to, and which rep signs. Everything else comes from
-the vendor profile.
+```bash
+SKILL_DIR=<the folder containing this SKILL.md>
+python3 "$SKILL_DIR/scripts/packet_profile.py" --recognize-pdf <blank_packet.pdf>
+```
 
-### 1. Collect the inputs
+It reports one of three things, and each is an instruction:
+
+- **A profile id** — you are on Path A. The output names the profile file, the fill
+  script, the inputs template and the pages to verify. Read that profile before filling:
+  it holds the page map, the signers, the irregular field IDs and the fields the State
+  fills.
+- **`no match -> Path B`** — no profile recognises this PDF. Go to Path B. This is the
+  normal answer for standalone forms and for any packet whose profile has not been built
+  yet; it is not an error.
+- **`REFUSED`** — several profiles matched and none subsumes the rest. **Stop.** Two maps
+  cannot both be right for one PDF. Report it; do not pick one, and do not fall back to
+  Path B to get moving, because a packet that matches two profiles is one whose markers
+  are wrong and that is worth knowing before the next bid.
+
+`references/packets/README.md` is the profile contract — what a profile file must
+contain, how recognition resolves, and what to fill in before a new one goes live. Adding
+a packet is one file in that directory; nothing in this SKILL.md names a packet or needs
+editing for it.
+
+Recognition picks a candidate. It does not authorise the write: the fill script validates
+every field ID, its type and its page against the PDF in hand and refuses to write if one
+is unknown, so a wrong match produces no packet rather than a wrong one. Both have to
+agree.
+
+### 2. Collect the inputs
+
+What varies between two runs of the same packet is the quote line items, the dates and
+solicitation number, the agency requestor and ship-to, and which rep signs. Everything
+else comes from the vendor profile.
 
 The rep supplies the quote (pasted, or as a PDF/xlsx), the solicitation number, dates,
 agency contact, and their own name/title/email. If the items arrive as a Grainger cart
@@ -113,9 +142,10 @@ Defaults when unspecified: `signature_date` today in `M.D.YY` (BBS house style, 
 `5.28.26`), `delivery_days_aro` 30, `shipping_handling` 0.0 (BBS quotes FOB destination),
 CalRecycle PCRC/SABRC "NA", rep `default_rep` from the profile.
 
-### 2. Build the inputs JSON
+### 3. Build the inputs JSON
 
-Copy `assets/inputs_template.json`. Schema: `solicitation_number`, `release_date` and
+Copy the `inputs_template` the resolver named. For the CDCR OBS 4007(B) packet that is
+`assets/inputs_template.json`, whose schema is `solicitation_number`, `release_date` and
 `due_date` (MM/DD/YYYY), `signature_date` (`M.D.YY`, or `""` to hand-date),
 `delivery_days_aro`, `product_summary` (one line, used on OBS 1000, CalRecycle 74 and PD
 843), `shipping_handling`, `rep{name,title,email,signature}`,
@@ -124,32 +154,35 @@ Copy `assets/inputs_template.json`. Schema: `solicitation_number`, `release_date
 `{qty, unit, description, part_number, pcrc, unit_price}`. Extended prices, subtotal, S&H
 and grand total are computed.
 
-### 3. Fill
+### 4. Fill
+
+Run the `script` the resolver named:
 
 ```bash
-SKILL_DIR=<the folder containing this SKILL.md>
 python "$SKILL_DIR/scripts/fill_obs_packet.py" <blank_packet.pdf> <inputs.json> <output.pdf>
 ```
 
-It fills every AcroForm field, then writes the four company-name lines that have no
-fillable field as text annotations at known coordinates. It needs `pypdf` and `pymupdf`,
-checks for both before touching the packet, and prints the install command if either is
-missing (`pip install pypdf pymupdf --break-system-packages -q`).
+It fills every AcroForm field, then writes the company-name lines that have no fillable
+field as text annotations at the coordinates in the profile. It needs `pypdf` and
+`pymupdf`, checks for both before touching the packet, and prints the install command if
+either is missing (`pip install pypdf pymupdf --break-system-packages -q`).
 
 **It writes the packet only if every field validates**, so a non-zero exit means there is
 no output file rather than a half-filled one. Read any `NOTE:` lines: a checkbox ticked
-under a different state name means this revision differs from Rev. 08/2025 and the rest of
-the layout deserves a closer look.
+under a different state name means this revision differs from the one the profile was
+built against, and the rest of the layout deserves a closer look.
 
-### 4. Verify
+### 5. Verify
+
+Render the pages the profile lists under `verify_pages` and look at them:
 
 ```bash
 python "$SKILL_DIR/scripts/render_pages.py" <output.pdf> <verify_dir>/ 2 12 16 21 24
 ```
 
-Those are the pages that carry the risk: OBS 4007(B) front (2), line-item worksheet (12),
-CalRecycle 74 (16), PD 843 (21), STD 204 (24). Pass no page numbers to render everything.
-Confirm, in this order:
+Those five are the OBS 4007(B) pages that carry the risk: front page (2), line-item
+worksheet (12), CalRecycle 74 (16), PD 843 (21), STD 204 (24). Pass no page numbers to
+render everything. Confirm, in this order:
 
 1. **The DVBE box on page 2 is actually ticked**, with the PD 843 "not a broker" box (21)
    and the STD 204 entity boxes (24). Check the rendered image, not the field value.
@@ -157,27 +190,33 @@ Confirm, in this order:
 3. The rep signed the bidder lines and Jackson the ownership lines.
 4. No company-name line is blank.
 
-If a field lands wrong, the packet revision has changed. The script refuses to write when a
-field ID is unknown, sits on an unexpected page, or is a checkbox it cannot tick, and names
-every offender. To see what the new packet contains:
+### When a field lands wrong
+
+The packet revision has changed. The script refuses to write when a field ID is unknown,
+sits on an unexpected page, or is a checkbox it cannot tick, and names every offender. To
+see what the new packet contains:
 
 ```bash
 python "$SKILL_DIR/scripts/fill_obs_packet.py" --inspect <blank_packet.pdf>
 ```
 
-Reconcile that against the `add(...)` calls and `LINE_FIELD_IDS` in the script, update
-`references/packet-obs-4007b.md`, and re-check the four annotation coordinates — they are
-tied to the Rev. 08/2025 layout.
+Reconcile that against the `add(...)` calls and `LINE_FIELD_IDS` in the script, update the
+profile — its page map, its `revision`, its annotation coordinates and its recognition
+markers, which are all tied to one revision — and re-run
+`python3 "$SKILL_DIR/scripts/packet_profile.py" --validate`.
 
-`references/packet-obs-4007b.md` has the page-by-page map, the annotation coordinates, and
-the list of irregular field names in this packet. They are irregular: one extended-price
-field is literally named `"OBS Line-Item Cost Wrksht - Ext Price LOBS Line-Item Cost
-Wrksht - Ext Price L5"`, and rows 13/18/23 use a different pattern again. If the script
-reports an invalid field ID, re-extract and update the map rather than guessing.
+Expect the field names to be irregular: in the OBS packet one extended-price field is
+literally named `"OBS Line-Item Cost Wrksht - Ext Price LOBS Line-Item Cost Wrksht - Ext
+Price L5"`, and rows 13/18/23 use a different pattern again. The profile lists the known
+oddities. If the script reports an invalid field ID, re-extract and update the profile
+rather than guessing.
 
 ---
 
 # Path B — standalone forms and unknown packets
+
+You are here because Path A step 1 reported no match. That is the normal answer for a
+standalone form, and the correct answer for a packet nobody has mapped yet.
 
 ### 1. See what the PDF actually is
 
@@ -217,6 +256,12 @@ coordinates visually, then stamp. This is slower and more error-prone, so verify
 Rasterize and inspect every page you touched. Same rule as Path A: look at the render, not
 the field value.
 
+### 5. If this packet comes back
+
+A bound packet filled by hand here twice is a packet that wants a profile. Write one:
+`references/packets/README.md` is the contract, and the map you just built by inspecting
+the PDF is most of the content. Nothing in this file needs editing to add it.
+
 ---
 
 # Deliver (both paths)
@@ -241,4 +286,4 @@ Close with the reminder to hand-date at submission if `signature_date` was left 
 
 ---
 
-Owner: Parker. Last verified 2026-09-15.
+Owner: Parker. Last verified 2026-09-16.
