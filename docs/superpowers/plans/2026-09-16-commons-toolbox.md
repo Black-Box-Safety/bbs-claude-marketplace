@@ -128,7 +128,10 @@ because a plan that hides its corrections is a plan nobody can audit.
 - **The liveness command measured the wrong repository** — a silent failure inside the
   deliverable that was meant to prevent silent failures. Now clones the upstream.
 - **`--refs` stripped the peeled-tag lines**, making step 2 impossible without a clone.
-  Dropped; both commands verified against a live upstream.
+  Corrected in two passes: the first fix dropped `--refs` and filtered discovery to `^{}`
+  lines, which quietly hid all 12 lightweight tags on `caveman`'s v-train. Discovery now
+  reads plain refs and only the winning tag is peeled. Both commands verified against the
+  live upstream, including on a lightweight tag.
 
 ## Known risks
 

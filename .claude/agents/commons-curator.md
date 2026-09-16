@@ -94,14 +94,25 @@ git ls-remote "$U" 'refs/tags/v2.7.0^{}'   # must equal the recorded peeled comm
 
 **2. Sort with `sort -V`, and filter to the train first.**
 
+**Discover on plain refs; peel only the winner.** These are two different reads and they
+want opposite flags.
+
 ```bash
-# No --refs. It strips the refs/tags/<tag>^{} lines, which are the only way to read a
-# peeled commit without cloning.
-git ls-remote --tags "$U" | grep '\^{}$' \
-  | sed 's|.*refs/tags/||; s|\^{}$||' \
+# DISCOVERY. --refs belongs here: it strips the ^{} duplicates.
+NEWEST=$(git ls-remote --tags --refs "$U" \
+  | sed 's|.*refs/tags/||' \
   | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
-  | sort -V | tail -1
+  | sort -V | tail -1)
+
+# PEEL the winner. tail -1 is right for both tag kinds.
+git ls-remote "$U" "refs/tags/$NEWEST" "refs/tags/$NEWEST^{}" | tail -1 | cut -f1
 ```
+
+**Never discover by grepping for `^{}` lines.** That keeps only annotated tags and silently
+drops every lightweight one — 12 of 26 on `caveman`'s v-train. It returns the right answer
+only for as long as the newest tag happens to be annotated, and the moment it does not, the
+refresh records "checked, current" while the pin rots. That is the false-clean this whole
+document exists to prevent, so do not reintroduce it to save a line.
 
 Lexical sort puts `v1.9.0` above `v1.10.0`, and `superpowers-chrome` has both. `caveman`
 carries nine tag prefixes across 54 tags (`v`, `bin-v`, `cli-v`, `sdk-ts-v`,
@@ -168,9 +179,24 @@ skill in all three. The bundle agrees — `getPluginSkills` loads the default `s
 Commands and agents were never covered by a `skills:` list at all, so those always ship
 whole.
 
+**The one control that does work** is a managed-settings `permissions.deny` entry of the
+form `Skill(<plugin>:<skill>)`, or `Skill(<plugin>:*)` for the whole tree. Confirmed on
+2.1.273: the denied skill returns `Skill execution blocked by permission rules` and an
+undenied sibling still runs. It stops execution only — the skill stays in the listing, so
+the context cost remains and the model selects it and then fails. Offer it for a **hazard**,
+never as a way to tidy up surplus skills, and never describe it as narrowing the tier.
+
+**It does not reach commands.** A command is not a skill; `grep -aoF 'SlashCommand(' ` on
+the installed binary returns zero occurrences against seven for `Skill(`. For a command the
+only lever is a Bash-level deny on whatever the command tells Claude to run. Say that
+plainly rather than offering Parker a control that does not exist.
+
 Consequences you must carry into every judgement:
 
-- **The unit of decision is the whole upstream.** Half-acceptable is a rejection.
+- **The unit of decision is the whole upstream.** Where the unwanted half is *noise*, that
+  is a cost to weigh and the tree may still be worth taking. Where it is *dangerous* — code
+  executed from outside the pin, a hook on every session — it is a rejection, or a risk
+  accepted out loud. Do not flatten the two into "half-acceptable is a rejection."
 - **Never describe a `skills:` list as a control** in `docs/COMMONS.md`, in an entry
   description, or in a PR. It records intent. That is all it does.
 - **Re-test it each refresh.** Three fixtures, one named in `skills:` and two not, and ask
@@ -215,6 +241,19 @@ elsewhere are worse than nothing — pin the real home or pin neither.
 
 Then: propose in `docs/COMMONS.md`, pin the upstream, never vendor it, record the release
 model and provenance, and validate.
+
+## Testing loader behaviour — read the right binary
+
+If you are ever re-deriving how the loader treats an entry, **the npm `cli.js` is not what
+runs.** The binary on `PATH` is, and on this setup that is `/opt/claude-code/bin/claude`
+(`readlink -f $(command -v claude)`). Someone reading `cli.js` is reading code the machine
+does not execute, and will reach a confident wrong answer.
+
+Pair the static read with a live one. The rig that settled the `skills:` question: three
+fixture plugins in an isolated `CLAUDE_CONFIG_DIR`, differing only in where the filter is
+declared, installed from a local directory marketplace, then a live `claude -p` session
+asked what it can see and asked to invoke a specific skill. `claude plugin details` reports
+what is on disk, not what registers, so it cannot answer this on its own.
 
 ## Verification you own
 

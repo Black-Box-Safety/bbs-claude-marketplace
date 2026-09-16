@@ -195,7 +195,7 @@
         "./skills/pptx",
         "./skills/xlsx"
       ],
-      "description": "Commons: Anthropic's official document skills \u2014 Word (tracked changes, comments), PDF (extract, merge, fill, annotate), Excel (formulas, charts), PowerPoint (build with pptxgenjs, read with markitdown). RFQ worksheets, bid PDFs, price lists, and the deck assembly step bbs-deck-voice hands off to. The skills: list records intent only; the loader treats it as additive, so the whole anthropics/skills tree registers. Pin, release model and the LibreOffice caveat: docs/COMMONS.md.",
+      "description": "Commons: Anthropic's official document skills \u2014 Word (tracked changes, comments), PDF (extract, merge, fill, annotate), Excel (formulas, charts), PowerPoint (build with pptxgenjs, read with markitdown). RFQ worksheets, bid PDFs, price lists, and the deck assembly step bbs-deck-voice hands off to. The skills: list records intent only; on Claude Code 2.1.273 the loader treats it as additive rather than restrictive, so the whole anthropics/skills tree registers. Pin, release model and the LibreOffice caveat: docs/COMMONS.md.",
       "author": {
         "name": "Anthropic"
       },

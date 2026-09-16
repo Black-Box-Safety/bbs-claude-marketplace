@@ -2,7 +2,8 @@
 
 **What it is.** Generally applicable skills and plugins, made by other people, that a BBS
 rep is likely to find genuinely useful. Nothing BBS-specific lives here; that belongs in
-`bbs-sales` or `bbs-foundations`. Ruled 2026-09-13.
+`bbs-sales` or `bbs-foundations`. Ruled 2026-09-13 — **on the understanding that entries could be
+narrowed, which turned out not to be true.** See "Open for Parker."
 
 **The bar.** Quality first, tokens second: a plugin gets in if it works out of the box, is
 maintained upstream, and matches a task reps actually do. Context cost is a tiebreaker, not
@@ -14,8 +15,11 @@ copied into this repo.
 
 **A commons entry is all-or-nothing.** Read "`skills:` does not filter" below before
 assuming otherwise. Because there is no working way to take part of a tree, **the unit of
-decision is the whole upstream**: if half of a repo is wrong for reps, the answer is to
-reject the repo, not to select from it.
+decision is the whole upstream.** Where the unwanted half is *noise* — developer skills
+competing for selection — that is a cost to weigh, and a tree can still be worth taking.
+Where the unwanted half is *dangerous* — a command that executes code from outside the pin,
+a hook that touches every session — it is a rejection, or an accepted risk named as one.
+`caveman` is the second kind, which is why its row below is long.
 
 **Who keeps it true.** `.claude/agents/commons-curator.md`. One agent for one durable
 domain, across the whole lifecycle.
@@ -55,14 +59,25 @@ three configurations. The installed bundle agrees: `getPluginSkills` loads the d
 | `skills:` on the marketplace entry | No effect. Additive |
 | `skills:` in the plugin's own `plugin.json` | No effect. Additive |
 | `skillOverrides: {"<name>": "off"}` in user, project, or local settings | **Did not reproduce.** The key is in the settings schema (`on` / `name-only` / `user-invocable-only` / `off`, described as a per-skill *listing* override) and is managed-settings-mergeable, but neither the bare nor the `plugin:skill` key form removed a fixture skill from a session's listing |
-| `permissions.deny: ["Skill(<name>)"]` | Skill stayed in the listing. The bundle does carry a "Skill execution blocked by permission rules" path, so this may block *invocation* — but it does not reduce the selection surface or the context cost, and the block itself was not confirmed |
+| `permissions.deny: ["Skill(<plugin>:<skill>)"]` | **Blocks execution, confirmed.** The denied skill returns `Skill execution blocked by permission rules`; an undenied sibling in the same tree still runs. The wildcard `Skill(<plugin>:*)` blocks the whole tree the same way. It does **not** remove the skill from the listing, so the context cost stays and the model still selects it and then fails. A risk control, not a noise control |
 
 **So: the `skills:` lists in `marketplace.json` record intent and nothing more.** They are
 kept because they are harmless, they say what BBS decided, and they become correct if the
 loader ever changes. They are not a control. Nothing in this file may describe them as one.
 
-`skillOverrides` is the only candidate that could work, and it lives in **managed
-settings** — Parker's, not this repo's. Escalated below.
+**There is exactly one control that works today**, and it is a blunt one: a
+`permissions.deny` entry of the form `Skill(<plugin>:<skill>)`, or `Skill(<plugin>:*)` for a
+whole tree, in managed settings. It stops the skill *running*. It buys back no context and
+removes no selection noise — the model still sees the skill, picks it, and then fails. Use
+it where a skill is a hazard, not where it is merely surplus.
+
+**It does not reach commands.** A command is not a skill, so `Skill(…)` cannot touch
+`caveman-init`; `grep -aoF 'SlashCommand(' ` on the installed binary returns zero
+occurrences, against seven for `Skill(`. The only reachable lever for a command is a
+Bash-level deny on what the command tells Claude to run.
+
+`skillOverrides` remains the only candidate that would cut the listing itself, and it did
+not reproduce. Both live in **managed settings** — Parker's, not this repo's.
 
 ---
 
@@ -121,8 +136,8 @@ is Parker's call; the re-check is the interim control.
 | Plugin | Pin | Release model · cadence | Why reps have it | Watch for |
 |---|---|---|---|---|
 | `superpowers-chrome` | `v3.0.5` | `tagged`, single `vX.Y.Z` train · quarterly | Drives the rep's own Chrome: product research on distributor and agency sites, logged-in sessions included. Full browser access is a standing ruling; no deny rules touch it | Upstream says beta. Needs Node.js (`bbs-setup.ps1` installs it). Pin is a mutable tag ref. If a rep hits a crash, log it in FLAGS |
-| `caveman` | `v2.7.0` | `multi-train`, nine tag prefixes, authoritative train is bare `vX.Y.Z` · monthly | Opt-in terse mode. Cuts output tokens roughly two-thirds; technical content stays exact. `/caveman lite` is a good default for long sessions | Off by default via managed env (`CAVEMAN_DEFAULT_MODE=off`); never forced on. **Reps receive the whole tree** — 20 skills, 6 command files, 3 `cavecrew-*` agents — because `skills:` does not filter. **`caveman-init` (`.md` and `.toml`) runs `curl … raw.githubusercontent.com/JuliusBrussee/caveman/main/src/tools/caveman-init.js \| node -`: download-and-execute from upstream `main`, bypassing the pin entirely and writing rule files into the rep's current repo.** Pre-existing at v2.6.0. Commands ship regardless of any `skills:` list. `caveman-help` advertises `/caveman-compress`, for which no command file exists. Split license, see below. Pin is a mutable tag ref |
-| `document-skills` (Anthropic) | commit `34040c9c` | `rolling`, zero tags · monthly | Word, PDF, Excel and PowerPoint with real scripts: fill and merge PDFs, read tracked changes, build spreadsheets with formulas, assemble decks. RFQ worksheets and bid packets are exactly this | **`pptx` visual QA and PDF conversion go through LibreOffice (`soffice`), which `bbs-setup.ps1` does not install, and behaviour on a rep's Windows box is unverified.** `docx` and `xlsx` reference `soffice` too and have the same gap. `pptx` also assumes `pptxgenjs` is preinstalled; on a rep machine it is an `npm install`. **Reps receive all 19 skills in the tree**, not the 4 named — the filter has never worked. `uv` from the bootstrap covers the Python runtime; Poppler covers `pdftoppm` |
+| `caveman` | `v2.7.0` | `multi-train`, nine tag prefixes, authoritative train is bare `vX.Y.Z` · monthly | Opt-in terse mode. Cuts output tokens roughly two-thirds; technical content stays exact. `/caveman lite` is a good default for long sessions | Off by default via managed env (`CAVEMAN_DEFAULT_MODE=off`); never forced on. **Reps receive the whole tree** (measured on Claude Code 2.1.273 on Linux; the loader is not platform-specific, but it was not re-measured on Windows) — 20 skills, 6 command files, 3 `cavecrew-*` agents — because `skills:` does not filter. **`caveman-init` (`.md` and `.toml`) runs `curl … raw.githubusercontent.com/JuliusBrussee/caveman/main/src/tools/caveman-init.js \| node -`: download-and-execute from upstream `main`, bypassing the pin entirely and writing rule files into the rep's current repo.** Pre-existing at v2.6.0. Commands ship regardless of any `skills:` list. `caveman-help` advertises `/caveman-compress`, for which no command file exists. Split license, see below. Pin is a mutable tag ref |
+| `document-skills` (Anthropic) | commit `34040c9c` | `rolling`, zero tags · monthly | Word, PDF, Excel and PowerPoint with real scripts: fill and merge PDFs, read tracked changes, build spreadsheets with formulas, assemble decks. RFQ worksheets and bid packets are exactly this | **`pptx` visual QA and PDF conversion go through LibreOffice (`soffice`), which `bbs-setup.ps1` does not install, and behaviour on a rep's Windows box is unverified.** `docx` and `xlsx` reference `soffice` too and have the same gap. `pptx` also assumes `pptxgenjs` is preinstalled; on a rep machine it is an `npm install`. **Reps receive all 19 skills in the tree**, not the 4 named — the filter has never worked (measured on Claude Code 2.1.273 on Linux; not re-measured on Windows). `uv` from the bootstrap covers the Python runtime; Poppler covers `pdftoppm` |
 
 ### Provenance
 
@@ -150,10 +165,11 @@ v2.6.0 invokes `node` against the unconverted path. **BBS reps are on Windows** 
 Bash tool runs through Git Bash, which is why `bbs-setup.ps1` installs `Git.Git`.
 
 **The bump is not two lines.** `v2.6.0..v2.7.0` is **438 files changed, +42,604 / −6,024**.
-Inside `src/hooks/` alone it is 12 files, +555 / −415: `caveman-activate.js` (+78/−),
-`caveman-mode-tracker.js` (+71/−), a **new `caveman-config.js` (101 lines) that both hooks
-now depend on**, `caveman-stats.js` (425 lines rewritten), `caveman-parse.js`, the
-statusline scripts, the install/uninstall scripts, and `checksums.sha256`. **The hook
+Inside `src/hooks/` alone it is 12 files, +555 / −415. By `--numstat`, so these are real
+insertions and deletions rather than `--stat`'s total-changed: `caveman-activate.js`
+**+18/−60**, `caveman-mode-tracker.js` **+62/−9**, a **new `caveman-config.js` (+101/−0)
+that both hooks now depend on**, `caveman-stats.js` **+139/−286**, `caveman-parse.js`
++80/−5, the statusline scripts, the install/uninstall scripts, and `checksums.sha256`. **The hook
 runtime changed, not just the command strings that invoke it.** The two strings are quoted
 above because they are the visible part; they are not the size of the change.
 
@@ -237,18 +253,28 @@ against a live upstream on 2026-09-16 and returns what it claims to.
 ```bash
 U=https://github.com/JuliusBrussee/caveman.git     # the entry's url
 
-# 1. Newest release on the authoritative train.
-#    No --refs: it strips the ^{} lines, which are the only way to read a peeled
-#    commit without cloning. Filter to the train first, then sort -V — lexical sort
-#    puts v1.9.0 above v1.10.0 and superpowers-chrome has both.
-git ls-remote --tags "$U" | grep '\^{}$' \
-  | sed 's|.*refs/tags/||; s|\^{}$||' \
-  | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1
+# 1. DISCOVERY — read plain refs. Use --refs here: it strips the ^{} duplicates.
+#    Do NOT discover by grepping for ^{} lines: that keeps only ANNOTATED tags and
+#    silently drops every lightweight one. On caveman's v-train that is 12 of 26
+#    (v1.0.0 v1.1.0 v1.2.0 v1.3.0 v1.3.5 v1.4.1 v1.5.0 v1.5.1 v1.6.0 v1.7.0
+#    v1.8.0 v1.8.1). It returns the right answer today only because v2.7.0 happens
+#    to be annotated; the next lightweight release returns the previous annotated
+#    tag and the refresh records "checked, current" while the pin rots.
+#    Filter to the train first, then sort -V — lexical sort puts v1.9.0 above
+#    v1.10.0 and superpowers-chrome has both.
+NEWEST=$(git ls-remote --tags --refs "$U" \
+  | sed 's|.*refs/tags/||' \
+  | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
 
-# 2. Peel it, and re-check the CURRENT pin still peels to the recorded commit.
-#    Tags are mutable; a force-move is silent.
-git ls-remote "$U" 'refs/tags/v2.7.0^{}'    # -> peeled commit, the pin
-git ls-remote "$U" 'refs/tags/v2.7.0'       # -> tag object, NOT the pin
+# 2. PEEL the winner — and only the winner, where ^{} is what you want.
+#    An annotated tag returns two lines and the ^{} one is the commit; a lightweight
+#    tag returns one line which already IS the commit. tail -1 is correct for both.
+git ls-remote "$U" "refs/tags/$NEWEST" "refs/tags/$NEWEST^{}" | tail -1 | cut -f1
+
+#    Re-check the CURRENT pin the same way. Tags are mutable; a force-move is silent.
+git ls-remote "$U" 'refs/tags/v2.7.0' 'refs/tags/v2.7.0^{}' | tail -1 | cut -f1
+#      -> must equal the recorded peeled commit 8b0c1d36…
+#      The bare 'refs/tags/v2.7.0' line alone is the TAG OBJECT, not the pin.
 
 # 3. Liveness: last commit on the UPSTREAM default branch.
 #    `git log -1 --format=%cI origin/HEAD` with no clone is the trap — run from this
@@ -284,12 +310,21 @@ because selection does not work.
 
 ## Open for Parker
 
-- **`skillOverrides` in managed settings** is the only candidate mechanism for restricting
-  what reps receive from a pinned tree. It did not reproduce in testing here, and it is
-  account/managed-settings-side, not repo-side. Until it works, every commons pin is
-  all-or-nothing.
+- **The 2026-09-13 ruling was made on a premise that turned out false.** It admitted this
+  tier on the understanding that an entry could be narrowed to the skills BBS wanted. It
+  cannot. `caveman` means 20 skills, 6 commands and 3 agents; `document-skills` means all
+  19 skills. **Does the ruling still hold on all-or-nothing terms?** Not decided here.
+- **`skillOverrides` in managed settings** is the only candidate that would cut the
+  *listing*. It did not reproduce in testing here. Account/managed-settings-side, not
+  repo-side.
+- **`permissions.deny: ["Skill(caveman:*)"]`** — or per-skill — is a control that does work
+  today: it stops the skills running. It does not reduce context or selection noise, and it
+  does not reach commands. One line in managed settings, if the risk is what matters.
 - **`caveman-init` bypasses the pin** — download-and-execute from upstream `main`. Options
-  are to accept it, to deny the command, or to drop `caveman`.
+  are to accept it, to drop `caveman`, or to deny at the Bash level the `curl … | node -`
+  the command tells Claude to run. **There is no `SlashCommand()` permission type**, so
+  denying the command itself is not available; the Bash deny is blunter and catches only
+  that shape of invocation.
 - **Windows hook shell**, above: untested and the highest blast radius in the tier.
 - **LibreOffice** is not in `bbs-setup.ps1` and three pinned document skills reference
   `soffice`.

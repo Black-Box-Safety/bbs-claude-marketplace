@@ -99,10 +99,12 @@ Three mechanical rules, each of which produces a plausible wrong answer when ski
    `git rev-list -n1 <tag>` is the peeled commit. For `caveman` v2.7.0 the tag object is
    `e6c5e68b…` and the commit is `8b0c1d36…`; nothing about either announces which is
    which.
-2. **Sort with `sort -V`, then filter to the train.** Read tags with
-   `git ls-remote --tags` **without** `--refs`, which strips the `refs/tags/<tag>^{}`
-   lines that are the only way to read a peeled commit without cloning. Lexical sort puts `v1.9.0` above
-   `v1.10.0`. `superpowers-chrome` has both, so this is not hypothetical.
+2. **Sort with `sort -V`, then filter to the train.** Lexical sort puts `v1.9.0` above
+   `v1.10.0`. `superpowers-chrome` has both, so this is not hypothetical. **Discovery and
+   peeling are two reads that want opposite flags**: discover on plain refs
+   (`git ls-remote --tags --refs`), because filtering discovery to `^{}` lines keeps only
+   annotated tags and silently drops every lightweight one — 12 of 26 on `caveman`'s
+   v-train — then peel only the winner, where `^{}` is exactly what you want.
 3. **Read `hooks/hooks.json`, not only `plugin.json`.** `obra/superpowers` at `v6.3.0`
    declares no `hooks` key in its manifest and still installs a `SessionStart` hook from
    `hooks/hooks.json`. An agent that checked the manifest alone would conclude the hook
