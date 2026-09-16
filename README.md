@@ -69,7 +69,7 @@ report. Anything red prints the exact sentence to send the admin.
 > by name and by item. Last quoted this buyer gloves in March at $Y (won). Gloves are NASPO: Grainger
 > price against Mule Creek's own account. Blowers are not on any schedule, so this is a competitive
 > lane with the 5% SB preference; drafting vendor outreach for two suppliers. Packet B forms filled,
-> signature lines flagged. Every number is in the cover summary with its source. Ready for your review.
+> signed on the lines Parker owns. Every number is in the cover summary with its source. Ready for your review.
 
 The rep reviews every number. The rep sends. Claude cannot.
 

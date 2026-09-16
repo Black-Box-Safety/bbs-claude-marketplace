@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-14-b19800" alt="14 skills">
+  <img src="https://img.shields.io/badge/skills-10-b19800" alt="10 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
@@ -30,14 +30,14 @@ between two of these.
 | # | Step | Skill |
 |---|---|---|
 | 1 | An RFQ arrives and the clock starts | `ca-rfq-intake` |
-| 2 | Get the items out of whatever they sent | `dwr-pdf-info` (DWR RFQ PDFs) · `grainger-cart-info` (saved cart PDF) · `grainger-screenshot` (a screenshot of a cart or table) |
+| 2 | Get the items out of whatever they sent | `rfq-item-extract` — one skill for a DWR RFQ PDF, a saved Grainger cart PDF, or a screenshot of a cart or table |
 | 3 | Can we even sell it on this vehicle? | `dgs-bpo-item-check` — is the Grainger part on the active DGS BPO |
-| 4 | Price it | `bbs-b2b-pricing` (the authorized Grainger punch-out path) · `bbs-sourcing` (competitive bids needing real vendor outreach, dispatching `supplier-scout` for items BBS has never sourced) · `vendor-quote-email` (one vendor, one ask) |
+| 4 | Price it | `grainger-pricing` (the authorized path — the Grainger MCP) · `bbs-sourcing` (competitive bids needing real vendor outreach, dispatching `supplier-scout` for items BBS has never sourced) · `vendor-quote-email` (one vendor, one ask) |
 | 5 | Build the customer's quote | `bbs-quote-builder` — BBS letterhead, SQ-104032 format, as a PDF |
-| 6 | Fill the compliance packet | `naspo-quote` (NASPO-routed) · `obs-form-filler` (CDCR OBS 4007(B) Packet-B) · `ca-form-filler` (general CA state packets) |
-| 7 | Go find the next one | `grainger-promo-page` (outbound campaign) · `bbs-deck-voice` (federal pursuit deck copy) |
+| 6 | Fill the compliance packet | `ca-form-filler` — every CA form, with the CDCR OBS 4007(B) Packet-B as its scripted path · `naspo-quote` runs a whole NASPO response and calls it for the paperwork |
+| 7 | Go find the next one | `grainger-promo-page` (outbound campaign). Federal deck copy is `bbs-deck-voice`, in `bbs-foundations` |
 
-Step 4 is the one to get right. `bbs-b2b-pricing` is the authorized path for Grainger
+Step 4 is the one to get right. `grainger-pricing` is the authorized path for Grainger
 pricing at BBS — prefer it over anything found on the open web, because the open-web
 price is not the price BBS's account actually pays.
 
@@ -84,20 +84,15 @@ pip install pymupdf pypdf
 
 `pymupdf` fills and stamps the forms; `pypdf` reads filled values back out of the archive when the skill mines precedents. No PDF library means no packet.
 
-**2. Create `~/.bbs/vendor_profile.json`.**
+**2. Nothing to create — the vendor profile ships with the plugin.**
 
-This is the single authority for every BBS value that goes on a state form: legal name, address, FEIN, seller's permit, DVBE cert number and expiration, the CUF statement, and Jackson Dalton as the disabled-veteran owner. It lives outside the repo so nobody's certificate numbers end up in git.
+`plugins/bbs-sales/references/vendor_profile.json` is the single authority for every BBS value that goes on a state form: legal name, address, FEIN, seller's permit, DVBE cert number and expiration, and Jackson Dalton as the disabled-veteran owner. Skills resolve it as `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json`, wherever the plugin was installed.
 
-Start from the copy already in this marketplace:
+Earlier revisions told you to copy it to `~/.bbs/vendor_profile.json` first. Do not — that second copy is exactly how a cert expiry goes stale in one place while binding bids go out from another. FEIN and seller's permit are committed here deliberately: this repo is BBS-specific and private (see `.claude-plugin/PLUGINS.md`). Buying account numbers and API keys are never committed.
 
-```bash
-mkdir -p ~/.bbs
-cp plugins/bbs-sales/references/vendor_profile.json ~/.bbs/vendor_profile.json
-```
+If an RFQ arrives pre-filled with a BBS field that disagrees with this file, the RFQ is wrong: flag it, don't adopt it.
 
-Then open it and confirm every value is current. If an RFQ arrives pre-filled with a BBS field that disagrees with this file, the RFQ is wrong: flag it, don't adopt it.
-
-TODO: confirm whether `~/.bbs/vendor_profile.json` needs a `cuf_statement` key beyond what the bbs-website copy carries, and whether the signature paths below should also live in this file rather than being passed per-run.
+TODO: the CUF statement (the "distinct element of work" on GSPD-05-105) is **not** in the profile — `ca-form-filler` currently asks the rep for it. Decide whether it belongs in the profile, and whether signature paths should too rather than being passed per-run.
 
 **3. Point at the signature images.** Both PNGs live in OneDrive, not in this repo:
 

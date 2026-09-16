@@ -43,8 +43,11 @@ do not paraphrase it weaker.
 9. **Never commit secrets.** "`.env` holds `SUPABASE_SERVICE_KEY`; it stays gitignored."
    (`bbs-database`). "No secrets. Public client + PKCE. There must never need to be one."
    (`bbs-bc-mcp-proxy`). "No credentials, ever." (`bbs-sales-vault`).
-10. **Identity numbers live outside git.** "`~/.bbs/vendor_profile.json` is the single
-    authority for every BBS value that goes on a state form. It lives outside the repo so
+10. **Identity numbers have exactly one home, and it is named.** "`plugins/bbs-sales/references/vendor_profile.json` is the single
+    authority for every BBS value that goes on a state form. It is committed in this
+    private BBS-specific repo deliberately; the rule against committing FEIN and permit
+    guards work that might be reused elsewhere. Buying account numbers and API keys are
+    never committed. Resolve it as `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` so
     nobody's certificate numbers end up in git." (`bbs-sales`). Public-record identifiers
     BBS prints in its email signature (UEI, DVBE number, LPA numbers) are fine to state.
 11. **Public repos get a private-data policy at the top.** Never commit buyer contacts,
@@ -84,9 +87,12 @@ do not paraphrase it weaker.
 18. **Price against the buying institution's own Grainger account.** "Discount is per
     account, so the wrong account returns a price that looks completely valid and is
     completely wrong." (`bbs-sales`). Account mapping: point at the seed data, never copy.
-19. **Grainger pricing comes from the punch-out, never the open web.** "Never look up
+19. **Grainger pricing comes from the Grainger MCP, never the open web.** "Never look up
     Grainger pricing via open web search — under any circumstance." (Bechtel Sentinel
-    tree). `b2b.blackboxsafety.com` and the facility account manager only.
+    tree). The MCP replaced the `b2b.blackboxsafety.com` punch-out. Price against the
+    account that will actually buy: the discount is per-account, so the wrong account
+    returns a wrong price that still looks valid. BBS sells Grainger at cost — the
+    returned `unitPrice` is the customer price, never marked up.
 20. **All-Grainger requests route to NASPO / Provision Connect.** "If all the items are on
     grainger.com, it's a NASPO request and goes through Provision Connect — not this
     skill." (`bbs-sourcing`). Two lanes, LPA/NASPO vs competitive; do not conflate.
@@ -100,10 +106,12 @@ do not paraphrase it weaker.
     values' FIRST. Present → exact brand/part, return buyer's own worksheet unchanged,
     NEVER run crossover." (`ca-quote-hub`). Federal primes: substitutions need written
     approval before quoting; no "or equal" unless the solicitation says so.
-23. **Signatures split by form and owner; never pre-filled.** "Jackson Dalton ALWAYS signs
-    as DV owner — certification is tied to ownership." Parker Marshall signs bidder and
-    cert lines as authorized representative; Griffin Forsyth signs federal / Sourcewell
-    and most CalRecycle 74s. "No review, no signature." Never pre-fill a signature line.
+23. **Signatures split by form and owner.** "Jackson Dalton ALWAYS signs as DV owner —
+    certification is tied to ownership." Parker Marshall signs bidder and cert lines as
+    authorized representative; Griffin Forsyth signs federal / Sourcewell and most
+    CalRecycle 74s. The skills apply these signatures under delegated authority (counsel
+    confirmed 2026-09-16); getting the **signer right per line** is the rule, and signing
+    for a customer or any third party is never one of them.
 
 ## Structure and maintenance (every type)
 
@@ -121,4 +129,4 @@ Imperative, second person, terse. Bold the rule word, not the sentence. Name the
 mode. Parenthetical rationales ("because it came from the buyer"). Numbers over
 adjectives. No corporate filler: no "leverage," "robust," "seamless," "best-in-class."
 Expert advisor, earnest and technical, never consumer-retail. Model IDs in any file:
-`claude-opus-4-8`, `claude-sonnet-5`, `claude-haiku-4-5` only.
+`claude-opus-5`, `claude-sonnet-5`, `claude-haiku-4-5` only.

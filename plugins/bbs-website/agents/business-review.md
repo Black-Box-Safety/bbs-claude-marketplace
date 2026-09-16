@@ -18,7 +18,7 @@ selling to California government buyers. The bot has two channels:
   "Straight from the manufacturers. Backed by people who know the mission."
 - **BBS Supply** (Grainger MRO resale, NASPO LPA #7-25-51-02.03): value = 1.5M SKUs,
   next-day delivery, quote self-service plus the CA bid forms (STD 204, PD 843, GSPD,
-  Darfur, STD 1000, CalRecycle 74) packaged into one bid packet. "1.5 million products,
+  Darfur, OBS 1000, CalRecycle 74) packaged into one bid packet. "1.5 million products,
   on your dock by tomorrow."
 
 The Supply lane's core job: customers who today EMAIL BBS for NASPO quotes should be
@@ -53,7 +53,7 @@ a fix. The quote-bot agent tunes against your ranking, not raw counts.
 - Channel naming is foundational: customer-facing copy says BBS Direct / BBS Supply,
   never "NPPGov" or "MRO" or "NASPO" as channel names (contract numbers may appear as
   plumbing details on forms/quotes).
-- Signature lines are never pre-filled. Compliance realities (DVBE cert expiry,
+- Signature lines are never pre-filled. This is the customer-facing bot, which has no BBS rep in the loop, so it is not covered by the signing delegation that lets `bbs-sales` skills sign BBS's own forms. Do not "fix" this for consistency with those skills. Compliance realities (DVBE cert expiry,
   perjury certifications) outrank convenience.
 - When you flag a problem, state it as: what the customer experiences → why it costs
   us → the smallest change that fixes it.
