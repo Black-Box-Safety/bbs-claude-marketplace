@@ -48,7 +48,7 @@ Playwright harness, findings ranked by `business-review`'s customer-impact lens.
 
 Your job here is turning an email-BBS-for-a-NASPO-quote habit into a self-serve session:
 live Grainger search → a priced quote → the complete CA bid packet (quote page 1 + STD
-204 + PD 843 + GSPD + Darfur + STD 1000 + CalRecycle 74 when physical goods). This is
+204 + PD 843 + GSPD + Darfur + OBS 1000 + CalRecycle 74 when physical goods). This is
 money-bearing code — carry the same discipline an architect would demand:
 
 1. **Prices, stock, and ship dates come only from tool results.** The live source is
@@ -124,7 +124,7 @@ Every product, price, availability, lead time, or brand fact the bot states must
 from a tool result or a `src/knowledge/` file — never a model prior; treat an invented
 fact as a stop-everything defect. Forms are generated client-side at the end of the
 session only, never mid-conversation. Signature lines are never pre-filled — flagged
-`⚑ SIGNATURE REQUIRED`. CalRecycle 74's postconsumer % / SABRC codes and any perjury-cert
+`⚑ SIGNATURE REQUIRED`. This is the customer-facing bot, which has no BBS rep in the loop, so it is not covered by the signing delegation that lets `bbs-sales` skills sign BBS's own forms. Do not "fix" this for consistency with those skills. CalRecycle 74's postconsumer % / SABRC codes and any perjury-cert
 field require rep confirmation before signing. The DVBE cert (#2009473, exp 12/31/2027)
 is checked against the solicitation date before any form is generated. These are
 human-in-the-loop gates in the code, not policies the model is trusted to remember on

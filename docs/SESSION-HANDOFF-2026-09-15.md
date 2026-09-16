@@ -55,7 +55,7 @@ RFQ intake, item extraction, BPO eligibility, pricing, the customer quote docume
 CDCR/CA compliance packets.
 **Does not own:** anything after the bid is won (→ `bbs-back-office`), the website
 (→ `bbs-website`), or company-wide doctrine (→ `bbs-foundations`).
-**Installed by:** sales reps. 14 skills · 1 agent · 2 commands · 4 hooks.
+**Installed by:** sales reps. 10 skills · 1 agent · 2 commands · 4 hooks.
 
 ### `bbs-website` — the storefront pipeline
 **Owns:** a manufacturer price list becoming a live product page. Catalog import, contract
@@ -76,8 +76,9 @@ link in a chain.
 
 ### `bbs-foundations` — company-wide
 **Owns:** doctrine every other plugin inherits, the BBS way to write a CLAUDE.md, personal
-voice skills, managed settings, the AUP, `/bbs-checkup`.
-**Does not own:** any desk's workflow. 2 skills · 3 commands · 1 hook.
+voice skills (including `bbs-deck-voice`, the federal slide-copy voice standard), managed
+settings, the AUP, `/bbs-checkup`.
+**Does not own:** any desk's workflow. 3 skills · 3 commands · 1 hook.
 
 ### Pinned external plugins
 `claudeforge`, `impeccable`, `superpowers-chrome`, `caveman`, and Anthropic's
@@ -117,7 +118,6 @@ Only in `bbs-sales`; everything else is pure Claude + connectors.
 
 | Skill | Needs on the machine |
 |---|---|
-| `obs-form-filler` | `pypdf`, `pymupdf` (`pip install pypdf pymupdf`) |
 | `ca-form-filler` | `pypdf`, `pymupdf`, `pdfplumber`, `pdftotext` (poppler) |
 | `bbs-quote-builder` | Node + `npm install docx`, and `soffice` (LibreOffice) for PDF |
 | `grainger-promo-page` | `pdftotext` (poppler) |
@@ -133,14 +133,14 @@ a clear message rather than a half-written document.
 
 | # | Item | Owner | Notes |
 |---|---|---|---|
-| 1 | **Personal-copy cutover — 15 skills exist twice** | Parker | The big one. See `HANDOFF.md`. Parker's own sessions load the personal copy first, so he is the one person not receiving the `obs-form-filler` fixes. Tier 1 (5 skills) first, one commit each. |
+| 1 | **Personal-copy cutover — 15 skills exist twice** | Parker | **Mechanics now confirmed (2026-09-15), and it is not a repo task.** The 15 copies are *account-synced*: removing one from disk did not retire it — a new session re-synced it byte-identical within seconds, and the skill stayed available throughout. It must be removed in Parker's claude.ai account (Settings → Capabilities → Skills). Also confirmed: **there is nothing to merge.** 9 of 15 are byte-identical to the marketplace; the other 6 differ only by being *worse* — `/mnt/skills/...` and `/Users/parkermarshall/...` paths, an unquoted `description:` with a colon, and a `PASTE_VENDOR_PROFILE_JSON_HERE` step. The marketplace copy is canonical in every case, so the cutover is a delete, not a merge. |
 | 2 | PR #10 — `HANDOFF.md` rewrite | — | Open, ready |
 | 3 | Acceptance gate never recorded | Parker | `docs/acceptance/` — a non-Parker rep completing real work unaided |
 | 4 | `bbs-sourcing` references files that exist nowhere | `/bbs-review` | Verified open |
 | 5 | `image-pipeline` is a documented stub | `/bbs-review` | Verified open |
 | 6 | `family-rollup` depends on an unmerged `bbs-database` branch | — | **Unverified** — lives in that repo |
-| 7 | Real-packet test of `obs-form-filler` | Parker | Validated against synthetic stubs only; the Rev. 08/2025 blank packet isn't in the repo. Run `--inspect` on a real one before a rep relies on it. |
-| 8 | **Canonical model IDs are stale, and the checker enforces the stale value** | Parker | `canonical-facts.md` and `check_claude_md.py:44` name `claude-opus-4-8` as current. The current Opus is `claude-opus-5`. The checker's regex doesn't flag the superseded ID and its advice string tells authors to write it, so the stale value propagates into every CLAUDE.md the forge touches. Same failure class as the SB-cert error. |
+| 7 | Real-packet test of the OBS 4007(B) path (`ca-form-filler` Path A) | Parker | Validated against synthetic stubs only; the Rev. 08/2025 blank packet isn't in the repo. Run `--inspect` on a real one before a rep relies on it. |
+| 8 | ~~Canonical model IDs are stale~~ | — | **Fixed 2026-09-15, in two halves.** PR #11 fixed the source: `references/models.json` is now the one list, generated from the API by `refresh_models.py` and read by the checker, which no longer carries its own copy. What that PR did not reach was the propagation: **9 live files still named `claude-opus-4-8` as current**, including `bbs-foundations/hooks/skill-bus.json` (injected into every skill run) and `bbs-managed-settings.json` (the company-wide CLAUDE.md on every machine), so the stale value was still being broadcast from a repo whose canonical file was already correct. Those 9 are fixed here. **Parker must re-paste the managed settings** (`ADMIN-RUNBOOK` §1) for it to reach machines — the repo edit alone changes nothing on a rep's PC. |
 
 ---
 
@@ -151,22 +151,56 @@ working for a small team, so the next session should audit it against the practi
 make skills and plugins actually land in a business this size. Each one below is paired
 with what this repo already does and the specific gap left.
 
-### A skill is found by its description, and 30 skills now compete
+### A skill is found by its description — measured, then consolidated
 
-This is the main quality lever and the least tested thing here. A skill's name and
-description are all Claude sees until it triggers, so overlapping descriptions mean the
-wrong skill wins — silently, and differently each time.
+The handoff predicted the Grainger cluster would collide: `grainger-cart-info`,
+`grainger-screenshot`, `dwr-pdf-info`, `dgs-bpo-item-check`, `bbs-b2b-pricing`. **It did
+not.** All five routed 5/5 in every condition. `skill-creator`'s `run_eval.py` could not
+have shown that — it registers one description and asks "did it fire?", which cannot say
+which sibling won. `docs/evals/discriminate.py` registers every installed description at
+once in an isolated project root and records which skill was actually invoked.
 
-`bbs-sales` alone has 14 skills, and one cluster is visibly close: `grainger-cart-info`
-(cart PDF), `grainger-screenshot` (screenshot of a cart), `dwr-pdf-info` (DWR RFQ PDF),
-`dgs-bpo-item-check` ("check these Grainger part numbers") and `bbs-b2b-pricing` ("price
-these Grainger items"). A rep who pastes a list of Grainger numbers could plausibly land on
-any of three.
+Description-only routing started at 18/20. The two real defects were elsewhere:
+`naspo-quote` lost 40% of its runs to `ca-rfq-intake`, and `dwr-pdf-info` missed the bare
+acronym "DWR". The finding that paid was on deliberately ambiguous queries, where the
+baseline silently ran the **wrong** skill — "check these Grainger items" ran pricing 4/5,
+"pull the Grainger numbers out of items.pdf" ran the cart skill 3/5. Reciprocal
+"...or ask which" clauses turned those into questions.
 
-**Do:** use `skill-creator`'s eval support to test triggering — does each fire when it
-should, and stay quiet when a sibling should win? Fix by sharpening descriptions and their
-"do NOT use for" clauses, not by merging skills. This is measurable; do it before adding a
-16th skill.
+**Then Parker called the consolidation**, and the overlap that mattered was a different
+cut from the predicted one: skills doing **one job through different front doors**.
+
+- `grainger-cart-info` + `grainger-screenshot` + `dwr-pdf-info` → **`rfq-item-extract`**.
+  One job — get the items out of what the agency sent — behind three input formats.
+- `ca-form-filler` + `obs-form-filler` → **`ca-form-filler`**, with the CDCR OBS 4007(B)
+  packet as its scripted Path A and everything else as Path B. They were already
+  entangled: `ca-form-filler` called `obs-form-filler`'s inspector.
+- `bbs-b2b-pricing` → **`grainger-pricing`**, routed through the Grainger MCP. The MCP
+  describes itself as the punch-out's replacement, and it carries two rules the old skill
+  never stated: pricing is **per-account** (the wrong account returns a wrong price that
+  still looks valid), and BBS **sells Grainger at cost** — `unitPrice` is the customer
+  price, never marked up, because BBS is paid through a contract rebate.
+
+`dgs-bpo-item-check` and `grainger-pricing` were left separate: they share an *input* (a
+list of part numbers) but answer different questions, and they route 5/5 apart.
+
+bbs-sales went 14 skills → 10. Description-only routing is **24/24**.
+
+**What the merges surfaced, which is the real argument for doing them.** Consolidating
+forced the divergent copies into one place, and they disagreed:
+
+- `ca-form-filler` named **two form IDs that do not exist** in the shared rules —
+  `GSPD-05-106` (it is GSPD-05-105) and `STD 1000` (it is OBS 1000). Both would have gone
+  onto binding bids.
+- Its field maps read **seven vendor-profile keys that are not there** —
+  `dvbe_details.*`, `rep.full_name`, `cuf_statement`, `broker_or_agent`, `uses_genai` —
+  so those fields silently produced nothing.
+- It loaded the vendor profile from `~/.bbs/vendor_profile.json`, the per-machine copy the
+  single-source rule exists to prevent.
+- `bbs-order-reconciliation`'s description was 1,155 characters against a 1,024 limit, so
+  it was truncated **exactly through its entire "Do NOT use for" clause**.
+
+None of those were visible while the duplicates sat in separate files.
 
 ### One source of truth, and nothing invented
 

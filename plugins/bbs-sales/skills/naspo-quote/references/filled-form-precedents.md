@@ -26,7 +26,7 @@ PD 843 is Jackson's alone — it declares disabled-veteran ownership. CV 012 lik
 STD 204 is signed by Jackson as payee representative, with
 `jackson@blackboxsafety.com` as the email, not Parker's.
 
-All three are in `~/.bbs/vendor_profile.json` under
+All three are in `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` under
 `authorized_representatives`. Griffin has no email on file — confirm one with the
 rep before putting it on a form that asks. Ask who is signing rather than
 defaulting to whoever signed last time; the roster above tells you which answers

@@ -1,6 +1,18 @@
 ---
 name: naspo-quote
-description: End-to-end workflow for a California state agency RFQ under NASPO ValuePoint — pull live Grainger pricing for the requested item numbers, build the BBS sales quote PDF, and fill and sign the CA compliance packet (OBS Line-Item Cost Worksheet, CalRecycle 74, DGS PD 843, Darfur OBS 1500, OBS 1000 GenAI, Bidder Declaration GSPD-05-105). Use this whenever a CDCR institution, CalVet home, CSU/UC campus, Caltrans district, or any State of California agency emails a request for quote, sends blank state certs to complete, or asks for pricing on Grainger item numbers — even if they just say "please quote these items" and never mention NASPO, and even if the ask looks like only pricing or only paperwork, because on state business those two halves ship together.
+description: >-
+  Run a complete California state agency RFQ response end to end and deliver both halves: live
+  Grainger pricing for the requested item numbers, the BBS sales quote PDF, and the filled CA
+  compliance packet (OBS Line-Item Cost Worksheet, CalRecycle 74, DGS PD 843, Darfur OBS 1500,
+  OBS 1000 GenAI, Bidder Declaration GSPD-05-105). Use whenever a CDCR institution, CalVet
+  home, CSU/UC campus, Caltrans district or any State of California agency asks for pricing on
+  item numbers, sends blank state certs to complete, or both — even if they never say NASPO,
+  and even when the ask looks like only pricing or only paperwork, because on state business
+  the two halves ship together. An agency email that asks for a quote is this skill, not an
+  intake task: ca-rfq-intake only files a request and opens its folder, and does not price or
+  fill anything. Do NOT use for a competitive SB/DVBE bid needing vendor sourcing
+  (use bbs-sourcing), or when the rep wants the forms alone with no pricing
+  (use ca-form-filler).
 ---
 
 # NASPO quote — CA state agency RFQ
@@ -95,10 +107,17 @@ Standard BBS answers, consistent across every state packet:
 | OBS 1000 GenAI | GenAI utilized = **No**; detail questions and training question stay blank |
 | CalRecycle 74 | agency + buyer header from the RFQ, vendor block from the profile, one row per quoted line |
 
-Vendor constants live in `~/.bbs/vendor_profile.json` (legal name, FEIN, address,
-DVBE cert 2009473 exp. 12/31/2027, CUF statement, Jackson Dalton as DV owner).
+Vendor constants live in `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json`
+(legal name, FEIN, address,
+DVBE cert 2009473 exp. 12/31/2027, Jackson Dalton as DV owner).
 Treat it as the authority — if an RFQ pre-fills a BBS field differently, the RFQ
 is wrong; flag it rather than adopting it.
+
+The **CUF statement is not a vendor constant and is not in the profile.** It is the
+"distinct element of work" on the GSPD-05-105 Bidder Declaration, it is specific to
+the bid, and the rep supplies it. Never compose one — a Commercially Useful Function
+statement is a certification on a binding bid. Missing, it is `[MISSING — NEEDS
+INPUT]`. `references/ca-form-rules.md` is authoritative.
 
 CalRecycle recycled content is the one genuinely per-item judgment, and it is
 **not** a constant — it follows what the product is made of. Across ~113 filed

@@ -62,7 +62,7 @@ Cross-cutting reviewers:
 
 The bid-form and vendor-sourcing skills that used to sit in the Quote bot row now
 live in **bbs-sales**, where the quoting workflow is: `ca-form-filler`,
-`obs-form-filler`, `bbs-sourcing`. Nothing in this plugin calls them.
+`bbs-sourcing`. Nothing in this plugin calls them.
 
 Generic Shopify/Liquid reference skills (`shopify-plugin:*`, `liquid-skills:*`, `impeccable`, `firecrawl`, `windsor-ai`, `pr-review-toolkit`) are **linked, not copied** — they update on their own and never drift.
 
@@ -81,7 +81,7 @@ Three doctrine inserts fire automatically when a relevant skill runs, so the rul
 
 - **Storefront** — BBS design tokens, cert/claim rules (no cross-jurisdiction credit; DVBE 2009473), MAP-not-contract pricing, RFQ page-flow.
 - **Catalog** — import-template rules, contract eligibility and `is_restricted`, regenerate-don't-hand-edit for generated files.
-- **Grounding** — the bot states only tool/knowledge facts (never invented prices); current model IDs (`claude-opus-4-8` / `claude-sonnet-5` / `claude-haiku-4-5`); cache the stable prefix; forms at session-end only. Ships with `bbs-foundations`, not this plugin — install both, or the lane-tuning skills run without it.
+- **Grounding** — the bot states only tool/knowledge facts (never invented prices); current model IDs (`claude-opus-5` / `claude-sonnet-5` / `claude-haiku-4-5`); cache the stable prefix; forms at session-end only. Ships with `bbs-foundations`, not this plugin — install both, or the lane-tuning skills run without it.
 
 ## See it work
 

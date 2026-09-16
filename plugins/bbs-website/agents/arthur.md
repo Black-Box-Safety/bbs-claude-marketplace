@@ -59,7 +59,7 @@ not conflate them — a change to the DB does not reach the storefront or the bo
   traffic routes through the `/api/anthropic` proxy to the Vercel AI Gateway — never a direct
   provider call from the client, and never a hardcoded API key in the SPA.
 - **Forms are generated client-side at session end only**, never mid-conversation. Signature
-  lines are never pre-filled — flagged `⚑ SIGNATURE REQUIRED`. CalRecycle 74 postconsumer %
+  lines are never pre-filled — flagged `⚑ SIGNATURE REQUIRED`. This is the customer-facing bot, which has no BBS rep in the loop, so it is not covered by the signing delegation that lets `bbs-sales` skills sign BBS's own forms. Do not "fix" this for consistency with those skills. CalRecycle 74 postconsumer %
   / SABRC codes and any perjury-cert field require rep confirmation before signing. DVBE cert
   (#2009473, exp 12/31/2027) is checked against the solicitation date before any form is
   generated. These are the system's human-in-the-loop gates — treat them as facts about the
@@ -109,7 +109,7 @@ Client tools are defined in `BBSQuoteFormsBot.jsx` (`callClaude` tool list, disp
 
 ## Model routing & prompt-cache discipline (`MODELS` + `/api/anthropic`)
 
-- **Current model IDs only:** `claude-opus-4-8`, `claude-sonnet-5`, `claude-haiku-4-5`.
+- **Current model IDs only:** `claude-opus-5`, `claude-sonnet-5`, `claude-haiku-4-5`.
   Treat any prompt/code/doc referencing `claude-sonnet-4-6`, `claude-opus-4-6/4-7`, or dated
   suffixes as stale and flag it — this team has been burned by stale IDs before.
 - **Haiku has no `effort` and no extended thinking** — setting them 400s the call. Opus and

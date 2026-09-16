@@ -1,0 +1,26 @@
+[
+ {
+  "id": "amb-1",
+  "expect": "__unscored__",
+  "query": "Here are some Grainger part numbers: 102WZ8, 103N88, 10A236"
+ },
+ {
+  "id": "amb-2",
+  "expect": "__unscored__",
+  "query": "Can you check these Grainger items for me? 4CZ16, 6YPH8"
+ },
+ {
+  "id": "amb-3",
+  "expect": "__unscored__",
+  "files": [
+   "rfq.pdf"
+  ],
+  "query": "I need pricing on the items in rfq.pdf."
+ },
+ {
+  "id": "naspo-1",
+  "expect": "__unscored__",
+  "query": "CDCR Corcoran just emailed asking us to quote these Grainger item numbers and sent along the blank state certs to complete.",
+  "note": "Genuinely ambiguous, and it is a BBS workflow question rather than a description defect: ca-rfq-intake says to log before pricing anything and is step 1 of the sales README, but the model reads 'asking us to quote' as a quoting task and picks naspo-quote 4/5. Parker to rule on which is right; whichever it is, one description needs to say so explicitly."
+ }
+]

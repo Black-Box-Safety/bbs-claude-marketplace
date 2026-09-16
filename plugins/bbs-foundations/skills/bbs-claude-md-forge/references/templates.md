@@ -70,7 +70,8 @@ history; the "tech stack" is the buyer's forms and the delivery gates.
 | Award basis · payment terms · delivery terms | |
 
 ## Certification rules (NON-NEGOTIABLE)
-<SDVOSB or DVBE by channel; authorized rep; federal signatory; DV owner; never pre-fill>
+<SDVOSB or DVBE by channel; authorized rep; federal signatory; DV owner;
+signer correct per line, never a third party's signature>
 
 ## Forms and compliance flowdowns
 <reps & certs tiers by award value; FAR/DFARS clauses; COO rule; substitution rule>
@@ -114,7 +115,7 @@ Modelled on `bbs-website` and `bbs-sales`. The plugin README carries the story; 
 
 ## Contributing
 - One change per skill; `/bbs-review` before shipping; fold findings back into a skill.
-- Model IDs: `claude-opus-4-8` · `claude-sonnet-5` · `claude-haiku-4-5` only.
+- Model IDs: `claude-opus-5` · `claude-sonnet-5` · `claude-haiku-4-5` only.
 - Internal paths via `${CLAUDE_PLUGIN_ROOT}`, never `~/`.
 
 *Owner: <name> · Last verified: <YYYY-MM-DD>*

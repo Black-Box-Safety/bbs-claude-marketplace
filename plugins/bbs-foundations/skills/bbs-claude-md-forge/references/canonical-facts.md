@@ -3,7 +3,9 @@
 When a CLAUDE.md disagrees with this file, the CLAUDE.md is wrong. When this file is wrong,
 fix it here once and tell Parker. Verified against the fleet sweep of 2026-09-02 and the
 owner-locked canonical facts in `bbs-shopify` (2026-07-10). Public-record data only; the
-FEIN, seller's permit, and buying account numbers live in `~/.bbs/vendor_profile.json`.
+FEIN and seller's permit live in `plugins/bbs-sales/references/vendor_profile.json`, committed
+deliberately in this private repo (see `.claude-plugin/PLUGINS.md`). Buying account
+numbers are never committed.
 
 ## Identity
 
@@ -69,10 +71,10 @@ to fulfill unless BBS is a named reseller.
 | Procurement intelligence (SCPRS) | Supabase `jsrcrprxoxlnphhcpnbu` via ca-procurement-intel MCP | |
 | Revenue dashboard | Supabase `hkogytbgmaucjjaeqrgd` | |
 | Customer documents (RFQs, POs, packets) | **SharePoint** `Black Box Safety - MASTER/Customers/…` | Repos hold pointers and lessons, not the documents |
-| Grainger pricing | BBS b2b punch-out (`b2b.blackboxsafety.com`), Grainger MCP | Never the open web |
+| Grainger pricing | **Grainger MCP** — per buying account. The `b2b.blackboxsafety.com` punch-out it replaced is retired | Never the open web; never from memory |
 | Pipeline / outreach | Dynamics 365 Sales | |
 | Storefront | Shopify `bbs-supabase-test.myshopify.com`, theme "BBS — Field Manual" | Verify the live theme id with `shopify theme list` before pushing |
-| BBS form values (FEIN, permit, certs) | `~/.bbs/vendor_profile.json` | Skills read it; never re-key it |
+| BBS form values (FEIN, permit, certs) | `plugins/bbs-sales/references/vendor_profile.json` | Skills resolve it as `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` and never re-key it |
 
 ## People and signatures
 
@@ -82,7 +84,12 @@ to fulfill unless BBS is a named reseller.
 | Griffin Forsyth | Vice President | Federal / Sourcewell contracts; most CalRecycle 74s |
 | Parker Marshall | Sales Manager, primary responder | Bidder and cert lines: Darfur, OBS 1000, reps & certs; CalRecycle 74 on his own RFQs |
 
-Never pre-fill a signature line. "No review, no signature."
+Signatures are applied by the form skills: Parker and Jackson have each delegated
+authority for the forms those skills fill, confirmed with counsel 2026-09-16. The rule
+is **whose signature goes on which line** (above) — never a third party's, never a
+customer's. Signature images are credentials: they live outside git, like the Grainger
+`.env`, and are referenced at run time. Sending stays human: the managed settings deny
+the send-class tools.
 
 Quote desk (2026-07): Aanya Samarasinghe (quotes/crossovers), Kim Quezon (door/tactical),
 Joyce Newell (POs), Jeff Azar (body armor), Griffin (federal). Accounting: Amy Leath.
@@ -106,6 +113,12 @@ fact** — which is why the checker now has no copy of its own.
 
 Navy `#051c2c`, gold `#b19800`, AllStar red `#fa0a0a` (co-branded dashboard only). Fonts
 Archivo, JetBrains Mono. Quote SLA 48 hours. CA sales tax ~7.75%, F.O.B. Destination.
+
+## Terms that mean two things
+
+| Term | The two senses | Which one you mean |
+|---|---|---|
+| **punchout / punch-out** | (1) The standard procurement pattern: an agency's eProcurement system links out to a supplier's e-commerce catalog and the cart returns to the buyer's system. (2) BBS's own retired Grainger pricing path at `b2b.blackboxsafety.com`. | Sense (1) is live and correct — `grainger-promo-page` uses it, and agencies punch out to Grainger every day. Sense (2) is **retired**: BBS gets Grainger prices from the Grainger MCP (`grainger-pricing`). Never "fix" sense (1) into the MCP wording. |
 
 ## Contradictions the sweep found, and the ruling
 

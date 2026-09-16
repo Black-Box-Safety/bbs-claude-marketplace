@@ -30,7 +30,13 @@ SKIP_DIRS = {".git", "node_modules", "vendor", ".venv", "venv", "__pycache__", "
 # second source of truth waiting to drift.
 MODELS_JSON = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            "references", "models.json")
-ANY_CLAUDE_ID = re.compile(r"\bclaude-[a-z0-9]+(?:-[a-z0-9]+)*\b")
+# `\b` matches after a hyphen, so `bbs-claude-md-forge` yielded the "model ID"
+# `claude-md-forge` and any file naming that path FAILed as unknown_model. The
+# lookbehind refuses a match that starts inside a longer hyphenated identifier.
+# There is deliberately no trailing lookahead: `claude-3-…` ends on a hyphen, and
+# `(?![\w-])` would drop that whole stale family. The greedy tail already runs to
+# the end of the hyphenated run, so a real ID is never cut short.
+ANY_CLAUDE_ID = re.compile(r"(?<![\w-])claude-[a-z0-9]+(?:-[a-z0-9]+)*\b")
 DATE_SUFFIXED = re.compile(r"\bclaude-[a-z0-9-]+-20\d{6}\b")
 
 
@@ -205,7 +211,10 @@ def check_file(path, all_files):
         rel = os.path.relpath(child, d)
         if rel not in imports and rel.replace(os.sep, "/") not in imports:
             W("unchained_child", 0, f"child {rel} exists but is not imported at column one (ok if deliberately read-on-demand)")
-    parent = os.path.join(os.path.dirname(d), "CLAUDE.md")
+    # abspath first: for a file reached as ./CLAUDE.md, d is "." and dirname(".")
+    # is "", so the root file was compared against itself and warned that it did
+    # not import its own parent.
+    parent = os.path.join(os.path.dirname(os.path.abspath(d)), "CLAUDE.md")
     if os.path.exists(parent) and os.path.abspath(parent) in {os.path.abspath(f) for f in all_files}:
         if not any(t in ("../CLAUDE.md", "..\\CLAUDE.md") for t in imports):
             W("no_parent_import", 0, "sub-file does not import @../CLAUDE.md; a session started here misses the universal rules")
