@@ -46,8 +46,13 @@ matches before extracting.
    the same instinct anywhere else you infer.
 3. **Note when the source was an image.** Visual reading is slower and less reliable than
    parsing text; the rep should know which one produced their list.
-4. **De-duplicate, first occurrence wins.** Carts repeat items in "Recently Viewed"
-   sections.
+4. **De-duplicate only where the source repeats an item by accident — never on a DWR
+   RFQ.** A Grainger cart bleeds items in from "Recently Viewed", so there first
+   occurrence wins. **A DWR RFQ is the opposite: keep duplicate lines as separate
+   rows and never collapse them.** DWR customers duplicate a line deliberately to
+   split an order between departments, so merging two lines of 10 bids 10 instead of
+   20 — half the money, and nothing errors. Note the repeat as an FYI after any
+   flags, never as a warning. `references/source-dwr-rfq.md` has the wording.
 5. **Output the format, and nothing else.** `ITEM#,QTY` means a plain code block, one
    entry per line, no headers and no prose inside it — the rep pastes it straight into the
    Grainger portal. Put the count and any flags *after* the block.

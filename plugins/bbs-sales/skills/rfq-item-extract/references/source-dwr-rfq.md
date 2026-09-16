@@ -71,6 +71,23 @@ The Sourcing table plus one column on the right:
 ProCo Input holds `ITEM#,QTY` for a confirmed Grainger line, `ITEM#,QTY*` for an assumed
 Grainger line, and stays blank for a sourced or flagged line.
 
+## Duplicate lines — never collapse them
+
+A DWR RFQ routinely lists the same item # and description on more than one line. That is
+**intentional**: the customer is splitting one order across departments for their own
+record keeping. Always keep them as separate rows, in every mode.
+
+Collapsing them is the expensive failure on this path. Two departments each ordering 10
+become a single line of 10, the bid is short by half, and nothing anywhere reports an
+error — the cross-source de-duplication rule in `SKILL.md` explicitly does not apply here.
+
+Note the repeat after any flags, as an FYI and never as a warning or an error:
+
+```
+📋 Note: Lines 0001 and 0002 appear to be duplicates (same item, likely split by
+department).
+```
+
 ## Assumed Grainger detection — Mixed mode only
 
 After the first pass, re-read the sourced lines. Mark one **Assumed Grainger** only if

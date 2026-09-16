@@ -108,9 +108,15 @@ Standard BBS answers, consistent across every state packet:
 
 Vendor constants live in `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json`
 (legal name, FEIN, address,
-DVBE cert 2009473 exp. 12/31/2027, CUF statement, Jackson Dalton as DV owner).
+DVBE cert 2009473 exp. 12/31/2027, Jackson Dalton as DV owner).
 Treat it as the authority — if an RFQ pre-fills a BBS field differently, the RFQ
 is wrong; flag it rather than adopting it.
+
+The **CUF statement is not a vendor constant and is not in the profile.** It is the
+"distinct element of work" on the GSPD-05-105 Bidder Declaration, it is specific to
+the bid, and the rep supplies it. Never compose one — a Commercially Useful Function
+statement is a certification on a binding bid. Missing, it is `[MISSING — NEEDS
+INPUT]`. `references/ca-form-rules.md` is authoritative.
 
 CalRecycle recycled content is the one genuinely per-item judgment, and it is
 **not** a constant — it follows what the product is made of. Across ~113 filed
