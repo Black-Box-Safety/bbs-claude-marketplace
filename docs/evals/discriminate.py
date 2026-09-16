@@ -82,9 +82,7 @@ def build_root(skills: dict, root: Path, alias: dict | None = None) -> dict:
 
 def winner_from_stream(process, mapping, timeout):
     """Return the skill key of the first skill/command invoked, or NONE."""
-    buffer = ""
-    pending = None
-    acc = ""
+    state = {"buffer": "", "pending": None, "acc": ""}
     start = time.time()
 
     def match(text):
@@ -103,22 +101,51 @@ def winner_from_stream(process, mapping, timeout):
                 return key
         return None
 
-    while time.time() - start < timeout:
-        if process.poll() is not None:
-            rest = process.stdout.read()
-            if rest:
-                buffer += rest.decode("utf-8", errors="replace")
-            break
-        ready, _, _ = select.select([process.stdout], [], [], 1.0)
-        if not ready:
-            continue
-        chunk = os.read(process.stdout.fileno(), 8192)
-        if not chunk:
-            break
-        buffer += chunk.decode("utf-8", errors="replace")
+    def handle(event):
+        """A skill key, NONE for a run that finished having invoked nothing,
+        or None meaning no verdict yet."""
+        if event.get("type") == "stream_event":
+            se = event.get("event", {})
+            t = se.get("type", "")
+            if t == "content_block_start":
+                cb = se.get("content_block", {})
+                if cb.get("type") == "tool_use":
+                    if cb.get("name", "") in ("Skill", "Read", "SlashCommand"):
+                        state["pending"], state["acc"] = cb.get("name"), ""
+                    else:
+                        state["pending"], state["acc"] = None, ""
+            elif t == "content_block_delta" and state["pending"]:
+                d = se.get("delta", {})
+                if d.get("type") == "input_json_delta":
+                    state["acc"] += d.get("partial_json", "")
+                    return match(state["acc"])
+            elif t == "content_block_stop" and state["pending"]:
+                hit = match(state["acc"])
+                if hit:
+                    return hit
+                state["pending"], state["acc"] = None, ""
+        elif event.get("type") == "assistant":
+            for item in event.get("message", {}).get("content", []):
+                if item.get("type") != "tool_use":
+                    continue
+                hit = match(json.dumps(item.get("input", {})))
+                if hit:
+                    return hit
+        elif event.get("type") == "result":
+            return NONE
+        return None
 
-        while "\n" in buffer:
-            line, buffer = buffer.split("\n", 1)
+    def consume(flush=False):
+        """Parse whole lines out of the buffer. With flush=True also parse a
+        final line that arrived without its trailing newline."""
+        while True:
+            buf = state["buffer"]
+            if "\n" in buf:
+                line, state["buffer"] = buf.split("\n", 1)
+            elif flush and buf.strip():
+                line, state["buffer"] = buf, ""
+            else:
+                return None
             line = line.strip()
             if not line:
                 continue
@@ -126,43 +153,35 @@ def winner_from_stream(process, mapping, timeout):
                 event = json.loads(line)
             except json.JSONDecodeError:
                 continue
+            verdict = handle(event)
+            if verdict is not None:
+                return verdict
 
-            if event.get("type") == "stream_event":
-                se = event.get("event", {})
-                t = se.get("type", "")
-                if t == "content_block_start":
-                    cb = se.get("content_block", {})
-                    if cb.get("type") == "tool_use":
-                        if cb.get("name", "") in ("Skill", "Read", "SlashCommand"):
-                            pending, acc = cb.get("name"), ""
-                        else:
-                            pending, acc = None, ""
-                elif t == "content_block_delta" and pending:
-                    d = se.get("delta", {})
-                    if d.get("type") == "input_json_delta":
-                        acc += d.get("partial_json", "")
-                        hit = match(acc)
-                        if hit:
-                            return hit
-                elif t == "content_block_stop" and pending:
-                    hit = match(acc)
-                    if hit:
-                        return hit
-                    pending, acc = None, ""
-                elif t == "message_stop":
-                    pass
+    while time.time() - start < timeout:
+        if process.poll() is not None:
+            rest = process.stdout.read()
+            if rest:
+                state["buffer"] += rest.decode("utf-8", errors="replace")
+            break
+        ready, _, _ = select.select([process.stdout], [], [], 1.0)
+        if not ready:
+            continue
+        chunk = os.read(process.stdout.fileno(), 8192)
+        if not chunk:
+            break
+        state["buffer"] += chunk.decode("utf-8", errors="replace")
+        hit = consume()
+        if hit is not None:
+            return hit
 
-            elif event.get("type") == "assistant":
-                for item in event.get("message", {}).get("content", []):
-                    if item.get("type") != "tool_use":
-                        continue
-                    blob = json.dumps(item.get("input", {}))
-                    hit = match(blob)
-                    if hit:
-                        return hit
-
-            elif event.get("type") == "result":
-                return NONE
+    # Every exit above leaves bytes unparsed, and parsing them is the point.
+    # A run that finishes fast hands over its whole stream — tool_use included
+    # — in the drain that discovers the process has gone, and the old code
+    # appended that drain to the buffer and then broke without reading it. A
+    # correct route scored __none__, which is indistinguishable from throttling.
+    hit = consume(flush=True)
+    if hit is not None:
+        return hit
     return NONE
 
 
