@@ -398,10 +398,10 @@ RETIRED_SKILLS = {
 #
 # Fields:
 #   kind      what a rep has to install: mcp | connector | service | cli |
-#             python-package. Lives HERE, once, and never in a skill's
-#             frontmatter — the kind of a system is a property of the system,
-#             and restating it in twelve skills is invariant 2 broken twelve
-#             times.
+#             python-package | npm-package. Lives HERE, once, and never in a
+#             skill's frontmatter — the kind of a system is a property of the
+#             system, and restating it in twelve skills is invariant 2 broken
+#             twelve times.
 #   signals   patterns that prove use.
 #   canon     the string that must appear in canonical-facts.md's "Systems of
 #             record" table. That table is the authority for what BBS's systems
@@ -410,6 +410,16 @@ RETIRED_SKILLS = {
 #             system is not in canon yet, which is reported, not invented.
 #   bootstrap the winget id scripts/bbs-setup.ps1 installs it under, for cli
 #             entries. None means a rep who ran the bootstrap does not have it.
+#             The id is BONDED to that script the way `canon` is bonded to
+#             canonical-facts.md: check_bootstrap_ids() FAILs if an id named
+#             here is not in bbs-setup.ps1. Before that bond existed the PR
+#             describing it could claim it while `OpenJS.NodeJS.LTS` could be
+#             deleted from the bootstrap with the checker staying clean —
+#             invariant 3, in the table reviewers were asked to check hardest.
+#   caveat    optional. The bootstrap id installs, but what it installs is not
+#             the thing the skills actually invoke. Reported once, not per
+#             skill, because it is a fact about the system and not about any
+#             one skill that uses it.
 EXTERNAL_SYSTEMS = {
     # --- systems of record and connectors ---------------------------------
     "business-central": {
@@ -478,13 +488,34 @@ EXTERNAL_SYSTEMS = {
     "sirv": {
         "kind": "service", "canon": None,
         # Likewise: "the Sirv image CDN" in a repo map is a description.
+        #
+        # These two patterns match NOTHING in the repo today, so this entry can
+        # never fire, and that is the doctrine working rather than a gap to
+        # close. Every Sirv string in the tree is the bare brand in prose, and
+        # `image-pipeline` (which really does upload to Sirv) and
+        # `site-wiring-map` (which only describes what `bbs-shopify` contains)
+        # use the identical wording — a signal that caught the first would
+        # invent a dependency on the second. image-pipeline's declaration is
+        # therefore carried by `dependencies_uncorroborated`, which says out
+        # loud that a human read it out of prose. The patterns stay because
+        # they are what corroboration would look like if the skill ever grows
+        # a real credential or URL.
         "signals": [r"\bSIRV_[A-Z_]+\b", r"\bsirv\.com\b"],
     },
 
     # --- command-line tools ------------------------------------------------
     "python3": {
         "kind": "cli", "canon": None, "bootstrap": "astral-sh.uv",
-        "signals": [r"\bpython3? [\"'$]", r"\bpython3?\s+\S*\.py\b"],
+        "caveat": "winget-installing 'astral-sh.uv' puts `uv` on PATH, not `python3`. "
+                  "Every skill here invokes the interpreter directly (`python3 x.py`), "
+                  "so a rep who ran only the bootstrap still has no `python3` to run",
+        # The trailing class carries `-` so the heredoc form matches. Without it
+        # `python3 - <<'EOF'` — a whole runnable script, imports and all — read
+        # as no dependency at all, and bbs-order-reconciliation's cross-project
+        # item walk declared neither python3 nor openpyxl while shipping both.
+        # Widening it by that one character produced exactly one new FAIL
+        # repo-wide, which was this one.
+        "signals": [r"\bpython3? [\"'$-]", r"\bpython3?\s+\S*\.py\b"],
     },
     "node": {
         "kind": "cli", "canon": None, "bootstrap": "OpenJS.NodeJS.LTS",
@@ -506,16 +537,37 @@ EXTERNAL_SYSTEMS = {
         "kind": "cli", "canon": None, "bootstrap": None,
         "signals": [r"\bvercel (?:deploy|link|env|--prod)\b"],
     },
+    # Poppler's `pdftotext` is how three skills turn a bid packet into text
+    # before anything reads it, and unlike the three above it IS bootstrapped —
+    # which is the point of naming it. A dependency that the bootstrap already
+    # covers still has to be declarable, or `--requirements` quietly understates
+    # what the job touches.
+    "poppler": {
+        "kind": "cli", "canon": None, "bootstrap": "oschwartz10612.Poppler",
+        "signals": [r"\bpdftotext\b", r"\bpdfinfo\b"],
+    },
 
-    # --- python packages ---------------------------------------------------
+    # --- language packages --------------------------------------------------
     # Named because their absence is the actual failure a rep hits: python3 is
-    # present and the script still dies on import.
+    # present and the script still dies on import. The same sentence is true of
+    # a missing npm package word for word, so `npm-package` exists for the one
+    # case in the tree rather than leaving `docx` undeclarable.
     "pypdf": {"kind": "python-package", "canon": None,
               "signals": [r"^\s*(?:import|from) pypdf\b"]},
     "pymupdf": {"kind": "python-package", "canon": None,
                 "signals": [r"^\s*(?:import|from) fitz\b", r"\bPyMuPDF\b"]},
     "anthropic": {"kind": "python-package", "canon": None,
                   "signals": [r"^\s*(?:import|from) anthropic\b"]},
+    "openpyxl": {"kind": "python-package", "canon": None,
+                 "signals": [r"^\s*(?:import|from) openpyxl\b"]},
+    # Not an import line: price-list-cleaner tells Claude to write the script
+    # rather than shipping one, so the dependency is stated as prose and the
+    # brand has no other sense in this domain.
+    "pandas": {"kind": "python-package", "canon": None,
+               "signals": [r"^\s*(?:import|from) pandas\b", r"\bpandas\b"]},
+    # npm `docx`, not python-docx: bbs-quote-builder builds the quote in Node.
+    "docx-npm": {"kind": "npm-package", "canon": None,
+                 "signals": [r"\bnpm install docx\b", r"require\(['\"]docx['\"]\)"]},
 }
 
 DEP_KEYS = ("requires", "degrades-without")
@@ -546,9 +598,12 @@ def check_form_ids(findings, skills):
     """Form IDs named by the form skill are checked against the shared rules.
 
     A near-miss of a documented ID is a FAIL — that is the failure that reaches a
-    binding bid (GSPD-05-106 for GSPD-05-105, STD 1000 for OBS 1000). A form that
-    is real but simply undocumented in ca-form-rules.md is a WARN against the
-    rules file, not the skill.
+    binding bid (GSPD-05-106 for GSPD-05-105, STD 1000 for OBS 1000). An ID that
+    is in no documented family is ALSO a FAIL, with a different message: it is
+    either wrong or undocumented, and on a binding document which of the two it
+    is has to be settled by a person before the packet ships. There is no
+    `form_id_undocumented` WARN any more; both branches FAIL, and whether the
+    second should be softened to a WARN is on the escalate list for Parker.
     """
     if not os.path.isfile(FORM_RULES):
         return
@@ -597,16 +652,25 @@ def check_form_ids(findings, skills):
                                         f"and is one character from {', '.join(typo)}. "
                                         f"A wrong form ID goes onto a binding bid"})
             else:
+                # Order matters on a control over binding documents. Written the
+                # other way round this offered "document it in ca-form-rules.md"
+                # as a co-equal remedy to "it is wrong" — and documenting a form
+                # that does not exist writes the defect into the file that is
+                # supposed to catch it. Verifying the ID is the action; adding a
+                # row is what happens only after that comes back real.
                 findings.append({"level": "FAIL", "code": "unknown_form_id",
                                  "where": f"{rel(path)}:{line}",
                                  "msg": f"names {form!r}, which is not in ca-form-rules.md. "
-                                        f"Documented {family} forms are {', '.join(near)}. "
-                                        f"Either it is wrong, or it is real and belongs in "
-                                        f"ca-form-rules.md so the signing and leave-blank "
-                                        f"rules live in one place. A wrong form ID goes onto "
-                                        f"a binding bid"
+                                        f"A wrong form ID goes onto a binding bid, so verify it "
+                                        f"against the solicitation first: documented {family} "
+                                        f"forms are {', '.join(near)}. Only once it is confirmed "
+                                        f"to be a real form does it belong in ca-form-rules.md, "
+                                        f"so the signing and leave-blank rules live in one place"
                                         if near else
-                                        f"names {form!r}, which is not in ca-form-rules.md"})
+                                        f"names {form!r}, which is not in ca-form-rules.md and "
+                                        f"is in no documented form family. A wrong form ID goes "
+                                        f"onto a binding bid — verify it against the "
+                                        f"solicitation before the packet ships"})
 
 
 def _one_edit_apart(a, b):
@@ -682,9 +746,18 @@ def _dep_files(skill):
     bbs-order-reconciliation's real bc_* calls live in references/tool-recipes.md
     and grainger-promo-page's in scripts/units_from_bc.py. A scan narrower than
     the skill would pass both while the rep's job fails.
+
+    The suffix list is the coverage boundary and is worth stating rather than
+    leaving to be inferred: a dependency invoked only from a file type absent
+    here is invisible, exactly as `undeclared_dependency` being a floor implies.
+    `.html`, `.sh`, `.ts`, `.sql` and `.yml`/`.yaml` were added because nothing
+    but habit had excluded them. Data assets are still out — scanning
+    `dgs-bpo-item-check`'s bundled `bpo_part_numbers.txt` would be reading a
+    part list for tool names.
     """
     out, seen = [], set()
-    for path in sorted(walk(skill["dir"], (".md", ".py", ".js", ".mjs", ".json", ".ps1"))):
+    for path in sorted(walk(skill["dir"], (".md", ".py", ".js", ".mjs", ".json", ".ps1",
+                                           ".html", ".sh", ".ts", ".sql", ".yml", ".yaml"))):
         r = rel(path)
         if any(r.endswith(x) for x in DEP_SCAN_EXEMPT):
             continue
@@ -703,8 +776,18 @@ def _declared(meta, key):
     v = meta[key]
     if v is None:
         return [], None
-    if not isinstance(v, list) or any(not isinstance(x, str) for x in v):
-        return None, f"{key}: must be a list of system ids, got {type(v).__name__}"
+    # Name the offending element, not just the container's type. `[grainger, 3]`
+    # reporting "got list" describes the thing that is correct and says nothing
+    # about the thing that is wrong, which is a whole second read of the file
+    # for whoever has to fix it.
+    if not isinstance(v, list):
+        return None, (f"{key}: must be a list of system ids, got {type(v).__name__} "
+                      f"({v!r})")
+    bad = [(i, x) for i, x in enumerate(v) if not isinstance(x, str)]
+    if bad:
+        return None, (f"{key}: every entry must be a system id string; "
+                      + ", ".join(f"item {i} is {type(x).__name__} ({x!r})"
+                                  for i, x in bad))
     return [x.strip() for x in v], None
 
 
@@ -716,7 +799,7 @@ def check_dependencies(findings, skills):
     * `requires:` is MANDATORY. The completeness this check delivers comes from
       the key being required, not from the scanner being clever — a skill that
       says "look it up in Business Central" in prose and never names a tool is
-      invisible to any scanner, so the five skills that need nothing write
+      invisible to any scanner, so the four skills that need nothing write
       `requires: []` as a reviewed assertion rather than leaving a hole that
       reads the same as an oversight.
     * `undeclared_dependency` is a FLOOR, not a ceiling. It proves only what an
@@ -733,6 +816,13 @@ def check_dependencies(findings, skills):
     # identical prose that buried the four findings a reader has to act on, which is
     # how a checker gets ignored. Collected and reported once.
     uncorroborated = []
+    # Which registry ids any skill actually declares. system_not_in_canon says
+    # "skills depend on X"; until this existed it said that of every registry
+    # entry whether or not one did, which is a claim about the tree made without
+    # reading the tree — and it is a claim that asks Parker to amend company
+    # canon. All four instances happened to be true, so nothing was wrong on
+    # disk; the check was simply not the check it said it was.
+    in_use = set()
 
     for name, s in sorted(skills.items()):
         meta, where = s["meta"], rel(s["path"])
@@ -761,6 +851,7 @@ def check_dependencies(findings, skills):
             continue
 
         all_declared = set(declared["requires"]) | set(declared.get("degrades-without") or [])
+        in_use |= all_declared
         for sid in sorted(all_declared):
             if sid not in EXTERNAL_SYSTEMS:
                 near = sorted(k for k in EXTERNAL_SYSTEMS if k.split("-")[0] == sid.split("-")[0])
@@ -814,14 +905,34 @@ def check_dependencies(findings, skills):
             if sid in EXTERNAL_SYSTEMS and sid not in found:
                 uncorroborated.append(f"{name}:{sid}")
 
-        for sid in sorted(all_declared):
+        # "cannot finish this job" is only true of a REQUIRED tool. Run over
+        # `all_declared` it said exactly that about grainger-promo-page's
+        # `vercel-cli`, which the same skill declares under `degrades-without:`
+        # — the declaration says the job completes and the WARN said it cannot,
+        # from one loop, and the PR body then repeated the stronger half to
+        # Parker as fact. An optional tool still costs the rep the path that
+        # needs it, so it is still worth a WARN; what it is not worth is that
+        # sentence.
+        for sid in sorted(declared["requires"]):
             spec = EXTERNAL_SYSTEMS.get(sid)
             if spec and spec["kind"] == "cli" and spec.get("bootstrap") is None:
                 findings.append({"level": "WARN", "code": "cli_not_bootstrapped",
                                  "where": where,
-                                 "msg": f"needs the {sid!r} command line tool, which "
+                                 "msg": f"requires the {sid!r} command line tool, which "
                                         f"scripts/bbs-setup.ps1 does not install. A rep who ran "
                                         f"the bootstrap and nothing else cannot finish this job"})
+        for sid in sorted(set(declared.get("degrades-without") or [])
+                          - set(declared["requires"])):
+            spec = EXTERNAL_SYSTEMS.get(sid)
+            if spec and spec["kind"] == "cli" and spec.get("bootstrap") is None:
+                findings.append({"level": "WARN", "code": "cli_not_bootstrapped",
+                                 "where": where,
+                                 "msg": f"names the {sid!r} command line tool under "
+                                        f"degrades-without:, and scripts/bbs-setup.ps1 does not "
+                                        f"install it. By its own declaration the job still "
+                                        f"completes, so this is not a blocker — but the path "
+                                        f"that uses {sid!r} will not run for a rep who ran only "
+                                        f"the bootstrap"})
 
     if uncorroborated:
         hit = sorted({u.split(":")[0] for u in uncorroborated})
@@ -834,10 +945,31 @@ def check_dependencies(findings, skills):
                                 f"{', '.join(uncorroborated)}. Over-declaring is the safe "
                                 f"direction, so this never FAILs"})
 
-    check_dependency_registry(findings)
+    check_dependency_registry(findings, in_use)
+    check_bootstrap_ids(findings)
 
 
-def check_dependency_registry(findings):
+def _systems_of_record_table(canon):
+    """Just the rows of canonical-facts.md's "Systems of record" table.
+
+    The anchor test used to run against the whole file, and the whole file says
+    each of these names more than once for reasons that are not the table.
+    `Grainger MCP` is in the Systems-of-record row AND in the punchout
+    terminology row that explains the retired b2b path — so deleting the row the
+    registry actually anchors on left the bond silently holding, which is the
+    precise failure `dependency_registry_drift` exists to catch.
+    """
+    out, inside = [], False
+    for line in canon.splitlines():
+        if line.startswith("## "):
+            inside = line.strip().lower() == "## systems of record"
+            continue
+        if inside and line.lstrip().startswith("|"):
+            out.append(line)
+    return "\n".join(out)
+
+
+def check_dependency_registry(findings, in_use):
     """The registry is bonded to canon, so it cannot quietly become a third source of truth.
 
     canonical-facts.md's "Systems of record" table is the authority for what BBS's
@@ -845,6 +977,10 @@ def check_dependency_registry(findings):
     find it (invariant 3, from the checker's side). An entry with no anchor is
     reported rather than invented — adding a row to company canon is Parker's,
     not a checker's.
+
+    `in_use` is the set of ids some skill actually declares, so the "skills
+    depend on this" half of system_not_in_canon is a statement the checker has
+    grounds for rather than one it assumes from the registry's own contents.
     """
     canon_path = os.path.join(PLUGINS, "bbs-foundations", "skills", "bbs-claude-md-forge",
                               "references", "canonical-facts.md")
@@ -853,10 +989,18 @@ def check_dependency_registry(findings):
             canon = fh.read()
     except OSError:
         return
+    table = _systems_of_record_table(canon)
+    if not table:
+        findings.append({"level": "FAIL", "code": "dependency_registry_drift",
+                         "where": rel(canon_path),
+                         "msg": "no 'Systems of record' table found, so every registry anchor "
+                                "is unverifiable. A fact with a checker is inseparable from its "
+                                "checker — change both or neither"})
+        return
     for sid, spec in sorted(EXTERNAL_SYSTEMS.items()):
         anchor = spec.get("canon")
         if anchor is None:
-            if spec["kind"] in ("mcp", "connector", "service"):
+            if spec["kind"] in ("mcp", "connector", "service") and sid in in_use:
                 findings.append({"level": "WARN", "code": "system_not_in_canon",
                                  "where": rel(canon_path),
                                  "msg": f"skills depend on the {sid!r} {spec['kind']}, but it is "
@@ -864,28 +1008,85 @@ def check_dependency_registry(findings):
                                         f"authority for what BBS's systems are called; adding a "
                                         f"row to it is Parker's call, not a checker's"})
             continue
-        if anchor not in canon:
+        if anchor not in table:
             findings.append({"level": "FAIL", "code": "dependency_registry_drift",
                              "where": rel(canon_path),
                              "msg": f"the dependency registry anchors {sid!r} on {anchor!r}, "
-                                    f"which no longer appears here. A fact with a checker is "
-                                    f"inseparable from its checker — change both or neither"})
+                                    f"which no longer appears in the Systems of record table. "
+                                    f"A fact with a checker is inseparable from its checker — "
+                                    f"change both or neither"})
+
+
+def check_bootstrap_ids(findings):
+    """Every `bootstrap` winget id must still be in scripts/bbs-setup.ps1.
+
+    The other half of invariant 3. `cli_not_bootstrapped` decides whether to warn
+    a rep purely from whether this registry wrote `None` — a hand-copied winget
+    id with nothing checking it. Delete `OpenJS.NodeJS.LTS` from the bootstrap
+    and, before this function, the checker stayed clean while the registry went
+    on asserting `node` was installed for you.
+
+    `caveat` is the other direction: the id IS in the script, and what it
+    installs still is not what the skills invoke. Reported once per system,
+    because it is a fact about the system.
+    """
+    setup = os.path.join(ROOT, "scripts", "bbs-setup.ps1")
+    try:
+        with open(setup, encoding="utf-8") as fh:
+            text = fh.read()
+    except OSError:
+        findings.append({"level": "WARN", "code": "bootstrap_unreadable",
+                         "where": "scripts/bbs-setup.ps1",
+                         "msg": "cannot be read, so no registry bootstrap id is verifiable "
+                                "and cli_not_bootstrapped is reporting from an unchecked list"})
+        return
+    for sid, spec in sorted(EXTERNAL_SYSTEMS.items()):
+        boot = spec.get("bootstrap")
+        if boot and not re.search(r"Id\s*=\s*'%s'" % re.escape(boot), text):
+            findings.append({"level": "FAIL", "code": "bootstrap_registry_drift",
+                             "where": "scripts/bbs-setup.ps1",
+                             "msg": f"the dependency registry says {sid!r} is installed by "
+                                    f"winget id {boot!r}, which this script no longer installs. "
+                                    f"cli_not_bootstrapped stays silent for {sid!r} on the "
+                                    f"strength of that id, so the two must change together"})
+        if boot and spec.get("caveat"):
+            findings.append({"level": "WARN", "code": "bootstrap_caveat",
+                             "where": "scripts/bbs-setup.ps1",
+                             "msg": f"{sid!r} is treated as bootstrapped via {boot!r}, with a "
+                                    f"caveat: {spec['caveat']}"})
 
 
 def requirements_table(skills):
-    """The 'can I run this?' view, derived at read time and never stored twice."""
+    """The 'can I run this?' view, derived at read time and never stored twice.
+
+    For `requires:`, absent, malformed and empty are three different answers and
+    this table used to print all three as "—", which is the exact conflation
+    `missing_requires` exists to prevent, committed by the output the reader is
+    most likely to see. It matters beyond tidiness: the CI job publishes this
+    table in a `continue-on-error` step, so on a PR that FAILs `missing_requires`
+    the summary would still tell the reader that skill needs nothing installed.
+
+    `degrades-without:` is different and is rendered differently. It is an
+    optional key with no completeness check behind it, so an absent one really
+    does mean "nothing optional here" and claiming it is an unanswered question
+    would be its own false distinction.
+    """
     rows = []
     for name, s in sorted(skills.items()):
         meta = s["meta"]
-        req = meta.get("requires") if isinstance(meta.get("requires"), list) else []
-        opt = (meta.get("degrades-without")
-               if isinstance(meta.get("degrades-without"), list) else [])
 
-        def fmt(ids):
+        def fmt(key, required):
+            vals, err = _declared(meta, key)
+            if err:
+                return "MALFORMED — see the FAIL above; this skill's needs are unknown"
+            if vals is None:
+                return (f"NOT DECLARED — no {key}: key, so this is an unanswered "
+                        f"question and not an empty list") if required else "nothing"
             return ", ".join(f"{i} ({EXTERNAL_SYSTEMS[i]['kind']})"
                              if i in EXTERNAL_SYSTEMS else f"{i} (UNKNOWN)"
-                             for i in ids) or "—"
-        rows.append((s["plugin"], name, fmt(req), fmt(opt)))
+                             for i in vals) or "nothing"
+        rows.append((s["plugin"], name,
+                     fmt("requires", True), fmt("degrades-without", False)))
     return sorted(rows)
 
 
@@ -996,11 +1197,35 @@ def main():
             if pl != plugin:
                 plugin, _ = pl, print(f"\n{pl}")
             print(f"  {name:<{w}}  requires: {req}")
-            if opt != "\u2014":
+            if opt != "nothing":
                 print(f"  {'':<{w}}  degrades without: {opt}")
-        print(f"\n{len(rows)} skill(s). Kinds: mcp/connector/service are installed per "
-              f"account;\ncli and python-package are installed on the machine "
-              f"(scripts/bbs-setup.ps1).")
+        # This footer used to say cli AND python-package were installed by
+        # scripts/bbs-setup.ps1. That script is winget-only and installs no pip
+        # package at all, so the line told a rep the one thing they still had to
+        # do was already done for them. What saves them is not the bootstrap: it
+        # is that every python import in the tree is guarded and dies with an
+        # explicit `pip install ...` instead of a traceback.
+        bootstrapped = sorted(k for k, v in EXTERNAL_SYSTEMS.items()
+                              if v["kind"] == "cli" and v.get("bootstrap"))
+        byhand = sorted(k for k, v in EXTERNAL_SYSTEMS.items()
+                        if v["kind"] == "cli" and not v.get("bootstrap"))
+        pad = "\n" + " " * 8
+        print(f"\n{len(rows)} skill(s). How each kind gets onto a rep's machine:\n")
+        print("  mcp, connector, service")
+        print("        Installed per account, not per machine. Nothing in this repo"
+              + pad + "installs them.")
+        print("  cli")
+        print(f"        scripts/bbs-setup.ps1 (winget, Windows only) covers: "
+              f"{', '.join(bootstrapped)}." + pad
+              + f"On the rep to install by hand: {', '.join(byhand)}.")
+        print("  python-package, npm-package")
+        print("        NOT bootstrapped. bbs-setup.ps1 is winget-only: it installs no pip"
+              + pad + "package, no npm package, and no pip. What saves a rep here is not"
+              + pad + "the bootstrap \u2014 it is that every import in the tree is guarded and"
+              + pad + "fails with the install command to run rather than a traceback.")
+        for sid, spec in sorted(EXTERNAL_SYSTEMS.items()):
+            if spec.get("caveat"):
+                print(f"\n  caveat \u00b7 {sid}: {spec['caveat']}.")
         sys.exit(0)
 
     findings = []

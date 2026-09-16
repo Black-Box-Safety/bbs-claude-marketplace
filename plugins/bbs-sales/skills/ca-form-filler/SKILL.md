@@ -14,7 +14,7 @@ description: >-
   or screenshot (rfq-item-extract), or run a whole NASPO response end to end (naspo-quote,
   which calls this for the paperwork).
 compatibility: claude-code
-requires: [python3, pypdf, pymupdf]
+requires: [python3, pypdf, pymupdf, poppler]
 ---
 
 # California compliance forms — Black Box Safety

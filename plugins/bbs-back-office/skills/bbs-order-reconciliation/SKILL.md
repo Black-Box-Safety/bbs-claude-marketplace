@@ -12,7 +12,7 @@ description: >-
   Use it before replying to the customer, before processing a return and before reordering,
   because the fix depends on which of those three records is wrong. Do NOT use for new quotes
   or bids that have not been awarded — those are naspo-quote and ca-rfq-intake.
-requires: [business-central, grainger, microsoft-365]
+requires: [business-central, grainger, microsoft-365, python3, openpyxl]
 ---
 
 # Reconciling a problem on an existing order

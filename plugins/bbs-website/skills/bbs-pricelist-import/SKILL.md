@@ -1,7 +1,7 @@
 ---
 name: bbs-pricelist-import
 description: "Import a manufacturer price list into the BBS product database (Supabase). Use this skill whenever a BBS rep needs to add a new manufacturer catalog or update pricing for an existing one. Trigger phrases include 'import this price list,' 'load this manufacturer's pricing,' 'add [manufacturer] to the database,' 'update [manufacturer] pricing,' 'run the import for [manufacturer],' or any time a price list file (Excel, CSV, or PDF) needs to be standardized and committed to the bbs-product-database. Also trigger when a rep uploads a raw vendor file and asks what to do next. This skill covers the full pipeline: clean the raw file → validate → preview the diff → commit → detect families → queue image scrape. Do NOT use for NASPO/Grainger punch-out pricing or for BBS quoting workflows — this is catalog management only."
-requires: [supabase, python3]
+requires: [supabase, python3, pandas, openpyxl]
 degrades-without: [firecrawl]
 ---
 
