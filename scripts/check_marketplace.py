@@ -332,13 +332,16 @@ def check(findings):
     # --- 6. Vendor-profile keys referenced actually exist ----------------------
     check_vendor_profile_keys(findings, skills)
 
-    # --- 7. skill-bus subscriptions resolve to a real plugin:skill ------------
+    # --- 7. Every skill declares the external systems it needs ----------------
+    check_dependencies(findings, skills)
+
+    # --- 8. skill-bus subscriptions resolve to a real plugin:skill ------------
     check_skill_bus(findings, skills)
 
-    # --- 8. marketplace.json lists the plugins that exist ---------------------
+    # --- 9. marketplace.json lists the plugins that exist ---------------------
     check_marketplace_manifest(findings)
 
-    # --- 9. Counts written down match what is on disk -------------------------
+    # --- 10. Counts written down match what is on disk ------------------------
     check_counts(findings, skills)
 
     return skills
@@ -368,6 +371,160 @@ RETIRED_SKILLS = {
     "obs-form-filler": "merged into ca-form-filler as its OBS 4007(B) path",
     "bbs-b2b-pricing": "replaced by grainger-pricing on the Grainger MCP",
 }
+
+
+# ---------------------------------------------------------------------------
+# External systems a skill can depend on, and how to *prove* it uses one.
+#
+# Signals are ENUMERATED IDENTIFIERS, never brand names. That is the whole
+# lesson of this check. Two scans of these same 27 skills, differing only in
+# regex phrasing, disagreed by five skills (20 vs 25) because they scanned for
+# "Business Central" and "Grainger" — words that name a record or a part number
+# at least as often as they name a system:
+#
+#   dgs-bpo-item-check   says "Grainger part number" six times and tells you
+#                        "Do not search the web, do not check Grainger.com".
+#   rfq-item-extract     parses "Grainger cart" PDFs with no connector at all.
+#   le-lane-tuning       cites "Business Central purchase spend" as provenance
+#                        for a list it reads out of the bbs-suppliers repo.
+#
+# A prefix is no better: bbs-pricelist-import contains `bc_sync_queue` and
+# `bc_vendor_no`, which are SUPABASE COLUMN NAMES. A `bc_*` pattern invents a
+# Business Central dependency on a skill that never touches it. So the Business
+# Central signal is the ten real tool names, written out.
+#
+# A brand name is admissible only where the brand has no other sense in this
+# domain — Firecrawl, Sirv and CData Connect AI name nothing but themselves.
+#
+# Fields:
+#   kind      what a rep has to install: mcp | connector | service | cli |
+#             python-package. Lives HERE, once, and never in a skill's
+#             frontmatter — the kind of a system is a property of the system,
+#             and restating it in twelve skills is invariant 2 broken twelve
+#             times.
+#   signals   patterns that prove use.
+#   canon     the string that must appear in canonical-facts.md's "Systems of
+#             record" table. That table is the authority for what BBS's systems
+#             are called, so the registry is bonded to it: rename a system in
+#             canon without touching this and the checker FAILs. None means the
+#             system is not in canon yet, which is reported, not invented.
+#   bootstrap the winget id scripts/bbs-setup.ps1 installs it under, for cli
+#             entries. None means a rep who ran the bootstrap does not have it.
+EXTERNAL_SYSTEMS = {
+    # --- systems of record and connectors ---------------------------------
+    "business-central": {
+        "kind": "mcp", "canon": "Business Central",
+        "signals": [r"\bbc_(?:customer_snapshot|describe_entity|find_customer|find_item|"
+                    r"get_company_info|get_sales_document|list_entity_sets|"
+                    r"list_open_sales_orders|list_unpaid_invoices|query_entity)\b"],
+    },
+    # A second, separate path to the same company data: a proxy exposing BC's
+    # OData pages as ListXxx_PAGnnnnn. so-search and bbs-po-status use it and
+    # the bc_* MCP not at all. Flattening the two into "Business Central" would
+    # tell a rep to install the wrong one, which reads as authoritative and is
+    # worse than saying nothing. Anchored on the PAG suffix so it cannot match
+    # the repo NAME bbs-bc-mcp-proxy, which the forge quotes as an example.
+    "bc-mcp-proxy": {
+        "kind": "mcp", "canon": None,
+        "signals": [r"\b\w*_PAG\d{5}\b", r"\bbc-mcp-proxy:"],
+    },
+    # And a third: CData Connect AI over catalog Dynamics365BusinessCentral1.
+    "cdata-connect": {
+        "kind": "connector", "canon": None,
+        "signals": [r"\bCData Connect AI\b", r"\bDynamics365BusinessCentral1\b"],
+    },
+    "grainger": {
+        "kind": "mcp", "canon": "Grainger MCP",
+        # Tool names only. "Grainger MCP" reads as a dependency in
+        # rfq-item-extract, which names it solely to say that `grainger-pricing`
+        # is the skill that prices the list it just extracted.
+        "signals": [r"\bgrainger_(?:accounts|availability|price|resolve_part|search|xref)\b"],
+    },
+    "supabase": {
+        "kind": "mcp", "canon": "Supabase",
+        # Tool names and credential names only. "Supabase Postgres" and
+        # "Supabase project" are prose: site-wiring-map uses both while
+        # invoking nothing, and supply-lane-tuning names the DB it is
+        # describing, not one it opens.
+        "signals": [r"\b(?:execute_sql|apply_migration|list_migrations|"
+                    r"generate_typescript_types|deploy_edge_function)\b",
+                    r"\bSUPABASE_(?:URL|SERVICE_KEY|DB_PASSWORD|ANON_KEY)\b"],
+    },
+    "shopify": {
+        "kind": "mcp", "canon": "Shopify",
+        "signals": [r"\bShopify MCP\b",
+                    r"\bSHOPIFY_(?:ADMIN_API_TOKEN|STORE_DOMAIN)\b",
+                    r"\bgraphql_(?:query|mutation|schema)\b"],
+    },
+    "microsoft-365": {
+        "kind": "connector", "canon": "SharePoint",
+        # Lowercase tool names, so the word "Outlook" in vendor-quote-email's
+        # "Copy for Outlook" clipboard button is not read as a mailbox call.
+        "signals": [r"\b(?:outlook|sharepoint|teams)_[a-z_]+\b",
+                    r"\bchat_message_search\b", r"\bM365 tools\b"],
+    },
+    "ca-procurement-intel": {
+        "kind": "mcp", "canon": "ca-procurement-intel",
+        "signals": [r"\b(?:explore_sql|market_spend_summary|market_purchase_lines|"
+                    r"market_last_sales|market_product_search)\b",
+                    r"\bplay_[a-z_]+\b"],
+    },
+    "firecrawl": {
+        "kind": "mcp", "canon": None,
+        # Not the bare word: site-wiring-map's map of the three repos says
+        # "Firecrawl enrichment" as a description of what bbs-database contains.
+        "signals": [r"\bfirecrawl_[a-z_]+\b", r"\bFIRECRAWL_KEY\b", r"\bFirecrawl MCP\b"],
+    },
+    "sirv": {
+        "kind": "service", "canon": None,
+        # Likewise: "the Sirv image CDN" in a repo map is a description.
+        "signals": [r"\bSIRV_[A-Z_]+\b", r"\bsirv\.com\b"],
+    },
+
+    # --- command-line tools ------------------------------------------------
+    "python3": {
+        "kind": "cli", "canon": None, "bootstrap": "astral-sh.uv",
+        "signals": [r"\bpython3? [\"'$]", r"\bpython3?\s+\S*\.py\b"],
+    },
+    "node": {
+        "kind": "cli", "canon": None, "bootstrap": "OpenJS.NodeJS.LTS",
+        "signals": [r"\bnode\s+\S*\.(?:js|mjs)\b", r"\bnpm (?:install|run|ci)\b"],
+    },
+    # Not in bbs-setup.ps1. bbs-quote-builder converts its docx to the PDF it
+    # promises to deliver with `soffice --headless`, so a rep who ran the
+    # bootstrap and nothing else cannot finish a quote. cli_not_bootstrapped
+    # exists to say so out loud.
+    "libreoffice": {
+        "kind": "cli", "canon": None, "bootstrap": None,
+        "signals": [r"\bsoffice\b", r"\blibreoffice\b"],
+    },
+    "shopify-cli": {
+        "kind": "cli", "canon": None, "bootstrap": None,
+        "signals": [r"\bshopify (?:theme|app) [a-z]+"],
+    },
+    "vercel-cli": {
+        "kind": "cli", "canon": None, "bootstrap": None,
+        "signals": [r"\bvercel (?:deploy|link|env|--prod)\b"],
+    },
+
+    # --- python packages ---------------------------------------------------
+    # Named because their absence is the actual failure a rep hits: python3 is
+    # present and the script still dies on import.
+    "pypdf": {"kind": "python-package", "canon": None,
+              "signals": [r"^\s*(?:import|from) pypdf\b"]},
+    "pymupdf": {"kind": "python-package", "canon": None,
+                "signals": [r"^\s*(?:import|from) fitz\b", r"\bPyMuPDF\b"]},
+    "anthropic": {"kind": "python-package", "canon": None,
+                  "signals": [r"^\s*(?:import|from) anthropic\b"]},
+}
+
+DEP_KEYS = ("requires", "degrades-without")
+
+# canonical-facts.md is where this registry's `canon` anchors are checked, so
+# scanning it for undeclared dependencies is circular: it names `execute_sql`
+# and `shopify theme list` as company canon, not as instructions to
+# bbs-claude-md-forge, which merely hosts the file.
+DEP_SCAN_EXEMPT = ("references/canonical-facts.md",)
 
 
 def load_models(findings):
@@ -422,18 +579,53 @@ def check_form_ids(findings, skills):
             line = text[:m.start()].count("\n") + 1
             family = form.rsplit("-", 1)[0] if form.startswith("GSPD") else form.split()[0]
             near = sorted(k for k in known if k.startswith(family))
-            if near:
+            # Both branches FAIL. The earlier code had the second as a WARN,
+            # which was unreachable: `near` is empty only for a family with no
+            # documented member, and all three families form_re can match
+            # (GSPD-05, STD, OBS) already have one. Making it reachable means
+            # loosening the near-miss test, and that test is what caught the two
+            # `STD 1000` survivors of the OBS 1000 fix — loosening a control on a
+            # binding document is Parker's call, not a checker's. What is fixed
+            # here is the message: an undocumented form was being told it was "a
+            # near-miss of STD 204, STD 205" when it is not one, and a checker
+            # that says something untrue about a bid gets ignored.
+            typo = sorted(k for k in near if _one_edit_apart(form, k))
+            if typo:
                 findings.append({"level": "FAIL", "code": "unknown_form_id",
                                  "where": f"{rel(path)}:{line}",
                                  "msg": f"names {form!r}, which is not in ca-form-rules.md "
-                                        f"and looks like a near-miss of {', '.join(near)}. "
+                                        f"and is one character from {', '.join(typo)}. "
                                         f"A wrong form ID goes onto a binding bid"})
             else:
-                findings.append({"level": "WARN", "code": "form_id_undocumented",
+                findings.append({"level": "FAIL", "code": "unknown_form_id",
                                  "where": f"{rel(path)}:{line}",
-                                 "msg": f"{form} is used here but not documented in "
-                                        f"ca-form-rules.md; add it there so the signing "
-                                        f"and leave-blank rules live in one place"})
+                                 "msg": f"names {form!r}, which is not in ca-form-rules.md. "
+                                        f"Documented {family} forms are {', '.join(near)}. "
+                                        f"Either it is wrong, or it is real and belongs in "
+                                        f"ca-form-rules.md so the signing and leave-blank "
+                                        f"rules live in one place. A wrong form ID goes onto "
+                                        f"a binding bid"
+                                        if near else
+                                        f"names {form!r}, which is not in ca-form-rules.md"})
+
+
+def _one_edit_apart(a, b):
+    """True if a and b differ by a single substitution, insertion or deletion.
+
+    Distinguishes a slip of the finger (GSPD-05-106 for GSPD-05-105) from a form
+    that is simply not documented yet, so the finding can say which it is.
+    """
+    if a == b:
+        return False
+    if len(a) == len(b):
+        return sum(x != y for x, y in zip(a, b)) == 1
+    if abs(len(a) - len(b)) != 1:
+        return False
+    lo, hi = (a, b) if len(a) < len(b) else (b, a)
+    i = 0
+    while i < len(lo) and lo[i] == hi[i]:
+        i += 1
+    return lo[i:] == hi[i + 1:]
 
 
 def check_vendor_profile_keys(findings, skills):
@@ -482,6 +674,219 @@ def check_vendor_profile_keys(findings, skills):
                                      "where": f"{rel(path)}:{line}",
                                      "msg": f"`{key}` is not in vendor_profile.json; "
                                             f"the field will fill with nothing"})
+
+
+def _dep_files(skill):
+    """Every file a skill carries, because the dependency is not always in SKILL.md.
+
+    bbs-order-reconciliation's real bc_* calls live in references/tool-recipes.md
+    and grainger-promo-page's in scripts/units_from_bc.py. A scan narrower than
+    the skill would pass both while the rep's job fails.
+    """
+    out, seen = [], set()
+    for path in sorted(walk(skill["dir"], (".md", ".py", ".js", ".mjs", ".json", ".ps1"))):
+        r = rel(path)
+        if any(r.endswith(x) for x in DEP_SCAN_EXEMPT):
+            continue
+        real = os.path.realpath(path)
+        if real in seen:
+            continue
+        seen.add(real)
+        out.append(path)
+    return out
+
+
+def _declared(meta, key):
+    """(values, error) for one dependency key. Absent is not the same as empty."""
+    if key not in meta:
+        return None, None
+    v = meta[key]
+    if v is None:
+        return [], None
+    if not isinstance(v, list) or any(not isinstance(x, str) for x in v):
+        return None, f"{key}: must be a list of system ids, got {type(v).__name__}"
+    return [x.strip() for x in v], None
+
+
+def check_dependencies(findings, skills):
+    """Every skill declares the external systems it needs, and use implies a declaration.
+
+    Two directions, and they do different jobs:
+
+    * `requires:` is MANDATORY. The completeness this check delivers comes from
+      the key being required, not from the scanner being clever — a skill that
+      says "look it up in Business Central" in prose and never names a tool is
+      invisible to any scanner, so the five skills that need nothing write
+      `requires: []` as a reviewed assertion rather than leaving a hole that
+      reads the same as an oversight.
+    * `undeclared_dependency` is a FLOOR, not a ceiling. It proves only what an
+      enumerated identifier can prove, and it is the half a reviewer can trust
+      without re-reading 27 skills.
+
+    Over-declaration is a WARN: a rep installing one connector too many is the
+    safe direction, and the unsafe one is the bid that stops halfway.
+    """
+    compiled = {sid: [re.compile(p, re.M) for p in spec["signals"]]
+                for sid, spec in EXTERNAL_SYSTEMS.items()}
+    # Declarations that no enumerated identifier can corroborate. Saying so is the
+    # honest half of this check — but as one WARN each they were sixteen lines of
+    # identical prose that buried the four findings a reader has to act on, which is
+    # how a checker gets ignored. Collected and reported once.
+    uncorroborated = []
+
+    for name, s in sorted(skills.items()):
+        meta, where = s["meta"], rel(s["path"])
+        if "__yaml_error__" in meta or "__not_mapping__" in meta:
+            continue          # already reported; frontmatter never parsed
+
+        declared, bad = {}, False
+        for key in DEP_KEYS:
+            vals, err = _declared(meta, key)
+            if err:
+                findings.append({"level": "FAIL", "code": "requires_malformed",
+                                 "where": where, "msg": err})
+                bad = True
+            elif vals is None and key == "requires":
+                findings.append({"level": "FAIL", "code": "missing_requires",
+                                 "where": where,
+                                 "msg": "no requires: key. Every skill declares the external "
+                                        "systems it needs so a rep can tell before installing "
+                                        "whether the job will run. A skill that needs nothing "
+                                        "writes `requires: []` — an omitted key and a declared "
+                                        "empty one read the same to a rep and must not"})
+                bad = True
+            else:
+                declared[key] = vals or []
+        if bad:
+            continue
+
+        all_declared = set(declared["requires"]) | set(declared.get("degrades-without") or [])
+        for sid in sorted(all_declared):
+            if sid not in EXTERNAL_SYSTEMS:
+                near = sorted(k for k in EXTERNAL_SYSTEMS if k.split("-")[0] == sid.split("-")[0])
+                findings.append({"level": "FAIL", "code": "unknown_dependency_id",
+                                 "where": where,
+                                 "msg": f"declares {sid!r}, which is not a known system. "
+                                        f"A typo declares nothing and reads as a declaration"
+                                        + (f". Did you mean {', '.join(near)}?" if near else "")})
+
+        # --- use implies declaration -------------------------------------
+        found = {}
+        for path in _dep_files(s):
+            with open(path, encoding="utf-8", errors="replace") as fh:
+                text = fh.read()
+            for sid, pats in compiled.items():
+                for pat in pats:
+                    for m in pat.finditer(text):
+                        # Prose naming a system in order to warn about it is
+                        # correct content, not a dependency. bbs-quote-builder's
+                        # "Do NOT use this skill to pull existing quote records
+                        # out of Business Central" must not read as a Business
+                        # Central dependency.
+                        if is_counter_example(text, m.start()):
+                            continue
+                        found.setdefault(sid, (rel(path), text[:m.start()].count("\n") + 1,
+                                               m.group(0)))
+                        break
+                    if sid in found:
+                        break
+
+        for sid, (fpath, line, tok) in sorted(found.items()):
+            if sid in all_declared:
+                continue
+            kind = EXTERNAL_SYSTEMS[sid]["kind"]
+            findings.append({"level": "FAIL", "code": "undeclared_dependency",
+                             "where": f"{fpath}:{line}",
+                             "msg": f"uses {tok!r}, so this skill needs the {sid!r} {kind}, "
+                                    f"but {name!r} does not declare it. Add {sid!r} to "
+                                    f"requires: (or to degrades-without: if the skill still "
+                                    f"completes without it). Undeclared, a rep finds out when "
+                                    f"the job stops"})
+
+        # A declared python package implies the interpreter: price-list-cleaner
+        # tells Claude to extract with `fitz` and never shells out to `python x.py`,
+        # so python3 is corroborated by pymupdf rather than needing its own proof.
+        if any(EXTERNAL_SYSTEMS.get(x, {}).get("kind") == "python-package" and x in found
+               for x in all_declared):
+            found.setdefault("python3", ("(implied by a declared python package)", 0, ""))
+
+        for sid in sorted(all_declared):
+            if sid in EXTERNAL_SYSTEMS and sid not in found:
+                uncorroborated.append(f"{name}:{sid}")
+
+        for sid in sorted(all_declared):
+            spec = EXTERNAL_SYSTEMS.get(sid)
+            if spec and spec["kind"] == "cli" and spec.get("bootstrap") is None:
+                findings.append({"level": "WARN", "code": "cli_not_bootstrapped",
+                                 "where": where,
+                                 "msg": f"needs the {sid!r} command line tool, which "
+                                        f"scripts/bbs-setup.ps1 does not install. A rep who ran "
+                                        f"the bootstrap and nothing else cannot finish this job"})
+
+    if uncorroborated:
+        hit = sorted({u.split(":")[0] for u in uncorroborated})
+        findings.append({"level": "WARN", "code": "dependencies_uncorroborated",
+                         "where": "plugins/",
+                         "msg": f"{len(uncorroborated)} declaration(s) across {len(hit)} skill(s) "
+                                f"are not corroborated by any identifier in the skill. They are "
+                                f"read from prose by a human, not machine-checked, and a reviewer "
+                                f"should treat them as assertions: "
+                                f"{', '.join(uncorroborated)}. Over-declaring is the safe "
+                                f"direction, so this never FAILs"})
+
+    check_dependency_registry(findings)
+
+
+def check_dependency_registry(findings):
+    """The registry is bonded to canon, so it cannot quietly become a third source of truth.
+
+    canonical-facts.md's "Systems of record" table is the authority for what BBS's
+    systems are called. Every registry entry claiming an anchor there must still
+    find it (invariant 3, from the checker's side). An entry with no anchor is
+    reported rather than invented — adding a row to company canon is Parker's,
+    not a checker's.
+    """
+    canon_path = os.path.join(PLUGINS, "bbs-foundations", "skills", "bbs-claude-md-forge",
+                              "references", "canonical-facts.md")
+    try:
+        with open(canon_path, encoding="utf-8") as fh:
+            canon = fh.read()
+    except OSError:
+        return
+    for sid, spec in sorted(EXTERNAL_SYSTEMS.items()):
+        anchor = spec.get("canon")
+        if anchor is None:
+            if spec["kind"] in ("mcp", "connector", "service"):
+                findings.append({"level": "WARN", "code": "system_not_in_canon",
+                                 "where": rel(canon_path),
+                                 "msg": f"skills depend on the {sid!r} {spec['kind']}, but it is "
+                                        f"not in the Systems of record table. Canon is the "
+                                        f"authority for what BBS's systems are called; adding a "
+                                        f"row to it is Parker's call, not a checker's"})
+            continue
+        if anchor not in canon:
+            findings.append({"level": "FAIL", "code": "dependency_registry_drift",
+                             "where": rel(canon_path),
+                             "msg": f"the dependency registry anchors {sid!r} on {anchor!r}, "
+                                    f"which no longer appears here. A fact with a checker is "
+                                    f"inseparable from its checker — change both or neither"})
+
+
+def requirements_table(skills):
+    """The 'can I run this?' view, derived at read time and never stored twice."""
+    rows = []
+    for name, s in sorted(skills.items()):
+        meta = s["meta"]
+        req = meta.get("requires") if isinstance(meta.get("requires"), list) else []
+        opt = (meta.get("degrades-without")
+               if isinstance(meta.get("degrades-without"), list) else [])
+
+        def fmt(ids):
+            return ", ".join(f"{i} ({EXTERNAL_SYSTEMS[i]['kind']})"
+                             if i in EXTERNAL_SYSTEMS else f"{i} (UNKNOWN)"
+                             for i in ids) or "—"
+        rows.append((s["plugin"], name, fmt(req), fmt(opt)))
+    return sorted(rows)
 
 
 def check_skill_bus(findings, skills):
@@ -578,7 +983,25 @@ def check_marketplace_manifest(findings):
 def main():
     ap = argparse.ArgumentParser(description="BBS marketplace structural checks")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--requirements", action="store_true",
+                    help="print what each skill needs installed, and exit")
     args = ap.parse_args()
+
+    if args.requirements:
+        skills, _ = load_skills()
+        rows = requirements_table(skills)
+        w = max(len(r[1]) for r in rows) if rows else 10
+        plugin = None
+        for pl, name, req, opt in rows:
+            if pl != plugin:
+                plugin, _ = pl, print(f"\n{pl}")
+            print(f"  {name:<{w}}  requires: {req}")
+            if opt != "\u2014":
+                print(f"  {'':<{w}}  degrades without: {opt}")
+        print(f"\n{len(rows)} skill(s). Kinds: mcp/connector/service are installed per "
+              f"account;\ncli and python-package are installed on the machine "
+              f"(scripts/bbs-setup.ps1).")
+        sys.exit(0)
 
     findings = []
     skills = check(findings)

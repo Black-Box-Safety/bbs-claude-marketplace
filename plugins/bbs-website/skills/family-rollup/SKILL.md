@@ -11,6 +11,8 @@ description: >-
   (the pipeline is idempotent — new unfamilied SKUs join or form families on re-run). This is the standard,
   proven path (used to roll ~300 non-apparel families); do NOT hand-build family products or hand-write
   Shopify mutations for this.
+requires: [supabase, python3]
+degrades-without: [firecrawl]
 ---
 > **BBS Website pipeline — stage: Enrichment.** See `site-wiring-map` for how this fits the whole flow.
 
