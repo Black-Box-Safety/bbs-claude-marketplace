@@ -117,12 +117,11 @@ This skill does not touch the PDF stack or `vendor_profile.json` above: it has i
 
 | Command | Does |
 |---|---|
-| `/ca-rfq-log` | Log a request you just received: find or create the folder, save the attachments, open `RFQ.md`, update the buyer's quote log. Stops before pricing. |
-| `/ca-rfq-quote` | Take a logged RFQ folder through pricing, quote, cert packet, visual verification, and delivery. |
+| `/ca-rfq` | The whole desk order under one contract: intake gate, recognition, extraction, eligibility, pricing, quote, packet and signature, visual verification, delivery. It carries order and gates only — every step runs the skill that owns it, so the command cannot drift away from the skills it invokes. |
 
 Agent: `supplier-scout` — supplier options for an item BBS has never sourced; dispatched by `bbs-sourcing` step 5c or directly ("find supplier options for MSA 10082709").
 
-Run them in that order. `/ca-rfq-quote` on an unlogged request works, but you lose the deadline record and the buyer history that makes the next quote faster.
+Intake is an **explicit first gate**, not an unconditional first step: an already-logged RFQ enters at recognition, and an unlogged one that arrives as a request to price puts the order to the rep rather than assuming it. Whether a fresh "the agency emailed asking us to quote these" is filed first or priced first is an open ruling for Parker, and the command is built so either answer lands without a rebuild.
 
 `grainger-promo-page` has no slash command yet. Describe the ask ("build a promo page for CAL FIRE from this hot list") and it fires on its own.
 

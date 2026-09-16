@@ -79,8 +79,11 @@ coverage note accurate.
 
 ### 2 — One trigger, end to end
 
-Today `/ca-rfq-log` and `/ca-rfq-quote` each restate their skill's body verbatim, so
-command and skill drift. Parker wants one trigger that completes documents and signs.
+Today `/ca-rfq-log` and `/ca-rfq-quote` each **paraphrase** their skill's body — not
+restate it verbatim, as an earlier draft of this slice said. The difference makes the case
+stronger: a verbatim copy is merely redundant and drift is visible in a diff, whereas a
+paraphrase can silently disagree with the skill it paraphrases, and the two already do.
+Parker wants one trigger that completes documents and signs.
 
 Build `/ca-rfq` as an orchestration contract — **order and gates only, no restated
 steps** — running intake → recognize customer/packet → extract → price → quote → fill and
@@ -165,7 +168,9 @@ Write it up with evidence and move to the next slice. Do not idle.
 ### Already open for Parker
 
 - **Re-paste managed settings** — the model-ID and Grainger changes reach no machine from
-  the repo alone.
+  the repo alone. Its `claudeMd` block now also points reps at `/ca-rfq-log` then
+  `/ca-rfq-quote`, both retired by slice 2; the live line is `/ca-rfq`. No repo change
+  fixes this.
 - **Edit the saved preference** that still says "Never pre-fill signature lines on any
   compliance form." It re-injects the removed rule into every new session.
 - **The personal-copy cutover** is account-side, in claude.ai → Settings → Capabilities →
