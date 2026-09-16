@@ -7,7 +7,8 @@ standalone download.
 
 Source key: **VP** = `vendor_profile.json` · **RFQ** = extracted from the solicitation ·
 **REP** = the rep must supply it · **DERIVED** = computed at runtime ·
-**⚑ SIG** = leave blank, flag it.
+**SIGN** = apply that signer's signature (rule 2 — these lines are produced signed) ·
+**⚑ SIG** = signer cannot be determined from `ca-form-rules.md`; leave blank and flag it.
 
 ## What the vendor profile actually contains
 
@@ -44,7 +45,7 @@ Anything not in that list is REP input or `[MISSING — NEEDS INPUT]`. Never inv
 | CA Resident (§4) | DERIVED | check "California Resident" |
 | Rep name / title / phone / email (§5) | VP | the `dvbe_owner` representative — this is the **authorized payee** line, so Jackson Dalton signs it, not the quoting rep |
 | Agency name / address / phone / fax (§6) | RFQ | agency block |
-| Signature, date (§5) | ⚑ SIG | leave blank |
+| Signature, date (§5) | SIGN | **Jackson Dalton** — the authorized payee line follows who owns the certified business, matching the §5 rep fields above |
 
 **Field IDs on this form frequently do not match the visual section labels** — the FEIN
 field and the §5 rep fields are commonly misnamed in the PDF metadata. Rasterize and look
@@ -58,12 +59,13 @@ pdftoppm -jpeg -r 150 -f 1 -l 1 /path/to/forms.pdf /tmp/std204_verify
 
 | Field | Source | Value |
 |---|---|---|
-| DVBE name (§1) | VP | `business_identity.legal_name` |
+| DVBE name (§1) | VP | `business_identity.legal_name` — **but Path A disagrees.** `fill_obs_packet.py:265` writes `short_name` into this same field. Unresolved: the name here should match the OSDS certification record, and `ca-form-rules.md` does not say which form it takes. **Escalated — do not change either path to match the other until it is ruled on** |
 | DVBE ref number (§1) | VP | `certifications.sb_dvbe.osds_ref_number` |
 | Solicitation # (§1) | RFQ | solicitation number |
 | Not a broker/agent (§2) | DERIVED | check — BBS supplies from stock, see `ca-form-rules.md` |
-| DV owner name / address / phone / tax ID (§3) | REP | **not in the vendor profile.** Jackson Dalton is the owner; his personal address and tax ID are not committed. Mark `[MISSING — NEEDS INPUT]` and flag |
-| All signatures and dates | ⚑ SIG | leave blank — perjury certification |
+| DV owner name, phone (§3) | VP | `authorized_representatives[role=dvbe_owner].name` (Jackson Dalton) and `.phone`. **These are in the profile — fill them.** Path A fills them from the same keys; blanking them here is what made one path sign the form and the other render it incomplete |
+| DV owner personal address, tax ID (§3) | REP | genuinely **not** in the profile — his personal address and tax ID are deliberately not committed. `[MISSING — NEEDS INPUT]` and flag |
+| All signatures and dates | SIGN | **Jackson Dalton** — DVBE owner declaration. A perjury certification, so the signer must be the owner and never the quoting rep |
 
 ## GSPD-05-105 — Bidder Declaration
 
@@ -90,7 +92,7 @@ not a form BBS files.
 | Paragraph 1 initials | REP | the signing rep's initials — BBS has no foreign operations |
 | Printed name + title | REP | the signing rep (`default_rep` only as a fallback) |
 | County and State | DERIVED | "San Diego County, California" |
-| Signature, date | ⚑ SIG | leave blank |
+| Signature, date | SIGN | **The rep** who quoted the job — Darfur is a bidder certification (`ca-form-rules.md`: DGS PD 1 is the standalone OBS 1500) |
 
 ## OBS 1000 — GenAI Disclosure
 
@@ -105,7 +107,7 @@ Form ID is **OBS 1000**. Earlier revisions of this file said STD 1000.
 | Uses GenAI? | DERIVED | "No" — BBS resells finished goods; the products contain no GenAI |
 | Conditional GenAI fields | — | skip, they depend on "Yes" |
 | Rep name | REP | the signing rep |
-| Signature, date | ⚑ SIG | leave blank |
+| Signature, date | ⚑ SIG | **Signer not determined.** `ca-form-rules.md` assigns no signer for OBS 1000, and Path A (`packet-obs-4007b.md`) fills the date only. Fill the date, leave the signature, flag `⚑ SIGNATURE REQUIRED`. Do not infer one from the neighbouring forms |
 
 ## CalRecycle 74 — Recycled Content Certification
 
@@ -120,7 +122,7 @@ Never left blank — a missing CalRecycle 74 can disqualify the bid. See `ca-for
 | Postconsumer recycled % | REP | BBS resells finished goods and rarely certifies a percentage; "NA" is the normal answer. Only a real percentage from the rep overrides it |
 | SABRC category code | REP | as above |
 | Print name, title | REP | the signing rep |
-| Signature, date | ⚑ SIG | perjury certification — leave blank and flag prominently |
+| Signature, date | SIGN | **The rep** who quoted the job — CalRecycle 74 is a bidder certification. It is a perjury certification, so the rep signs it personally and never on another's behalf |
 
 ## Form detection
 

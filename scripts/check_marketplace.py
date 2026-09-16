@@ -378,16 +378,22 @@ def check_form_ids(findings, skills):
     is real but simply undocumented in ca-form-rules.md is a WARN against the
     rules file, not the skill.
     """
-    s = skills.get("ca-form-filler")
-    if not s or not os.path.isfile(FORM_RULES):
+    if not os.path.isfile(FORM_RULES):
         return
     with open(FORM_RULES, encoding="utf-8") as fh:
         rules = fh.read()
     form_re = re.compile(r"\b(?:GSPD-05-\d{3}|STD \d{3,4}|OBS \d{4})\b")
     known = set(re.findall(r"\b(?:GSPD-05-\d{3}|STD \d{3,4}|OBS \d{4}|DGS PD \d+|"
                            r"CalRecycle \d+|CV[- ]?012)\b", rules))
+    # Scan every plugin markdown file, not just ca-form-filler's. The form IDs are
+    # a shared fact and they are quoted wherever BBS describes a bid packet — the two
+    # `STD 1000` survivors of the OBS 1000 fix were in plugins/bbs-website/agents/,
+    # which this check could not see. A checker whose scope is narrower than the fact
+    # it guards is invariant 3 broken from the other end.
     seen_paths = set()
-    for path in [s["path"]] + sorted(walk(s["dir"], (".md",))):
+    for path in sorted(walk(PLUGINS, (".md",))):
+        if is_archive(path) or is_narrative(path):
+            continue
         real = os.path.realpath(path)
         if real in seen_paths:
             continue

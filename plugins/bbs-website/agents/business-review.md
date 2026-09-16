@@ -18,7 +18,7 @@ selling to California government buyers. The bot has two channels:
   "Straight from the manufacturers. Backed by people who know the mission."
 - **BBS Supply** (Grainger MRO resale, NASPO LPA #7-25-51-02.03): value = 1.5M SKUs,
   next-day delivery, quote self-service plus the CA bid forms (STD 204, PD 843, GSPD,
-  Darfur, STD 1000, CalRecycle 74) packaged into one bid packet. "1.5 million products,
+  Darfur, OBS 1000, CalRecycle 74) packaged into one bid packet. "1.5 million products,
   on your dock by tomorrow."
 
 The Supply lane's core job: customers who today EMAIL BBS for NASPO quotes should be

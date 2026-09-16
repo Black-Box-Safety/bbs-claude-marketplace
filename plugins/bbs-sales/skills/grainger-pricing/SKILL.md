@@ -27,7 +27,7 @@ memory.** A grainger.com list price is not what the buying account pays.
 
 **1. Pricing is per-account, and a wrong account returns a wrong price that still looks
 valid.** Each account has its own discount off the contract reference price, set by its
-pricing schedule and sometimes overridden per account. There are 177 accounts across 8
+pricing schedule and sometimes overridden per account. There are 178 accounts across 8
 schedules. You must price against the account that will actually buy. The tools require it
 and fail rather than guess — do not work around that by picking a plausible account.
 
@@ -67,14 +67,38 @@ grainger_price(account="Porterville", productCodes=["6GRH5", "1A101"])
 Up to 48 item numbers per call. Pass `response_format="markdown"` when the rep wants a
 readable table — it calls out the account, the sell rule and the per-row discount.
 
-If you only have a description or a manufacturer part number, find the item number first:
+If you only have a description, search for the item number:
 
 ```
 grainger_search(account="Porterville", query="nitrile gloves")
-grainger_search(account="Porterville", query="MK-296-XL")
 ```
 
 Paginated — check `has_more` and pass `offset` for the next page.
+
+**If the line carries a manufacturer part number *and* a description, use
+`grainger_resolve_part` instead of `grainger_search`.** That is the normal shape of a
+requisition, the two fields disagree often, and the part number is usually the corrupt
+one. `rfq-item-extract` feeds exactly these lines in.
+
+```
+grainger_xref(action="lookup", parts=["B402"])        # free; recalls what was already proven
+grainger_resolve_part(account="Porterville", parts=[
+    {"mfrPart": "B402", "expect": {"Extinguisher Capacity": "20 lb"},
+     "note": "requisition line 0004"}])
+```
+
+Read the `verdict` and do not paraphrase it:
+
+| verdict | what it means | what to do |
+|---|---|---|
+| `match` | catalogue agrees with the requisition | price it |
+| `mismatch` | the catalogue disagrees with the stated expectation. **Not** unavailable | resolve with the buyer *before* quoting — do not silently pick either side |
+| `not_found` | no Grainger item for that part number | flag for sourcing |
+| `lookup_failed` | the gateway was unreachable | **never report this as the item being unavailable.** It is a failed call — retry or flag it |
+
+Check `grainger_xref` first; it is free and carries forward what an earlier session
+verified. When you establish a correction by other means, write it back with
+`action="learn"` so the next session does not re-make the mistake.
 
 ### 3. Stock and ship dates, when the rep needs them
 
@@ -95,6 +119,16 @@ account is not checkable.
 Anything the tools did not return is `[FLAG: why]`, never an estimate. An item the search
 cannot find is an item to source — hand it to `bbs-sourcing` or `vendor-quote-email`
 rather than guessing a price.
+
+**Never substitute a product.** If Grainger does not carry the exact part number, flag it
+for sourcing. Do not pick an alternate to keep the line populated, and do not accept the
+alternates Grainger itself offers on a miss — the customer specified that manufacturer part
+number for a reason. A substitution needs the rep's explicit approval, not yours.
+
+**Confirm the unit of measure matches the pack size requested.** Grainger sells by each,
+by the pack of 12, by the case. A price that is right per-package and wrong per-each is a
+wrong extended price on the bid, and nothing flags it. If the requisition does not state a
+pack size, or the returned unit does not match it, flag the line rather than assuming.
 
 ## Where the list comes from, and where it goes
 

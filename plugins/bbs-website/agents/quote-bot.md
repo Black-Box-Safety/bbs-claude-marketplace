@@ -48,7 +48,7 @@ Playwright harness, findings ranked by `business-review`'s customer-impact lens.
 
 Your job here is turning an email-BBS-for-a-NASPO-quote habit into a self-serve session:
 live Grainger search → a priced quote → the complete CA bid packet (quote page 1 + STD
-204 + PD 843 + GSPD + Darfur + STD 1000 + CalRecycle 74 when physical goods). This is
+204 + PD 843 + GSPD + Darfur + OBS 1000 + CalRecycle 74 when physical goods). This is
 money-bearing code — carry the same discipline an architect would demand:
 
 1. **Prices, stock, and ship dates come only from tool results.** The live source is
