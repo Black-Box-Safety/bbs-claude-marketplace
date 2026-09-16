@@ -84,10 +84,14 @@ references cannot be skipped.
 | website | `site-wiring-map` | — | |
 | website | `supply-lane-tuning` | grainger | |
 
-**Five** skills need nothing external — `bbs-deck-voice`, `rfq-item-extract`,
-`vendor-quote-email`, `price-list-cleaner`, `site-wiring-map`. The brief estimated two;
-the other three are prose-only mentions (`site-wiring-map` names every connector in the
-repo and invokes none of them).
+**Four** skills need nothing external — `bbs-deck-voice`, `rfq-item-extract`,
+`vendor-quote-email`, `site-wiring-map`. The brief estimated two; the other two are
+prose-only mentions (`site-wiring-map` names every connector in the repo and invokes none
+of them).
+
+`price-list-cleaner` was a fifth in my reading and is not: the scanner found *"Use `fitz`
+(PyMuPDF) for text extraction"* on line 79, which is an instruction to write extraction
+code against a package a rep may not have. It declares `[python3, pymupdf]`.
 
 Readings worth recording, because a reviewer will want to check them:
 
@@ -100,6 +104,31 @@ Readings worth recording, because a reviewer will want to check them:
   agent, and only when the BBS vendor directory misses. Recorded as `degrades-without`.
 - `bbs-claude-md-forge` — `execute_sql` and `shopify theme list` appear in its
   `references/`, quoted as CLAUDE.md content and canon, not invoked.
+
+### A4b. What the scanner caught in the table above
+
+The table is a human reading and the scanner corrected six entries of it, which is the
+best available evidence that the FAIL is doing work rather than restating what was already
+written:
+
+| Skill | Found | Verdict |
+|---|---|---|
+| `contract-discount-loader` | `python etl/import_contract_pricing.py` | missed — added `python3` |
+| `family-rollup` | `python etl/nonapparel_family_rollup.py` | missed — added `python3` |
+| `bbs-pricelist-import` | `python etl/import.py` | missed — added `python3` |
+| `le-lane-tuning` | `npm run build` | missed — added `node` |
+| `supply-lane-tuning` | `npm test`, `npm run eval:supply` | missed — added `node` |
+| `price-list-cleaner` | `PyMuPDF` | missed — not a "needs nothing" skill after all |
+| `family-rollup` | declared `shopify`, uncorroborated | **over**-declared: line 48 says the edge function's "Shopify token is server-side — no local token needed". Removed |
+
+Two findings were the scanner being wrong, and both were fixed in the registry rather than
+worked around in a skill — brand names are not signals, which the spec argues and three
+registry entries had quietly broken:
+
+- `site-wiring-map` was told it needed `firecrawl` and `sirv`, from a map of what the three
+  website repos contain ("Firecrawl enrichment", "the Sirv image CDN").
+- `rfq-item-extract` was told it needed `grainger`, from a line naming the Grainger MCP
+  only to say that `grainger-pricing` is the skill that prices the list.
 
 ### A5. `--requirements` reporting mode
 
