@@ -41,8 +41,16 @@ business ruling. Do not decide it here.** Whether a fresh *"the agency emailed a
 quote these"* is filed first or priced first is awaiting Parker; it is tracked in the
 marketplace repo, not in this file, and it is deliberately untuned. Ask the rep, in one
 line, which order they want — file it first and then price, or price now and file after.
-Record their answer in the run record. Continue to Gate 1 either way: the only thing their
-answer changes is whether `ca-rfq-intake` runs before this point or after Gate 7.
+
+**Say their answer back in your reply, and write it into the run record as soon as one
+exists** — before Gate 1 if they chose to file first, at Gate 8 if they chose to price
+first. On the price-first branch no run record exists yet, so an answer "recorded in the
+run record" would be recorded nowhere, on exactly the branch the ruling is about.
+
+Continue to Gate 1 either way. Their answer changes **when the request gets filed** —
+`ca-rfq-intake` before Gate 1, or at Gate 8 — and nothing else. It does not change what has
+to be known before a price: Gate 1 establishes the vehicle and the buying account on both
+branches, from the run record where there is one and from the documents where there is not.
 
 > When the ruling lands, case (c) collapses into (a) or (b): replace this paragraph with the
 > ruled default and change nothing else in this file. Until then the answers reps actually
@@ -51,25 +59,48 @@ answer changes is whether `ca-rfq-intake` runs before this point or after Gate 7
 
 ## Gate 1 — Recognize the customer and the packet
 
-Read what is already on disk; do not re-derive it. `ca-rfq-intake` wrote the run record and
-says which fields decide the rest of the run. `naspo-quote` says what else the buyer folder
-holds and in what order to read it. `ca-form-filler` owns identifying which forms the agency
-actually sent.
+**Two facts are established here on every branch: the contract vehicle, and the account
+that will actually buy.** Gate 3 routes on the first, Gate 4 on both, and the price itself
+depends on the second. Nothing downstream re-derives them.
+
+Where they come from depends on Gate 0. If intake has run, read what it wrote and do not
+re-derive it: `ca-rfq-intake` wrote the run record and says which fields decide the rest of
+the run and how a vehicle is classified. If intake has **not** run — Gate 0 (c),
+price-first — the same two facts come out of the same documents by the same rules; classify
+them `ca-rfq-intake`'s way, carry them through this run, and let intake write them down when
+it runs at Gate 8. A price-first run is not an unrouted run.
+
+`naspo-quote` says what else the buyer folder holds and in what order to read it.
+`ca-form-filler` owns identifying which forms the agency actually sent.
 
 **Gates.**
 
-- A decisive field still carrying a `[FLAG: …]` is resolved with the rep **now**, not at
-  Gate 6. A vehicle you cannot name and a buying account you cannot name each change the
-  price, not just the paperwork.
+- A decisive field you cannot name — or one the run record carries as `[FLAG: …]` — is
+  resolved with the rep **now**, not at Gate 6. A vehicle you cannot name and a buying
+  account you cannot name each change the price, not just the paperwork. With no run record
+  to read a flag out of, this gate is not satisfied by default: unknown is still unknown,
+  and it still stops here.
 - **Open escalations stop the run.** Two questions inside `ca-form-filler` are awaiting
-  Parker's ruling. This command does not resolve them, restate them, or route around them.
-  If the run reaches one, stop here and tell the rep it is awaiting Parker. A packet is not
-  delivered on a guessed answer to an open ruling.
+  Parker's ruling — the DVBE-name conflict on the DVBE declaration, marked **Escalated** in
+  `${CLAUDE_PLUGIN_ROOT}/skills/ca-form-filler/references/field-maps.md`, and the SB
+  checkbox on the CDCR Packet B, in the marketplace repo's `docs/STEWARD.md` under *Already
+  open for Parker* (a rep's install carries no `docs/`; not being able to see that file does
+  not close the question). This command does not resolve them, restate them, or route around
+  them. If the run reaches one, stop here and tell the rep it is awaiting Parker. A packet is
+  not delivered on a guessed answer to an open ruling.
 
 ## Gate 2 — Extract the line items
 
-Run `rfq-item-extract` when the items arrived as a cart PDF, a screenshot, or a DWR RFQ.
-**Skip it** when the rep already handed over a clean list.
+Run `rfq-item-extract` when the items arrived as a file or an image rather than a clean
+list. **Which sources it reads is its own to state** — read its description and its opening
+table rather than a list copied into this file, which goes stale the day it gains another
+source. If what arrived is not one of them, it says so instead of extracting; believe it.
+
+**Skip it** when the rep already handed over a clean list — and on the state path, where a
+NASPO or state **Line-Item Cost Worksheet** is not one of the sources `rfq-item-extract`
+reads: pulling the items, the quantities and the header data out of that worksheet is
+`naspo-quote` §1's job, and Gate 4 gets the list from there. Skipping this gate must not
+mean arriving at Gate 4 with no list; it means the list comes from the other owner.
 
 **Gate.** The line count you carry forward and the line count the solicitation asks for
 agree, or the difference is named out loud. A line silently dropped here is a
@@ -78,15 +109,28 @@ non-responsive bid later.
 ## Gate 3 — Eligibility, when the vehicle requires it
 
 Run `dgs-bpo-item-check` when Gate 1 named the DGS BPO. **Skip it** on any other vehicle.
+Gate 1 names a vehicle on every branch, price-first included; arriving here without one is
+Gate 1 unsatisfied, not permission to skip. An off-list part quoted onto a BPO bid is the
+failure this gate exists to prevent.
 
 **Gate.** An off-list item stops that line and goes to the rep. Substituting a different
 part is a rep decision, never this command's.
 
 ## Gate 4 — Price
 
-Route on what Gate 1 recorded, not on what the request looked like:
+Route on the vehicle and the account Gate 1 established, not on what the request looked
+like.
 
-| Gate 1 recorded | Skill |
+**On a CA state / NASPO-routed response, `naspo-quote` owns the whole back half — enter it
+here, once.** It prices, builds the quote, fills and signs the packet, renders and delivers.
+Gates 5 through 8 still bind, but on the state path they are conditions checked against that
+one run, not four further invocations. It is not decomposable: handing it the run again at a
+later gate re-runs its earlier sections and produces two prices and two quote numbers for
+one RFQ.
+
+Otherwise:
+
+| Gate 1 established | Skill |
 |---|---|
 | Grainger-sourceable lines | `grainger-pricing` |
 | Competitive, or lines Grainger does not carry | `bbs-sourcing` (it dispatches `supplier-scout` for items BBS has never sourced) |
@@ -94,24 +138,44 @@ Route on what Gate 1 recorded, not on what the request looked like:
 
 **Gates.**
 
-- Every unit price traces to a tool result on the buying institution's own account. A line
-  you cannot trace that way is `[FLAG: why]`, not a number — including a price the customer
-  put on their own paperwork, which is their number and not a source.
+- **Every unit price has a source you can point at, and it is the route's own source.** On
+  `grainger-pricing`, and on `naspo-quote`'s pricing half, that is a tool result on the
+  buying institution's own account — the account decides the price, so the wrong one returns
+  a wrong number that still looks valid. On `bbs-sourcing` and `vendor-quote-email` there is
+  no buying account behind the line at all: the source is the vendor's own written quote,
+  attributed and dated. Holding those routes to an account they never had would flag every
+  line on a competitive SB/DVBE bid. A line with neither is `[FLAG: why]`, not a number —
+  including a price the customer put on their own paperwork, which is their number and not
+  a source.
 - The sell-rule and per-account rules are `grainger-pricing`'s to state and `naspo-quote`'s
   to apply. Read them there before a number moves to Gate 5; do not carry a remembered
   version of them into this run.
 
 ## Gate 5 — Build the customer's quote
 
-Run `bbs-quote-builder`.
+**On the state path this gate is already inside the `naspo-quote` run you entered at Gate
+4.** Its §3 is what hands `bbs-quote-builder` the spec a state worksheet needs, and that
+spec — not the builder's own defaults — is what makes the document right. Do not run the
+builder yourself here: its defaults are written for commercial work, and it will ask the rep
+for values the worksheet has already settled. Answering those questions a second time, off
+the builder's commercial defaults, is how a state quote reaches the agency with the wrong
+tax treatment, the wrong margin, or an empty solicitation line.
+
+Off the state path, run `bbs-quote-builder` directly and confirm its inputs with the rep.
 
 **Gate.** The rep confirms the quote number before it reaches a document. Nothing is
-assigned silently.
+assigned silently, and nothing is confirmed twice — if Gate 4 entered `naspo-quote`, the
+number it proposed and the rep confirmed is the number.
 
 ## Gate 6 — Fill and sign the packet
 
-Run `ca-form-filler`. On a NASPO-routed response, `naspo-quote` runs this half itself and
-calls `ca-form-filler` for the paperwork — let it, rather than driving both.
+**On the state path, `naspo-quote` fills and signs the packet itself, inside the run you
+entered at Gate 4 — it does not hand the paperwork to `ca-form-filler`.** Read its body
+rather than this line: it routes *away* from `ca-form-filler`, and its own section fills the
+forms. Start neither skill here; this gate checks what that run produced.
+
+Otherwise — the rep wants the forms without a state-routed quote, or the agency sent a bound
+packet — run `ca-form-filler`.
 
 **Gates, all hard, because everything past this point is binding.**
 
@@ -124,11 +188,20 @@ calls `ca-form-filler` for the paperwork — let it, rather than driving both.
 
 ## Gate 7 — Verify by looking
 
+**The render belongs to whichever skill ran the back half** — `naspo-quote`'s verify section
+on the state path, `ca-form-filler`'s on either of its paths. Both have a real render step,
+and neither is optional.
+
 **Gate.** Every page that was touched has been rendered and *looked at*. Reading a field
 value back out of the PDF is not verification, and a fill script exiting 0 is not
 verification. The skills say what to look for; this gate only insists that somebody looked.
 
 ## Gate 8 — Deliver to the rep, and stop
+
+**If Gate 0 (c) put the filing after the pricing, run `ca-rfq-intake` now, before the
+hand-off.** The request gets its folder, its run record and its deadline, and the answer the
+rep gave at Gate 0 is written down where the ruling can later be read out of it. A priced
+RFQ that was never filed is the one that misses its next deadline.
 
 Write the files where the skill says, hand the rep the file list, and state in the reply
 itself every judgment call made on their behalf. Those are the ones that come back.
@@ -147,5 +220,5 @@ not offer to transmit. The rep reviews and the rep sends.
 - It does not resolve `ca-form-filler`'s open escalations.
 - It does not price, sign, or send anything on its own authority.
 
-**Replaces** `/ca-rfq-log` and `/ca-rfq-quote`, which paraphrased the bodies of
+**Replaces** `/ca-rfq-log` and `/ca-rfq-quote`, now retired: they paraphrased the bodies of
 `ca-rfq-intake` and `naspo-quote` and had begun to disagree with them.

@@ -65,7 +65,8 @@ python3 scripts/check_marketplace.py     # structural invariants; exit 1 on FAIL
 ```
 
 It catches what fails silently: a skill that never loads, a description truncated through
-its own "do NOT use" clause, a pointer to a merged-away skill, a path that resolves only
+its own "do NOT use" clause, a pointer to a merged-away skill or a retired slash
+command, a path that resolves only
 on the author's machine, a stale model ID, a form ID that is not in the rules, a
 vendor-profile key that does not exist, a drifted README badge count.
 

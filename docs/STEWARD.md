@@ -77,19 +77,27 @@ synthesize a list.
 **Done:** current list bundled, alternates-on-miss and restricted-item alerting present,
 coverage note accurate.
 
-### 2 — One trigger, end to end
+### 2 — One trigger, end to end *(built; PR #14 in review)*
 
-Today `/ca-rfq-log` and `/ca-rfq-quote` each **paraphrase** their skill's body — not
-restate it verbatim, as an earlier draft of this slice said. The difference makes the case
-stronger: a verbatim copy is merely redundant and drift is visible in a diff, whereas a
-paraphrase can silently disagree with the skill it paraphrases, and the two already do.
-Parker wants one trigger that completes documents and signs.
+The now-retired `/ca-rfq-log` and `/ca-rfq-quote` each **paraphrased** their skill's body —
+they did not restate it verbatim, as an earlier draft of this slice said. The difference
+made the case stronger: a verbatim copy is merely redundant and drift is visible in a diff,
+whereas a paraphrase can silently disagree with the skill it paraphrases, and those two
+already did. Parker wanted one trigger that completes documents and signs.
 
-Build `/ca-rfq` as an orchestration contract — **order and gates only, no restated
-steps** — running intake → recognize customer/packet → extract → price → quote → fill and
-sign → verify → deliver. Retire the two commands.
+`/ca-rfq` is that trigger, built as an orchestration contract — **order and gates only, no
+restated steps** — running intake → recognize customer/packet → extract → price → quote →
+fill and sign → verify → deliver. Both commands are gone and every live pointer is
+repointed, including the `claudeMd` block in `bbs-managed-settings.json`.
 
-**Done:** one command, no duplicated skill bodies, the routing eval still green.
+**Done:** one command, no duplicated skill bodies, the routing eval still green — not
+re-run, because no skill `description:` changed and commands never enter
+`docs/evals/skills.json`. `check_marketplace.py` now FAILs on a surviving pointer to a
+retired *command*, not only to a retired skill.
+
+**Not done here:** review and merge of PR #14. It edits a managed artifact, so it needs the
+second reviewer that rule already requires. The command's behaviour on a live RFQ is
+unverified — no session has run it against a real buyer folder.
 
 ### 3 — Packet profiles in `ca-form-filler`
 
@@ -168,9 +176,10 @@ Write it up with evidence and move to the next slice. Do not idle.
 ### Already open for Parker
 
 - **Re-paste managed settings** — the model-ID and Grainger changes reach no machine from
-  the repo alone. Its `claudeMd` block now also points reps at `/ca-rfq-log` then
-  `/ca-rfq-quote`, both retired by slice 2; the live line is `/ca-rfq`. No repo change
-  fixes this.
+  the repo alone, and neither does the slice-2 command line. The repo copy's `claudeMd`
+  block is corrected to `/ca-rfq` (it named the two retired commands), but the correction
+  reaches a rep only when Parker re-pastes; until then every session still loads the dead
+  names into memory.
 - **Edit the saved preference** that still says "Never pre-fill signature lines on any
   compliance form." It re-injects the removed rule into every new session.
 - **The personal-copy cutover** is account-side, in claude.ai → Settings → Capabilities →
@@ -179,6 +188,11 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **One routing ruling**: does a fresh "agency emailed asking us to quote" belong to
   `ca-rfq-intake` or `naspo-quote`? Left untuned on purpose — fitting the test before the
   ruling would just be fitting the test.
+- **Who certifies the CalRecycle 74.** `plugins/bbs-sales/references/ca-form-rules.md` puts
+  that certification on **the rep**; `naspo-quote` §5 defaults it to **Griffin Forsyth, VP**
+  on most routine packets. The two disagree about a signature sworn under penalty of
+  perjury, and the rules file is supposed to be the authority on who signs. Predates the
+  `/ca-rfq` work and neither side was changed. Rule it, then fix the losing side.
 
 ---
 

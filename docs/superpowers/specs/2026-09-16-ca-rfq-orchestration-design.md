@@ -108,6 +108,20 @@ skills only. Adding `/ca-rfq-log` and `/ca-rfq-quote` to a command equivalent is
 review-side change to a file this session must not touch; it is raised for the reviewer
 rather than made here.
 
+## Follow-up, review pass (same PR)
+
+Two decisions above were reversed by the review of this PR and are recorded here rather
+than edited out, because the reasoning above is the record of what this session decided.
+
+- **The command-retirement check was added** to `scripts/check_marketplace.py` after all —
+  `RETIRED_COMMANDS` plus a `live_commands()` guard, sharing the retired-skill token scan
+  and its counter-example handling. Leaving the gap open meant the next surviving pointer
+  went unnoticed.
+- **`plugins/bbs-foundations/docs/bbs-managed-settings.json` was fixed** in the repo. "A
+  repo edit reaches no machine" is true but incomplete: that file is the source Parker
+  pastes from, so a stale copy guarantees the next paste re-injects the dead names. The
+  escalation to re-paste stays open; the edit does not replace it.
+
 ---
 
 Owner: Parker Marshall. Last verified 2026-09-16.

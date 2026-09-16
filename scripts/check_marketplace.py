@@ -3,8 +3,9 @@
 
 Written for whoever maintains this repo, human or agent. It checks the things
 that fail *silently*: a skill that never loads, a description truncated through
-its own guardrail, a cross-reference to a skill that no longer exists, a path
-that only resolves on one person's machine, a model ID that went stale.
+its own guardrail, a cross-reference to a skill or a slash command that no longer
+exists, a path that only resolves on one person's machine, a model ID that went
+stale.
 
 None of these throw an error at runtime. They just quietly produce a wrong
 answer on a bid.
@@ -262,6 +263,7 @@ def check(findings):
     # README or a runbook than a SKILL.md, and a doc describing the old way is a
     # contradictory instruction, not a stale comment.
     known = set(skills)
+    live = live_commands()
     for path in walk(ROOT, (".md", ".json", ".py")):
         r = rel(path)
         if is_archive(path) or r.startswith("scripts/check_marketplace.py"):
@@ -279,6 +281,13 @@ def check(findings):
                 F("retired_skill_ref", f"{r}:{line}",
                   f"points at `{token}`, which no longer exists — "
                   f"{RETIRED_SKILLS[token]}")
+            if token in RETIRED_COMMANDS and token not in live:
+                if is_counter_example(text, m.start()):
+                    continue
+                line = text[:m.start()].count("\n") + 1
+                F("retired_command_ref", f"{r}:{line}",
+                  f"tells a reader to run `/{token}`, which no longer exists — "
+                  f"{RETIRED_COMMANDS[token]}")
         for pat, truth in SUPERSEDED_PRACTICE:
             for m in pat.finditer(text):
                 if is_counter_example(text, m.start()):
@@ -368,6 +377,37 @@ RETIRED_SKILLS = {
     "obs-form-filler": "merged into ca-form-filler as its OBS 4007(B) path",
     "bbs-b2b-pricing": "replaced by grainger-pricing on the Grainger MCP",
 }
+
+# Commands removed by consolidation, keyed without the leading slash so the same
+# token scan that finds retired skills finds these too, in `/ca-rfq-log`, in a bare
+# mention and in a JSON string. A skill that no longer exists simply never fires; a
+# *command* that no longer exists is worse, because the line telling a rep to type
+# it reads like an instruction and they will type it. Counter-example awareness is
+# the shared one: prose naming a retired command in order to say it is retired is
+# correct content, which is what the notes in docs/STEWARD.md and at the foot of
+# commands/ca-rfq.md are. The live_commands() guard is the mirror of `known` — a
+# name that exists on disk again is not dangling, whatever this map says.
+RETIRED_COMMANDS = {
+    "ca-rfq-log": "retired with slice 2; /ca-rfq carries intake as its first gate",
+    "ca-rfq-quote": "retired with slice 2; /ca-rfq carries pricing through delivery",
+}
+
+
+def live_commands():
+    """Command names that actually exist, across every local plugin.
+
+    The mirror of `known` in the retired-skill scan: a name is only dangling if
+    nothing on disk answers to it. Re-adding a command retires its entry here
+    without anyone having to remember to edit the map.
+    """
+    out = set()
+    if not os.path.isdir(PLUGINS):
+        return out
+    for plugin in os.listdir(PLUGINS):
+        cdir = os.path.join(PLUGINS, plugin, "commands")
+        if os.path.isdir(cdir):
+            out |= {fn[:-3] for fn in os.listdir(cdir) if fn.endswith(".md")}
+    return out
 
 
 def load_models(findings):

@@ -113,6 +113,21 @@ re-measure an input that did not change.
   it parses, it restates nothing, the checkers pass — and its *behaviour on a live RFQ is
   unverified by this session.* First real run should be supervised.
 
+## Follow-up, review pass (same PR)
+
+The review of this PR reversed two "left alone" items in step 5 and closed four gaps in the
+command itself. Recorded here rather than edited above.
+
+- `scripts/check_marketplace.py` gained `RETIRED_COMMANDS`, so a surviving pointer to a
+  retired *command* now FAILs the same way a retired skill does.
+- `plugins/bbs-foundations/docs/bbs-managed-settings.json` was corrected in the repo; the
+  re-paste escalation stays open on top of it.
+- In `commands/ca-rfq.md`: the price-first branch now establishes vehicle and account at
+  Gate 1 like every other branch; the state path enters `naspo-quote` once at Gate 4 and
+  Gates 5-8 check its output instead of re-invoking it; Gate 6's claim that `naspo-quote`
+  calls `ca-form-filler` was false and is gone; Gate 4's price-trace rule is scoped to the
+  routes that have a buying account.
+
 ---
 
 Owner: Parker Marshall. Last verified 2026-09-16.
