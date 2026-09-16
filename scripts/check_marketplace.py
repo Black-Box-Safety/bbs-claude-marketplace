@@ -66,12 +66,47 @@ def is_narrative(path):
 # A line that names a bad value in order to warn about it is correct content, not
 # a defect. Without this the checker flags its own fixes and gets ignored, which
 # is worse than having no checker.
+#
+# Bare "not" used to be in this list and it defeated every scan that calls here:
+# "The rep does not need to attach the worksheet" two lines above a stale model
+# ID silently exempted the ID. An ordinary negation is not a warning about the
+# value beside it. "do not" / "don't" now have to be negating a verb of *use*
+# ("do not write", "don't copy"), which is what a real counter-example says.
 COUNTER_EXAMPLE = re.compile(
-    r"\b(never|not|no longer|do not|don't|stale|superseded|retired|replaced?|"
+    r"\b(never|no longer|stale|superseded|retired|deprecated|counter-example|"
     r"earlier revisions?|used to|rather than|instead of|which is how|avoid|became|"
-    r"flag it|wrong|deprecated|counter-example|exists only|does not exist|exists to prevent|prevent)\b", re.I)
+    r"flag it|wrong|replaced?|exists only|exists to prevent|prevent|"
+    # Vocabulary this repo's own cutover records use to name a dead thing.
+    r"merged (?:away|into)|orphans?|contradictions?|contradictory|"
+    r"(?:do not|don't|does not|doesn't|cannot|can't)\s+"
+    r"(?:use|write|call|follow|ship|copy|cite|reference|point|route|read|run|"
+    r"substitute|search|check|guess|apply|resolve|exist|works?)"
+    r")\b", re.I)
 
 CONTEXT_LINES = 2
+# How far the qualifying phrase may sit from the value it is warning about,
+# measured in whitespace-collapsed characters. The ±2-line window on its own
+# was too generous: any qualifying word anywhere in a 5-line neighbourhood
+# exempted the match. The warning has to be near the thing it warns about.
+PROXIMITY = 200
+
+
+def _collapse(s):
+    """Whitespace-collapsed copy of s, plus orig index -> collapsed index."""
+    out = []
+    pos = [0] * (len(s) + 1)
+    prev_space = False
+    for i, ch in enumerate(s):
+        pos[i] = len(out)
+        if ch.isspace():
+            if not prev_space:
+                out.append(" ")
+            prev_space = True
+        else:
+            out.append(ch)
+            prev_space = False
+    pos[len(s)] = len(out)
+    return "".join(out), pos
 
 
 def is_counter_example(text, pos):
@@ -80,12 +115,28 @@ def is_counter_example(text, pos):
     Looks at a few lines either side with whitespace collapsed, because the
     qualifying phrase routinely wraps ("Earlier revisions of this skill called\n
     a wrapper under /mnt/skills/...") and a line-at-a-time check misses it.
+    The phrase must also land within PROXIMITY characters of the match, so a
+    qualifier belonging to an unrelated sentence elsewhere in the window does
+    not exempt it.
     """
-    lines = text.splitlines()
+    lines = text.splitlines(keepends=True)
     idx = text[:pos].count("\n")
     lo = max(0, idx - CONTEXT_LINES)
-    window = " ".join(lines[lo:idx + CONTEXT_LINES + 1])
-    return bool(COUNTER_EXAMPLE.search(" ".join(window.split())))
+    hi = min(len(lines), idx + CONTEXT_LINES + 1)
+    start = sum(len(ln) for ln in lines[:lo])
+    window = text[start:start + sum(len(ln) for ln in lines[lo:hi])]
+    collapsed, cmap = _collapse(window)
+    here = cmap[min(max(pos - start, 0), len(window))]
+    for m in COUNTER_EXAMPLE.finditer(collapsed):
+        if m.end() <= here:
+            dist = here - m.end()
+        elif m.start() >= here:
+            dist = m.start() - here
+        else:
+            dist = 0
+        if dist <= PROXIMITY:
+            return True
+    return False
 
 
 def rel(path):
@@ -125,9 +176,19 @@ def load_skills():
             meta, body = {}, text
             if len(parts) >= 3:
                 try:
-                    meta = yaml.safe_load(parts[1]) or {}
+                    loaded = yaml.safe_load(parts[1])
                 except yaml.YAMLError as exc:
-                    meta = {"__yaml_error__": str(exc)}
+                    loaded = {"__yaml_error__": str(exc)}
+                if loaded is None:
+                    loaded = {}
+                elif not isinstance(loaded, dict):
+                    # There is no frontmatter block at all: the split landed on
+                    # two `---` horizontal rules in the body, so safe_load was
+                    # handed ordinary markdown and returned a str (or a list).
+                    # Record it rather than letting the first meta.get() abort
+                    # the run over every other skill.
+                    loaded = {"__not_mapping__": type(loaded).__name__}
+                meta = loaded
                 body = parts[2]
             out[name] = {"plugin": plugin, "dir": os.path.join(sdir, name),
                          "path": path, "meta": meta, "body": body, "folder": name}
@@ -150,6 +211,12 @@ def check(findings):
     for name, s in skills.items():
         where = rel(s["path"])
         meta = s["meta"]
+        if "__not_mapping__" in meta:
+            F("no_name", where,
+              f"no YAML frontmatter: the leading `---` block is missing, so the "
+              f"text between the first two `---` parsed as {meta['__not_mapping__']}, "
+              f"not a mapping. The skill has no name: and never loads")
+            continue
         if "__yaml_error__" in meta:
             F("frontmatter_unparseable", where,
               f"YAML will not parse, so the skill never loads: {meta['__yaml_error__']}. "
