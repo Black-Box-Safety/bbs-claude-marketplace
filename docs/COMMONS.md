@@ -204,6 +204,28 @@ since.
 
 ---
 
+## Maintainer-tier entries (in the catalog, not a rep default)
+
+Pinned in `marketplace.json` so they are installable and version-controlled, but **not in
+`enabledPlugins` in managed settings** — so they do not reach the rep fleet. They are
+developer-aimed, the same bar that keeps `superpowers` and `kaizen` off the fleet, and are
+enabled only where marketplace work happens: Parker's machine and the build/steward context.
+
+| Plugin | Pin | Release model · cadence | Why it's here | Watch for |
+|---|---|---|---|---|
+| `andrej-karpathy-skills` | commit `2c60614` | `rolling`, zero tags · monthly | The `karpathy-guidelines` skill — Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution — reinforces `docs/MAINTAINER-GUIDE.md` when writing or reviewing a marketplace change | **Karpathy-inspired, not authored or endorsed by Andrej Karpathy** — name it accurately, never as his own work. MIT (`plugin.json`; no root `LICENSE` file at the pin). Pin is a commit SHA because the upstream has no tags. Inert during a rep's quoting session, so no reason to push it fleet-wide |
+
+**Provenance.** Method as above (`git ls-remote` / shallow clone through the agent proxy).
+
+| Entry | Verified | Tag object | Peeled commit | Upstream date |
+|---|---|---|---|---|
+| `andrej-karpathy-skills` `2c60614` | 2026-09-17, agent | — (no tags in repo) | `2c606141936f1eeef17fa3043a72095b4765b9c2` | HEAD of `main` at pin time |
+
+**Pending before enable:** `claude plugin validate . --strict` on a machine that has the
+CLI (this pin was validated with `check_marketplace.py` only).
+
+---
+
 ## Considered, not included
 
 | Candidate | Reason |

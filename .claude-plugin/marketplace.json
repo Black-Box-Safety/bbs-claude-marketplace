@@ -208,6 +208,29 @@
         "xlsx"
       ],
       "category": "commons"
+    },
+    {
+      "name": "andrej-karpathy-skills",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/multica-ai/andrej-karpathy-skills.git",
+        "ref": "2c606141936f1eeef17fa3043a72095b4765b9c2"
+      },
+      "version": "1.0.0",
+      "description": "Maintainer-tier, not a rep default: Karpathy-INSPIRED coding-agent guidelines as the karpathy-guidelines skill (Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution). Reinforces the review discipline in docs/MAINTAINER-GUIDE.md when writing or reviewing a marketplace change; stays inert during a rep's quoting session. Inspired by Andrej Karpathy's observations on LLM coding pitfalls; NOT authored or endorsed by him. Enabled where marketplace work happens, not fleet-wide. Pin, license, release model and audience: docs/COMMONS.md.",
+      "author": {
+        "name": "forrestchang"
+      },
+      "keywords": [
+        "commons",
+        "external",
+        "guidelines",
+        "best-practices",
+        "coding",
+        "karpathy",
+        "maintainer"
+      ],
+      "category": "commons"
     }
   ]
 }
