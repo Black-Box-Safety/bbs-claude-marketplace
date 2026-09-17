@@ -9,9 +9,10 @@ report format at the end. Read-only: create/modify nothing, send nothing.
 
 ## Checks
 
-1. **Plugins.** Confirm the bbs-foundations, bbs-sales, bbs-website, skill-bus, claudeforge,
-   impeccable, superpowers-chrome, caveman, and document-skills plugins are loaded (their
-   skills appear in your available skills). Report each present/absent.
+1. **Plugins.** Confirm the bbs-foundations, bbs-sales, bbs-back-office, bbs-website,
+   bbs-claude-coach, skill-bus, claudeforge, impeccable, superpowers-chrome, caveman, and
+   document-skills plugins are loaded (their skills appear in your available skills).
+   Report each present/absent.
 2. **Marketplace freshness.** Run `claude plugin marketplace list` via Bash if available;
    note whether bbs-claude-marketplace is registered. If the command is unavailable, say so.
 3. **Business Central connector** (BC MCP Custom API, interim — tool names change at the

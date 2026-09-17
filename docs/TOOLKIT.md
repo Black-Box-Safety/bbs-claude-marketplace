@@ -5,6 +5,10 @@ so you understand what you are working with and feel free to push it further. It
 rulebook and it is not about control — it is a shared toolkit meant to make your job easier
 and to grow as you find new uses for it.
 
+**Prefer talking it through?** In Claude, run `/bbs-explain-claude` (what the pieces are),
+`/bbs-what-can-i-do` (what you can do by job), or `/bbs-start` (one first step for the work
+in front of you). Those commands ship in the `bbs-claude-coach` plugin.
+
 At BBS one person keeps the toolkit consistent so every machine works the same way and gets
 improvements automatically. You never install or update anything by hand. You just use it —
 and tell us when it should do more.
