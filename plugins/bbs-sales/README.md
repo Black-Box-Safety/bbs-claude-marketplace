@@ -37,9 +37,11 @@ between two of these.
 | 6 | Fill the compliance packet | `ca-form-filler` — every CA form, with the CDCR OBS 4007(B) Packet-B as its scripted path · `naspo-quote` runs a whole NASPO response and calls it for the paperwork |
 | 7 | Go find the next one | `grainger-promo-page` (outbound campaign). Federal deck copy is `bbs-deck-voice`, in `bbs-foundations` |
 
-Step 4 is the one to get right. `grainger-pricing` is the authorized path for Grainger
-pricing at BBS — prefer it over anything found on the open web, because the open-web
-price is not the price BBS's account actually pays.
+Step 4 is the one to get right. `grainger-pricing` is the **only** authorized path for
+Grainger pricing at BBS — live prices from the Grainger MCP against the buying
+institution's own account. Never the open web, and never the retired
+`b2b.blackboxsafety.com` punch-out (the old `bbs-b2b-pricing` skill is gone from this
+marketplace; do not reintroduce it).
 
 `bbs-deck-voice` is the exception to this plugin's California framing: it writes
 **federal** pursuit copy, where BBS is SDVOSB and never DVBE. Do not use it for a CA

@@ -341,6 +341,9 @@ def check(findings):
     # --- 9. Counts written down match what is on disk -------------------------
     check_counts(findings, skills)
 
+    # --- 10. Retired skill folders must not reappear under plugins/ -----------
+    check_retired_skill_dirs(findings)
+
     return skills
 
 
@@ -368,6 +371,33 @@ RETIRED_SKILLS = {
     "obs-form-filler": "merged into ca-form-filler as its OBS 4007(B) path",
     "bbs-b2b-pricing": "replaced by grainger-pricing on the Grainger MCP",
 }
+
+
+def check_retired_skill_dirs(findings):
+    """A retired skill folder under plugins/*/skills/ is a live contradiction.
+
+    Text references are caught elsewhere (with counter-example awareness). A
+    whole skill directory coming back would load again and compete with the
+    skill that replaced it — especially bbs-b2b-pricing vs grainger-pricing.
+    """
+    for plugin in sorted(os.listdir(PLUGINS)):
+        skills_dir = os.path.join(PLUGINS, plugin, "skills")
+        if not os.path.isdir(skills_dir):
+            continue
+        for name in sorted(os.listdir(skills_dir)):
+            if name not in RETIRED_SKILLS:
+                continue
+            skill_path = os.path.join(skills_dir, name)
+            if not os.path.isdir(skill_path):
+                continue
+            findings.append({
+                "level": "FAIL",
+                "code": "retired_skill_dir",
+                "where": rel(skill_path),
+                "msg": (f"`{name}` was removed — {RETIRED_SKILLS[name]}. "
+                        f"Do not reintroduce the folder; route through the "
+                        f"replacement only"),
+            })
 
 
 def load_models(findings):

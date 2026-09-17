@@ -67,7 +67,10 @@ might be reused elsewhere — does not apply to this file.
 Three merges landed 2026-09-15, each collapsing skills that did **one job through
 different front doors**: the three item extractors became `rfq-item-extract`,
 `obs-form-filler` folded into `ca-form-filler` as its scripted OBS 4007(B) path, and
-`bbs-b2b-pricing` became `grainger-pricing` on the Grainger MCP.
+`bbs-b2b-pricing` became `grainger-pricing` on the Grainger MCP. Grainger pricing in this
+marketplace routes **only** through that skill and the Grainger MCP tools — never
+reintroduce a `bbs-b2b-pricing` skill folder, and never drive the retired
+`b2b.blackboxsafety.com` punch-out.
 
 Overlap in *input* is not overlap in *job*. `dgs-bpo-item-check` and `grainger-pricing`
 both take a list of Grainger part numbers and were deliberately left apart, because "is

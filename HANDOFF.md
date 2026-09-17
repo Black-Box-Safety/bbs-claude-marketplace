@@ -5,14 +5,18 @@ The July 2026 rollout this file used to track is **done**. Deployment moved to
 [`docs/acceptance/`](docs/acceptance/README.md), and asset status to
 [`REGISTRY.md`](REGISTRY.md).
 
+**Marketplace side (Grainger pricing):** done. `bbs-b2b-pricing` is not shipped; every
+Grainger price routes through `grainger-pricing` and the Grainger MCP. Do not reintroduce
+the old skill folder.
+
 One thread is still open, and it is the reason this file exists: **15 skills exist twice**
 — once as a personal copy synced to Parker's claude.ai account, once in the marketplace.
 While both exist, whichever loads first wins, silently.
 
 The 2026-09-15 consolidation made this **more urgent, not less**. It is now the highest
-open risk in the marketplace.
+open risk for Parker's own sessions (not for the marketplace catalog).
 
-Last verified: 2026-09-15.
+Last verified: 2026-09-17.
 
 ---
 

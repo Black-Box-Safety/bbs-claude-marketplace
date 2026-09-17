@@ -2,26 +2,30 @@
 name: grainger-pricing
 description: >-
   Get live Grainger pricing, stock and ship dates for Black Box Safety through the Grainger
-  MCP — the authorized path for every Grainger price at BBS, which replaced the
-  b2b.blackboxsafety.com punch-out. Use whenever a rep wants unit prices for Grainger item
-  numbers, is filling the Unit Price column of an RFQ or NASPO worksheet, asks what Grainger
-  charges on a facility's account, needs an item number found from a description or
-  manufacturer part number, asks which account a buyer prices on, or asks whether something is
-  in stock and when it ships. Never price a Grainger item from the open web or from memory. Do
-  NOT use to extract item numbers from a cart PDF, screenshot or DWR RFQ (rfq-item-extract
-  produces the list this prices), to check DGS BPO eligibility (dgs-bpo-item-check), or to
-  build the quote document (bbs-quote-builder). If a rep says only "check these items", ask
-  whether they mean price or BPO eligibility.
+  MCP — the only authorized path for every Grainger price at BBS. It replaced the retired
+  b2b.blackboxsafety.com punch-out and the retired bbs-b2b-pricing skill. Use whenever a
+  rep wants unit prices for Grainger item numbers, is filling the Unit Price column of an
+  RFQ or NASPO worksheet, asks what Grainger charges on a facility's account, needs an item
+  number from a description or manufacturer part number, asks which account a buyer prices
+  on, asks stock or ship dates, or still says "b2b pricing", "run the punch-out", or "price
+  these Grainger items". Never price from the open web, memory, or by driving that retired
+  punch-out. Do NOT use to extract item numbers from a cart PDF, screenshot or DWR RFQ
+  (rfq-item-extract), to check DGS BPO eligibility (dgs-bpo-item-check), or to build the
+  quote document (bbs-quote-builder). If a rep says only "check these items", ask whether
+  they mean price or BPO eligibility.
 ---
 
 # Grainger pricing — via the Grainger MCP
 
-Every Grainger price at BBS comes from the Grainger MCP. It replaced the
-`b2b.blackboxsafety.com` punch-out, so there is no browser automation to drive and no
-session to log into — the tools return contract pricing directly.
+Every Grainger price at BBS comes from the Grainger MCP (`grainger_accounts`,
+`grainger_price`, `grainger_search`, `grainger_resolve_part`, `grainger_availability`,
+`grainger_xref`). It replaced the retired `b2b.blackboxsafety.com` punch-out and the
+retired `bbs-b2b-pricing` skill — there is no browser automation to drive and no session
+to log into.
 
-**Never take a Grainger price from the open web, a search result, a cached page, or
-memory.** A grainger.com list price is not what the buying account pays.
+**Never take a Grainger price from the open web, a search result, a cached page,
+memory, or by navigating that retired punch-out.** A grainger.com list price is not what
+the buying account pays.
 
 ## The two rules that make a price right or wrong
 
@@ -149,4 +153,4 @@ the open web; that is the failure this skill exists to prevent.
 
 ---
 
-Owner: Parker. Last verified 2026-09-15.
+Owner: Parker. Last verified 2026-09-17.

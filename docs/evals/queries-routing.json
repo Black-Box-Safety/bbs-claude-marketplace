@@ -133,6 +133,16 @@
   "query": "What Grainger account does CSU Fullerton price on?"
  },
  {
+  "id": "price-6",
+  "expect": "grainger-pricing",
+  "query": "Run these through the punch-out on account 887895111: 60KA44, 38W367"
+ },
+ {
+  "id": "price-7",
+  "expect": "grainger-pricing",
+  "query": "Pull the B2B pricing for these Grainger items on the Porterville account"
+ },
+ {
   "id": "amb-4",
   "expect": "rfq-item-extract",
   "files": [

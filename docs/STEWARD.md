@@ -169,8 +169,10 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **Edit the saved preference** that still says "Never pre-fill signature lines on any
   compliance form." It re-injects the removed rule into every new session.
 - **The personal-copy cutover** is account-side, in claude.ai → Settings → Capabilities →
-  Skills. Five orphans now contradict what replaced them; `bbs-b2b-pricing` still drives
-  the retired punch-out.
+  Skills. The marketplace no longer ships `bbs-b2b-pricing` (Grainger pricing is
+  `grainger-pricing` / Grainger MCP only). Five account-synced orphans can still load in
+  Parker's sessions and contradict that — delete them in claude.ai; nothing in this repo
+  retires them.
 - **One routing ruling**: does a fresh "agency emailed asking us to quote" belong to
   `ca-rfq-intake` or `naspo-quote`? Left untuned on purpose — fitting the test before the
   ruling would just be fitting the test.

@@ -99,14 +99,15 @@ This section used to list personal skills "worth promoting". **They are promoted
 one of them has a marketplace copy, and that copy is the maintained one.
 
 What is left is the opposite job: retiring the personal copies, 15 of them, which shadow
-the marketplace in Parker's own sessions. The 2026-09-15 consolidation made five of them
-outright contradictions — `bbs-b2b-pricing` still drives the retired
-`b2b.blackboxsafety.com` punch-out, and `obs-form-filler`, `grainger-cart-info`,
-`grainger-screenshot` and `dwr-pdf-info` compete with the skills that replaced them.
+the marketplace in Parker's own sessions. The marketplace itself is already clean —
+`bbs-b2b-pricing` is not shipped; Grainger pricing is `grainger-pricing` on the Grainger
+MCP only. The 2026-09-15 consolidation left five **account-synced** orphans that can still
+contradict that in Parker's sessions: the retired `bbs-b2b-pricing` punch-out skill, plus
+`obs-form-filler`, `grainger-cart-info`, `grainger-screenshot` and `dwr-pdf-info`.
 
-They are **account-synced**: they live in Parker's claude.ai account, not on disk and not
-in this repo, so they can only be removed in claude.ai → Settings → Capabilities → Skills.
-`HANDOFF.md` carries the confirmed mechanism, the evidence, and the order.
+They live in Parker's claude.ai account, not on disk and not in this repo, so they can
+only be removed in claude.ai → Settings → Capabilities → Skills. `HANDOFF.md` carries
+the confirmed mechanism, the evidence, and the order.
 
 ## Draft-first enforcement (2026-09-11)
 
