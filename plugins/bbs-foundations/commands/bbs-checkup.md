@@ -36,9 +36,12 @@ report format at the end. Read-only: create/modify nothing, send nothing.
    desk root) containing `bbs-grounding-doctrine`. PASS = present. FAIL = absent → the fix is
    `/bbs-onboard`. If `.claude/skill-bus-telemetry.jsonl` exists at the desk, note whether it
    shows a `match` for a `bbs-sales:` skill (informational).
-10. **Bootstrap tools.** Run `where.exe node pdftotext pandoc uv` via Bash (or PowerShell
-    `Get-Command`). PASS = all four resolve. WARN (not FAIL) for any missing one, naming it and
-    pointing at `scripts/bbs-setup.ps1` (REP-SETUP step 1).
+10. **Bootstrap tools.** Run `where.exe node pdftotext pandoc uv python soffice` via Bash (or
+    PowerShell `Get-Command`). Then verify the libraries the document-producing skills import:
+    `python -c "import pypdf, fitz, openpyxl"` and `node -e "require('docx')"` (PASS = neither
+    errors). WARN (not FAIL) for any missing tool or import, naming it and pointing at
+    `scripts/bbs-setup.ps1` (REP-SETUP step 1) — for a `[later]` item, reopening VS Code and
+    rerunning the script usually fixes it.
 
 ## Report format
 
