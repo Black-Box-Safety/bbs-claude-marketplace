@@ -1,0 +1,32 @@
+name: Marketplace checks
+
+# The structural checks the docs already require "every PR" — now enforced, not run from
+# memory. check_marketplace.py catches the failures that never throw at runtime: a skill
+# that never loads, a description truncated through its own guardrail, a pointer to a
+# merged-away skill, a nonportable path, a stale model ID, a form ID not in the rules, a
+# vendor-profile key that fills with nothing, a drifted README badge count. Exit 1 on FAIL.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check-marketplace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # The checker is deliberately stdlib + PyYAML only, so this is the whole dependency.
+      - name: Install PyYAML
+        run: pip install --quiet pyyaml
+
+      - name: Structural invariants (exit 1 on FAIL)
+        run: python3 scripts/check_marketplace.py
