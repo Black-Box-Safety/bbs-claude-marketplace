@@ -40,6 +40,7 @@ Nothing drifts.
 
 | You are | Start here | Time |
 |---|---|---|
+| New to any of this | [`docs/TOOLKIT.md`](docs/TOOLKIT.md) — what the tools are, in plain words, and how to extend them | ~10 min read |
 | A sales rep | [`docs/REP-SETUP.md`](docs/REP-SETUP.md), then `/bbs-checkup` | ~20 min, once |
 | The admin | [`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §0 → §3a | One morning |
 | Maintaining the website | [`plugins/bbs-website/README.md`](plugins/bbs-website/README.md), then `/bbs-onboard` | ~15 min |
