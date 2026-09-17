@@ -6,7 +6,7 @@ teammate's machine. That file is a **mirror**: local edits are overwritten on re
 this is the only place to change it. This document says what each block does and why, so
 the next person to edit it does not have to reverse-engineer it.
 
-Owner: Parker Marshall. Last verified: 2026-09-13. Company facts in the `claudeMd` block
+Owner: Parker Marshall. Last verified: 2026-09-17. Company facts in the `claudeMd` block
 come from `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`;
 when that file changes, change the block.
 
@@ -92,6 +92,13 @@ Parker asked for actually happens. Of the connectors on Parker's account today:
 
 The `claudeMd` block already tells every session which system of record answers which
 question, so a teammate with the right connectors gets routed correctly without reading this.
+
+**Cursor is a different surface.** claude.ai connectors reach Cursor only through the
+Claude Code extension (`/mcp` in that panel). Cursor Settings → MCP / Plugins is a
+separate list: Outlook and Teams for quoting reps (their own mailbox), Mobbin for UI
+work, Supabase / Vercel / Firecrawl for site maintainers. Do not put Grainger keys,
+SCPRS path tokens, or CRM path tokens in a committed `mcp.json`. The role matrix and
+the first-open path live in `docs/CURSOR-SETUP.md`.
 
 ## Parker-local skills — already promoted, now waiting to be retired
 

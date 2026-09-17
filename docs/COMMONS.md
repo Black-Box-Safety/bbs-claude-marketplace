@@ -135,9 +135,9 @@ is Parker's call; the re-check is the interim control.
 
 | Plugin | Pin | Release model · cadence | Why reps have it | Watch for |
 |---|---|---|---|---|
-| `superpowers-chrome` | `v3.0.5` | `tagged`, single `vX.Y.Z` train · quarterly | Drives the rep's own Chrome: product research on distributor and agency sites, logged-in sessions included. Full browser access is a standing ruling; no deny rules touch it | Upstream says beta. Needs Node.js (`bbs-setup.ps1` installs it). Pin is a mutable tag ref. If a rep hits a crash, log it in FLAGS |
+| `superpowers-chrome` | `v3.0.5` | `tagged`, single `vX.Y.Z` train · quarterly | Drives the rep's own Chrome: product research on distributor and agency sites, logged-in sessions included. Full browser access is a standing ruling; no deny rules touch it | Upstream says beta. Needs Node.js (`bbs-setup.ps1` / `bbs-setup.sh` install it). Pin is a mutable tag ref. If a rep hits a crash, log it in FLAGS |
 | `caveman` | `v2.7.0` | `multi-train`, nine tag prefixes, authoritative train is bare `vX.Y.Z` · monthly | Opt-in terse mode. Cuts output tokens roughly two-thirds; technical content stays exact. `/caveman lite` is a good default for long sessions | Off by default via managed env (`CAVEMAN_DEFAULT_MODE=off`); never forced on. **Reps receive the whole tree** (measured on Claude Code 2.1.273 on Linux; the loader is not platform-specific, but it was not re-measured on Windows) — 20 skills, 6 command files, 3 `cavecrew-*` agents — because `skills:` does not filter. **`caveman-init` (`.md` and `.toml`) runs `curl … raw.githubusercontent.com/JuliusBrussee/caveman/main/src/tools/caveman-init.js \| node -`: download-and-execute from upstream `main`, bypassing the pin entirely and writing rule files into the rep's current repo.** Pre-existing at v2.6.0. Commands ship regardless of any `skills:` list. `caveman-help` advertises `/caveman-compress`, for which no command file exists. Split license, see below. Pin is a mutable tag ref |
-| `document-skills` (Anthropic) | commit `34040c9c` | `rolling`, zero tags · monthly | Word, PDF, Excel and PowerPoint with real scripts: fill and merge PDFs, read tracked changes, build spreadsheets with formulas, assemble decks. RFQ worksheets and bid packets are exactly this | **`pptx` visual QA and PDF conversion go through LibreOffice (`soffice`), which `bbs-setup.ps1` does not install, and behaviour on a rep's Windows box is unverified.** `docx` and `xlsx` reference `soffice` too and have the same gap. `pptx` also assumes `pptxgenjs` is preinstalled; on a rep machine it is an `npm install`. **Reps receive all 19 skills in the tree**, not the 4 named — the filter has never worked (measured on Claude Code 2.1.273 on Linux; not re-measured on Windows). `uv` from the bootstrap covers the Python runtime; Poppler covers `pdftoppm` |
+| `document-skills` (Anthropic) | commit `34040c9c` | `rolling`, zero tags · monthly | Word, PDF, Excel and PowerPoint with real scripts: fill and merge PDFs, read tracked changes, build spreadsheets with formulas, assemble decks. RFQ worksheets and bid packets are exactly this | **`pptx` visual QA and PDF conversion go through LibreOffice (`soffice`), now installed by both bootstraps; behaviour on a rep's Windows box is still unverified.** `docx` and `xlsx` reference `soffice` too. `pptx` also assumes `pptxgenjs` is preinstalled; on a rep machine it is an `npm install`. **Reps receive all 19 skills in the tree**, not the 4 named — the filter has never worked (measured on Claude Code 2.1.273 on Linux; not re-measured on Windows). `uv` from the bootstrap covers the Python runtime; Poppler covers `pdftoppm` |
 
 ### Provenance
 
@@ -326,8 +326,10 @@ because selection does not work.
   denying the command itself is not available; the Bash deny is blunter and catches only
   that shape of invocation.
 - **Windows hook shell**, above: untested and the highest blast radius in the tier.
-- **LibreOffice** is not in `bbs-setup.ps1` and three pinned document skills reference
-  `soffice`.
+- **LibreOffice** is now in both bootstraps (`scripts/bbs-setup.ps1` via winget
+  `TheDocumentFoundation.LibreOffice`, `scripts/bbs-setup.sh` via `brew install --cask
+  libreoffice`). Three pinned document skills plus `bbs-quote-builder` still reference
+  `soffice`. Behaviour on a rep's Windows box is unverified until a pilot run.
 - **Account-synced personal copies** of `docx`, `pdf`, `xlsx` and `pptx` compete with the
   pinned copies. Account-side; no repo change fixes it.
 

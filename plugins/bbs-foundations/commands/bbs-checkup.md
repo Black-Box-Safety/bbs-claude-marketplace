@@ -36,9 +36,12 @@ report format at the end. Read-only: create/modify nothing, send nothing.
    desk root) containing `bbs-grounding-doctrine`. PASS = present. FAIL = absent → the fix is
    `/bbs-onboard`. If `.claude/skill-bus-telemetry.jsonl` exists at the desk, note whether it
    shows a `match` for a `bbs-sales:` skill (informational).
-10. **Bootstrap tools.** Run `where.exe node pdftotext pandoc uv` via Bash (or PowerShell
-    `Get-Command`). PASS = all four resolve. WARN (not FAIL) for any missing one, naming it and
-    pointing at `scripts/bbs-setup.ps1` (REP-SETUP step 1).
+10. **Bootstrap tools.** Resolve `node`, `pdftotext`, `pandoc`, and `uv` on PATH
+    (`command -v` on macOS; `where.exe` / `Get-Command` on Windows). PASS = all four
+    resolve. WARN (not FAIL) for any missing one, naming it and pointing at
+    `scripts/bbs-setup.ps1` (Windows) or `scripts/bbs-setup.sh` (macOS). Also resolve
+    `soffice` (LibreOffice): WARN if missing — quote-builder PDF export and
+    document-skills conversion need it.
 
 ## Report format
 

@@ -4,12 +4,16 @@ You already use Claude Code in the Desktop app. **Everything you do today keeps 
 This adds the VS Code quote desk: same Claude, same skills — plus you can SEE the files
 Claude is reading, side by side. Screenshots will be pinned in the Teams sales channel.
 
+On a Mac, or if you use Cursor instead of VS Code, start at
+[`docs/CURSOR-SETUP.md`](CURSOR-SETUP.md). The workspace file is the same.
+
 ## Set up (once)
 
 1. **Run the bootstrap** — download `scripts/bbs-setup.ps1` from the marketplace repo (Parker
    posts it in Teams with the workspace file), then in PowerShell:
    `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1`. It installs Git, Node, Chrome,
-   and the PDF/OCR/Office command-line tools Claude uses to read RFQs. Two minutes, safe to rerun.
+   LibreOffice, and the PDF/OCR tools Claude uses to read RFQs. Two minutes, safe to rerun.
+   Mac: `scripts/bbs-setup.sh` (needs Homebrew). Preview with `-DryRun` / `--dry-run`.
 2. **Install VS Code** — code.visualstudio.com, all defaults.
 3. **Install the Claude Code extension** — Extensions sidebar (Ctrl+Shift+X), search
    "Claude Code", install, then sign in with your BBS Claude account (same login as the
@@ -87,6 +91,7 @@ command, so a missing library is a clear message, never a half-written bid docum
 ## When to use which window
 
 - **VS Code**: quote work — you want the RFQ, the worksheet, and Claude on one screen.
+- **Cursor**: the same workspace, if that is the app on your machine. [`CURSOR-SETUP.md`](CURSOR-SETUP.md).
 - **Desktop app**: everything else, or if VS Code is ever broken. Same Claude.
 
 ## Want an agency storefront?

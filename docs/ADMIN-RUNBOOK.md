@@ -1,7 +1,8 @@
 # Admin runbook — Parker's operating manual
 
-Everything the solo admin does, with exact steps. Companion: REP-SETUP.md (rep side),
-MEASUREMENT.md (metrics), ADMIN-CLEANUP.md (one-time machine cleanup).
+Everything the solo admin does, with exact steps. Companion: REP-SETUP.md (VS Code),
+CURSOR-SETUP.md (Cursor / Mac), MEASUREMENT.md (metrics), ADMIN-CLEANUP.md (one-time
+machine cleanup).
 
 ## 0. Prerequisites (before ANY deployment)
 
@@ -25,7 +26,9 @@ MEASUREMENT.md (metrics), ADMIN-CLEANUP.md (one-time machine cleanup).
    send (`/permissions` should list the managed deny entries). Deny rules on wrong tool names fail
    silently, so this test is not optional. Repeat it once on the pilot rep's machine. Repeat the
    send test once in the Desktop app as well — managed settings govern both surfaces; confirm
-   rather than assume. Ask Claude to open Chrome and search a product — expect it to run without
+   rather than assume. **Cursor Agent chat is not covered by this deny list.** The stamped
+   `.cursor/rules/bbs-invariants.mdc` is the control there; do not treat a Claude Code
+   send-denial as proof Cursor cannot send. Ask Claude to open Chrome and search a product — expect it to run without
    a permission prompt (the browser tool is on the managed allow list). Then run `/context` and
    record the startup context size (managed CLAUDE.md + plugin skill descriptions + MCP tool
    schemas) in the deployment note; if MCP tool schemas dominate, trim connector assignments per
@@ -43,16 +46,25 @@ Per the matrix in MANAGED-SETTINGS.md: everyone gets BC MCP (Custom API, read-on
 M365, Grainger, Sales CRM; CA-book reps add SCPRS; BC Chat Connector is retired — unassign it;
 Supabase/Shopify/Vercel/QuickBooks stay admin-only.
 
+Those assignments are **claude.ai connectors** (Claude Code, Desktop, and the Claude Code
+extension inside Cursor/VS Code). Cursor's own Plugins list is a separate surface: Outlook
+and Teams for everyone who quotes, signed in as themselves; Supabase / Vercel / Firecrawl
+stay Parker/Griffin; never copy `~/.cursor/mcp.json` onto a rep machine. Role matrix:
+`docs/CURSOR-SETUP.md`.
+
 ## 3a. First-deployment sequence (once, in this order)
 
 1. §0 → §1 → §2 → §3 above, on the admin machine.
 2. **Stamp the desk-root CLAUDE.md** on the pilot machine from `workspace/DESK-CLAUDE-template.md`
    (`/bbs-claude-md init` at the desk root, or `ca-rfq-intake`'s `scaffold_folder_context.py
    --dry-run` then `--write` for per-buyer folders). `/bbs-checkup` check 6 expects it.
-3. Post `workspace/bbs-rep.code-workspace` + the REP-SETUP link in the Teams sales channel;
-   pin it; add the first-open screenshots to that post.
-4. Post `scripts/bbs-setup.ps1` in the same Teams post; reps run it before anything else
-   (REP-SETUP step 1).
+   On Cursor machines, also copy `.cursor/rules/bbs-invariants.mdc` to
+   `{desk}/.cursor/rules/bbs-invariants.mdc` (same file; do not rewrite it). Cursor does
+   not load this repo's `AGENTS.md` when the workspace is only the quote-desk folder.
+3. Post `workspace/bbs-rep.code-workspace` + the REP-SETUP and CURSOR-SETUP links in the
+   Teams sales channel; pin it; add the first-open screenshots to that post (both editors).
+4. Post `scripts/bbs-setup.ps1` (Windows) and `scripts/bbs-setup.sh` (Mac) in the same
+   Teams post; reps run the one for their OS before anything else.
 5. Pick the pilot rep and date. Gate: rep runs `/bbs-checkup` clean, logs one real RFQ,
    produces one packet, unaided. Record PASS/FAIL in `docs/acceptance/YYYY-MM-DD-<initials>.md`.
 6. Start ADMIN-CLEANUP.md on both admin machines.
@@ -101,5 +113,6 @@ merges, and key custody stay with you.
 |---|---|
 | BC `Internal_CompanyNotFound` | Restart the Claude session, retry once |
 | `/mcp` missing Grainger / BC / CRM | Connector not assigned to that user in the admin console (§3). Admin machines only: local `grainger-api` gateway not running |
+| Cursor Agent cannot price Grainger | Expected. Pricing connectors live on the Claude Code extension, not Cursor MCP. Open the Claude Code panel; `/mcp` there |
 | Rep "Claude got weird" after an update | Check FLAGS for a spike; consider revert; it's a heightened-review week |
 | Plugin didn't update | `/plugin marketplace update`, restart; check git push actually landed |
