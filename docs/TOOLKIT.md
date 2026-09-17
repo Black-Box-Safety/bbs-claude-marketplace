@@ -70,10 +70,12 @@ The toolkit grows *because* people push it. You are invited to:
   grows; a missing tool is a request, not a dead end.
 - **Log it when Claude is wrong.** One line in the folder's `FLAGS.md`. Catching a mistake
   is the system working — it turns into a fix everyone gets.
-- **Build your own skill.** If you find yourself explaining the same job to Claude twice,
-  that job wants to be a skill. Tell Parker, or start it yourself — a skill is just a short
-  written playbook, and there is a skill (`bbs-claude-md-forge`) that helps write it the BBS
-  way. You do not have to be technical to describe how you do your own job well.
+- **Build your own skill — you already have the tool for it.** If you find yourself
+  explaining the same job to Claude twice, that job wants to be a skill. Ask Claude to use
+  **`skill-creator`**: it interviews you about how the job works and writes the skill for
+  you — no technical background needed, just describe how you do your own work well. Then
+  `bbs-claude-md-forge` aligns it to the BBS house style. Keep it for yourself, or if it
+  helps everyone, Parker folds it into the shared toolkit so the whole team gets it.
 
 When something you built or asked for turns out to help everyone, it gets added to the
 shared toolkit so the whole team gets it.
