@@ -18,6 +18,7 @@ $packages = @(
   @{ Id = 'UB-Mannheim.TesseractOCR'; Why = 'OCR for scanned RFQs and faxed worksheets' },
   @{ Id = 'JohnMacFarlane.Pandoc';   Why = 'Word attachments to markdown' },
   @{ Id = 'astral-sh.uv';            Why = 'Python runtime for form-fill and document-skills scripts, zero config' },
+  @{ Id = 'TheDocumentFoundation.LibreOffice'; Why = 'soffice: renders and PDF-converts the pptx/docx/xlsx and marketing skills so decks and one-pagers actually come out right' },
   @{ Id = 'DuckDB.cli';              Why = 'query price lists and SCPRS exports instead of reading them whole' },
   @{ Id = 'jqlang.jq';               Why = 'JSON plumbing for scripts and hooks' }
 )
@@ -48,6 +49,27 @@ foreach ($p in $packages) {
     Write-Warning ("winget exit {0} for {1}. Install it by hand later; nothing else here depends on it." -f $LASTEXITCODE, $p.Id)
     $failed += $p.Id
   }
+}
+
+# pptxgenjs is an npm library, not a winget package: the pptx skill builds slide decks with
+# it. Node arrives above but its PATH only lands after VS Code reopens, so on a first run
+# npm may not resolve yet - this succeeds on the rerun the script already asks for.
+if (Get-Command npm -ErrorAction SilentlyContinue) {
+  npm ls -g pptxgenjs > $null 2>&1
+  if ($LASTEXITCODE -eq 0) {
+    Write-Host "[ok]      pptxgenjs (npm global)"
+  } elseif ($DryRun) {
+    Write-Host ("[would]   {0,-28} {1}" -f 'pptxgenjs', 'the pptx skill builds slide decks with it')
+  } else {
+    Write-Host ("[install] {0,-28} {1}" -f 'pptxgenjs', 'the pptx skill builds slide decks with it')
+    npm install -g pptxgenjs | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+      Write-Warning "npm could not install pptxgenjs. The pptx skill prompts to install it on first use; nothing else depends on it."
+      $failed += 'pptxgenjs'
+    }
+  }
+} elseif (-not $DryRun) {
+  Write-Host "[later]   pptxgenjs needs Node on PATH; reopen VS Code and rerun this script to add it (the pptx deck library)."
 }
 
 Write-Host ""
