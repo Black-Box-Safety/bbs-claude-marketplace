@@ -58,7 +58,7 @@ import sys
 try:
     import fitz  # PyMuPDF
 except ImportError:
-    sys.exit("pymupdf required: pip install pymupdf --break-system-packages -q")
+    sys.exit("pymupdf required: python -m pip install pymupdf")
 
 TRUTHY = {True, "true", "yes", "on", "x", "1", "checked"}
 

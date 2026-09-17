@@ -33,11 +33,18 @@
 
 const fs = require('fs');
 const path = require('path');
+let docx;
+try {
+  docx = require('docx');
+} catch (err) {
+  console.error("The 'docx' package is missing. Run bbs-setup.ps1, or install it with: npm install -g docx");
+  process.exit(1);
+}
 const {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
   AlignmentType, WidthType, ShadingType, BorderStyle, VerticalAlign,
   ImageRun, Footer
-} = require('docx');
+} = docx;
 
 const specPath = process.argv[2];
 const outPath = process.argv[3];

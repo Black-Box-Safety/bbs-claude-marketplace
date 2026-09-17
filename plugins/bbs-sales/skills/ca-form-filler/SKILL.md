@@ -134,7 +134,7 @@ python "$SKILL_DIR/scripts/fill_obs_packet.py" <blank_packet.pdf> <inputs.json> 
 It fills every AcroForm field, then writes the four company-name lines that have no
 fillable field as text annotations at known coordinates. It needs `pypdf` and `pymupdf`,
 checks for both before touching the packet, and prints the install command if either is
-missing (`pip install pypdf pymupdf --break-system-packages -q`).
+missing (`python -m pip install pypdf pymupdf`).
 
 **It writes the packet only if every field validates**, so a non-zero exit means there is
 no output file rather than a half-filled one. Read any `NOTE:` lines: a checkbox ticked
@@ -182,7 +182,7 @@ reports an invalid field ID, re-extract and update the map rather than guessing.
 ### 1. See what the PDF actually is
 
 ```bash
-python3 "$SKILL_DIR/scripts/fill_obs_packet.py" --inspect /path/to/forms.pdf
+python "$SKILL_DIR/scripts/fill_obs_packet.py" --inspect /path/to/forms.pdf
 ```
 
 The inspector reads any CA form PDF, not just Packet B — it reports each field's page,

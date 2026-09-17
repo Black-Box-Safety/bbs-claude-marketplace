@@ -165,7 +165,7 @@ These pages get opened from an email, on a phone, and then forwarded to a buyer:
 Run from the repo root, on the rendered artifact and not the template:
 
 ```
-python3 tools/brand_check.py <path-to-index.html> --scope mro --scope agency
+python tools/brand_check.py <path-to-index.html> --scope mro --scope agency
 ```
 
 Green is not sufficient. The gate catches superseded wording, expired claims, and missing

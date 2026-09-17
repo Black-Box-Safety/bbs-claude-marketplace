@@ -59,7 +59,7 @@ def pdf_text(pdf_path):
         out = subprocess.run(['pdftotext', '-layout', pdf_path, '-'],
                              capture_output=True)
     except FileNotFoundError:
-        die('pdftotext not found. Install poppler (brew install poppler).')
+        die('pdftotext not found. Install poppler (bbs-setup.ps1 on Windows; brew install poppler on macOS).')
     if out.returncode != 0:
         die('pdftotext failed on %s: %s'
             % (pdf_path, out.stderr.decode('utf-8', 'replace').strip()))

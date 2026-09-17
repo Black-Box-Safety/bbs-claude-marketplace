@@ -60,17 +60,28 @@ def die(msg):
 
 
 def find_chrome(explicit):
-    path = explicit or CHROME
-    if os.path.exists(path):
-        return path
-    for alt in ('/Applications/Chromium.app/Contents/MacOS/Chromium',
-                shutil.which('google-chrome'),
-                shutil.which('chromium')):
-        if alt and os.path.exists(alt):
-            return alt
-    die('Google Chrome not found at %s. Install Chrome, or pass --chrome with '
-        'the path to a Chrome or Chromium binary. Headless Chrome is what loads '
-        'the brand webfonts, so there is no fallback renderer here.' % path)
+    candidates = [
+        explicit,
+        os.environ.get('CHROME'),
+        CHROME,
+        shutil.which('google-chrome'),
+        shutil.which('google-chrome-stable'),
+        shutil.which('chromium'),
+        shutil.which('chromium-browser'),
+        shutil.which('chrome'),
+        shutil.which('chrome.exe'),
+        '/Applications/Chromium.app/Contents/MacOS/Chromium',
+        os.path.expandvars(r'%ProgramFiles%\Google\Chrome\Application\chrome.exe'),
+        os.path.expandvars(r'%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe'),
+        os.path.expandvars(r'%LocalAppData%\Google\Chrome\Application\chrome.exe'),
+    ]
+    for path in candidates:
+        if path and os.path.exists(path):
+            return path
+    die('Google Chrome not found. Install Chrome (bbs-setup.ps1 installs it on '
+        'Windows), or pass --chrome with the path to a Chrome or Chromium binary. '
+        'Headless Chrome is what loads the brand webfonts, so there is no fallback '
+        'renderer here.')
 
 
 def data_uri(path):
