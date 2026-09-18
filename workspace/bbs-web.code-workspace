@@ -19,6 +19,8 @@
   ],
   "settings": {
     "window.title": "BBS Web — ${activeEditorShort}",
+    "workbench.sideBar.location": "left",
+    "workbench.activityBar.location": "default",
     "files.autoSave": "afterDelay",
     "editor.formatOnSave": true,
     "editor.minimap.enabled": false,

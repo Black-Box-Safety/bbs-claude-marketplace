@@ -19,6 +19,8 @@
   ],
   "settings": {
     "window.title": "BBS Admin — ${activeEditorShort}",
+    "workbench.sideBar.location": "left",
+    "workbench.activityBar.location": "default",
     "files.autoSave": "afterDelay",
     "editor.minimap.enabled": false,
     "search.exclude": {

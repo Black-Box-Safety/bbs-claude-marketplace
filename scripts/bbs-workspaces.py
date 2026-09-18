@@ -193,7 +193,11 @@ def write_custom(name: str, folders: list[str], dest: Path) -> Path:
         entries.append({"name": p.name, "path": str(p)})
     data = {
         "folders": entries,
-        "settings": {"window.title": f"{name} — ${{activeEditorShort}}"},
+        "settings": {
+            "window.title": f"{name} — ${{activeEditorShort}}",
+            "workbench.sideBar.location": "left",
+            "workbench.activityBar.location": "default",
+        },
     }
     out = dest / f"bbs-{slug}.code-workspace"
     out.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
