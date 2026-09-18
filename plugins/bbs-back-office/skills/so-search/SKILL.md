@@ -1,6 +1,7 @@
 ---
 name: so-search
 description: Looks up a Black Box Safety Sales Order (SO) by customer PO number using the BBS Business Central MCP. Searches Posted Sales Invoices by customerPurchaseOrderReference. Returns a summary of all invoices tied to that PO and their associated SO number. If no invoices are found (PO not yet invoiced), prompts the rep for agency name, approximate dollar value, and date range, then searches open Sales Orders and returns the best match with a BC deep link. Trigger immediately whenever a rep types "SOSearch [PO#]", "/SOSearch [PO#]", "SO search [PO#]", "look up PO [PO#]", "find SO for PO [PO#]", or any similar request to locate a Sales Order by a customer PO number. Always use this skill for that request — never attempt to search BC manually without it.
+requires: [bc-mcp-proxy]
 ---
 
 # SOSearch Skill

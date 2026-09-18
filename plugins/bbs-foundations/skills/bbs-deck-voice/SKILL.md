@@ -1,6 +1,7 @@
 ---
 name: bbs-deck-voice
 description: Generate customer-facing PowerPoint slide copy in Parker Marshall's voice for Black Box Safety (BBS) federal pursuits (SDVOSB / GSA Schedule / set-asides). Use this skill whenever Parker needs slide headlines, sub-bullets, speaker notes, or full-deck copy for a federal customer or teaming presentation, or says "write the deck copy," "put this on slides," "slide headlines for the [agency] deck," "capability briefing," "make this slide-ready," or hands over raw content and asks for presentation-ready wording. This is the authorized voice standard for BBS federal decks. Always use it so certification discipline (SDVOSB, never DVBE in federal context), federal-traction honesty, and Parker's no-filler, no-em-dash style stay uniform. Do NOT use for CA state agency decks (that context uses DVBE), for email drafts (Parker's email voice lives elsewhere), or for building the .pptx file itself (use the pptx skill for assembly; this skill produces the words).
+requires: []
 ---
 
 # BBS Federal Deck Voice

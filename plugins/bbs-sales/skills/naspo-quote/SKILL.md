@@ -13,6 +13,7 @@ description: >-
   fill anything. Do NOT use for a competitive SB/DVBE bid needing vendor sourcing
   (use bbs-sourcing), or when the rep wants the forms alone with no pricing
   (use ca-form-filler).
+requires: [grainger, python3, pypdf, pymupdf]
 ---
 
 # NASPO quote — CA state agency RFQ

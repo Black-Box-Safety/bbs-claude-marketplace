@@ -1,6 +1,7 @@
 ---
 name: ca-rfq-intake
 description: Log an inbound California state quote request into the right customer folder and open its run record — the first move on any state RFQ, NASPO or competitive. Use this the moment a request arrives from a CDCR institution, CalVet home, DSH hospital, Caltrans district, CalFire unit, CMD, DWR, or any State of California agency, whether it comes as an email with attachments, a bare item list, a Line-Item Cost Worksheet, or a portal link — and use it before pricing anything, because an RFQ that never got logged is the one that misses its deadline. Also use it when asked to file, log, intake, or "start" a state quote request, or to find where a request should live.
+requires: [python3]
 ---
 
 # CA state RFQ intake

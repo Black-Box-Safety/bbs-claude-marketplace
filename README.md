@@ -148,6 +148,12 @@ bbs-claude-marketplace/
 - **Models:** `claude-opus-5` · `claude-sonnet-5` · `claude-haiku-4-5` only, generated from
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/models.json`. Anything else is
   stale.
+- **Invariants:** `python3 scripts/check_marketplace.py` catches the defects that fail silently,
+  and runs on every pull request (`.github/workflows/check-marketplace.yml`). It reports rather
+  than blocks for now.
+- **Dependencies:** every skill declares the connectors, MCPs and command-line tools it needs in
+  its own frontmatter. `python3 scripts/check_marketplace.py --requirements` prints the table, so
+  you can tell before installing whether a job will run on your machine.
 
 ## Contributing
 
