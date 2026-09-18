@@ -72,8 +72,9 @@ on the author's machine, a stale model ID, a form ID that is not in the rules, a
 vendor-profile key that does not exist, an external system a skill uses without declaring,
 a drifted README badge count.
 
-It runs on every pull request via `.github/workflows/check-marketplace.yml`, which
-**reports and does not block** — whether it becomes a required check is Parker's call.
+It runs on every pull request via `.github/workflows/check-marketplace.yml` and **a FAIL
+fails the check** (ruled 2026-09-18). Require the `invariants` job in branch protection so
+the merge button follows it.
 
 It is **counter-example aware** — prose naming a bad value in order to warn about it is
 correct content. If you add a check, add that awareness, or the checker will flag its own
