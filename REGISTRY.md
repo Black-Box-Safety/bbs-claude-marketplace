@@ -17,7 +17,7 @@ Last verified: 2026-09-18 (workspace catalog: quote desk, web, admin).
 | `parker-voice` (repo) | **harvest** | Consolidate: Worked example inside `plugins/bbs-foundations/skills/bbs-voice-template`; other copies (bbs-customer-bots/docs) get pointers |
 | `bbs-bc-mcp-proxy` | **archived** | Retired 2026-09-02, replaced by BC MCP (Custom API) claude.ai connector; archive once nothing references the Vercel endpoint |
 | `bbs-customer-bots` | **separate track** | Customer-facing Gear Assistant; included in `workspace/bbs-web.code-workspace`. Repo still on `pjm3wv` — org move is the access gate for teammates. `new-agency-tenant` gains rep mode in v1.1 (PR flow) |
-| Workspace catalog (`workspace/*.code-workspace`) | **canon** | Quote desk, web, and admin entry points. Placeholders only; `scripts/install-desktop-launchers.sh` writes machine-local copies to the Desktop |
+| Workspace catalog (`workspace/*.code-workspace`) | **canon** | Quote desk, web, and admin entry points. `/bbs-workspaces` discovers folders on the local machine and writes Desktop launchers with the BBS logo |
 | `bbs-rfq-automation` | **parked** | Dataverse app is not the rep destination; ruled invariants live in doctrine |
 | `bbs-agent` | **archived** | FY2026 campaign over; one commit |
 | `BBS-ICM-Sales` | **archived** | Unmodified public fork; idea absorbed |

@@ -28,17 +28,20 @@ Usual OneDrive shapes (the middle folder name varies by how OneDrive was install
 
 Then File → Open Workspace from File. Accept the recommended extensions.
 
-Faster: from a clone of this repo,
+Faster: from a clone of this repo, in Claude Code run **`/bbs-workspaces`**. It discovers
+the BBS folders that already exist on **your** computer and writes only those workspaces,
+then puts a logo'd launcher on the Desktop. Same thing from a terminal:
 
 ```bash
-# Mac
-./scripts/bbs-clone-web-stack.sh ~/bbs          # site maintainers
-./scripts/install-desktop-launchers.sh \
-  --onedrive "/Users/<you>/Library/CloudStorage/OneDrive-BlackBoxSafety,Inc/Black Box Safety - MASTER" \
-  --repos ~/bbs
+# Mac / Windows
+python3 scripts/bbs-workspaces.py discover
+python3 scripts/bbs-workspaces.py request --yes --install-desktop
+```
 
-# Windows (PowerShell)
-.\scripts\install-desktop-launchers.ps1 -OneDrive "$env:USERPROFILE\Black Box Safety - MASTER" -Repos "$HOME\bbs"
+A custom workspace from folders you already have:
+
+```bash
+python3 scripts/bbs-workspaces.py request --custom "Field work" --folder ~/bbs-shopify --install-desktop
 ```
 
 That writes filled copies under `~/bbs-workspaces/` and a **BBS Workspaces** folder on

@@ -22,15 +22,14 @@ file is the same either way.
    Ctrl+Shift+X), search "Claude Code", install, then sign in with your BBS Claude account
    (same login as the Desktop app). **Pricing, BC, and slash commands live here**, not in
    Cursor's own MCP list.
-4. **Open the workspace for your job** — grab the file from `workspace/` in the
-   marketplace repo (Parker posts them in Teams), or run
-   `scripts/install-desktop-launchers.sh` so they appear on your Desktop:
-   - Quoting: `bbs-rep.code-workspace`
-   - Site / catalog / bots: `bbs-web.code-workspace`
-   - Admin: `bbs-admin.code-workspace`
-   First open: Cursor will say a folder path is missing. File → Open File, replace the
-   `REPLACE-*` token(s) per `workspace/README.md`, save, then File → Open Workspace from
-   File. Accept the recommended extensions.
+4. **Open the workspace for your job** — in the Claude Code panel run `/bbs-workspaces`.
+   It finds the BBS folders already on this computer and puts a logo'd launcher on the
+   Desktop. Or grab a file from `workspace/` and replace the `REPLACE-*` token(s) per
+   `workspace/README.md`.
+   - Quoting: Quote Desk
+   - Site / catalog / bots: Web
+   - Admin: Admin
+   Accept the recommended extensions on first open.
 5. **Wait for OneDrive** — the agency folders should not show cloud-only placeholders.
    Open the RFQ PDF once so it actually downloads before you ask Claude to read it.
 6. **Cursor plugins (not the same as Claude Code connectors)** — Cursor Settings → Plugins.
