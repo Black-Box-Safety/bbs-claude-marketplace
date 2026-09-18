@@ -86,7 +86,7 @@ flowchart LR
 
 | Plugin | What it covers | Detail |
 |---|---|---|
-| `bbs-sales` | The California quote desk end to end: RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled — plus promo pages and federal deck copy; `/ca-rfq-log`, `/ca-rfq-quote` | [README](plugins/bbs-sales/README.md) |
+| `bbs-sales` | The California quote desk end to end: RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled — plus promo pages and federal deck copy; `/ca-rfq` | [README](plugins/bbs-sales/README.md) |
 | `bbs-back-office` | After the bid is won, out of Business Central: order status, vendor PO receipts, problem-order reconciliation, true margin after Grainger rebates | [README](plugins/bbs-back-office/README.md) |
 | `bbs-foundations` | Company memory, doctrine every skill inherits, the BBS way to write a CLAUDE.md, personal voice skills, `/bbs-checkup`, managed settings, the one-page AUP | [README](plugins/bbs-foundations/README.md) |
 | `bbs-website` | The storefront: price list to product page across the database, Shopify, and the quote bot | [README](plugins/bbs-website/README.md) |
