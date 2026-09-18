@@ -6,17 +6,14 @@ name: Marketplace invariants
 # `description:` colon, a dangling skill-bus subscription, a drifted README badge count or
 # — as of this PR — an undeclared connector from reaching `main`.
 #
-# WHAT THIS DOES NOT DO YET: block a merge. It reports.
+# THIS BLOCKS. Ruled by Parker 2026-09-18 (PR #21): a FAIL from either checker fails the
+# job. In this repo a non-blocking checker is an ignored checker, and the defect it misses
+# is a plausible wrong number on a binding document. The earlier steps keep
+# `continue-on-error` only so the job summary is still written when a check fails — a gate
+# that hides the reason it fired is worse than no gate; the "Report" step is what fails.
 #
-# That is deliberate and it is Parker's call to change. A gate that is mandatory on its
-# first day turns its first false positive into a stopped merge, and the fastest way to get
-# a checker ignored is to have it block something that was fine. Let it run on real PRs
-# first; if the findings are true, make it required.
-#
-# TO MAKE IT BLOCKING: delete the `|| true` from the last line of the "Report" step,
-# then add "invariants" under Settings -> Branches -> main -> Require status checks to
-# pass. The earlier steps keep `continue-on-error` so the summary is still written when a
-# check fails — a gate that hides the reason it fired is worse than no gate.
+# To make GitHub refuse the merge button too, add "invariants" under
+# Settings -> Branches -> main -> Require status checks to pass.
 
 on:
   pull_request:
@@ -109,9 +106,7 @@ jobs:
           m=${{ steps.claudemd.outputs.code }}
           echo "check_marketplace.py exit=$c · check_claude_md.py exit=$m"
           if [ "$c" != "0" ] || [ "$m" != "0" ]; then
-            echo "::warning::A structural invariant FAILED. This check reports and does not"
-            echo "::warning::block yet — see the job summary, and the header of this workflow"
-            echo "::warning::for how to make it required."
+            echo "::error::A structural invariant FAILED. See the job summary for the finding;"
+            echo "::error::reproduce with the two commands at the bottom of it."
+            exit 1
           fi
-          # Reporting, not blocking. Remove `|| true` to make this a gate.
-          [ "$c" = "0" ] && [ "$m" = "0" ] || true
