@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -160,6 +161,85 @@ def resolve_template_path(raw: str, found: dict[str, str], marketplace: Path) ->
     return None
 
 
+def apply_left_sidebar(data: dict) -> dict:
+    settings = data.setdefault("settings", {})
+    settings["workbench.sideBar.location"] = "left"
+    settings["workbench.activityBar.location"] = "default"
+    return data
+
+
+def user_editor_settings_paths() -> list[Path]:
+    home = Path.home()
+    if sys.platform == "darwin":
+        support = home / "Library" / "Application Support"
+        return [
+            support / "Cursor" / "User" / "settings.json",
+            support / "Code" / "User" / "settings.json",
+        ]
+    if sys.platform == "win32":
+        appdata = Path(os.environ.get("APPDATA", str(home / "AppData" / "Roaming")))
+        return [
+            appdata / "Cursor" / "User" / "settings.json",
+            appdata / "Code" / "User" / "settings.json",
+        ]
+    return [
+        home / ".config" / "Cursor" / "User" / "settings.json",
+        home / ".config" / "Code" / "User" / "settings.json",
+    ]
+
+
+def pin_user_editor_sidebar() -> None:
+    """Keep the primary sidebar on the left in Cursor / VS Code User settings."""
+    for path in user_editor_settings_paths():
+        if not path.is_file():
+            continue
+        raw = path.read_text(encoding="utf-8")
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            updated = raw
+            for key, value in (
+                ("workbench.sideBar.location", "left"),
+                ("workbench.activityBar.location", "default"),
+            ):
+                pattern = rf'"{re.escape(key)}"\s*:\s*"[^"]*"'
+                replacement = f'"{key}": "{value}"'
+                if re.search(pattern, updated):
+                    updated = re.sub(pattern, replacement, updated, count=1)
+                else:
+                    updated = re.sub(
+                        r"\{",
+                        "{\n    " + replacement + ",",
+                        updated,
+                        count=1,
+                    )
+            if updated != raw:
+                path.write_text(updated, encoding="utf-8")
+                print(f"pinned left sidebar in {path}")
+            continue
+        if not isinstance(data, dict):
+            continue
+        changed = False
+        for key, value in (
+            ("workbench.sideBar.location", "left"),
+            ("workbench.activityBar.location", "default"),
+        ):
+            if data.get(key) != value:
+                data[key] = value
+                changed = True
+        apply = list(data.get("workbench.settings.applyToAllProfiles") or [])
+        for key in ("workbench.sideBar.location", "workbench.activityBar.location"):
+            if key not in apply:
+                apply.append(key)
+                changed = True
+        if apply:
+            data["workbench.settings.applyToAllProfiles"] = apply
+        if not changed:
+            continue
+        path.write_text(json.dumps(data, indent=4) + "\n", encoding="utf-8")
+        print(f"pinned left sidebar in {path}")
+
+
 def write_recipe(root: Path, recipe: dict, found: dict[str, str], dest: Path) -> Path | None:
     template = root / "workspace" / recipe["template"]
     data = json.loads(template.read_text(encoding="utf-8"))
@@ -176,6 +256,7 @@ def write_recipe(root: Path, recipe: dict, found: dict[str, str], dest: Path) ->
     if required_ids and not folders:
         return None
     data["folders"] = folders
+    apply_left_sidebar(data)
     dest.mkdir(parents=True, exist_ok=True)
     out = dest / recipe["template"]
     out.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
@@ -191,14 +272,14 @@ def write_custom(name: str, folders: list[str], dest: Path) -> Path:
         if not p.is_dir():
             sys.exit(f"Not a folder on this machine: {folder}")
         entries.append({"name": p.name, "path": str(p)})
-    data = {
-        "folders": entries,
-        "settings": {
-            "window.title": f"{name} — ${{activeEditorShort}}",
-            "workbench.sideBar.location": "left",
-            "workbench.activityBar.location": "default",
-        },
-    }
+    data = apply_left_sidebar(
+        {
+            "folders": entries,
+            "settings": {
+                "window.title": f"{name} — ${{activeEditorShort}}",
+            },
+        }
+    )
     out = dest / f"bbs-{slug}.code-workspace"
     out.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     return out
@@ -440,6 +521,7 @@ def cmd_request(args: argparse.Namespace) -> None:
 
     if not written:
         sys.exit("Nothing to write. Run discover, clone the missing repos, or pass --custom --folder.")
+    pin_user_editor_sidebar()
     if args.install_desktop:
         install_desktop(root, dest, written)
         print(f"Desktop launchers: {DESKTOP_DIR}")

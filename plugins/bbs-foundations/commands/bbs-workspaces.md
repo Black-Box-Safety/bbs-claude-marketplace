@@ -71,6 +71,9 @@ Tell them:
   and pick a workspace
 - Windows: `Desktop/BBS Workspaces/Open *.bat`
 - Re-run `/bbs-workspaces` when they clone another repo or want a new custom set
+- The primary sidebar is pinned **left** in every written workspace and in
+  Cursor / VS Code User settings on this machine. Reload the window if it is
+  still on the right.
 
 If `discover` found nothing, they have not cloned the git repos and OneDrive is
 not in the usual place. Point at `workspace/README.md`. Do not fill

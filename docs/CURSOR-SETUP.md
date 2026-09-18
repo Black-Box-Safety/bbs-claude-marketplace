@@ -29,7 +29,9 @@ file is the same either way.
    - Quoting: Quote Desk
    - Site / catalog / bots: Web
    - Admin: Admin
-   Accept the recommended extensions on first open.
+   Accept the recommended extensions on first open. The file explorer / primary
+   sidebar stays on the **left** in every BBS workspace and in User settings. If
+   yours is on the right, View → Appearance → Move Primary Side Bar Left.
 5. **Wait for OneDrive** — the agency folders should not show cloud-only placeholders.
    Open the RFQ PDF once so it actually downloads before you ask Claude to read it.
 6. **Cursor plugins (not the same as Claude Code connectors)** — Cursor Settings → Plugins.

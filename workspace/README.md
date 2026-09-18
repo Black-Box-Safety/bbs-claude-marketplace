@@ -28,6 +28,15 @@ Usual OneDrive shapes (the middle folder name varies by how OneDrive was install
 
 Then File → Open Workspace from File. Accept the recommended extensions.
 
+Every BBS workspace pins the primary sidebar on the **left**
+(`workbench.sideBar.location: left`). Put the same two keys in Cursor / VS Code
+**User** settings so a folder opened without a workspace file still matches:
+
+```json
+"workbench.sideBar.location": "left",
+"workbench.activityBar.location": "default"
+```
+
 Faster: from a clone of this repo, in Claude Code run **`/bbs-workspaces`**. It discovers
 the BBS folders that already exist on **your** computer and writes only those workspaces,
 then puts a logo'd launcher on the Desktop. Same thing from a terminal:

@@ -22,7 +22,9 @@ On a Mac, or if you use Cursor instead of VS Code, start at
    repo (Parker posts it in Teams), or run `scripts/install-desktop-launchers.ps1` so it
    lands on your Desktop with the other workspaces. First open: replace
    `REPLACE-ON-FIRST-OPEN` with your OneDrive root per `workspace/README.md`, save, reopen.
-   Accept the 4 recommended extensions. Site maintainers open `bbs-web` instead; see
+   Accept the 4 recommended extensions. The file explorer / primary sidebar stays
+   on the **left**. If yours is on the right: View → Appearance → Move Primary
+   Side Bar Left. Site maintainers open `bbs-web` instead; see
    `workspace/README.md`.
 5. **Run `/bbs-onboard`** once — wires the skill-bus doctrine injection so BBS grounding rules
    fire inside the quoting skills. Without it the skills run with no guardrail text.
