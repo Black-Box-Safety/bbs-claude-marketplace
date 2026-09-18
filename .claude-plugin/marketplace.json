@@ -4,14 +4,14 @@
     "name": "Black Box Safety, Inc."
   },
   "metadata": {
-    "description": "Black Box Safety internal Claude plugins \u2014 site operations, state sales, and AI foundations.",
+    "description": "Black Box Safety internal Claude plugins — site operations, state sales, and AI foundations.",
     "version": "0.5.0"
   },
   "plugins": [
     {
       "name": "bbs-website",
       "source": "./plugins/bbs-website",
-      "description": "Maintain the BBS website end to end \u2014 price list to live product page. Catalog intake and import, contract pricing, variant families, enrichment, storefront pages, quote-bot lane tuning, QA and cross-sell.",
+      "description": "Maintain the BBS website end to end — price list to live product page. Catalog intake and import, contract pricing, variant families, enrichment, storefront pages, quote-bot lane tuning, QA and cross-sell.",
       "author": {
         "name": "Black Box Safety, Inc."
       },
@@ -72,7 +72,7 @@
     {
       "name": "bbs-foundations",
       "source": "./plugins/bbs-foundations",
-      "description": "Company-wide AI foundations: the BBS way to write CLAUDE.md files (BBSClaudeMDForge), the doctrine every skill inherits, the shared company facts, systems of record, and certification rules that keep every repo and customer folder consistent, and order reconciliation \u2014 diagnosing and resolving problems on orders already placed.",
+      "description": "Company-wide AI foundations: the BBS way to write CLAUDE.md files (BBSClaudeMDForge), the doctrine every skill inherits, the shared company facts, systems of record, and certification rules that keep every repo and customer folder consistent, and order reconciliation — diagnosing and resolving problems on orders already placed.",
       "author": {
         "name": "Black Box Safety, Inc."
       },
@@ -168,7 +168,7 @@
         "./skills/caveman",
         "./skills/caveman-help"
       ],
-      "description": "Commons: terse output mode (/caveman lite|full|ultra) that cuts roughly two-thirds of output tokens while keeping technical content exact. Opt-in per session; ruled 2026-09-13. The skills: list records which skills BBS intends reps to receive \u2014 on Claude Code 2.1.273 the loader treats it as additive rather than restrictive, so the whole tree still registers. v2.7.0 is taken for a Windows path fix in the session hooks. Release model, cadence, provenance, the license split and the open items: docs/COMMONS.md.",
+      "description": "Commons: terse output mode (/caveman lite|full|ultra) that cuts roughly two-thirds of output tokens while keeping technical content exact. Opt-in per session; ruled 2026-09-13. The skills: list records which skills BBS intends reps to receive — on Claude Code 2.1.273 the loader treats it as additive rather than restrictive, so the whole tree still registers. v2.7.0 is taken for a Windows path fix in the session hooks. Release model, cadence, provenance, the license split and the open items: docs/COMMONS.md.",
       "version": "2.7.0",
       "author": {
         "name": "Julius Brussee"
@@ -186,7 +186,8 @@
       "source": {
         "source": "url",
         "url": "https://github.com/anthropics/skills.git",
-        "ref": "34040c9c568585f6929bedeaad110ad08f079624"
+        "ref": "main",
+        "sha": "34040c9c568585f6929bedeaad110ad08f079624"
       },
       "strict": false,
       "skills": [
@@ -195,7 +196,7 @@
         "./skills/pptx",
         "./skills/xlsx"
       ],
-      "description": "Commons: Anthropic's official document skills \u2014 Word (tracked changes, comments), PDF (extract, merge, fill, annotate), Excel (formulas, charts), PowerPoint (build with pptxgenjs, read with markitdown). RFQ worksheets, bid PDFs, price lists, and the deck assembly step bbs-deck-voice hands off to. The skills: list records intent only; on Claude Code 2.1.273 the loader treats it as additive rather than restrictive, so the whole anthropics/skills tree registers. Pin, release model and the LibreOffice caveat: docs/COMMONS.md.",
+      "description": "Commons: Anthropic's official document skills — Word (tracked changes, comments), PDF (extract, merge, fill, annotate), Excel (formulas, charts), PowerPoint (build with pptxgenjs, read with markitdown). RFQ worksheets, bid PDFs, price lists, and the deck assembly step bbs-deck-voice hands off to. The skills: list records intent only; on Claude Code 2.1.273 the loader treats it as additive rather than restrictive, so the whole anthropics/skills tree registers. Pin, release model and the LibreOffice caveat: docs/COMMONS.md.",
       "author": {
         "name": "Anthropic"
       },

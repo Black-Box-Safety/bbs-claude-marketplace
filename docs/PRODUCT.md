@@ -119,12 +119,26 @@ the slices add. Order matters.
 
 ### Step 0. Account-side, today, 30 minutes. Only Parker can do these.
 
+Aanya's install audit of 2026-09-16 found that `bbs-sales` failed to load on a clean
+install (a redundant `hooks` key in its manifest) and `document-skills` would not clone (a
+commit SHA in a field that takes a branch). Both reproduced on Claude Code 2.1.277 and
+both are fixed in the PR that carries this document. The items below are what the same
+audit left for the console and the org.
+
 - Delete the five orphaned personal skills in claude.ai settings. They still load first in
   Parker's sessions and one of them drives the retired pricing path. `HANDOFF.md` has the
   mechanism and the list.
 - Add `bbs-back-office` to the enabled plugins and re-paste managed settings. Reps under
   managed policy have no post-award plugin today.
 - Edit the saved preference that still re-injects the old signature rule.
+- Give `bbs-aanya` write access to this repo, or allow forks. She had a two-line fix ready
+  for four days and could not push it. Branch protection on `main` is the safety; read-only
+  contributors are not.
+- Rotate the Grainger gateway key before pasting managed settings. The runbook already
+  says so; the audit confirmed a plaintext copy is still on at least one machine.
+- Retire the local `bbs-grainger` stdio server on rep machines. Two Grainger servers with
+  different tool sets means the account-resolution step can silently fail and a rep prices
+  against the wrong account.
 
 ### Step 1. Land the spine.
 
@@ -236,6 +250,7 @@ starts.
 | **Next** | DSH packet profiles, from real packets | Second and third profile prove the profile design |
 | **Next** | Prospecting skill: SCPRS play to target list to outreach draft in the rep's voice to a Dynamics note | Every plugin today is inbound. This is the first outbound motion, and the growth half of `MEASUREMENT.md` has nothing feeding it yet |
 | **Later** | Won/Lost capture when `/ca-rfq` delivers | Closes the CRM outcome gap. Needs a ruling on whether Claude may write to Dynamics |
+| **Next** | `AGENTS.md` at the desk root, stamped beside `CLAUDE.md` | Cursor and other agents read AGENTS.md, not CLAUDE.md. Today they see none of the desk landmines |
 | **Later** | Body armor quote lane (Sourcewell, CA armor contract) | Second desk, same pattern as the state RFQ |
 
 ---
@@ -252,6 +267,9 @@ Rulings on binding documents. Only the owner decides; the toolkit flags and wait
   skill.
 - Grainger at cost as the standing rule.
 - Whether Claude may write to Dynamics 365 (Won/Lost capture).
+- Whether Cursor may open the quote desk at all. It indexes the workspace and sends
+  embeddings off-machine, and the customer tree carries buying-account numbers in folder
+  names. Until ruled, reps use the Claude extension only and never Cursor's Agent there.
 
 ---
 
@@ -259,4 +277,5 @@ Rulings on binding documents. Only the owner decides; the toolkit flags and wait
 
 | Date | Change |
 |---|---|
+| 2026-09-18 | Folded in Aanya's install audit: the two manifest blockers (fixed in the same PR), four contributor and console actions added to Step 0, the Cursor ruling and desk AGENTS.md added. |
 | 2026-09-18 | Created. Synthesizes the 2026-09-15 reorganization, the three steward slices (#14, #15, #16), and the eight Cursor PRs (#17, #19 to #26). Merge order from a scratch-worktree merge of all eleven. |
