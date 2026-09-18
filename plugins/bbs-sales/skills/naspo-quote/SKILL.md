@@ -137,16 +137,17 @@ and Jackson each approve their signature being applied to state requests, on the
 understanding that the rep has reviewed the items with the buyer. Confirm that
 review has happened for this RFQ, then apply:
 
-- **Griffin Forsyth, VP** — CalRecycle 74 on most routine packets (53 of ~65 in
-  the corpus). This is the default signer for that form, not Parker.
-- **Parker Marshall, Sales Manager** — CalRecycle 74 on RFQs he owns, Darfur
-  OBS 1500, OBS 1000.
+- **The rep who quoted the job** — CalRecycle 74. Ruled by Parker 2026-09-18, matching
+  `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md`. The corpus shows Griffin on most
+  historical packets; that is history, not the rule. Never default it to last time's signer.
+- **Parker Marshall, Sales Manager** — Darfur OBS 1500, OBS 1000, and CalRecycle 74 on
+  RFQs he quoted himself.
 - **Jackson Dalton, President (DV Owner)** — DGS PD 843 and CV 012, the
   disabled-veteran declarations, and STD 204 as payee representative
   (`jackson@blackboxsafety.com`). These are his to sign, not Parker's.
 - GSPD-05-105 has no signature block; the signed quote covers its certification.
 
-Ask which of the three is signing rather than defaulting to last time's answer.
+Ask who quoted the job rather than defaulting to last time's answer.
 `references/filled-form-precedents.md` has the split with counts.
 
 Signature images:

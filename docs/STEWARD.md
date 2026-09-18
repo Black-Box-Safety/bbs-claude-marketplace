@@ -56,9 +56,10 @@ constant, the dropped Grainger substitution and pack-size rules, the signature r
 that never reached `ca-form-filler`'s Path B, and two `STD 1000` survivors. The routing
 eval was re-run on the fixed harness: 24/24, artifact committed.
 
-Two of the review's findings are **open for Parker** and were deliberately not changed —
-the SB checkbox on CDCR Packet B, and whether Grainger at-cost is a reversal of the old
-margin practice. Both are certification or pricing rulings on binding documents.
+Two of the review's findings were escalated to Parker and **ruled 2026-09-18**: the SB
+checkbox on CDCR Packet B stays off (BBS no longer claims SB; the wider SB-language sweep
+is its own slice pending scope confirmation, see `docs/PRODUCT.md` §9), and Grainger at
+cost is the standing pricing rule. Rulings live in `docs/PRODUCT.md` §9.
 
 **Done:** findings cleared, `check_marketplace.py` exits 0, fresh review is clean, PR
 merged, the six verified-dead branches deleted (`v1.1` held back — it reads as a version
@@ -171,10 +172,11 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **The personal-copy cutover** is account-side, in claude.ai → Settings → Capabilities →
   Skills. Five orphans now contradict what replaced them; `bbs-b2b-pricing` still drives
   the retired punch-out.
-- **One routing ruling**: does a fresh "agency emailed asking us to quote" belong to
-  `ca-rfq-intake` or `naspo-quote`? Left untuned on purpose — fitting the test before the
-  ruling would just be fitting the test.
+- **One routing ruling**: when a rep pastes an agency email that asks for a quote, does
+  Claude **file it first** (`ca-rfq-intake`: folder, run record, precedent check) or **price
+  it first** (`naspo-quote`)? Recommended: file first, always. Left untuned until Parker
+  confirms — fitting the test before the ruling would just be fitting the test.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-09-16.
+Owner: Parker Marshall. Last verified 2026-09-18.

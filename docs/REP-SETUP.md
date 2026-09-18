@@ -87,8 +87,9 @@ command, so a missing library is a clear message, never a half-written bid docum
 ## When to use which window
 
 - **VS Code**: quote work — you want the RFQ, the worksheet, and Claude on one screen.
-  The Claude side panel shows only some commands and skills; for anything plugin-driven
-  (`/ca-rfq`, `/bbs-checkup`) type `claude` in the integrated terminal and run it there.
+  Tip: the Claude side panel shows a subset of commands and skills. If a `/command` you
+  expect is not offered there, typing `claude` in the integrated terminal gives you all of
+  them. Either window works; use whichever you prefer.
 - **Using Cursor instead of VS Code?** Same extension, same Claude. Do not use Cursor's own
   Agent or Composer inside the quote desk: it does not read the desk `CLAUDE.md`, so it does
   not know the folder rules. Parker is ruling on whether Cursor may open the desk at all.

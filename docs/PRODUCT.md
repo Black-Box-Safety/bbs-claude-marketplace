@@ -57,8 +57,10 @@ These decide what gets built and how. When a proposal violates one, the proposal
 | **Literacy and self-service** | Understand the tools, start any job, extend the toolkit | `bbs-claude-coach` plugin (PR #25), `/bbs-my-voice`, the AUP | Drafted. Needs rework before merge (section 5). |
 
 Underneath all three: `scripts/check_marketplace.py`, which catches the failures that never
-throw at runtime, and a review split where Claude builds and Cursor reviews. A session ends
-at a PR, never a merge.
+throw at runtime, and a review split where Claude builds and a reviewer that did not write
+the change decides. A build session ends at a PR, never a merge. The merge decision belongs
+to `.claude/agents/lead-reviewer.md`, which squash-merges what passes and posts critiques
+on what does not. Cursor's review stance in `.cursor/rules/` is the second opinion.
 
 ---
 
@@ -131,11 +133,6 @@ audit left for the console and the org.
 - Add `bbs-back-office` to the enabled plugins and re-paste managed settings. Reps under
   managed policy have no post-award plugin today.
 - Edit the saved preference that still re-injects the old signature rule.
-- Give `bbs-aanya` write access to this repo, or allow forks. She had a two-line fix ready
-  for four days and could not push it. Branch protection on `main` is the safety; read-only
-  contributors are not.
-- Rotate the Grainger gateway key before pasting managed settings. The runbook already
-  says so; the audit confirmed a plaintext copy is still on at least one machine.
 - Retire the local `bbs-grainger` stdio server on rep machines. Two Grainger servers with
   different tool sets means the account-resolution step can silently fail and a rep prices
   against the wrong account.
@@ -255,17 +252,28 @@ starts.
 
 ---
 
-## 9. Open for Parker
+## 9. Rulings
 
-Rulings on binding documents. Only the owner decides; the toolkit flags and waits.
+Rulings on binding documents. Only the owner decides; the toolkit flags and waits. A
+ruling is recorded here with its date and applied where the repo carries it.
 
-- CDCR Packet B Small Business checkbox, currently forced off. If the SB preference applies
-  to informal competitive solicitations, every packet forfeits it.
-- DGS PD 843 "Name of DVBE": legal name or short name. The filed corpus favors legal name.
-- CalRecycle 74 signer: the rules file says the rep, the quote skill defaults to Griffin.
-- Routing: does "agency emailed asking us to quote" start at intake or at the NASPO quote
-  skill.
-- Grainger at cost as the standing rule.
+### Ruled
+
+| Date | Ruling | Applied |
+|---|---|---|
+| 2026-09-18 | **CDCR Packet B Small Business checkbox stays off.** BBS no longer claims SB. | `fill_obs_packet.py` already writes off. **Scope confirmation needed** before the sweep: 30+ files, the managed company memory, the README badge, the AUP and canonical facts all say "SB/DVBE 2009473" and claim the 5% SB preference, and canonical facts records Parker's 2026-09-02 ruling the other way. The sweep is its own slice once Parker confirms: "OSDS 2009473 is DVBE only; BBS claims no SB preference on any California solicitation." |
+| 2026-09-18 | **DGS PD 843 "Name of DVBE" is the legal name**, `Black Box Safety, Inc.` | `fill_obs_packet.py` and `field-maps.md` |
+| 2026-09-18 | **CalRecycle 74 is certified by the rep who quoted the job.** Griffin's historical share is history, not the rule. | `naspo-quote/SKILL.md` §5; `ca-form-rules.md` already said so |
+| 2026-09-18 | **Grainger at cost** is the standing pricing rule. | Already in the managed company memory and `grainger-pricing` |
+
+### Open
+
+- **Routing, in plain terms.** A rep pastes an agency email asking for a quote. Should
+  Claude **file it first** (create the customer folder and run record, check precedent,
+  then price) or **price it first** and file afterward? This is about which skill fires
+  first, not about which person handles it. Recommended: file first, always. It is how
+  duplicate buyer folders and lost precedent are prevented. If confirmed, `/ca-rfq` Gate 0
+  loses its one question.
 - Whether Claude may write to Dynamics 365 (Won/Lost capture).
 - Whether Cursor may open the quote desk at all. It indexes the workspace and sends
   embeddings off-machine, and the customer tree carries buying-account numbers in folder
@@ -277,5 +285,7 @@ Rulings on binding documents. Only the owner decides; the toolkit flags and wait
 
 | Date | Change |
 |---|---|
+| 2026-09-18 | Added the `lead-reviewer` agent: independent review, squash-merge or posted critiques, never its own PR. |
+| 2026-09-18 | Four rulings recorded and applied (SB checkbox, PD 843 name, CalRecycle signer, Grainger at cost); routing question restated in plain terms. Step 0 trimmed: Aanya has write access, the Grainger key is Parker's to handle outside the plan. |
 | 2026-09-18 | Folded in Aanya's install audit: the two manifest blockers (fixed in the same PR), four contributor and console actions added to Step 0, the Cursor ruling and desk AGENTS.md added. |
 | 2026-09-18 | Created. Synthesizes the 2026-09-15 reorganization, the three steward slices (#14, #15, #16), and the eight Cursor PRs (#17, #19 to #26). Merge order from a scratch-worktree merge of all eleven. |
