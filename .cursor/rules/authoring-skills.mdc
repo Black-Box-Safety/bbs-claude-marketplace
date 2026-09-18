@@ -1,0 +1,28 @@
+---
+description: How to write or edit a skill, command, or reference file the BBS way — progressive disclosure, single source of truth, and the description limit. Pull in when editing a SKILL.md, a reference, a command, or doctrine.
+globs: **/SKILL.md,plugins/**/references/**,plugins/**/commands/**
+alwaysApply: false
+---
+
+# Authoring a skill or a fact
+
+Follow the `bbs-claude-md-forge` skill and `docs/MAINTAINER-GUIDE.md`. Stance:
+
+- **One home per fact.** A fact restated in a second file goes stale in one of them. Point
+  at the system of record; never re-key it. Per-customer variation is a **profile inside** a
+  skill, not a sibling skill that competes on its description.
+- **Description carries what + when, under 1024 characters.** It is the routing signal and
+  the only text loaded before the skill triggers, so a "When to use" section in the body is
+  wasted. Past the limit the "do NOT use for" clause drops silently. Quote a `description:`
+  containing a colon, or use a `>-` block scalar, or the skill never loads.
+- **Progressive disclosure.** Keep `SKILL.md` to the core workflow; move detail into
+  `references/`, one level deep; give any reference over 100 lines a table of contents.
+- **Counter-example awareness.** Prose that names a bad value in order to warn about it is
+  correct content — keep the qualifying phrase next to the value so `check_marketplace.py`
+  reads it as a warning, not a defect.
+- **Portable paths only** (`${CLAUDE_PLUGIN_ROOT}`, `$SKILL_DIR`), and **model IDs read from
+  `models.json`**, never hand-typed.
+- **Prove it.** `python3 scripts/check_marketplace.py` exits 0 before you call it done.
+
+---
+Owner: Parker Marshall. Stance file; facts live in AGENTS.md and the references. Last verified 2026-09-17.

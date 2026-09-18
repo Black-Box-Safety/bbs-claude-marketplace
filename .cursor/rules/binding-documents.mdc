@@ -1,0 +1,31 @@
+---
+description: Extra review checks when a change touches money- or compliance-bearing skills — quotes, California bid forms, and Business Central figures.
+globs: plugins/bbs-sales/**,plugins/bbs-back-office/**
+alwaysApply: false
+---
+
+# Binding-document changes
+
+These plugins produce customer quotes, CA compliance packets, and post-award figures. Hold
+the line harder here. The facts are in `@AGENTS.md`,
+`plugins/bbs-sales/references/ca-form-rules.md`, and
+`plugins/bbs-sales/references/vendor_profile.json` — point at them; do not restate them.
+
+- **Certification follows the channel.** Confirm the claim matches the channel per
+  `AGENTS.md` (federal vs California state); never mixed on one form. Do not copy the
+  numbers into the change.
+- **Form IDs come from the rules.** Every form ID must resolve in `ca-form-rules.md`. A
+  near-miss of a real ID is the failure that reaches a bid; `check_marketplace.py` flags it,
+  so do not wave that flag away.
+- **Vendor values have one home.** Read `vendor_profile.json`; a field map naming a key that
+  is not in it fills the field with nothing. Never re-key legal name, FEIN, permit, or certs
+  into a skill.
+- **Signatures: right signer, right line, or flag it.** Never a customer's or a third
+  party's signature; never a line whose correct signer is unclear.
+- **Prices are read, never invented.** Grainger pricing is per buying account — the wrong
+  account returns a wrong price that still looks valid. Unknown → `[FLAG: why]`.
+- **Markup is a ruling, not an inference.** If a change turns a pricing rule on or off, that
+  is Parker's call — escalate, do not decide.
+
+---
+Owner: Parker Marshall. Stance file; facts live in the referenced sources. Last verified 2026-09-17.
