@@ -247,7 +247,7 @@ starts.
 | **Next** | DSH packet profiles, from real packets | Second and third profile prove the profile design |
 | **Next** | Prospecting skill: SCPRS play to target list to outreach draft in the rep's voice to a Dynamics note | Every plugin today is inbound. This is the first outbound motion, and the growth half of `MEASUREMENT.md` has nothing feeding it yet |
 | **Later** | Won/Lost capture when `/ca-rfq` delivers | Closes the CRM outcome gap. Needs a ruling on whether Claude may write to Dynamics |
-| **Next** | `AGENTS.md` at the desk root, stamped beside `CLAUDE.md` | Cursor and other agents read AGENTS.md, not CLAUDE.md. Today they see none of the desk landmines |
+| **Now** | `AGENTS.md` at the desk root, stamped beside `CLAUDE.md` | Cursor is allowed in the desk (ruled 2026-09-18) and its Agent reads AGENTS.md, not CLAUDE.md. Today it sees none of the desk landmines |
 | **Later** | Body armor quote lane (Sourcewell, CA armor contract) | Second desk, same pattern as the state RFQ |
 
 ---
@@ -265,6 +265,7 @@ ruling is recorded here with its date and applied where the repo carries it.
 | 2026-09-18 | **DGS PD 843 "Name of DVBE" is the legal name**, `Black Box Safety, Inc.` | `fill_obs_packet.py` and `field-maps.md` |
 | 2026-09-18 | **CalRecycle 74 is certified by the rep who quoted the job.** Griffin's historical share is history, not the rule. | `naspo-quote/SKILL.md` §5; `ca-form-rules.md` already said so |
 | 2026-09-18 | **Grainger at cost** is the standing pricing rule. | Already in the managed company memory and `grainger-pricing` |
+| 2026-09-18 | **Cursor may open the quote desk.** Reps who prefer Cursor use it with the Claude Code extension. | REP-SETUP. Cursor's own Agent still does not read the desk `CLAUDE.md`, so the desk `AGENTS.md` item in the roadmap moves up to Now. |
 
 ### Open
 
@@ -275,9 +276,6 @@ ruling is recorded here with its date and applied where the repo carries it.
   duplicate buyer folders and lost precedent are prevented. If confirmed, `/ca-rfq` Gate 0
   loses its one question.
 - Whether Claude may write to Dynamics 365 (Won/Lost capture).
-- Whether Cursor may open the quote desk at all. It indexes the workspace and sends
-  embeddings off-machine, and the customer tree carries buying-account numbers in folder
-  names. Until ruled, reps use the Claude extension only and never Cursor's Agent there.
 
 ---
 
@@ -285,6 +283,7 @@ ruling is recorded here with its date and applied where the repo carries it.
 
 | Date | Change |
 |---|---|
+| 2026-09-18 | Ruled: Cursor may open the quote desk. Desk `AGENTS.md` moved to Now. |
 | 2026-09-18 | Added the `lead-reviewer` agent: independent review, squash-merge or posted critiques, never its own PR. |
 | 2026-09-18 | Four rulings recorded and applied (SB checkbox, PD 843 name, CalRecycle signer, Grainger at cost); routing question restated in plain terms. Step 0 trimmed: Aanya has write access, the Grainger key is Parker's to handle outside the plan. |
 | 2026-09-18 | Folded in Aanya's install audit: the two manifest blockers (fixed in the same PR), four contributor and console actions added to Step 0, the Cursor ruling and desk AGENTS.md added. |

@@ -90,9 +90,10 @@ command, so a missing library is a clear message, never a half-written bid docum
   Tip: the Claude side panel shows a subset of commands and skills. If a `/command` you
   expect is not offered there, typing `claude` in the integrated terminal gives you all of
   them. Either window works; use whichever you prefer.
-- **Using Cursor instead of VS Code?** Same extension, same Claude. Do not use Cursor's own
-  Agent or Composer inside the quote desk: it does not read the desk `CLAUDE.md`, so it does
-  not know the folder rules. Parker is ruling on whether Cursor may open the desk at all.
+- **Using Cursor instead of VS Code?** Fine. Same extension, same Claude, same skills. One
+  caution: use the Claude panel or `claude` in the terminal for desk work, not Cursor's own
+  Agent or Composer. Cursor's Agent does not read the desk `CLAUDE.md`, so it does not know
+  the folder rules (never rename a folder; account numbers ride on the names).
 - **Desktop app**: everything else, or if VS Code is ever broken. Same Claude.
 
 ## Want an agency storefront?
