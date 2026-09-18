@@ -24,6 +24,7 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 
 try:
@@ -353,7 +354,42 @@ def check(findings):
     # --- 10. Counts written down match what is on disk ------------------------
     check_counts(findings, skills)
 
+    # --- 10. Contracts that ship their own validator get it run here ----------
+    check_packet_profiles(findings)
+
     return skills
+
+
+def check_packet_profiles(findings):
+    """Run any packet-profile validator a skill ships, as part of this gate.
+
+    Invariant 3: a fact with a checker is inseparable from its checker. The
+    packet-profile contract arrived with a thorough `--validate`, and nothing
+    outside its own skill directory ever invoked it — so a profile that matches
+    every PDF, one whose front matter does not parse, a `rules:` pointer aimed
+    somewhere else and a `fill.script` naming a file that does not exist all
+    passed the repo's only structural gate.
+
+    Deliberately a subprocess rather than an import: the validator is the
+    skill's own, versioned with the profiles it checks, and this stays a thin
+    caller that does not need to know the contract.
+    """
+    for script in sorted(walk(PLUGINS, (".py",))):
+        if os.path.basename(script) != "packet_profile.py":
+            continue
+        try:
+            out = subprocess.run([sys.executable, script, "--validate", "--json"],
+                                 capture_output=True, timeout=60)
+            data = json.loads(out.stdout.decode("utf-8", "replace"))
+        except (OSError, ValueError, subprocess.SubprocessError) as exc:
+            findings.append({"level": "FAIL", "code": "packet_profile_unrunnable",
+                             "where": rel(script),
+                             "msg": f"the packet-profile validator would not run "
+                                    f"({exc}); the profile contract is unchecked"})
+            continue
+        for failure in data.get("failures", []):
+            findings.append({"level": "FAIL", "code": "packet_profile_invalid",
+                             "where": rel(script), "msg": failure})
 
 
 # Practices this repo replaced. A live file still describing the old one is not a
