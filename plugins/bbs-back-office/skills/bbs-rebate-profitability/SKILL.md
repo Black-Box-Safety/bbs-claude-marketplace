@@ -1,6 +1,7 @@
 ---
 name: bbs-rebate-profitability
 description: "Analyze Black Box Safety's true profitability by applying downstream Grainger rebates based on contract code dimensions from Business Central. Use this skill whenever a user asks about BBS profit, margin, P&L, profitability, rebate income, Grainger rebate, contract code margin, adjusted margin, true margin, NASPO margin, OMNIA margin, or any analysis that requires understanding BBS's actual gross profit after accounting for Grainger rebates. Also trigger when users ask about customer profitability, revenue by contract code, or want to understand which accounts or contract vehicles are most/least profitable. This skill is essential because Business Central's item ledger entries show COGS at Grainger list — the real margin only appears after layering in rebate percentages tied to each invoice's contract code dimension."
+requires: [cdata-connect]
 ---
 
 # BBS Rebate Profitability Analysis

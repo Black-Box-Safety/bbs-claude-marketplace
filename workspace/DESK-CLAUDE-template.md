@@ -2,8 +2,8 @@
 
 You are in the BBS quote desk: the SharePoint-synced folder tree for California state
 business. Instance of the customer-desk pattern (see bbs-foundations). Skills `ca-rfq-intake`
-and `naspo-quote` fire automatically on inbound requests; `/ca-rfq-log` and `/ca-rfq-quote`
-invoke them directly.
+and `naspo-quote` fire automatically on inbound requests; `/ca-rfq` runs the whole desk
+order over them, with intake as an explicit first gate.
 
 ## The tree
 

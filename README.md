@@ -86,7 +86,7 @@ flowchart LR
 
 | Plugin | What it covers | Detail |
 |---|---|---|
-| `bbs-sales` | The California quote desk end to end: RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled — plus promo pages and federal deck copy; `/ca-rfq-log`, `/ca-rfq-quote` | [README](plugins/bbs-sales/README.md) |
+| `bbs-sales` | The California quote desk end to end: RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled — plus promo pages and federal deck copy; `/ca-rfq` | [README](plugins/bbs-sales/README.md) |
 | `bbs-back-office` | After the bid is won, out of Business Central: order status, vendor PO receipts, problem-order reconciliation, true margin after Grainger rebates | [README](plugins/bbs-back-office/README.md) |
 | `bbs-foundations` | Company memory, doctrine every skill inherits, the BBS way to write a CLAUDE.md, personal voice skills, `/bbs-checkup`, managed settings, the one-page AUP | [README](plugins/bbs-foundations/README.md) |
 | `bbs-website` | The storefront: price list to product page across the database, Shopify, and the quote bot | [README](plugins/bbs-website/README.md) |
@@ -148,6 +148,12 @@ bbs-claude-marketplace/
 - **Models:** `claude-opus-5` · `claude-sonnet-5` · `claude-haiku-4-5` only, generated from
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/models.json`. Anything else is
   stale.
+- **Invariants:** `python3 scripts/check_marketplace.py` catches the defects that fail silently,
+  and runs on every pull request (`.github/workflows/check-marketplace.yml`). It reports rather
+  than blocks for now.
+- **Dependencies:** every skill declares the connectors, MCPs and command-line tools it needs in
+  its own frontmatter. `python3 scripts/check_marketplace.py --requirements` prints the table, so
+  you can tell before installing whether a job will run on your machine.
 
 ## Contributing
 

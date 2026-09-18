@@ -10,6 +10,7 @@ description: >-
   grainger-pricing) or to extract item numbers from a PDF, cart or screenshot. If a rep says
   only "check these Grainger items" without making clear whether they mean BPO eligibility or
   price, ask which before running.
+requires: [python3]
 ---
 
 # DGS BPO Item Check
