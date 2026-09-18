@@ -19,9 +19,11 @@ On a Mac, or if you use Cursor instead of VS Code, start at
    "Claude Code", install, then sign in with your BBS Claude account (same login as the
    Desktop app).
 4. **Open the quote desk** — grab `workspace/bbs-rep.code-workspace` from the marketplace
-   repo (Parker posts it in Teams). First open: replace `REPLACE-ON-FIRST-OPEN` with your
-   OneDrive root per `workspace/README.md`, save, reopen. Accept the 4 recommended
-   extensions.
+   repo (Parker posts it in Teams), or run `scripts/install-desktop-launchers.ps1` so it
+   lands on your Desktop with the other workspaces. First open: replace
+   `REPLACE-ON-FIRST-OPEN` with your OneDrive root per `workspace/README.md`, save, reopen.
+   Accept the 4 recommended extensions. Site maintainers open `bbs-web` instead; see
+   `workspace/README.md`.
 5. **Run `/bbs-onboard`** once — wires the skill-bus doctrine injection so BBS grounding rules
    fire inside the quoting skills. Without it the skills run with no guardrail text.
 6. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the

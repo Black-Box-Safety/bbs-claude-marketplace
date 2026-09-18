@@ -61,8 +61,11 @@ stay Parker/Griffin; never copy `~/.cursor/mcp.json` onto a rep machine. Role ma
    On Cursor machines, also copy `.cursor/rules/bbs-invariants.mdc` to
    `{desk}/.cursor/rules/bbs-invariants.mdc` (same file; do not rewrite it). Cursor does
    not load this repo's `AGENTS.md` when the workspace is only the quote-desk folder.
-3. Post `workspace/bbs-rep.code-workspace` + the REP-SETUP and CURSOR-SETUP links in the
-   Teams sales channel; pin it; add the first-open screenshots to that post (both editors).
+3. Post the `workspace/` catalog (`bbs-rep`, `bbs-web`, `bbs-admin`) + the REP-SETUP and
+   CURSOR-SETUP links in the Teams sales channel; pin it; add the first-open screenshots
+   to that post (both editors). Site maintainers also get `scripts/bbs-clone-web-stack.sh`
+   and `scripts/install-desktop-launchers.sh` (Mac) / `.ps1` (Windows) so the Desktop
+   launcher is not a Parker-only folder.
 4. Post `scripts/bbs-setup.ps1` (Windows) and `scripts/bbs-setup.sh` (Mac) in the same
    Teams post; reps run the one for their OS before anything else.
 5. Pick the pilot rep and date. Gate: rep runs `/bbs-checkup` clean, logs one real RFQ,

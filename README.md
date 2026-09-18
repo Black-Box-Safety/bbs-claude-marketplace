@@ -29,7 +29,8 @@ The canon. One place holds everything a BBS machine needs to do the job the BBS 
   company-wide doctrine every skill inherits.
 - **Managed settings** the admin pushes from the Claude console: permissions, guardrails, the
   company memory every session starts with.
-- **The rep workspace**: a VS Code workspace pointed at the shared quote-desk folder tree.
+- **Workspaces**: Cursor / VS Code entry points for the quote desk, the website stack, and
+  admin — Desktop launchers optional, same files on Mac and Windows.
 - **Operating docs**: setup guides, runbook, metrics, registry of what is canon and what is
   archived.
 
@@ -43,7 +44,7 @@ Nothing drifts.
 | A sales rep on VS Code (Windows) | [`docs/REP-SETUP.md`](docs/REP-SETUP.md), then `/bbs-checkup` | ~20 min, once |
 | A sales rep on Cursor (Mac or Windows) | [`docs/CURSOR-SETUP.md`](docs/CURSOR-SETUP.md), then `/bbs-checkup` | ~20 min, once |
 | The admin | [`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §0 → §3a | One morning |
-| Maintaining the website | [`plugins/bbs-website/README.md`](plugins/bbs-website/README.md), then `/bbs-onboard` | ~15 min |
+| Maintaining the website | [`workspace/README.md`](workspace/README.md) (open `bbs-web`), then [`plugins/bbs-website/README.md`](plugins/bbs-website/README.md) and `/bbs-onboard` | ~15 min |
 | Changing a skill | [`plugins/bbs-website/docs/CONTRIBUTING.md`](plugins/bbs-website/docs/CONTRIBUTING.md) and the [design spec](docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md) | As needed |
 
 ## Sixty-second install
@@ -125,8 +126,9 @@ bbs-claude-marketplace/
 ├── .cursor/rules/bbs-invariants.mdc    # always-on Cursor doctrine; stamp onto the desk too
 ├── README.md                           # this file
 ├── REGISTRY.md                         # every BBS repo and asset: canon, harvest, parked, archived
-├── workspace/                          # bbs-rep.code-workspace + desk CLAUDE.md template
-├── scripts/bbs-setup.ps1 · bbs-setup.sh
+├── workspace/                          # bbs-rep · bbs-web · bbs-admin + desk CLAUDE.md template
+├── scripts/bbs-setup.ps1 · bbs-setup.sh · bbs-clone-web-stack.sh
+├── scripts/install-desktop-launchers.sh · install-desktop-launchers.ps1
 ├── docs/
 │   ├── REP-SETUP.md · CURSOR-SETUP.md · ADMIN-RUNBOOK.md · ADMIN-CLEANUP.md · MEASUREMENT.md
 │   ├── acceptance/                     # one file per pilot gate run
