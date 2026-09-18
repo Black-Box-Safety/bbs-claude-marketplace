@@ -1,6 +1,7 @@
 ---
 name: site-wiring-map
 description: The single "how the BBS website is wired" reference — which repo holds what, where product data lives, how it flows from the Supabase database through Shopify to the quote bot, and for each common task which skill and which agent to use. Use when onboarding, when unsure which repo or skill a change belongs in, or when a change must cross repos (a DB field that must reach both the storefront and the bot).
+requires: []
 ---
 
 # BBS Site Wiring Map

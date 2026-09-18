@@ -53,7 +53,7 @@ These decide what gets built and how. When a proposal violates one, the proposal
 | Layer | What it is | Where it lives | State |
 |---|---|---|---|
 | **Rails** | Send-class tools denied, company memory injected, plugins enabled for everyone | Managed settings, pushed from the Claude console. Template: `plugins/bbs-foundations/docs/bbs-managed-settings.json` | Live. Two gaps: `bbs-back-office` is not in the enabled list, and the saved preference about signature lines still contradicts current doctrine. Both are console-side fixes. |
-| **Job plugins** | The work itself: quote desk, post-award, storefront, company doctrine | `plugins/bbs-sales`, `bbs-back-office`, `bbs-website`, `bbs-foundations` | Sales spine built across three open PRs (#14, #15, #16). Not yet merged. Not yet run end to end by a rep. |
+| **Job plugins** | The work itself: quote desk, post-award, storefront, company doctrine | `plugins/bbs-sales`, `bbs-back-office`, `bbs-website`, `bbs-foundations` | Sales spine merged 2026-09-18 (#14, #15, #16). Not yet run end to end by a rep. |
 | **Literacy and self-service** | Understand the tools, start any job, extend the toolkit | `bbs-claude-coach` plugin (PR #25), `/bbs-my-voice`, the AUP | Drafted. Needs rework before merge (section 5). |
 
 Underneath all three: `scripts/check_marketplace.py`, which catches the failures that never
@@ -137,7 +137,7 @@ audit left for the console and the org.
   different tool sets means the account-resolution step can silently fail and a rep prices
   against the wrong account.
 
-### Step 1. Land the spine.
+### Step 1. Land the spine. **Done 2026-09-18** for #16, #14, #15, #19, #22, #17, all squash-merged after the lead-reviewer's pass. #21 and #26 remain (below).
 
 | Order | PR | What it gives a rep | Condition |
 |---|---|---|---|
@@ -283,6 +283,7 @@ ruling is recorded here with its date and applied where the repo carries it.
 
 | Date | Change |
 |---|---|
+| 2026-09-18 | Step 1 landed: #16, #14, #15, #19, #22, #17 merged. `/ca-rfq` Gate 1 repointed from the two ruled escalations to the §9 rulings register. |
 | 2026-09-18 | Ruled: Cursor may open the quote desk. Desk `AGENTS.md` moved to Now. |
 | 2026-09-18 | Added the `lead-reviewer` agent: independent review, squash-merge or posted critiques, never its own PR. |
 | 2026-09-18 | Four rulings recorded and applied (SB checkbox, PD 843 name, CalRecycle signer, Grainger at cost); routing question restated in plain terms. Step 0 trimmed: Aanya has write access, the Grainger key is Parker's to handle outside the plan. |

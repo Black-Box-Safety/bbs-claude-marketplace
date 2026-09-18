@@ -61,13 +61,19 @@ and never a line whose signer you cannot determine. The customer-facing storefro
 ## Verify before you assert
 
 ```bash
-python3 scripts/check_marketplace.py     # structural invariants; exit 1 on FAIL
+python3 scripts/check_marketplace.py         # structural invariants; exit 1 on FAIL
+python3 scripts/check_marketplace.py --requirements   # what each skill needs installed
 ```
 
 It catches what fails silently: a skill that never loads, a description truncated through
-its own "do NOT use" clause, a pointer to a merged-away skill, a path that resolves only
+its own "do NOT use" clause, a pointer to a merged-away skill or a retired slash
+command, a path that resolves only
 on the author's machine, a stale model ID, a form ID that is not in the rules, a
-vendor-profile key that does not exist, a drifted README badge count.
+vendor-profile key that does not exist, an external system a skill uses without declaring,
+a drifted README badge count.
+
+It runs on every pull request via `.github/workflows/check-marketplace.yml`, which
+**reports and does not block** — whether it becomes a required check is Parker's call.
 
 It is **counter-example aware** — prose naming a bad value in order to warn about it is
 correct content. If you add a check, add that awareness, or the checker will flag its own
@@ -77,6 +83,11 @@ fixes and get ignored.
 reproduce), anything behind an MCP connector, and anything about account-synced skills,
 which live in Parker's claude.ai account and not in git.
 
+That second limit bounds the dependency check too. It proves a **floor**, not a ceiling:
+it can show that a skill naming `grainger_price` must declare `grainger`, and it cannot
+show that a skill which only says "look it up in Business Central" needs anything at all.
+Which is why `requires:` is mandatory rather than inferred — see the working rule below.
+
 ## Working rules
 
 - **Branch, PR, review, merge.** Never commit to `main`. A PR is merged only after review
@@ -85,6 +96,12 @@ which live in Parker's claude.ai account and not in git.
   receiving upstream fixes.
 - **Portable paths only.** `${CLAUDE_PLUGIN_ROOT}` and `$SKILL_DIR`. Never `/mnt/skills/`,
   `/Users/<someone>/`, or a per-machine dotfile copy.
+- **Every skill declares what it needs**, in its own frontmatter: `requires:` for systems
+  the job cannot complete without, `degrades-without:` for ones it says are unavailable and
+  carries on. Both name systems, never kinds — the kind of a system lives once, in the
+  checker's registry, and `--requirements` prints it. A skill that needs nothing writes
+  `requires: []`; an omitted key is a FAIL, because to a rep it reads the same as an
+  oversight. Declare the system, not the brand name a paragraph happens to mention.
 - **Quote a `description:` containing a colon**, or use a `>-` block scalar. An unquoted
   colon means the skill never loads at all.
 - **Keep a skill description under 1024 characters.** Past that it is truncated at

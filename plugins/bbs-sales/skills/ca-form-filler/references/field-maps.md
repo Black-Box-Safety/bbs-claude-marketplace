@@ -1,9 +1,9 @@
 # Field maps — standalone California compliance forms
 
 What goes in each field of the CA forms BBS meets outside a bound packet. For the CDCR
-OBS 4007(B) packet, use `packet-obs-4007b.md` instead — a field ID belongs to a specific
-PDF, and the same STD 204 has different internal names inside a bound packet than as a
-standalone download.
+OBS 4007(B) packet, use its profile in `packets/` instead — a field ID belongs to a
+specific PDF, and the same STD 204 has different internal names inside a bound packet than
+as a standalone download. `packets/README.md` is the profile contract.
 
 Source key: **VP** = `vendor_profile.json` · **RFQ** = extracted from the solicitation ·
 **REP** = the rep must supply it · **DERIVED** = computed at runtime ·
@@ -107,7 +107,7 @@ Form ID is **OBS 1000**. Earlier revisions of this file said STD 1000.
 | Uses GenAI? | DERIVED | "No" — BBS resells finished goods; the products contain no GenAI |
 | Conditional GenAI fields | — | skip, they depend on "Yes" |
 | Rep name | REP | the signing rep |
-| Signature, date | ⚑ SIG | **Signer not determined.** `ca-form-rules.md` assigns no signer for OBS 1000, and Path A (`packet-obs-4007b.md`) fills the date only. Fill the date, leave the signature, flag `⚑ SIGNATURE REQUIRED`. Do not infer one from the neighbouring forms |
+| Signature, date | ⚑ SIG | **Signer not determined.** `ca-form-rules.md` assigns no signer for OBS 1000, and Path A's OBS profile fills the date only. Fill the date, leave the signature, flag `⚑ SIGNATURE REQUIRED`. Do not infer one from the neighbouring forms |
 
 ## CalRecycle 74 — Recycled Content Certification
 
@@ -142,4 +142,4 @@ Never left blank — a missing CalRecycle 74 can disqualify the bid. See `ca-for
 
 ---
 
-Owner: Parker. Last verified 2026-09-15.
+Owner: Parker. Last verified 2026-09-16.

@@ -1,6 +1,7 @@
 ---
 name: bbs-voice-template
 description: Build a personal "voice" skill so Claude drafts email, quotes, and follow-ups that sound like a specific Black Box Safety teammate instead of a chatbot. Use when someone says "make my own voice skill", "build a <name>-voice like parker-voice", "why does this draft sound like AI", or asks to strip AI tells from an email; use it once per person, and again when their writing has changed. It samples the person's real Sent Items, strips the 35 known AI-writing patterns, and writes a profile the same shape as the parker-voice exemplar into their own ~/.claude/skills/<first>-voice/ — never into a shared repo, because a voice profile carries a person's phone numbers and signature block. Do NOT use it to write the email itself; that is the resulting <first>-voice skill's job.
+requires: [microsoft-365]
 ---
 
 # BBS voice template

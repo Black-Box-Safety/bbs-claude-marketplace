@@ -12,6 +12,7 @@ description: >-
   price items (grainger-pricing), to check DGS BPO eligibility (dgs-bpo-item-check), or to
   fill state forms (ca-form-filler) — this produces the list those consume. If a rep says only
   "check these items", ask whether they mean price or BPO eligibility.
+requires: []
 ---
 
 # Extract items from what the agency sent

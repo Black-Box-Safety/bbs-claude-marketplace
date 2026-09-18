@@ -69,9 +69,8 @@ command, so a missing library is a clear message, never a half-written bid docum
 ## Daily use
 
 - New RFQ lands in your mailbox (an `_inbox/` folder arrives once Parker's intake flow is
-  live): open the workspace, tell Claude what arrived — `ca-rfq-intake` files it and starts
-  the record. Then `/ca-rfq-quote` when you're ready to price. You review every number.
-  You send.
+  live): open the workspace, tell Claude what arrived — `/ca-rfq` runs it end to end, asking
+  first whether to file it before pricing. You review every number. You send.
 - Where you'd have asked "what did we quote them last time?" — ask Claude. It reads the
   quote-log and Business Central and cites what it finds.
 - Need to find a product or a supplier? Ask Claude to open Chrome and look. It drives your own
