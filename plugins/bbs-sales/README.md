@@ -42,10 +42,12 @@ pricing at BBS — prefer it over anything found on the open web, because the op
 price is not the price BBS's account actually pays.
 
 `bbs-deck-voice` is the exception to this plugin's California framing: it writes
-**federal** pursuit copy, where BBS is SDVOSB and never DVBE. Do not use it for a CA
-agency deck, and do not let its certification language leak into a state bid. On
-California competitive solicitations the opposite discipline applies — OSDS 2009473
-carries both SB and DVBE, so claim the 5% SB preference and the DVBE incentive.
+**federal** pursuit copy, where BBS is SDVOSB and never DVBE, and where BBS **is** a small
+business under SBA size standards. Do not use it for a CA agency deck, and do not let its
+certification language leak into a state bid. On California competitive solicitations the
+discipline is different in both halves — OSDS 2009473 carries **DVBE only**, so claim the
+DVBE incentive (SCM §1202) and **never** the 5% SB preference (SCM §1204): BBS passed
+California's SB revenue threshold and is not a California small business.
 
 An order that has already been taken is not this plugin's work. A wrong item, a short
 shipment, a price discrepancy on the PO — those go to `bbs-back-office`.

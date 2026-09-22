@@ -43,8 +43,21 @@ that sentence.
 | Company-wide canon | `.../references/canonical-facts.md` | Inferred from a neighbouring file |
 | Supplier context | `bbs-suppliers` repo, bonded by immutable `slug` | Duplicated here |
 
-**Certifications follow the channel.** SDVOSB for federal and primes; SB/DVBE (one OSDS
-cert, `2009473`) for California state. Never mixed on one form.
+**Certifications follow the channel — and so does small-business status.**
+
+- **Federal and primes:** **SDVOSB**, and BBS **is** a small business under SBA size
+  standards. Both are claimable; federal small-business language is correct.
+- **California state:** **DVBE only** (OSDS cert `2009473`). BBS passed California's SB
+  revenue threshold, so BBS is **not** a California small business and the 5% SB
+  preference (SCM §1204) is **never** claimed on a California bid. The DVBE incentive
+  (SCM §1202) is unaffected and still claimed on competitive solicitations.
+
+Never mixed on one form, and never stated channel-neutrally — "BBS is a small business"
+is true federally and false in California, so a sentence that omits the channel is wrong
+in one direction or the other. Ruling and reasoning:
+`plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`,
+"Small-business status is channel-dependent" (Parker, in session, 2026-09-22, superseding
+the 2026-09-02 ruling).
 
 **Signatures.** Parker and Jackson have each delegated signing authority for the forms the
 skills fill (counsel confirmed 2026-09-16), so packets are produced signed. The rule is

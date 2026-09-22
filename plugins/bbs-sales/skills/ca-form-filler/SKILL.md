@@ -72,7 +72,7 @@ vp = json.load(open(f"{root}/references/vendor_profile.json"))
 
 legal_name = vp["business_identity"]["legal_name"]
 fein       = vp["business_identity"]["fein"]
-cert       = vp["certifications"]["sb_dvbe"]      # ONE cert carrying both SB and DVBE
+cert       = vp["certifications"]["sb_dvbe"]      # key name is historical: carries DVBE only
 owner      = next(r for r in vp["authorized_representatives"] if r["role"] == "dvbe_owner")
 ```
 

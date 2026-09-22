@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/company-Black%20Box%20Safety%2C%20Inc.-051c2c" alt="Black Box Safety, Inc.">
-  <img src="https://img.shields.io/badge/certified-SDVOSB%20%C2%B7%20CA%20SB%2FDVBE%202009473-b19800" alt="SDVOSB and California SB/DVBE 2009473">
+  <img src="https://img.shields.io/badge/certified-SDVOSB%20%C2%B7%20CA%20DVBE%202009473-b19800" alt="SDVOSB federal and California DVBE 2009473">
   <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, VS Code, and Desktop">
   <img src="https://img.shields.io/badge/plugins-3%20BBS%20%2B%205%20pinned-2dd4bf" alt="Three BBS plugins plus five pinned external">
 </p>
@@ -68,7 +68,8 @@ report. Anything red prints the exact sentence to send the admin.
 > **Claude:** Filed under `CDCR (ALL)/Mule Creek State Prison/` — no duplicate buyer folder, checked
 > by name and by item. Last quoted this buyer gloves in March at $Y (won). Gloves are NASPO: Grainger
 > price against Mule Creek's own account. Blowers are not on any schedule, so this is a competitive
-> lane with the 5% SB preference; drafting vendor outreach for two suppliers. Packet B forms filled,
+> lane with the DVBE incentive (no SB preference — BBS is not a California small business); drafting
+> vendor outreach for two suppliers. Packet B forms filled,
 > signed on the lines Parker owns. Every number is in the cover summary with its source. Ready for your review.
 
 The rep reviews every number. The rep sends. Claude cannot.
@@ -102,8 +103,10 @@ These are enforced in settings and doctrine, not left to memory.
   policy. Every quote, price, and form is a draft until a rep reviews it.
 - **Never an invented number.** No price, stock, lead time, or certification fact from memory or the
   open web. Unknown becomes `[FLAG: why]`, never a guess.
-- **Certification language follows the channel.** SDVOSB for federal and primes; OSDS SB/DVBE
-  2009473 for California state. Never mixed.
+- **Certification language follows the channel, and so does small-business status.** Federal and
+  primes: SDVOSB, and BBS *is* a small business under SBA size standards. California state: OSDS
+  DVBE 2009473 only — BBS passed California's SB revenue threshold, so no SB preference on a state
+  bid. Never mixed, and never said without naming the channel.
 - **Systems of record win.** Business Central for money, Supabase for the catalog, SharePoint for
   documents. Point at the record; never re-type it.
 - **When it goes wrong, log it.** One line in the folder's `FLAGS.md`. A caught error means the

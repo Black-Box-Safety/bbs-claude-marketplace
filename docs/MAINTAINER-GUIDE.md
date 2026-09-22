@@ -77,11 +77,21 @@ Claude is good at producing internally consistent, confident prose. That is exac
 failure mode to review for. The questions that pay:
 
 1. **Is every factual claim sourced, or is it inferred from a neighbouring file?** This
-   repo has already been burned once: a session inferred "BBS is NOT SB-certified" from a
-   storefront doctrine file whose scope it had not checked, which would have cost the 5%
-   Small Business preference on every competitive solicitation. Canonical facts come from
-   `bbs-foundations`, and cert/contract numbers ultimately from primary sources — not from
-   whichever file was open.
+   repo has been burned both ways on the same fact. A session once read "BBS is NOT
+   SB-certified" out of a storefront doctrine file whose scope it had not checked and
+   propagated it as a company-wide fact; a later session reversed it on the same kind of
+   evidence. The conclusion is now settled — see below — but note what the failure was in
+   both directions: **a certification claim taken from whichever file happened to be
+   open, without a channel and without a source.** Canonical facts come from
+   `bbs-foundations`, and cert/contract numbers ultimately from primary sources.
+   A certification claim with no channel on it is not sourced, even when it is true
+   somewhere.
+
+   The settled fact, for reference: federally BBS **is** a small business and SDVOSB; in
+   California BBS is **DVBE only** and not a small business, having passed the state SB
+   revenue threshold. Parker, in session, 2026-09-22, superseding 2026-09-02. Reasoning
+   lives in `canonical-facts.md`, "Small-business status is channel-dependent" — do not
+   re-litigate it from this paragraph.
 
 2. **Does a measurement claim name its conditions?** "It routes correctly" is not a
    finding. Runs per query, named or anonymized, and the actual distribution are.
@@ -134,7 +144,7 @@ expiry goes stale in one place while bids go out from another.
 | CA form semantics — who signs, what stays blank | `plugins/bbs-sales/references/ca-form-rules.md` | Restated in a skill (field **IDs** do stay local — a field ID belongs to one PDF) |
 | Model IDs | `plugins/bbs-foundations/.../references/models.json` | Hand-edited; it is generated |
 | Company-wide canon | `plugins/bbs-foundations/.../references/canonical-facts.md` | Inferred from a neighbouring file |
-| Certifications by channel | SDVOSB federal · SB/DVBE (OSDS 2009473) California | Mixed on one form |
+| Certifications by channel | SDVOSB + small business federal · DVBE only (OSDS 2009473) California, no SB preference | Mixed on one form; stated without naming the channel |
 
 ---
 

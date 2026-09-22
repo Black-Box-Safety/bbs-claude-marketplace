@@ -41,9 +41,11 @@ signature block, verbatim, in a code fence.>
 
 ## Certification discipline
 
-- Federal context: SDVOSB, VA CVE UEI FRK5MJD35GN5. Never lead with DVBE.
-- California state context: OSDS SB/DVBE 2009473.
-- Both appear in the signature block; the discipline applies to body copy.
+- Federal context: SDVOSB, VA CVE UEI FRK5MJD35GN5. Never lead with DVBE. BBS is also a
+  small business federally (SBA size standards) — that claim is fine here.
+- California state context: OSDS DVBE 2009473. Never "SB" or "SB/DVBE" — BBS is not a
+  California small business.
+- Both certifications appear in the signature block; the discipline applies to body copy.
 
 ## Things they never do
 
