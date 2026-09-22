@@ -70,8 +70,8 @@ to `plugins/bbs-website/hooks/skill-bus.json` 2026-09-22, PR #30.** The `bbs-sho
 line is in another repo and still outstanding there.
 
 **There are two `hooks/skill-bus.json` files and they carried different problems. Both
-were RESOLVED 2026-09-22 in PR #30.** Record kept in `docs/STEWARD.md` under *Already
-open for Parker*.
+were RESOLVED 2026-09-22 in PR #30.** Record kept in `docs/STEWARD.md` (the resolved
+entry under *Already open for Parker*).
 
 | File | What it carried | Status |
 |---|---|---|
