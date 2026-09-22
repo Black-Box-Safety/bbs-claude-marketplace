@@ -66,17 +66,17 @@ change on that point. They are, however, written channel-neutrally, and read fed
 are false. **Reword** (recorded as outstanding for Parker by PR #29): name the channel —
 "BBS is not a California small business; no SB or DVBE preference language in storefront
 copy" — so they cannot be read as denying BBS's federal small-business status. **Applied
-to `plugins/bbs-website/hooks/skill-bus.json` 2026-09-22, PR #__PR__.** The `bbs-shopify`
+to `plugins/bbs-website/hooks/skill-bus.json` 2026-09-22, PR #30.** The `bbs-shopify`
 line is in another repo and still outstanding there.
 
 **There are two `hooks/skill-bus.json` files and they carried different problems. Both
-were RESOLVED 2026-09-22 in PR #__PR__.** Record kept in `docs/STEWARD.md` under *Already
+were RESOLVED 2026-09-22 in PR #30.** Record kept in `docs/STEWARD.md` under *Already
 open for Parker*.
 
 | File | What it carried | Status |
 |---|---|---|
-| `plugins/bbs-foundations/hooks/skill-bus.json` | The **affirmative false claim**: "OSDS SB/DVBE 2009473 for California state, where the 5% SB preference (SCM §1204) … apply on competitive solicitations incl. informal." Injected into **every CLAUDE.md-writing skill run** | **RESOLVED 2026-09-22, PR #__PR__** — now the channel split above |
-| `plugins/bbs-website/hooks/skill-bus.json` | "BBS is NOT SB-certified — never claim 'SB credit'." Correct for California, but channel-neutral | **RESOLVED 2026-09-22, PR #__PR__** — reworded as above |
+| `plugins/bbs-foundations/hooks/skill-bus.json` | The **affirmative false claim**: "OSDS SB/DVBE 2009473 for California state, where the 5% SB preference (SCM §1204) … apply on competitive solicitations incl. informal." Injected into **every CLAUDE.md-writing skill run** | **RESOLVED 2026-09-22, PR #30** — now the channel split above |
+| `plugins/bbs-website/hooks/skill-bus.json` | "BBS is NOT SB-certified — never claim 'SB credit'." Correct for California, but channel-neutral | **RESOLVED 2026-09-22, PR #30** — reworded as above |
 
 ## Contract vehicles (canonical count: 8)
 
