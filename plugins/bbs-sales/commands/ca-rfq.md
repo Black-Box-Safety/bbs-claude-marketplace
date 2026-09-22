@@ -80,14 +80,17 @@ it runs at Gate 8. A price-first run is not an unrouted run.
   account you cannot name each change the price, not just the paperwork. With no run record
   to read a flag out of, this gate is not satisfied by default: unknown is still unknown,
   and it still stops here.
-- **Open escalations stop the run.** Two questions inside `ca-form-filler` are awaiting
-  Parker's ruling — the DVBE-name conflict on the DVBE declaration, marked **Escalated** in
-  `${CLAUDE_PLUGIN_ROOT}/skills/ca-form-filler/references/field-maps.md`, and the SB
-  checkbox on the CDCR Packet B, in the marketplace repo's `docs/STEWARD.md` under *Already
-  open for Parker* (a rep's install carries no `docs/`; not being able to see that file does
-  not close the question). This command does not resolve them, restate them, or route around
-  them. If the run reaches one, stop here and tell the rep it is awaiting Parker. A packet is
-  not delivered on a guessed answer to an open ruling.
+- **Open escalations stop the run.** One question inside `ca-form-filler` is awaiting
+  Parker's ruling: the DVBE-name conflict on the DVBE declaration, marked **Escalated** in
+  `${CLAUDE_PLUGIN_ROOT}/skills/ca-form-filler/references/field-maps.md`. This command does
+  not resolve it, restate it, or route around it. If the run reaches it, stop here and tell
+  the rep it is awaiting Parker. A packet is not delivered on a guessed answer to an open
+  ruling. The open list lives in the marketplace repo's `docs/STEWARD.md` under *Already
+  open for Parker*; a rep's install carries no `docs/`, and not being able to see that file
+  does not close a question.
+  - **No longer a stop: the SB checkbox on CDCR Packet B.** Ruled 2026-09-22 — BBS is not a
+    California small business, so the box is `/Off`, which is what the packet fill already
+    writes. Do not halt a Packet B run on it.
 
 ## Gate 2 — Extract the line items
 

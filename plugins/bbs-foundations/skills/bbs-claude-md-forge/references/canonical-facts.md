@@ -65,8 +65,18 @@ storefront skill-bus doctrine that carries it are **correct for California** and
 change on that point. They are, however, written channel-neutrally, and read federally they
 are false. **Outstanding for Parker:** reword both to name the channel — "BBS is not a
 California small business; no SB or DVBE preference language in storefront copy" — so they
-cannot be read as denying BBS's federal small-business status. Not changed here:
-`hooks/skill-bus.json` reaches every skill run and is out of scope for this correction.
+cannot be read as denying BBS's federal small-business status. That reword is to
+`plugins/bbs-website/hooks/skill-bus.json`, which was **not** changed by the 2026-09-22
+correction.
+
+**There are two `hooks/skill-bus.json` files and they carry different problems. Both are
+outstanding; neither was changed.** Tracked in `docs/STEWARD.md` under *Already open for
+Parker*.
+
+| File | What it carries | Severity |
+|---|---|---|
+| `plugins/bbs-foundations/hooks/skill-bus.json` | The **affirmative false claim**: "OSDS SB/DVBE 2009473 for California state, where the 5% SB preference (SCM §1204) … apply on competitive solicitations incl. informal." Injected into **every CLAUDE.md-writing skill run**, so it contradicts this file on every run | **High — fix first** |
+| `plugins/bbs-website/hooks/skill-bus.json` | "BBS is NOT SB-certified — never claim 'SB credit'." **Correct for California**, but channel-neutral, so read federally it is false. Scoped to storefront copy, which limits the damage | Low — reword for channel |
 
 ## Contract vehicles (canonical count: 8)
 
