@@ -197,16 +197,18 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **One routing ruling**: does a fresh "agency emailed asking us to quote" belong to
   `ca-rfq-intake` or `naspo-quote`? Left untuned on purpose — fitting the test before the
   ruling would just be fitting the test.
-- **Both `hooks/skill-bus.json` files still carry pre-2026-09-22 certification wording.**
-  Neither was changed by the SB correction (PR #29), which was scoped out of them, so this
-  is a documented deferral rather than an oversight.
-  - `plugins/bbs-foundations/hooks/skill-bus.json` — **fix this one first.** It injects the
-    *affirmative false claim* that the 5% SB preference (SCM §1204) applies on California
-    competitive solicitations, into **every CLAUDE.md-writing skill run**. It contradicts
-    canonical facts on every run and is the largest remaining exposure from that ruling.
-  - `plugins/bbs-website/hooks/skill-bus.json` — lower priority. Its "BBS is NOT
-    SB-certified" is *correct for California* but stated channel-neutrally, so read
-    federally it is false. Reword to name the channel.
+- **Both `hooks/skill-bus.json` files carried pre-2026-09-22 certification wording —
+  RESOLVED 2026-09-22 in PR #__PR__.** Neither was changed by the SB correction (PR #29),
+  which was scoped out of them; this was a documented deferral, now closed.
+  - `plugins/bbs-foundations/hooks/skill-bus.json` — **RESOLVED 2026-09-22, PR #__PR__.** It
+    injected the *affirmative false claim* that the 5% SB preference (SCM §1204) applies on
+    California competitive solicitations, into **every CLAUDE.md-writing skill run**. Now
+    carries the channel split: California DVBE only, §1204 never, §1202 still claimed;
+    federal SDVOSB and small business.
+  - `plugins/bbs-website/hooks/skill-bus.json` — **RESOLVED 2026-09-22, PR #__PR__.** Its
+    channel-neutral "BBS is NOT SB-certified" is replaced by the reword recorded in
+    canonical facts, which names California. The matching `bbs-shopify` canonical-facts
+    line lives in another repo and is still open there.
 
   A PR touching either gets a second reviewer: they reach every skill run without anyone
   installing anything.
