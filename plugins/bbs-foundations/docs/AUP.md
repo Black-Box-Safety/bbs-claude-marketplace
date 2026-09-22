@@ -21,7 +21,9 @@ customer: tell Parker the same day.
 **Experiment freely above the rails.** Build your own skills, try new workflows, push the
 tool. The rails (no auto-send, no bypass mode, protected files) stay on.
 
-**Certification language:** SDVOSB for federal/primes; OSDS SB/DVBE 2009473 for CA state.
-Never mixed. When unsure about anything: ask. Asking is free; guessing isn't.
+**Certification language:** SDVOSB for federal/primes, where BBS is also a small business
+under SBA size standards; OSDS DVBE 2009473 for CA state, where BBS is **not** a small
+business and never claims the 5% SB preference. Never mixed, and never stated without
+naming the channel. When unsure about anything: ask. Asking is free; guessing isn't.
 
 _________________________  date __________

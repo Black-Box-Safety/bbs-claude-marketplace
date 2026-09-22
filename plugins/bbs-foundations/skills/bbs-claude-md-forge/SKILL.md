@@ -49,9 +49,12 @@ the ones that apply. The five that apply everywhere:
    seller's permit live in `plugins/bbs-sales/references/vendor_profile.json`, not in a
    CLAUDE.md; buying account numbers and API keys are never committed at all. Public-record identifiers Parker
    prints in his email signature are fine.
-5. **Certification language follows the channel.** SDVOSB for federal and primes
-   (Bechtel, USACE); OSDS SB/DVBE 2009473 for California state, where the 5% SB preference
-   and the DVBE incentive apply on competitive solicitations and never on LPA orders.
+5. **Certification language follows the channel, and so does small-business status.**
+   SDVOSB for federal and primes (Bechtel, USACE), where BBS **is** a small business under
+   SBA size standards; OSDS **DVBE** 2009473 for California state, where BBS is **not** a
+   small business and the 5% SB preference (SCM §1204) is never claimed. The DVBE
+   incentive (SCM §1202) applies on competitive solicitations and never on LPA orders.
+   Reasoning and provenance: `canonical-facts.md`, "Small-business status is channel-dependent".
 
 `references/canonical-facts.md` holds the exact strings (LPA numbers, UEI, cert numbers,
 model IDs, systems of record, who signs what) and resolves every contradiction the

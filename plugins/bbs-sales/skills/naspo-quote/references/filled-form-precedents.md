@@ -73,7 +73,8 @@ Real `SCno` values show the range of what agencies issue: `RFQ 26-07-010`,
 BBS answer, confirmed. `page` = `1`, `of #` = `1`.
 
 `Text1` is usually `DVBE`; `SB, DVBE` and `DVBE, SB` appear where BBS claimed both
-certifications. One packet used a form revision with a `Certification #` field
+certifications — **historical only, never write those two today**: OSDS 2009473 carries
+DVBE alone (ruled 2026-09-22), so `Text1` is `DVBE`. One packet used a form revision with a `Certification #` field
 instead, filled `DVBE 2009473`.
 
 Real `Product list` (CUF) statements, all one to two lines:

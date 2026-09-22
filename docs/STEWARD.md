@@ -56,9 +56,18 @@ constant, the dropped Grainger substitution and pack-size rules, the signature r
 that never reached `ca-form-filler`'s Path B, and two `STD 1000` survivors. The routing
 eval was re-run on the fixed harness: 24/24, artifact committed.
 
-Two of the review's findings are **open for Parker** and were deliberately not changed —
-the SB checkbox on CDCR Packet B, and whether Grainger at-cost is a reversal of the old
-margin practice. Both are certification or pricing rulings on binding documents.
+Two of the review's findings were **open for Parker** and deliberately not changed — the
+SB checkbox on CDCR Packet B, and whether Grainger at-cost is a reversal of the old margin
+practice. Both are certification or pricing rulings on binding documents.
+
+- **SB checkbox on CDCR Packet B — RULED 2026-09-22.** Parker ruled in session that OSDS
+  2009473 carries DVBE only and BBS is not a California small business, having exceeded the
+  state SB revenue threshold. The box is **`/Off`**, which is what `fill_obs_packet.py:138`
+  already writes and what `docs/superpowers/specs/2026-09-16-ca-form-filler-packet-profiles-design.md:111`
+  specifies. Closed — `/ca-rfq` Gate 1 no longer stops on it. Fact and reasoning:
+  `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`,
+  "Small-business status is channel-dependent".
+- **Grainger at-cost vs the old margin practice — still open.**
 
 **Done:** findings cleared, `check_marketplace.py` exits 0, fresh review is clean, PR
 merged, the six verified-dead branches deleted (`v1.1` held back — it reads as a version
@@ -188,6 +197,28 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **One routing ruling**: does a fresh "agency emailed asking us to quote" belong to
   `ca-rfq-intake` or `naspo-quote`? Left untuned on purpose — fitting the test before the
   ruling would just be fitting the test.
+- **Both `hooks/skill-bus.json` files still carry pre-2026-09-22 certification wording.**
+  Neither was changed by the SB correction (PR #29), which was scoped out of them, so this
+  is a documented deferral rather than an oversight.
+  - `plugins/bbs-foundations/hooks/skill-bus.json` — **fix this one first.** It injects the
+    *affirmative false claim* that the 5% SB preference (SCM §1204) applies on California
+    competitive solicitations, into **every CLAUDE.md-writing skill run**. It contradicts
+    canonical facts on every run and is the largest remaining exposure from that ruling.
+  - `plugins/bbs-website/hooks/skill-bus.json` — lower priority. Its "BBS is NOT
+    SB-certified" is *correct for California* but stated channel-neutrally, so read
+    federally it is false. Reword to name the channel.
+
+  A PR touching either gets a second reviewer: they reach every skill run without anyone
+  installing anything.
+- **`bbs-deck-voice` claims "Largest small business seller to the State of California"** in
+  the present tense — `SKILL.md:25`, `SKILL.md:57`, `references/federal-positioning.md:34`,
+  `:57` (`:28` is past tense and reads fine). Since 2026-09-22 BBS is **not** a California
+  small business, so this is the same channel-crossing sentence class PR #29 removed,
+  pointing the other way. Deliberately **not** changed: it may be a ranking BBS legitimately
+  earned while certified, it is deck marketing rather than a sworn certification, and
+  rewriting it from this ruling alone would be the "infer a certification from a
+  neighbouring file" error the cautionary tale warns against. Parker's call — keep as is,
+  qualify with a date, or drop.
 - **Who certifies the CalRecycle 74.** `plugins/bbs-sales/references/ca-form-rules.md` puts
   that certification on **the rep**; `naspo-quote` §5 defaults it to **Griffin Forsyth, VP**
   on most routine packets. The two disagree about a signature sworn under penalty of

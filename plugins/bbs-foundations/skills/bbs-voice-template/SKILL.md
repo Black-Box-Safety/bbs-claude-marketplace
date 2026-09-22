@@ -40,9 +40,11 @@ register paragraph, the greetings table by situation, real openers and closers, 
 "things they never do" list, and a before/after pair. Match the shape; do not copy the
 content. Two BBS-wide rules go in every profile regardless of the person:
 
-- **Certification discipline.** SDVOSB for federal and primes (Bechtel, USACE); OSDS
-  SB/DVBE 2009473 for California state. The signature block carries both; body copy
-  follows the channel.
+- **Certification discipline.** SDVOSB for federal and primes (Bechtel, USACE), where
+  BBS is also a small business under SBA size standards; OSDS **DVBE** 2009473 for
+  California state, where BBS is **not** a small business. The signature block carries
+  both certifications; body copy follows the channel. Never write "SB" or "SB/DVBE" in a
+  California context — see `canonical-facts.md`, "Small-business status is channel-dependent".
 - **Never invent facts.** Dates, part numbers, prices, names, lead times come from source
   material or the person. A gap gets a bracketed placeholder and a flag.
 

@@ -22,29 +22,61 @@ numbers are never committed.
 
 | Channel | Say | Number | Expires |
 |---|---|---|---|
-| Federal, primes (Bechtel, USACE, Centerra, UCOR), DoD | **SDVOSB**, VA CVE / SBA VetCert | UEI `FRK5MJD35GN5` | 05/16/2028 |
-| California state agencies | **SB/DVBE** — one OSDS certification carrying both | `2009473` | 12/31/2027 |
+| Federal, primes (Bechtel, USACE, Centerra, UCOR), DoD | **SDVOSB** (VA CVE / SBA VetCert) **and small business** under SBA size standards | UEI `FRK5MJD35GN5` | 05/16/2028 |
+| California state agencies | **DVBE** — the OSDS certification carries DVBE only | `2009473` | 12/31/2027 |
 | LA County only | LA County DVBE (local credit only) | `10086` | 11/17/2027 |
 | City of San Diego only | SLBE (local credit only) | `17BB1659` | — |
 
-On California **competitive solicitations, informal included**, BBS is entitled to both the
-**5% Small Business preference** (SCM §1204, "Small Business Preference and Competitive
-Solicitations") and the **DVBE incentive** (SCM §1202, 1–5% scaled to DVBE participation).
-They are evaluation mechanisms, and they are separate: §1202 notes a non-SB DVBE incentive
-"cannot displace award to a #1 ranked small business," which is why holding both matters.
-§1204 verbatim: the preference "applies for competitive solicitations regardless of the
-solicitation format (e.g., RFQ, IFB, RFP) or dollar value with few exceptions," is "for
-evaluation purposes only and does not change the actual bids," and is capped at $50,000 per
-bid (combined preferences 15% or $100,000, whichever is less). Gov. Code §14838.5(a),
-§14838(b)(2), §14838(g); 2 CCR §1896.8. Confirmed by Parker Marshall, 2026-09-02.
+### Small-business status is channel-dependent, and the reason matters
 
-Where they do **not** apply: orders placed against an LPA or NASPO contract (no evaluation,
-so no preference — the contract-lane price passes through at cost); federal and prime bids
-(SDVOSB only); and storefront or marketing copy, where a preference is not a customer
-benefit. That last point is what the `bbs-shopify` canonical-facts line "BBS is NOT SB-
-certified" (2026-07-10) was protecting, but as written it contradicts this row and the
-storefront skill-bus doctrine still carries it. **Outstanding for Parker:** reword that line
-to "no SB or DVBE preference language in storefront copy" so the two files agree.
+This fact has flipped twice. It is written with its reason so it stops flipping.
+
+- **Federally, BBS IS a small business.** SBA size standards for BBS's NAICS codes are far
+  higher than California's, and BBS is under them. Federal small-business set-asides and
+  SDVOSB set-asides are both live and both claimable. Federal positioning that calls BBS a
+  small business is **correct** — do not strip it.
+- **For the State of California, BBS is NOT a small business.** BBS **exceeded California's
+  SB revenue threshold**. OSDS certification `2009473` carries **DVBE only**. This is a
+  size-standard fact that changed over time, not a misreading of the certificate — which is
+  why the 2026-09-02 ruling may well have been true when it was made.
+
+So on California solicitations, competitive and informal alike:
+
+- **No 5% Small Business preference (SCM §1204).** BBS is not SB in California and claiming
+  the preference on a bid signed under penalty of perjury is a false certification.
+- **The DVBE incentive (SCM §1202) still applies** — 1–5% scaled to DVBE participation, on
+  competitive solicitations. BBS remains DVBE-certified and still claims it. §1202's note
+  that a non-SB DVBE incentive "cannot displace award to a #1 ranked small business" now
+  describes BBS's actual position in California.
+
+**Ruling: Parker Marshall, in session, 2026-09-22 — OSDS 2009473 is DVBE only; BBS is not
+SB certified in California; BBS remains a small business federally. This supersedes the
+2026-09-02 ruling recorded below, which held that the OSDS cert carried both.**
+
+Everywhere else in the fleet cites this section rather than restating the reasoning.
+
+Where the **DVBE incentive** does **not** apply either: orders placed against an LPA or
+NASPO contract (no evaluation, so no incentive — the contract-lane price passes through at
+cost); federal and prime bids (SDVOSB there, never DVBE); and storefront or marketing copy,
+where an evaluation incentive is not a customer benefit.
+
+The `bbs-shopify` canonical-facts line "BBS is NOT SB-certified" (2026-07-10) and the
+storefront skill-bus doctrine that carries it are **correct for California** and need no
+change on that point. They are, however, written channel-neutrally, and read federally they
+are false. **Outstanding for Parker:** reword both to name the channel — "BBS is not a
+California small business; no SB or DVBE preference language in storefront copy" — so they
+cannot be read as denying BBS's federal small-business status. That reword is to
+`plugins/bbs-website/hooks/skill-bus.json`, which was **not** changed by the 2026-09-22
+correction.
+
+**There are two `hooks/skill-bus.json` files and they carry different problems. Both are
+outstanding; neither was changed.** Tracked in `docs/STEWARD.md` under *Already open for
+Parker*.
+
+| File | What it carries | Severity |
+|---|---|---|
+| `plugins/bbs-foundations/hooks/skill-bus.json` | The **affirmative false claim**: "OSDS SB/DVBE 2009473 for California state, where the 5% SB preference (SCM §1204) … apply on competitive solicitations incl. informal." Injected into **every CLAUDE.md-writing skill run**, so it contradicts this file on every run | **High — fix first** |
+| `plugins/bbs-website/hooks/skill-bus.json` | "BBS is NOT SB-certified — never claim 'SB credit'." **Correct for California**, but channel-neutral, so read federally it is false. Scoped to storefront copy, which limits the damage | Low — reword for channel |
 
 ## Contract vehicles (canonical count: 8)
 
@@ -125,7 +157,7 @@ Archivo, JetBrains Mono. Quote SLA 48 hours. CA sales tax ~7.75%, F.O.B. Destina
 | Contradiction | Ruling |
 |---|---|
 | MRO LPA `7-25-51-02.03` (96 places) vs `-52-` (10 places) | `-51-`. Fix `bbs-agent` |
-| "CA SB & DVBE … 5% SB preference" (`ca-quote-hub`, signature block) vs "NOT SB-certified" (`bbs-shopify` canonical facts, storefront doctrine) | **SB/DVBE is correct.** 5% SB preference (§1204) + DVBE incentive (§1202) on competitive solicitations incl. informal; never on LPA orders, federal bids, or storefront copy. Fix the `bbs-shopify` line and the storefront doctrine, not `ca-quote-hub`. Ruling reversed 2026-09-02 on Parker's confirmation; the earlier ruling was mine and was wrong |
+| "CA SB & DVBE … 5% SB preference" (`ca-quote-hub`, signature block) vs "NOT SB-certified" (`bbs-shopify` canonical facts, storefront doctrine) | ~~2026-09-02: SB/DVBE is correct, claim the §1204 preference; fix the `bbs-shopify` line~~ — **superseded 2026-09-22.** Parker ruled in session that OSDS 2009473 is **DVBE only** and BBS is **not** SB in California, having passed the state SB revenue threshold. So: no §1204 preference on CA bids; §1202 DVBE incentive unchanged; the `bbs-shopify` line was right about California and stays. BBS *is* small business federally — see "Small-business status is channel-dependent" above, which is the home of this fact |
 | HQ "San Diego" vs "El Cajon" | El Cajon |
 | Theme "BBS — Field Manual" vs "Copy of BBS — Field Manual" id `160937935099` | The id wins; check `shopify theme list` |
 | Shopify `--only`: "always" vs "never for new files" | Both true: `--only` for edits, full push when adding files, always from `theme/` |

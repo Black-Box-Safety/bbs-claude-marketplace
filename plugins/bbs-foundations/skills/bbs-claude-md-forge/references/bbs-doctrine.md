@@ -62,13 +62,19 @@ do not paraphrase it weaker.
     non-California-state contacts (Bechtel, USACE, LA County, federal) — use SDVOSB."
     (`bbs-agent`). "No cross-jurisdiction cert credit: San Diego SLBE 17BB1659 and LA
     County DVBE 10086 are LOCAL only; statewide credit = OSDS DVBE 2009473." (skill-bus).
-13. **Preferences are bid-evaluation mechanisms, not marketing claims.** On California
-    competitive solicitations, informal included, BBS holds the 5% Small Business preference
-    (SCM §1204) and the DVBE incentive (SCM §1202) under OSDS SB/DVBE `2009473`. Neither
-    applies to an LPA or NASPO order (nothing is evaluated; the price passes through at
-    cost), to a federal bid (SDVOSB only), or to storefront copy. The storefront doctrine's
-    "never claim SB credit" is about that last case; it is not a statement that BBS lacks
-    the certification. (Parker Marshall, 2026-09-02.)
+13. **Preferences are bid-evaluation mechanisms, not marketing claims — and BBS holds
+    only one of them in California.** On California competitive solicitations, informal
+    included, BBS claims the **DVBE incentive** (SCM §1202) under OSDS `2009473`. BBS does
+    **not** claim the 5% Small Business preference (SCM §1204): OSDS 2009473 carries DVBE
+    only, and BBS passed California's SB revenue threshold, so it is not a California small
+    business. Claiming it on a bid signed under penalty of perjury is a false
+    certification. The DVBE incentive does not apply to an LPA or NASPO order (nothing is
+    evaluated; the price passes through at cost), to a federal bid (SDVOSB there), or to
+    storefront copy. **Federally, separately, BBS IS a small business** under SBA size
+    standards, alongside SDVOSB — never strip a federal small-business claim on the
+    strength of this rule. (Parker Marshall, in session, 2026-09-22; supersedes the
+    2026-09-02 ruling. Reasoning: `canonical-facts.md`, "Small-business status is
+    channel-dependent".)
 14. **DVBE cert expiry gate.** "DVBE cert 2009473 expires 12/31/2027 — hard-stop if the
     RFQ due date is past expiry or within 30 days." (`vendor_profile.json`).
 15. **Exact strings, verbatim.** Legal name `Black Box Safety, Inc.`; DVBE `2009473`;

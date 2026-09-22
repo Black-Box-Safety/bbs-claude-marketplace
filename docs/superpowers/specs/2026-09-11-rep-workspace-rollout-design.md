@@ -353,9 +353,10 @@ vehicle lane, not the growth lane. Design consequences:
 - **Automate NASPO inbound to near-zero rep effort** — it's volume to be handled, not
   business to be fought for. The naspo-quote pipeline's job is speed and compliance, and
   minimal rep minutes.
-- **The competitive weapons get the rep time:** the SB/DVBE competitive lane (5% SB
-  preference + DVBE incentive apply there — SCM 1204/1202, competitive solicitations
-  only) and `bbs-sourcing`'s vendor-negotiated pricing, where BBS can actually beat a
+- **The competitive weapons get the rep time:** the SB/DVBE competitive lane (the DVBE
+  incentive applies there — SCM 1202, competitive solicitations only; the §1204 SB
+  preference does **not**, per the 2026-09-22 ruling — BBS is not a California small
+  business) and `bbs-sourcing`'s vendor-negotiated pricing, where BBS can actually beat a
   price rather than match a schedule. Supplier leverage context comes from
   `bbs-suppliers` (see data plane).
 - Win-rate measurement (precedent engine) should segment by lane — NASPO vs competitive —
