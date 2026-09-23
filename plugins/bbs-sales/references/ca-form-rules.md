@@ -57,12 +57,13 @@ warning there to the rep. The two that cost money:
 
 - **Never claim the SB preference on a California solicitation.** OSDS 2009473 carries
   **DVBE only** — BBS passed California's SB revenue threshold and is not a California
-  small business, so the 5% SB preference (SCM §1204) does not apply, competitive or
-  informal. A California form is signed under penalty of perjury; claiming a preference
-  BBS does not hold is a false certification. The **DVBE incentive (SCM §1202) does still
-  apply** on competitive solicitations and is claimed — but not on LPA/NASPO orders,
-  federal bids, or storefront copy. Source: `bbs-foundations` `canonical-facts.md`,
-  "Small-business status is channel-dependent".
+  small business, so the 5% SB preference (SCM §1204) is **never** claimed on any
+  California solicitation. A California form is signed under penalty of perjury;
+  claiming a preference BBS does not hold is a false certification. The **DVBE incentive
+  (SCM §1202) does still apply** and is claimed on every California competitive
+  solicitation, informal ones included — never on LPA/NASPO orders, federal bids, or
+  storefront copy. Source: `bbs-foundations` `canonical-facts.md`, "Small-business status
+  is channel-dependent".
 - **Federal is SDVOSB, never DVBE.** Different word, different program. Do not let
   federal language reach a state form or the reverse. Note that federally BBS **is** a
   small business under SBA size standards — that is a federal fact and has no bearing on

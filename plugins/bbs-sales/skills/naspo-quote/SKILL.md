@@ -215,7 +215,11 @@ can answer (which revision this agency uses, what BBS wrote in this field last
 time, whether this buyer accepted 0% on a similar item), read the corpus rather
 than guessing or asking. Non-NASPO RFQs in there count: the pricing differs, the
 certs are identical, so they are precedent for the forms even when they are not
-precedent for the price.
+precedent for the price. One exception: certification and preference fields. Packets
+filed while BBS was a California small business claim SB (a certification line reading
+SB with DVBE, a checked SB box). They were correct when filed and are wrong today, so
+never copy a certification value from the corpus; take it from
+`${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json`.
 
 To refresh the precedent tables after a batch of new RFQs:
 
@@ -225,7 +229,8 @@ python scripts/mine_precedents.py "<path to State of CA Agencies>" --out /tmp/mi
 
 It classifies every PDF, pulls the filled AcroForm values, and reports
 solicitation numbers, account numbers, and anything it couldn't classify — that
-last list is where new form types show up.
+last list is where new form types show up. Filed values that claim California SB
+status go to `historical_only`, not the precedent table.
 
 ## Reference files
 

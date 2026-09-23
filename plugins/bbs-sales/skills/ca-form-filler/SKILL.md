@@ -204,7 +204,7 @@ are `2 12 16 21 24` — front page (2), line-item worksheet (12), CalRecycle 74 
 numbers to render everything; when a profile lists none, do that. Then confirm, in this
 order, reading the profile's page table for where each lands in *this* packet:
 
-1. **The DVBE/SB certification box is actually ticked**, with the PD 843 "not a broker"
+1. **The DVBE certification box is actually ticked and the SB box is not**, with the PD 843 "not a broker"
    box and the STD 204 entity boxes. Check the rendered image, not the field value.
 2. Every line item appears and the grand total matches the quote.
 3. The rep signed the bidder lines and Jackson the ownership lines — the profile's Signer

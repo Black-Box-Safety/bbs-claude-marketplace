@@ -45,13 +45,23 @@ So on California solicitations, competitive and informal alike:
 - **No 5% Small Business preference (SCM §1204).** BBS is not SB in California and claiming
   the preference on a bid signed under penalty of perjury is a false certification.
 - **The DVBE incentive (SCM §1202) still applies** — 1–5% scaled to DVBE participation, on
-  competitive solicitations. BBS remains DVBE-certified and still claims it. §1202's note
+  every competitive solicitation, informal ones included. BBS remains DVBE-certified and
+  still claims it. §1202's note
   that a non-SB DVBE incentive "cannot displace award to a #1 ranked small business" now
   describes BBS's actual position in California.
 
 **Ruling: Parker Marshall, in session, 2026-09-22 — OSDS 2009473 is DVBE only; BBS is not
 SB certified in California; BBS remains a small business federally. This supersedes the
 2026-09-02 ruling recorded below, which held that the OSDS cert carried both.**
+
+**Bids filed before the threshold were valid when filed.** Past California bids in the
+filed-form corpus that claim SB (a certification line reading SB with DVBE, a checked SB
+box) were filed while BBS was a California small business and were correct then (Parker,
+2026-09-23). They are not errors and are not to be "corrected" in the record. They are
+also not precedent: anything that learns from, cites, or defaults from the corpus treats an
+SB claim as historical only and takes the current value from `vendor_profile.json`. The
+same goes for the "largest small business seller to the State of California" ranking —
+earned while BBS was a California small business, so it is stated in the past tense.
 
 Everywhere else in the fleet cites this section rather than restating the reasoning.
 

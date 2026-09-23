@@ -4,7 +4,9 @@ Mined from the State of CA Agencies corpus (~440 PDFs, ~300 classified: 113
 CalRecycle 74, 72 PD 843, 46 BBS quotes, 24 OBS 1000, 22 Darfur, 14 CV 012,
 13 GSPD-05-105, 11 STD 204, 24 POs). Counts below are how many past packets used
 each value — treat the majority answer as the house standard and deviate only with
-a reason.
+a reason. The exception is certification and preference fields: a California SB claim
+in the corpus predates BBS passing the SB revenue threshold and is historical only
+(see GSPD-05-105 below); the current value comes from `vendor_profile.json`.
 
 Regenerate with:
 
@@ -73,9 +75,17 @@ Real `SCno` values show the range of what agencies issue: `RFQ 26-07-010`,
 BBS answer, confirmed. `page` = `1`, `of #` = `1`.
 
 `Text1` is usually `DVBE`; `SB, DVBE` and `DVBE, SB` appear where BBS claimed both
-certifications — **historical only, never write those two today**: OSDS 2009473 carries
-DVBE alone (ruled 2026-09-22), so `Text1` is `DVBE`. One packet used a form revision with a `Certification #` field
+certifications. One packet used a form revision with a `Certification #` field
 instead, filled `DVBE 2009473`.
+
+**Historical only — today `Text1` is `DVBE`.** The `SB, DVBE` / `DVBE, SB` forms were
+filed while BBS was a California small business and were correct when filed (Parker,
+2026-09-23); they are not a compliance problem and the record above stays as filed.
+They are not precedent for a bid made today: BBS has since passed California's SB
+revenue threshold and OSDS 2009473 carries DVBE alone (ruled 2026-09-22;
+`ca-form-rules.md`, "Certification language"). The same holds for any checked SB box
+in the corpus. `mine_precedents.py` routes such values to `historical_only`, never to
+`filled_values`.
 
 Real `Product list` (CUF) statements, all one to two lines:
 

@@ -22,7 +22,7 @@ Every slide answers the buyer's silent question: what's in this for my mission, 
 If a slide makes two arguments, it makes neither. Split it or cut one.
 
 **Numbers do the persuading. Adjectives don't.**
-"Largest small business seller to the State of California" beats "trusted, proven partner." Concrete figures, contract numbers, and SLAs carry weight. Marketing adjectives (world-class, premier, cutting-edge, best-in-class) get cut on sight. Parker is credentialed, not boastful.
+"Became the largest small business seller to the State of California" beats "trusted, proven partner." Concrete figures, contract numbers, and SLAs carry weight. Marketing adjectives (world-class, premier, cutting-edge, best-in-class) get cut on sight. Parker is credentialed, not boastful.
 
 **No em dashes. Anywhere.** Use periods, commas, or a colon. This is a hard rule from Parker's style.
 
@@ -54,7 +54,7 @@ Different slide types carry different jobs. Match the pattern.
 
 **Body armor slide (if applicable).** Point Blank / Paraclete distributor standing, Sourcewell access, 24-hour response SLA, in-person sizing, armor recycling program, FOB destination pricing. These are concrete differentiators. Use them.
 
-**Proof / track record slide.** Numbers only. INC 5000 ranking, $30M revenue, largest CA small-business seller, NaVOBA award. No adjectives around them.
+**Proof / track record slide.** Numbers only. INC 5000 ranking, $30M revenue, became the largest CA small-business seller, NaVOBA award. No adjectives around them.
 
 **Close / CTA slide.** One specific next step. Not "let's partner." Something like "Send your next SDVOSB set-aside requirement and get a quote in 24 hours." A single CTA, matching Parker's email discipline.
 

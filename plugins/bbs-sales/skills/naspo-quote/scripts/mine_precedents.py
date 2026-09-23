@@ -20,6 +20,10 @@ Usage:
 Output JSON:
   form_counts        how many of each form type are in the corpus
   filled_values      {form type: {"field = value": times seen}} — the precedent table
+  historical_only    same shape, for values that claim California small-business
+                     status (e.g. a Certification field reading SB plus DVBE, or a
+                     checked SB box). Kept as the record of what was filed, never
+                     offered as a value to write today — see is_historical_sb_claim
   solicitations      solicitation/contract numbers found, with the files they came from
   accounts           {institution folder: Grainger account number from the folder name}
   contacts           buyer note files, parsed loosely
@@ -60,6 +64,24 @@ SOLICITATION_RE = re.compile(
     re.I)
 ACCOUNT_RE = re.compile(r"\b(88[0-9]{7})\b")
 
+# Packets filed while BBS was a California small business claim SB. They were
+# correct when filed (Parker, 2026-09-23) and are wrong on a bid made today: OSDS
+# 2009473 is DVBE only (ca-form-rules.md, "Certification language"). The
+# precedent table is what a new fill copies from, so those values are routed to
+# historical_only instead. Over-matching is the safe direction here.
+SB_TOKEN_RE = re.compile(r"\bSB\b")
+SMALL_BUSINESS_RE = re.compile(r"small[\s-]+business", re.I)
+
+
+def is_historical_sb_claim(field, value):
+    """True when a filed field/value pair asserts California SB status."""
+    field, value = str(field), str(value)
+    if SB_TOKEN_RE.search(value) or SMALL_BUSINESS_RE.search(value):
+        return True
+    # An "SB ..." box or field that is filled at all (the caller drops /Off).
+    # Shared cert-number fields ("SB/MB/DVBE Cert#") name DVBE and stay current.
+    return bool(SB_TOKEN_RE.search(field)) and "DVBE" not in field.upper()
+
 
 def classify(text_upper):
     for name, keys in FORM_SIGNATURES:
@@ -83,6 +105,7 @@ def main():
 
     counts = collections.Counter()
     filled = collections.defaultdict(collections.Counter)
+    historical = collections.defaultdict(collections.Counter)
     solicitations = collections.defaultdict(set)
     unclassified = []
     accounts = {}
@@ -138,12 +161,14 @@ def main():
             for key, spec in fields.items():
                 val = spec.get("/V")
                 if kind and val not in (None, "", "/Off"):
-                    filled[kind][f"{key} = {val}"] += 1
+                    table = historical if is_historical_sb_claim(key, val) else filled
+                    table[kind][f"{key} = {val}"] += 1
 
     result = {
         "root": args.root,
         "form_counts": dict(counts),
         "filled_values": {k: dict(v) for k, v in filled.items()},
+        "historical_only": {k: dict(v) for k, v in historical.items()},
         "solicitations": {k: sorted(v)[:8] for k, v in solicitations.items()},
         "accounts": accounts,
         "contacts": contacts,
