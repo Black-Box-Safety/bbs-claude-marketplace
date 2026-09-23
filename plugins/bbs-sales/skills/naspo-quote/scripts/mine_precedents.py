@@ -20,10 +20,12 @@ Usage:
 Output JSON:
   form_counts        how many of each form type are in the corpus
   filled_values      {form type: {"field = value": times seen}} — the precedent table
-  historical_only    same shape, for values that claim California small-business
-                     status (e.g. a Certification field reading SB plus DVBE, or a
-                     checked SB box). Kept as the record of what was filed, never
-                     offered as a value to write today — see is_historical_sb_claim
+  historical_only    same shape, for fields whose name or value carries an SB, MB
+                     or small-business token (e.g. a Certification field reading SB
+                     plus DVBE, a checked SB or MB box). Kept as the record of what
+                     was filed, never offered as a value to write today — see
+                     is_historical_sb_claim. A generically named box ("Check Box3")
+                     cannot be detected and needs a human check
   solicitations      solicitation/contract numbers found, with the files they came from
   accounts           {institution folder: Grainger account number from the folder name}
   contacts           buyer note files, parsed loosely
@@ -64,23 +66,39 @@ SOLICITATION_RE = re.compile(
     re.I)
 ACCOUNT_RE = re.compile(r"\b(88[0-9]{7})\b")
 
-# Packets filed while BBS was a California small business claim SB. They were
+# Packets filed while BBS was a California small business claim SB (or MB,
+# microbusiness, a subset of SB earning the same SCM §1204 preference). They were
 # correct when filed (Parker, 2026-09-23) and are wrong on a bid made today: OSDS
-# 2009473 is DVBE only (ca-form-rules.md, "Certification language"). The
-# precedent table is what a new fill copies from, so those values are routed to
-# historical_only instead. Over-matching is the safe direction here.
-SB_TOKEN_RE = re.compile(r"\bSB\b")
-SMALL_BUSINESS_RE = re.compile(r"small[\s-]+business", re.I)
+# 2009473 is DVBE only (canonical-facts.md, "Small-business status is
+# channel-dependent"). The precedent table is what a new fill copies from, so
+# those values are routed to historical_only instead. Over-matching is the safe
+# direction. What this cannot see: a generically named box ("Check Box3") whose
+# meaning lives only on the printed page — that needs a human check.
+SB_TOKEN_RE = re.compile(
+    r"(?i:(?<![A-Za-z0-9])[SM]\.?B\.?(?![A-Za-z0-9])"   # SB, S.B., mb, SB_Check
+    r"|(?<![A-Za-z0-9])[SM]B(?=DVBE)"                   # SBDVBE
+    r"|small[\s_-]*business|micro[\s_-]*business)"      # Small Business, SmallBusiness
+    r"|(?<=[a-z])[SM]B(?![a-z])")                       # camelCase: chkSB
+CHECKED_RE = re.compile(r"^/")            # any checkbox/radio state; the caller drops /Off
+ANSWER_NO_RE = re.compile(r"(?i)(?<![A-Za-z0-9])No\s*$")
 
 
 def is_historical_sb_claim(field, value):
-    """True when a filed field/value pair asserts California SB status."""
+    """True when a filed field/value pair asserts California SB or MB status."""
     field, value = str(field), str(value)
-    if SB_TOKEN_RE.search(value) or SMALL_BUSINESS_RE.search(value):
+    if SB_TOKEN_RE.search(value):
         return True
-    # An "SB ..." box or field that is filled at all (the caller drops /Off).
-    # Shared cert-number fields ("SB/MB/DVBE Cert#") name DVBE and stay current.
-    return bool(SB_TOKEN_RE.search(field)) and "DVBE" not in field.upper()
+    if not SB_TOKEN_RE.search(field):
+        return False
+    checked = bool(CHECKED_RE.match(value))
+    # Shared cert-number fields ("SB/MB/DVBE Cert#") holding a number stay current.
+    # A combined "SB/DVBE" box that is checked does not: it claims SB too.
+    if "DVBE" in field.upper() and not checked:
+        return False
+    # "SB Sub Preference No" = /Yes is the answer BBS gives today.
+    if ANSWER_NO_RE.search(field) and value == "/Yes":
+        return False
+    return True
 
 
 def classify(text_upper):

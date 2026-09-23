@@ -230,8 +230,9 @@ Write it up with evidence and move to the next slice. Do not idle.
   Parker ruled they were filed while BBS was a California small business and were correct
   when filed: no compliance problem, and the record of what was filed stays as filed. The
   fix is downstream — nothing that learns from the corpus may carry an SB claim into a bid
-  made today. `naspo-quote/scripts/mine_precedents.py` now routes SB-claiming values to
-  `historical_only` instead of the `filled_values` precedent table (test:
+  made today. `naspo-quote/scripts/mine_precedents.py` now routes values carrying an SB,
+  MB or small-business token to `historical_only` instead of the `filled_values`
+  precedent table; a generically named checkbox still needs a human check (test:
   `test_mine_precedents.py`); `filled-form-precedents.md`, `naspo-quote` SKILL.md and the
   `bbs-sales` README say certification values come from `vendor_profile.json`, never from
   a past packet. Canon records the pre-threshold validity.

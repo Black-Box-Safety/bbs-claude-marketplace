@@ -139,7 +139,7 @@ These four come up on every state quote, and each one exists for a reason worth 
 
 **DVBE cert 2009473 expires 12/31/2027.** The DVBE certification is what makes BBS worth quoting to a state buyer with a participation goal, and a packet signed against an expired cert is worse than no packet. Check the expiration against the quote due date before signing anything. Expired, or inside 30 days, means stop and tell the rep.
 
-One more that is not a rule but behaves like one: the `Customers/State of CA Agencies/` tree is the training data. Every blank the agency sent and every filled version BBS returned is in there. When history can answer a question (which form revision this agency uses, what BBS wrote in that field last time, whether this buyer accepted a 0% recycled-content answer), read the corpus instead of guessing or asking the rep. Certification fields are the exception: packets filed while BBS was a California small business claim SB, which was correct then and is wrong today. Take certification values from `vendor_profile.json`, never from a past packet.
+One more that is not a rule but behaves like one: the `Customers/State of CA Agencies/` tree is the training data. Every blank the agency sent and every filled version BBS returned is in there. When history can answer a question (which form revision this agency uses, what BBS wrote in that field last time, whether this buyer accepted a 0% recycled-content answer), read the corpus instead of guessing or asking the rep. Certification fields are the exception: take them from `vendor_profile.json`, never from a past packet (why: `bbs-foundations` `canonical-facts.md`, "Small-business status is channel-dependent").
 
 ## Hooks (v1.1)
 

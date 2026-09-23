@@ -8,7 +8,8 @@ Packets BBS filed while it was a California small business carry SB claims. They
 were correct when filed (Parker, 2026-09-23) and must not reach a bid made today.
 `mine_precedents.py` builds the precedent table a new fill copies from, so these
 tests run its real `main()` over a fake corpus and assert the SB values land in
-`historical_only` and nowhere in `filled_values`.
+`historical_only` and nowhere in `filled_values`. A generically named box
+("Check Box3") carries no SB token and cannot be caught here; that needs a human.
 
 No real filled California PDF exists in this repo, and pypdf may not be installed,
 so `pypdf.PdfReader` is replaced with a stub that serves each fake file's page text
@@ -102,13 +103,16 @@ def test_sb_certification_text_is_historical_only():
 def test_checked_sb_box_is_historical_only():
     r = mine({
         "obs1.pdf": (OBS, {"OBS RFQ 4007(B) - SB Checkbox": "/Yes",
+                           "OBS RFQ 4007(B) - MB Checkbox": "/Yes",
                            "OBS RFQ 4007(B) - DVBE Checkbox": "/Yes",
                            "OBS RFQ 4007(B) - SB/MB/DVBE Cert#": "2009473"}),
         "obs2.pdf": (OBS, {"OBS RFQ 4007(B) - SB Checkbox": "/Off"}),
     })
     current = all_keys(r["filled_values"])
-    assert not any("SB Checkbox" in k for k in current), current
-    assert "OBS RFQ 4007(B) - SB Checkbox = /Yes" in all_keys(r["historical_only"])
+    historical = all_keys(r["historical_only"])
+    assert not any("SB Checkbox" in k or "MB Checkbox" in k for k in current), current
+    assert "OBS RFQ 4007(B) - SB Checkbox = /Yes" in historical
+    assert "OBS RFQ 4007(B) - MB Checkbox = /Yes" in historical
     # DVBE box and the shared cert-number field are current, correct values.
     assert "OBS RFQ 4007(B) - DVBE Checkbox = /Yes" in current
     assert "OBS RFQ 4007(B) - SB/MB/DVBE Cert# = 2009473" in current
@@ -120,10 +124,44 @@ def test_small_business_wording_is_historical_only():
     assert "Text1 = Small Business / DVBE" in all_keys(r["historical_only"])
 
 
+# (field, value) pairs a pre-threshold packet could hold. Every one claims SB or MB.
+VARIANT_CLAIMS = [
+    ("Text1", "MB, DVBE"), ("Text1", "Microbusiness"), ("Text1", "Micro-business"),
+    ("Text1", "sb, dvbe"), ("Text1", "Sb/DVBE"), ("Text1", "SBDVBE"),
+    ("Text1", "S.B./DVBE"), ("Text1", "SmallBusiness"),
+    ("SB_Check", "/Yes"), ("chkSB", "/Yes"), ("sb", "/Yes"), ("chkMB", "/Yes"),
+    ("Small Business", "/Yes"), ("SmallBusiness", "/Yes"),
+    # Combined boxes name DVBE, but checked they claim SB too.
+    ("SB/DVBE", "/Yes"), ("SB or DVBE", "/Yes"), ("SB-DVBE Box", "/Yes"),
+    ("SB/DVBE", "/On"),
+    ("OBS RFQ 4007(B) - SB Sub Preference Yes", "/Yes"),
+]
+
+
+def test_variant_sb_and_mb_claims_are_historical_only():
+    missed = [p for p in VARIANT_CLAIMS
+              if not mine_precedents.is_historical_sb_claim(*p)]
+    assert not missed, f"offered as current precedent: {missed}"
+    r = mine({f"v{i}.pdf": (BIDDER, {f: v}) for i, (f, v) in enumerate(VARIANT_CLAIMS)})
+    assert not r["filled_values"], r["filled_values"]
+    assert len(all_keys(r["historical_only"])) == len(VARIANT_CLAIMS)
+
+
+def test_sb_sub_preference_no_stays_current():
+    # packets/obs-4007b.md: SB-sub = N. /Yes on the "No" box is today's answer.
+    r = mine({"obs.pdf": (OBS, {"OBS RFQ 4007(B) - SB Sub Preference No": "/Yes"})})
+    assert ("OBS RFQ 4007(B) - SB Sub Preference No = /Yes"
+            in all_keys(r["filled_values"])), r
+    assert not r["historical_only"]
+
+
 def test_lookalike_tokens_stay_current():
-    # SBE / SLBE / SBA are not the California SB claim; do not over-strip them.
+    # SBE / SLBE / SBA are not the California SB claim, and a shared cert-number
+    # field holding a number is current. Do not over-strip them.
     for field, value in (("Local cert", "SLBE 17BB1659"), ("Note", "SBE"),
-                         ("Note", "SBA size standard")):
+                         ("Note", "SBA size standard"),
+                         ("OBS RFQ 4007(B) - SB/MB/DVBE Cert#", "2009473"),
+                         ("DVBEname", "Black Box Safety, Inc."), ("YNagent", "/1")):
         assert not mine_precedents.is_historical_sb_claim(field, value), value
 
 

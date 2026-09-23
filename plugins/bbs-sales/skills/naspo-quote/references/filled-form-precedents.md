@@ -74,8 +74,8 @@ Real `SCno` values show the range of what agencies issue: `RFQ 26-07-010`,
 `Check Box8` (51% rental N/A) are `/Yes` on all 7 filled copies — that trio is the
 BBS answer, confirmed. `page` = `1`, `of #` = `1`.
 
-`Text1` is usually `DVBE`; `SB, DVBE` and `DVBE, SB` appear where BBS claimed both
-certifications. One packet used a form revision with a `Certification #` field
+`Text1` is usually `DVBE`; `SB, DVBE` and `DVBE, SB` (historical only) appear where
+BBS claimed both certifications. One packet used a form revision with a `Certification #` field
 instead, filled `DVBE 2009473`.
 
 **Historical only — today `Text1` is `DVBE`.** The `SB, DVBE` / `DVBE, SB` forms were
@@ -83,9 +83,11 @@ filed while BBS was a California small business and were correct when filed (Par
 2026-09-23); they are not a compliance problem and the record above stays as filed.
 They are not precedent for a bid made today: BBS has since passed California's SB
 revenue threshold and OSDS 2009473 carries DVBE alone (ruled 2026-09-22;
-`ca-form-rules.md`, "Certification language"). The same holds for any checked SB box
-in the corpus. `mine_precedents.py` routes such values to `historical_only`, never to
-`filled_values`.
+`ca-form-rules.md`, "Certification language"). The same holds for a checked SB or MB
+box. `mine_precedents.py` routes a field whose name or value carries an SB, MB or
+small-business token to `historical_only`, never to `filled_values`. It cannot see a
+generically named checkbox (e.g. `Check Box3`) whose meaning is only on the printed
+page, so any SB-looking value in a precedent table still needs a human check.
 
 Real `Product list` (CUF) statements, all one to two lines:
 
