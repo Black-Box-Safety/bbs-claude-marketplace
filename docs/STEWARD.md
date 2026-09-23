@@ -212,7 +212,11 @@ Write it up with evidence and move to the next slice. Do not idle.
 
   A PR touching either gets a second reviewer: they reach every skill run without anyone
   installing anything.
-- **`bbs-deck-voice` claims "Largest small business seller to the State of California"** in
+- **`bbs-deck-voice` claims "Largest small business seller to the State of California"** —
+  **RESOLVED 2026-09-23, PR #31.** Parker ruled BBS was a California small business when
+  it earned that ranking: keep the claim, make it historical. The four present-tense lines
+  are now past tense ("Became the largest…"), following `:28`; nothing else in the claim
+  changed and no `description:` was touched. Original entry, kept for history: it said so in
   the present tense — `SKILL.md:25`, `SKILL.md:57`, `references/federal-positioning.md:34`,
   `:57` (`:28` is past tense and reads fine). Since 2026-09-22 BBS is **not** a California
   small business, so this is the same channel-crossing sentence class PR #29 removed,
@@ -221,6 +225,22 @@ Write it up with evidence and move to the next slice. Do not idle.
   rewriting it from this ruling alone would be the "infer a certification from a
   neighbouring file" error the cautionary tale warns against. Parker's call — keep as is,
   qualify with a date, or drop.
+- **Past California bids in the filed-form corpus that carried an SB claim — RESOLVED
+  2026-09-23, PR #31.** Raised in review of PR #30 and not previously recorded here.
+  Parker ruled they were filed while BBS was a California small business and were correct
+  when filed: no compliance problem, and the record of what was filed stays as filed. The
+  fix is downstream — nothing that learns from the corpus may carry an SB claim into a bid
+  made today. `naspo-quote/scripts/mine_precedents.py` now routes values carrying an SB,
+  MB or small-business token to `historical_only` instead of the `filled_values`
+  precedent table; a generically named checkbox still needs a human check (test:
+  `test_mine_precedents.py`); `filled-form-precedents.md`, `naspo-quote` SKILL.md and the
+  `bbs-sales` README say certification values come from `vendor_profile.json`, never from
+  a past packet. Canon records the pre-threshold validity.
+- **`ca-form-rules.md` / `vendor_profile.json` read as excluding informal solicitations
+  from the DVBE incentive — RESOLVED 2026-09-23, PR #31.** Raised by both reviewers of
+  PR #30 (which fixed the same wording in the foundations hook only). Parker approved
+  aligning them with canon: §1204 is never claimed on any California solicitation; §1202 is
+  claimed on every California competitive solicitation, informal ones included.
 - **Who certifies the CalRecycle 74.** `plugins/bbs-sales/references/ca-form-rules.md` puts
   that certification on **the rep**; `naspo-quote` §5 defaults it to **Griffin Forsyth, VP**
   on most routine packets. The two disagree about a signature sworn under penalty of

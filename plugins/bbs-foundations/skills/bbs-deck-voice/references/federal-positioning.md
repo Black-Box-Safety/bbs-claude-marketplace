@@ -31,7 +31,7 @@ BBS federal volume is currently low and actively growing. This is the single eas
 
 - Founded 2017 by Jackson Dalton, medically retired Marine Corps veteran
 - ~$30M annual revenue, ~97% government
-- Largest small business seller to the State of California
+- Became the largest small business seller to the State of California
 - INC 5000 two consecutive years (2023: #108 of 5,000); 13th fastest-growing veteran-owned business nationally (D'Aniello Institute)
 - 2021 NaVOBA Disabled Veteran's Business Enterprise of the Year
 - Top 10 international distributor for Point Blank Enterprises (Point Blank and Paraclete lines)
@@ -54,7 +54,7 @@ The point of every rewrite: topic label to asserted claim, feature to buyer bene
 
 **Proof bullet**
 - Before: "Trusted, proven partner with a strong track record of excellence"
-- After: "Largest small-business seller to the State of California"
+- After: "Became the largest small-business seller to the State of California"
 
 **Body armor headline**
 - Before: "Industry-Leading Body Armor Solutions and Services"
