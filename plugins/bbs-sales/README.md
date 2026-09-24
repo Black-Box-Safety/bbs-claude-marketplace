@@ -42,10 +42,12 @@ pricing at BBS — prefer it over anything found on the open web, because the op
 price is not the price BBS's account actually pays.
 
 `bbs-deck-voice` is the exception to this plugin's California framing: it writes
-**federal** pursuit copy, where BBS is SDVOSB and never DVBE. Do not use it for a CA
-agency deck, and do not let its certification language leak into a state bid. On
-California competitive solicitations the opposite discipline applies — OSDS 2009473
-carries both SB and DVBE, so claim the 5% SB preference and the DVBE incentive.
+**federal** pursuit copy, where BBS is SDVOSB and never DVBE, and where BBS **is** a small
+business under SBA size standards. Do not use it for a CA agency deck, and do not let its
+certification language leak into a state bid. On California competitive solicitations the
+discipline is different in both halves — OSDS 2009473 carries **DVBE only**, so claim the
+DVBE incentive (SCM §1202) and **never** the 5% SB preference (SCM §1204): BBS passed
+California's SB revenue threshold and is not a California small business.
 
 An order that has already been taken is not this plugin's work. A wrong item, a short
 shipment, a price discrepancy on the PO — those go to `bbs-back-office`.
@@ -137,7 +139,7 @@ These four come up on every state quote, and each one exists for a reason worth 
 
 **DVBE cert 2009473 expires 12/31/2027.** The DVBE certification is what makes BBS worth quoting to a state buyer with a participation goal, and a packet signed against an expired cert is worse than no packet. Check the expiration against the quote due date before signing anything. Expired, or inside 30 days, means stop and tell the rep.
 
-One more that is not a rule but behaves like one: the `Customers/State of CA Agencies/` tree is the training data. Every blank the agency sent and every filled version BBS returned is in there. When history can answer a question (which form revision this agency uses, what BBS wrote in that field last time, whether this buyer accepted a 0% recycled-content answer), read the corpus instead of guessing or asking the rep.
+One more that is not a rule but behaves like one: the `Customers/State of CA Agencies/` tree is the training data. Every blank the agency sent and every filled version BBS returned is in there. When history can answer a question (which form revision this agency uses, what BBS wrote in that field last time, whether this buyer accepted a 0% recycled-content answer), read the corpus instead of guessing or asking the rep. Certification fields are the exception: take them from `vendor_profile.json`, never from a past packet (why: `bbs-foundations` `canonical-facts.md`, "Small-business status is channel-dependent").
 
 ## Hooks (v1.1)
 

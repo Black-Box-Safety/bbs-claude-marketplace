@@ -36,26 +36,13 @@ is the expensive intake error `ca-rfq-intake` exists to prevent.
 **(b) Not logged, and the rep asked to file, log, intake or "start" it.** → Run
 `ca-rfq-intake` and follow it. Then Gate 1.
 
-**(c) Not logged, and the rep asked for a price, a quote or a packet.** → **This is an open
-business ruling. Do not decide it here.** Whether a fresh *"the agency emailed asking us to
-quote these"* is filed first or priced first is awaiting Parker; it is tracked in the
-marketplace repo, not in this file, and it is deliberately untuned. Ask the rep, in one
-line, which order they want — file it first and then price, or price now and file after.
-
-**Say their answer back in your reply, and write it into the run record as soon as one
-exists** — before Gate 1 if they chose to file first, at Gate 8 if they chose to price
-first. On the price-first branch no run record exists yet, so an answer "recorded in the
-run record" would be recorded nowhere, on exactly the branch the ruling is about.
-
-Continue to Gate 1 either way. Their answer changes **when the request gets filed** —
-`ca-rfq-intake` before Gate 1, or at Gate 8 — and nothing else. It does not change what has
-to be known before a price: Gate 1 establishes the vehicle and the buying account on both
-branches, from the run record where there is one and from the documents where there is not.
-
-> When the ruling lands, case (c) collapses into (a) or (b): replace this paragraph with the
-> ruled default and change nothing else in this file. Until then the answers reps actually
-> give accumulate in the run records, which is evidence to rule with. **Do not tune this
-> gate to make a test pass.**
+**(c) Not logged, and the rep asked for a price, a quote or a packet.** → **File it
+first.** Run `ca-rfq-intake`, then Gate 1. Ruled by Parker 2026-09-24: a fresh *"the agency
+emailed asking us to quote these"* is filed before it is priced, always. Filing first is what
+finds the precedent and prevents the duplicate buyer folder; pricing first and filing later
+is how a quote goes out with no record behind it. Say in one line that you are filing it
+first, and do not ask the rep which order they want. The ruling is recorded in the
+marketplace repo's `docs/PRODUCT.md` §9.
 
 ## Gate 1 — Recognize the customer and the packet
 

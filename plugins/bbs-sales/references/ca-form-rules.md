@@ -55,19 +55,26 @@ agency's own record-keeping.
 Read the `_meta.notes` in the vendor profile before filling anything and surface any
 warning there to the rep. The two that cost money:
 
-- **Claim the SB preference on competitive California solicitations.** OSDS 2009473
-  carries both SB and DVBE, so the 5% SB preference (SCM §1204) and the DVBE incentive
-  (SCM §1202) both apply — including on informal solicitations. They do not apply to
-  LPA/NASPO orders, federal bids, or storefront copy.
+- **Never claim the SB preference on a California solicitation.** OSDS 2009473 carries
+  **DVBE only** — BBS passed California's SB revenue threshold and is not a California
+  small business, so the 5% SB preference (SCM §1204) is **never** claimed on any
+  California solicitation. A California form is signed under penalty of perjury;
+  claiming a preference BBS does not hold is a false certification. The **DVBE incentive
+  (SCM §1202) does still apply** and is claimed on every California competitive
+  solicitation, informal ones included — never on LPA/NASPO orders, federal bids, or
+  storefront copy. Source: `bbs-foundations` `canonical-facts.md`, "Small-business status
+  is channel-dependent".
 - **Federal is SDVOSB, never DVBE.** Different word, different program. Do not let
-  federal language reach a state form or the reverse.
+  federal language reach a state form or the reverse. Note that federally BBS **is** a
+  small business under SBA size standards — that is a federal fact and has no bearing on
+  a California form.
 
 ## Verify before delivering
 
 Render the filled pages and look at them. These forms clip long values silently, and a
 checkbox can hold the right value and still render blank if the packet revision renamed
-its checked state — so check the **image**, not the field value. Confirm the SB/DVBE box
-is actually ticked, the totals match the quote, the right person signed each line, and no
+its checked state — so check the **image**, not the field value. Confirm the DVBE box
+is ticked and the SB box is **not**, the totals match the quote, the right person signed each line, and no
 company-name line came out empty.
 
 ---

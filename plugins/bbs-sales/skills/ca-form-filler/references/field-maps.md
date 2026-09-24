@@ -74,7 +74,7 @@ not a form BBS files.
 
 | Field | Source | Value |
 |---|---|---|
-| Certification(s) | VP | "SB and DVBE" — one OSDS cert carries both |
+| Certification(s) | VP | `"DVBE"` — the OSDS cert carries DVBE only. Never write "SB" or "SB, DVBE" here; BBS is not a California small business (`ca-form-rules.md`, "Certification language") |
 | Certification # | VP | `certifications.sb_dvbe.osds_ref_number` |
 | Subcontractors used | DERIVED | "No" |
 | Broker or agent (1c-1) | DERIVED | "No" |
