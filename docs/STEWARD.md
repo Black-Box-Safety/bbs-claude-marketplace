@@ -67,7 +67,8 @@ practice. Both are certification or pricing rulings on binding documents.
   specifies. Closed — `/ca-rfq` Gate 1 no longer stops on it. Fact and reasoning:
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`,
   "Small-business status is channel-dependent".
-- **Grainger at-cost vs the old margin practice — still open.**
+- **Grainger at-cost vs the old margin practice — RULED 2026-09-18.** Grainger at cost is
+  the standing pricing rule. Recorded in `docs/PRODUCT.md` §9.
 
 **Done:** findings cleared, `check_marketplace.py` exits 0, fresh review is clean, PR
 merged, the six verified-dead branches deleted (`v1.1` held back — it reads as a version
@@ -194,9 +195,10 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **The personal-copy cutover** is account-side, in claude.ai → Settings → Capabilities →
   Skills. Five orphans now contradict what replaced them; `bbs-b2b-pricing` still drives
   the retired punch-out.
-- **One routing ruling**: does a fresh "agency emailed asking us to quote" belong to
-  `ca-rfq-intake` or `naspo-quote`? Left untuned on purpose — fitting the test before the
-  ruling would just be fitting the test.
+- **The routing ruling — RULED 2026-09-24: file first.** A fresh "agency emailed asking us
+  to quote" runs `ca-rfq-intake` before anything is priced. `/ca-rfq` Gate 0 (c) no longer
+  asks. `docs/evals/queries-ambiguous.json` `naspo-1` is still `__unscored__`; re-score it
+  against `ca-rfq-intake` on the next eval run that has Claude auth.
 - **Both `hooks/skill-bus.json` files carried pre-2026-09-22 certification wording —
   RESOLVED 2026-09-22 in PR #30.** Neither was changed by the SB correction (PR #29),
   which was scoped out of them; this was a documented deferral, now closed.
@@ -241,12 +243,9 @@ Write it up with evidence and move to the next slice. Do not idle.
   PR #30 (which fixed the same wording in the foundations hook only). Parker approved
   aligning them with canon: §1204 is never claimed on any California solicitation; §1202 is
   claimed on every California competitive solicitation, informal ones included.
-- **Who certifies the CalRecycle 74.** `plugins/bbs-sales/references/ca-form-rules.md` puts
-  that certification on **the rep**; `naspo-quote` §5 defaults it to **Griffin Forsyth, VP**
-  on most routine packets. The two disagree about a signature sworn under penalty of
-  perjury, and the rules file is supposed to be the authority on who signs. Predates the
-  `/ca-rfq` work and neither side was changed. Rule it, then fix the losing side.
+- **Who certifies the CalRecycle 74 — RULED 2026-09-18: the rep who quoted the job.**
+  `naspo-quote` §5 no longer defaults to Griffin; `ca-form-rules.md` already said the rep.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-09-16.
+Owner: Parker Marshall. Last verified 2026-09-18.

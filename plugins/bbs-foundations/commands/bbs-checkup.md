@@ -35,7 +35,7 @@ report format at the end. Read-only: create/modify nothing, send nothing.
    stall (informational, not FAIL).
 9. **Skill-bus wiring.** Look for `~/.claude/skill-bus.json` (or `.claude/skill-bus.json` at the
    desk root) containing `bbs-grounding-doctrine`. PASS = present. FAIL = absent → the fix is
-   `/bbs-onboard`. If `.claude/skill-bus-telemetry.jsonl` exists at the desk, note whether it
+   `/skill-bus:onboard`. If `.claude/skill-bus-telemetry.jsonl` exists at the desk, note whether it
    shows a `match` for a `bbs-sales:` skill (informational).
 10. **Bootstrap tools.** Run `where.exe node pdftotext pandoc uv` via Bash (or PowerShell
     `Get-Command`). PASS = all four resolve. WARN (not FAIL) for any missing one, naming it and

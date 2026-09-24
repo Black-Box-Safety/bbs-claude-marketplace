@@ -59,7 +59,7 @@ pdftoppm -jpeg -r 150 -f 1 -l 1 /path/to/forms.pdf /tmp/std204_verify
 
 | Field | Source | Value |
 |---|---|---|
-| DVBE name (§1) | VP | `business_identity.legal_name` — **but Path A disagrees.** `fill_obs_packet.py:265` writes `short_name` into this same field. Unresolved: the name here should match the OSDS certification record, and `ca-form-rules.md` does not say which form it takes. **Escalated — do not change either path to match the other until it is ruled on** |
+| DVBE name (§1) | VP | `business_identity.legal_name`. **Ruled by Parker 2026-09-18:** the legal name, `Black Box Safety, Inc.`, on every PD 843. Path A (`fill_obs_packet.py`) writes the same key. The filed corpus agrees (72 PD 843s, see `naspo-quote/references/filled-form-precedents.md`) |
 | DVBE ref number (§1) | VP | `certifications.sb_dvbe.osds_ref_number` |
 | Solicitation # (§1) | RFQ | solicitation number |
 | Not a broker/agent (§2) | DERIVED | check — BBS supplies from stock, see `ca-form-rules.md` |

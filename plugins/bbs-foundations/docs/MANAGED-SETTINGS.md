@@ -6,7 +6,7 @@ teammate's machine. That file is a **mirror**: local edits are overwritten on re
 this is the only place to change it. This document says what each block does and why, so
 the next person to edit it does not have to reverse-engineer it.
 
-Owner: Parker Marshall. Last verified: 2026-09-13. Company facts in the `claudeMd` block
+Owner: Parker Marshall. Last verified: 2026-09-18. Company facts in the `claudeMd` block
 come from `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`;
 when that file changes, change the block.
 
@@ -42,8 +42,8 @@ when that file changes, change the block.
 
 ## After pasting it
 
-Each machine: restart Claude Code, then `/plugin marketplace update`, then `/bbs-onboard`
-(wires the skill-bus subscriptions from the plugins), then `/bbs-my-voice` once. The test
+Each machine: restart Claude Code, then `/plugin marketplace update`, then `/skill-bus:onboard`
+(wires the skill-bus subscriptions from the plugins; `/bbs-onboard` is the website pipeline tour), then `/bbs-my-voice` once. The test
 that matters: a teammate opens a repo they have never seen and runs `/bbs-claude-md audit`
 without asking anyone.
 
