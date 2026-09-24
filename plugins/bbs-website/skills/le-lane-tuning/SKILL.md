@@ -1,6 +1,7 @@
 ---
 name: le-lane-tuning
 description: Tune the BBS Direct channel (law-enforcement, manufacturer-direct; internal track "direct", formerly "nppgov") of the BBS quote bot — system prompt, advisor knowledge, brand recommendations, voice, and search behavior. Use whenever the ask is about the bot's chat behavior, tone, product suggestions, preferred manufacturers, "the chatting isn't smooth", "it's not recommending the right brands", or aligning the model with the channel's goals. Covers where the tuning levers live, the grounding rules, and how to verify a change.
+requires: [supabase, node]
 ---
 > **BBS Website pipeline — stage: Quote bot.** See `site-wiring-map` for how this fits the whole flow.
 

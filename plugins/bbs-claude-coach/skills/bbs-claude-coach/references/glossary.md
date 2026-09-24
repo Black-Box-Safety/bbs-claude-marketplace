@@ -1,7 +1,7 @@
 # Glossary — the five kinds of tools (plain words)
 
 You do not need to memorize these. Knowing what each one *is* means Claude feels less
-like magic. The calm human reading path is marketplace `docs/TOOLKIT.md`.
+like magic. The calm human reading path is this plugin's `docs/TOOLKIT.md`.
 
 ## Skill
 
@@ -12,7 +12,7 @@ notices the job and uses it. Example jobs: "log this RFQ," "price these Grainger
 ## Command
 
 A shortcut **you** type, always starting with `/`. It kicks off a job on purpose.
-Examples: `/bbs-checkup`, `/bbs-my-voice`, `/ca-rfq-log`, `/bbs-what-can-i-do`.
+Examples: `/bbs-checkup`, `/bbs-my-voice`, `/ca-rfq`, `/bbs-what-can-i-do`.
 
 ## Plugin
 

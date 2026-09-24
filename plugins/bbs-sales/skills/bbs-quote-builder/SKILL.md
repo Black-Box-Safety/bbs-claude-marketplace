@@ -14,6 +14,7 @@ description: >-
   the company. Do NOT use this skill to pull existing quote records out of
   Business Central (this skill builds the document from source data), and do NOT
   use it for internal vendor sourcing emails (use bbs-sourcing for that).
+requires: [node, docx-npm, libreoffice]
 ---
 
 # BBS Quote Builder

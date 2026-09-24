@@ -40,7 +40,7 @@ Full one-pager: `bbs-foundations` → `docs/AUP.md`.
 
 ## Human reading path
 
-[`docs/TOOLKIT.md`](../../docs/TOOLKIT.md) is the plain-language house guide. These
+[`docs/TOOLKIT.md`](docs/TOOLKIT.md) is the plain-language house guide. These
 commands are the interactive version of the same idea.
 
 ## Setup

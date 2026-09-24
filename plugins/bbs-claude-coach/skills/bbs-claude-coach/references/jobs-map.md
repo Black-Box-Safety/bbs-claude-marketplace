@@ -6,7 +6,7 @@ the closer job and say so.
 | The job | First step | Usually lives in | Needs a live connector? |
 |---|---|---|---|
 | Cold outreach / follow-up email | Ask Claude to draft it; once, run `/bbs-my-voice` so it sounds like you | `bbs-foundations` (voice) | Outlook helps sampling for voice |
-| California state RFQ just arrived | Tell Claude what arrived, or `/ca-rfq-log` then `/ca-rfq-quote` | `bbs-sales` | BC, Grainger, M365, SCPRS as assigned |
+| California state RFQ just arrived | Tell Claude what arrived, or `/ca-rfq` (it files first, then prices) | `bbs-sales` | BC, Grainger, M365, SCPRS as assigned |
 | Price Grainger / NASPO lines | Ask to price the list (Grainger MCP — never memory or the open web) | `bbs-sales` | **Grainger MCP** |
 | Fill CA / CDCR compliance packet | Ask after pricing — `ca-form-filler` / packet path | `bbs-sales` | usually local PDF tools from bootstrap |
 | Marketing one-pager, deck, brand page | Ask; design polish via `impeccable`; docs via document-skills | commons + `bbs-website` / foundations deck voice | varies |

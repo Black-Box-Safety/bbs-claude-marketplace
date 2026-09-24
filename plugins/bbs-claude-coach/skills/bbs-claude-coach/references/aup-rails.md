@@ -21,10 +21,12 @@ price is binding.
 
 ## Channel reminder (do not invent variants)
 
-- **SDVOSB** language for federal and primes.
-- **OSDS SB/DVBE 2009473** for California state.
-- Never mixed on one form. Exact strings and vehicles live in foundations canonical facts
-  / sales `vendor_profile.json` — point there; do not re-key.
+- **Federal and primes:** SDVOSB, and BBS is a small business under federal size standards.
+- **California state:** DVBE only. BBS is not a California small business and never claims
+  the state SB preference.
+- Never mixed on one form, and never a small-business claim without naming the channel. The
+  certification numbers, exact strings and vehicles live in `bbs-foundations` canonical
+  facts and `bbs-sales` `vendor_profile.json` — point there; never re-key them here.
 
 ## Tone when coaching
 

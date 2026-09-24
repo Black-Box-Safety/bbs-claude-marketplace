@@ -9,6 +9,7 @@ description: >-
   /bbs-explain-claude is typed. Do NOT use it to log an RFQ, price items, fill CA forms,
   write a CLAUDE.md, or build a voice skill — hand those to bbs-sales, bbs-foundations,
   or the matching command.
+requires: []
 ---
 
 # BBS Claude coach
@@ -26,7 +27,7 @@ Read the references in this skill before answering from memory:
 | How to grow the toolkit | `references/how-to-extend.md` |
 | The two rails + AUP pointer | `references/aup-rails.md` |
 
-The human reading path for the same ideas is the marketplace file `docs/TOOLKIT.md`. Prefer
+The human reading path for the same ideas is `${CLAUDE_PLUGIN_ROOT}/docs/TOOLKIT.md`. Prefer
 pointing people there for a calm read; use these references when coaching live.
 
 ## Stance

@@ -91,8 +91,13 @@ Claude produces internally consistent, confident prose. That is the failure mode
 for, and it is not caught by reading the diff sympathetically. Ask:
 
 1. **Is every factual claim sourced, or inferred from a neighbouring file?** This repo
-   once inferred "BBS is NOT SB-certified" from a storefront doctrine file and nearly gave
-   away the 5% Small Business preference on every competitive solicitation.
+   has flipped its SB-certification claim twice, each time on a fact inferred from a
+   neighbouring file rather than sourced, and each time without naming the channel it
+   applied to. A certification claim with no channel and no source is the pattern to
+   catch — whichever way it points. The settled answer (Parker, in session, 2026-09-22):
+   small business **federally**, **DVBE only** in California. It lives in
+   `canonical-facts.md`, "Small-business status is channel-dependent"; do not re-derive
+   it from a file you happen to have open.
 2. **Does a measurement name its conditions?** "It routes correctly" is not a finding.
    Runs per query, named or anonymized, and the distribution are.
 3. **Did a fact and its checker move together?**

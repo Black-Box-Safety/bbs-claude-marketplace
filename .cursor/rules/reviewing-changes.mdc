@@ -1,0 +1,49 @@
+---
+description: How to review a change in the BBS marketplace — the review stance Cursor holds for any PR review, diff review, or "is this ready to merge" judgment.
+alwaysApply: true
+---
+
+# Reviewing a change here
+
+This marketplace ships quotes and bids to California public agencies under a DVBE
+certification. **A defect does not crash — it prints a plausible wrong number on a binding
+document, and nobody notices until an agency does.** Review for the silent defect, not the
+loud one.
+
+Facts and invariants live in `@AGENTS.md`; the full reviewer's manual is
+`docs/MAINTAINER-GUIDE.md`. This rule is **stance only** — never re-key a fact from those
+files here.
+
+## Gate before opinion
+- `python3 scripts/check_marketplace.py` must exit 0. A `WARN` is triaged, not ignored.
+- `python3 plugins/bbs-foundations/skills/bbs-claude-md-forge/scripts/check_claude_md.py .`
+  on any CLAUDE.md or AGENTS.md change.
+- Run the routing eval in `docs/evals/` when a skill `description:` changed — descriptions
+  are the routing table. If you cannot run it, say "unverified"; never pass the claim through.
+
+## The questions that catch the silent defect
+1. **Sourced, not inferred.** Is every price, stock, cert, contract, or form fact from a
+   tool result or a named reference file — or was it guessed from a neighbouring file?
+2. **Fact and checker together.** A fact with a checker is one thing; changing one and not
+   the other is how a superseded value stays enforced.
+3. **Propagation.** A fixed value also lives in `hooks/skill-bus.json` and the managed
+   `claudeMd`. Grep the whole repo for the old value before believing "fixed".
+4. **Fail loud on a binding document.** `[FLAG: why]` and `[MISSING — NEEDS INPUT]` are
+   correct outputs; a guessed checkbox, signer, cert, or form ID is the defect this repo
+   exists to prevent.
+5. **Consolidation lost nothing.** Diff a merged skill against git history; edge cases and
+   field quirks are the parts that vanish quietly.
+6. **Measurement names its conditions.** "It routes correctly" is not a finding; runs per
+   query, anonymized or not, and the actual distribution are.
+
+## Posture
+- **Reviewer is not the author.** A change Cursor wrote gets reviewed by something else; a
+  change Claude wrote is what Cursor reviews. That separation is the point of the split.
+- **A session ends at a PR, not a merge.** Never commit to `main`.
+- **Removing a control is a finding, not an edit.** Say it is wrong; do not delete it.
+- **Escalate, do not decide.** A signer, a form ID, a certification claim, a price rule, or
+  anything account-side (managed settings, connector assignment, synced skills) is Parker's
+  call — write it up with evidence and move on.
+
+---
+Owner: Parker Marshall. Stance file; facts live in AGENTS.md. Last verified 2026-09-17.

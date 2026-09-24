@@ -11,6 +11,7 @@ description: >
   status. NEVER answer from the PO header `fullyReceived` flag — it is
   systematically unreliable. This skill applies to every vendor (Allstar Fire,
   Grainger, LION, Point Blank, etc.), not just one.
+requires: [bc-mcp-proxy]
 ---
 
 # BBS Purchase Order Status — Receipt & Outstanding Logic

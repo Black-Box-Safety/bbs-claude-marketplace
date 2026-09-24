@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/company-Black%20Box%20Safety%2C%20Inc.-051c2c" alt="Black Box Safety, Inc.">
-  <img src="https://img.shields.io/badge/certified-SDVOSB%20%C2%B7%20CA%20SB%2FDVBE%202009473-b19800" alt="SDVOSB and California SB/DVBE 2009473">
+  <img src="https://img.shields.io/badge/certified-SDVOSB%20%C2%B7%20CA%20DVBE%202009473-b19800" alt="SDVOSB federal and California DVBE 2009473">
   <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, VS Code, and Desktop">
   <img src="https://img.shields.io/badge/plugins-5%20BBS%20%2B%205%20pinned-2dd4bf" alt="Five BBS plugins plus five pinned external">
 </p>
@@ -40,7 +40,7 @@ Nothing drifts.
 
 | You are | Start here | Time |
 |---|---|---|
-| New to any of this | [`docs/TOOLKIT.md`](docs/TOOLKIT.md) — what the tools are, in plain words, and how to extend them | ~10 min read |
+| New to any of this | [`plugins/bbs-claude-coach/docs/TOOLKIT.md`](plugins/bbs-claude-coach/docs/TOOLKIT.md) — what the tools are, in plain words, and how to extend them; or run `/bbs-what-can-i-do` | ~10 min read |
 | A sales rep | [`docs/REP-SETUP.md`](docs/REP-SETUP.md), then `/bbs-checkup` | ~20 min, once |
 | The admin | [`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §0 → §3a | One morning |
 | Maintaining the website | [`plugins/bbs-website/README.md`](plugins/bbs-website/README.md), then `/bbs-onboard` | ~15 min |
@@ -71,7 +71,8 @@ report. Anything red prints the exact sentence to send the admin.
 > **Claude:** Filed under `CDCR (ALL)/Mule Creek State Prison/` — no duplicate buyer folder, checked
 > by name and by item. Last quoted this buyer gloves in March at $Y (won). Gloves are NASPO: Grainger
 > price against Mule Creek's own account. Blowers are not on any schedule, so this is a competitive
-> lane with the 5% SB preference; drafting vendor outreach for two suppliers. Packet B forms filled,
+> lane with the DVBE incentive (no SB preference — BBS is not a California small business); drafting
+> vendor outreach for two suppliers. Packet B forms filled,
 > signed on the lines Parker owns. Every number is in the cover summary with its source. Ready for your review.
 
 The rep reviews every number. The rep sends. Claude cannot.
@@ -90,7 +91,7 @@ flowchart LR
 | Plugin | What it covers | Detail |
 |---|---|---|
 | `bbs-claude-coach` | Empowerment / literacy: understand the toolkit, start any overlapping job, extend it; `/bbs-what-can-i-do`, `/bbs-start`, `/bbs-explain-claude` | [README](plugins/bbs-claude-coach/README.md) |
-| `bbs-sales` | The California quote desk end to end: RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled — plus promo pages and federal deck copy; `/ca-rfq-log`, `/ca-rfq-quote` | [README](plugins/bbs-sales/README.md) |
+| `bbs-sales` | The California quote desk end to end: RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled — plus promo pages and federal deck copy; `/ca-rfq` | [README](plugins/bbs-sales/README.md) |
 | `bbs-back-office` | After the bid is won, out of Business Central: order status, vendor PO receipts, problem-order reconciliation, true margin after Grainger rebates | [README](plugins/bbs-back-office/README.md) |
 | `bbs-foundations` | Company memory, doctrine every skill inherits, the BBS way to write a CLAUDE.md, personal voice skills, `/bbs-checkup`, managed settings, the one-page AUP | [README](plugins/bbs-foundations/README.md) |
 | `bbs-website` | The storefront: price list to product page across the database, Shopify, and the quote bot | [README](plugins/bbs-website/README.md) |
@@ -106,8 +107,10 @@ These are enforced in settings and doctrine, not left to memory.
   policy. Every quote, price, and form is a draft until a rep reviews it.
 - **Never an invented number.** No price, stock, lead time, or certification fact from memory or the
   open web. Unknown becomes `[FLAG: why]`, never a guess.
-- **Certification language follows the channel.** SDVOSB for federal and primes; OSDS SB/DVBE
-  2009473 for California state. Never mixed.
+- **Certification language follows the channel, and so does small-business status.** Federal and
+  primes: SDVOSB, and BBS *is* a small business under SBA size standards. California state: OSDS
+  DVBE 2009473 only — BBS passed California's SB revenue threshold, so no SB preference on a state
+  bid. Never mixed, and never said without naming the channel.
 - **Systems of record win.** Business Central for money, Supabase for the catalog, SharePoint for
   documents. Point at the record; never re-type it.
 - **When it goes wrong, log it.** One line in the folder's `FLAGS.md`. A caught error means the
@@ -128,12 +131,12 @@ bbs-claude-marketplace/
 ├── REGISTRY.md                         # every BBS repo and asset: canon, harvest, parked, archived
 ├── workspace/                          # bbs-rep.code-workspace + desk CLAUDE.md template
 ├── docs/
-│   ├── REP-SETUP.md · ADMIN-RUNBOOK.md · ADMIN-CLEANUP.md · MEASUREMENT.md · TOOLKIT.md
+│   ├── REP-SETUP.md · ADMIN-RUNBOOK.md · ADMIN-CLEANUP.md · MEASUREMENT.md
 │   ├── acceptance/                     # one file per pilot gate run
 │   ├── assessments/                    # what we found, dated
 │   └── superpowers/                    # design specs and implementation plans
 └── plugins/
-    ├── bbs-claude-coach/               # literacy coach: understand, start, extend
+    ├── bbs-claude-coach/               # literacy coach: understand, start, extend; docs/TOOLKIT.md
     ├── bbs-foundations/                # commands, docs (managed settings, AUP), hooks, skills
     ├── bbs-sales/                      # commands, skills
     ├── bbs-back-office/                # skills
@@ -153,6 +156,12 @@ bbs-claude-marketplace/
 - **Models:** `claude-opus-5` · `claude-sonnet-5` · `claude-haiku-4-5` only, generated from
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/models.json`. Anything else is
   stale.
+- **Invariants:** `python3 scripts/check_marketplace.py` catches the defects that fail silently,
+  and runs on every pull request (`.github/workflows/check-marketplace.yml`). It reports rather
+  than blocks for now.
+- **Dependencies:** every skill declares the connectors, MCPs and command-line tools it needs in
+  its own frontmatter. `python3 scripts/check_marketplace.py --requirements` prints the table, so
+  you can tell before installing whether a job will run on your machine.
 
 ## Contributing
 
