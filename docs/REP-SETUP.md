@@ -18,7 +18,7 @@ Claude is reading, side by side. Screenshots will be pinned in the Teams sales c
    repo (Parker posts it in Teams). First open: replace `REPLACE-ON-FIRST-OPEN` with your
    OneDrive root per `workspace/README.md`, save, reopen. Accept the 4 recommended
    extensions.
-5. **Run `/bbs-onboard`** once — wires the skill-bus doctrine injection so BBS grounding rules
+5. **Run `/skill-bus:onboard`** once — wires the skill-bus doctrine injection so BBS grounding rules
    fire inside the quoting skills. Without it the skills run with no guardrail text.
 6. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
    exact sentence to send Parker — send it, use the Desktop app meanwhile.
@@ -86,6 +86,13 @@ command, so a missing library is a clear message, never a half-written bid docum
 ## When to use which window
 
 - **VS Code**: quote work — you want the RFQ, the worksheet, and Claude on one screen.
+  Tip: the Claude side panel shows a subset of commands and skills. If a `/command` you
+  expect is not offered there, typing `claude` in the integrated terminal gives you all of
+  them. Either window works; use whichever you prefer.
+- **Using Cursor instead of VS Code?** Fine. Same extension, same Claude, same skills. One
+  caution: use the Claude panel or `claude` in the terminal for desk work, not Cursor's own
+  Agent or Composer. Cursor's Agent does not read the desk `CLAUDE.md`, so it does not know
+  the folder rules (never rename a folder; account numbers ride on the names).
 - **Desktop app**: everything else, or if VS Code is ever broken. Same Claude.
 
 ## Want an agency storefront?

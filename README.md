@@ -40,6 +40,7 @@ Nothing drifts.
 
 | You are | Start here | Time |
 |---|---|---|
+| Deciding what we build next | [`docs/PRODUCT.md`](docs/PRODUCT.md) — the living product plan: principles, the rep experience, merge order, roadmap | ~10 min read |
 | A sales rep | [`docs/REP-SETUP.md`](docs/REP-SETUP.md), then `/bbs-checkup` | ~20 min, once |
 | The admin | [`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §0 → §3a | One morning |
 | Maintaining the website | [`plugins/bbs-website/README.md`](plugins/bbs-website/README.md), then `/bbs-onboard` | ~15 min |
@@ -53,7 +54,7 @@ Nothing drifts.
 /plugin install bbs-sales@bbs-claude-marketplace
 /plugin install bbs-back-office@bbs-claude-marketplace
 /plugin install bbs-website@bbs-claude-marketplace
-/bbs-onboard
+/skill-bus:onboard
 /bbs-checkup
 ```
 
@@ -127,7 +128,7 @@ bbs-claude-marketplace/
 ├── REGISTRY.md                         # every BBS repo and asset: canon, harvest, parked, archived
 ├── workspace/                          # bbs-rep.code-workspace + desk CLAUDE.md template
 ├── docs/
-│   ├── REP-SETUP.md · ADMIN-RUNBOOK.md · ADMIN-CLEANUP.md · MEASUREMENT.md
+│   ├── PRODUCT.md · REP-SETUP.md · ADMIN-RUNBOOK.md · ADMIN-CLEANUP.md · MEASUREMENT.md
 │   ├── acceptance/                     # one file per pilot gate run
 │   ├── assessments/                    # what we found, dated
 │   └── superpowers/                    # design specs and implementation plans
