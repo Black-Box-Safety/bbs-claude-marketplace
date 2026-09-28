@@ -68,20 +68,42 @@ case-insensitively. Every insert with at least one matching subscription is inje
 in table order, joined by a blank line. Skill-bus's `maxMatchesPerSkill` cap is not carried:
 the table has at most two inserts per plugin, so it could never bind.
 
-### The native hook
+### The native hook — two events, one table
 
-`plugins/<plugin>/hooks/hooks.json` declares a `PreToolUse` hook with matcher `Skill`
-that runs `${CLAUDE_PLUGIN_ROOT}/hooks/doctrine.ps1`. The script:
+`plugins/<plugin>/hooks/hooks.json` declares the same command under two events:
 
-1. reads the hook JSON from stdin; on empty or unparseable input exits 0 silently;
-2. returns nothing unless `tool_name` is `Skill` and `tool_input.skill` is a string;
-3. loads `doctrine/subscriptions.json` beside itself, matches, reads each matched insert's
-   file as UTF-8 (normalising `\r\n` to `\n` in case of an autocrlf checkout);
-4. prints `{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"<text>"}}`
-   with every non-ASCII character JSON-escaped, so the output is the same bytes under
-   Windows PowerShell 5.1's OEM console encoding and pwsh 7's UTF-8;
-5. exits 0 on every path, including its own errors (`trap { exit 0 }`). It never blocks a
-   skill and never writes a file. Timeout 10 s.
+- **`PreToolUse`, matcher `Skill`** — Claude called the Skill tool; `tool_input.skill` is
+  the fully qualified name (`bbs-sales:naspo-quote`).
+- **`UserPromptExpansion`, matcher `""`** — the user typed `/name`. A `PreToolUse` hook
+  does not fire on that path; this event does (Claude Code hooks reference). It carries
+  `command_name`, usually bare (`bbs-checkup`, `command_source: "plugin"`) and sometimes
+  prefixed. This is the path skill-bus's `monitorSlashCommands: true` covered — the
+  2026-09-02 forge spec turned it on deliberately — so it is carried, not dropped.
+
+The script (`doctrine.ps1`, and `doctrine.py` as its twin — below):
+
+1. reads the hook JSON from stdin (a leading BOM tolerated); on empty or unparseable
+   input exits 0 silently;
+2. routes on `hook_event_name` (falling back to `tool_name == "Skill"` when absent) and
+   takes the name from `tool_input.skill` or `command_name`; returns nothing unless it is
+   a non-blank string;
+3. builds the candidate names. A tool call is tried as given. A bare typed command does
+   not say which plugin it came from, so it is also tried as `<own plugin>:<name>` and as
+   `<p>:<name>` for each `p` in the table's `bare_prefixes` — the local plugins, which the
+   checker proves exist. Not under every prefix the table mentions: `claudeforge:*` would
+   then fire on every bare name. So a typed `/bbs-checkup` gets the grounding doctrine
+   (via `bbs-foundations:*`), and a typed `/ca-rfq` does too (via `bbs-sales:*`), which is
+   what the retired plugin did on that path;
+4. loads `doctrine/subscriptions.json` beside itself, matches (`*` glob,
+   case-insensitive, other metacharacters literal), reads each matched insert's file as
+   UTF-8 (BOM stripped, `\r\n` normalised to `\n` in case of an autocrlf checkout);
+5. prints `{"hookSpecificOutput":{"hookEventName":"<event>","additionalContext":"<text>"}}`
+   in exactly the form Python's `json.dumps(ensure_ascii=True)` emits — every non-ASCII
+   character escaped — so the bytes are the same from either script and under Windows
+   PowerShell 5.1's OEM console encoding;
+6. exits 0 on every path, including its own errors (`trap { exit 0 }` / a bare
+   `except`), prints nothing to stderr, never blocks a skill, never writes a file.
+   Timeout 10 s.
 
 **Interpreter choice — PowerShell, and why.** The rep bootstrap (`scripts/bbs-setup.ps1`)
 installs Git, Node, Chrome, pdftotext, pandoc and `uv`. It does **not** put `python3` on
@@ -91,29 +113,49 @@ every Windows machine, which is why `bbs-sales` already ships its two hooks as `
 (`plugins/bbs-sales/hooks/hooks.json`, "PowerShell, exec form, Windows rep machines").
 This follows that precedent.
 
-**Windows and macOS with one script.** Claude Code runs a hook's `command` string through
+**Windows and macOS with one command.** Claude Code runs a hook's `command` string through
 Git Bash on Windows (the bootstrap installs Git for this reason; `docs/COMMONS.md` records
 it) and `sh -c` on macOS. So the command is a small POSIX-shell selector:
 
 ```sh
-command -v pwsh >/dev/null 2>&1 && exec pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/hooks/doctrine.ps1"; command -v powershell >/dev/null 2>&1 && exec powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/hooks/doctrine.ps1"; exit 0
+command -v pwsh >/dev/null 2>&1 && exec pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/hooks/doctrine.ps1"; command -v powershell >/dev/null 2>&1 && exec powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "${CLAUDE_PLUGIN_ROOT}/hooks/doctrine.ps1"; command -v python3 >/dev/null 2>&1 && exec python3 "${CLAUDE_PLUGIN_ROOT}/hooks/doctrine.py"; exit 0
 ```
 
-pwsh (PowerShell 7) if present on either platform, else Windows PowerShell 5.1, else exit 0
-silently. A Mac without `pwsh` (`brew install powershell`) gets no doctrine and no error —
-degraded, not broken, and `/bbs-checkup` reports it. The script is written to the
-PowerShell 5.1 subset (no `??`, no ternary, no `-AsHashtable`) so both interpreters run the
-same file. `${CLAUDE_PLUGIN_ROOT}` is the only path form used.
+pwsh (PowerShell 7) if present on either platform, else Windows PowerShell 5.1, else
+`python3` running `doctrine.py`, else exit 0 silently. The third arm exists because Parker
+is on a Mac: a Mac has `python3` (with the Xcode command-line tools) long before anyone
+runs `brew install powershell`, and without that arm it would silently get no doctrine.
+`doctrine.py` is stdlib only (`json`, `fnmatch`) and carries the same semantics, including
+the `UserPromptExpansion` branch; `hooks/tests/parity.py` runs both interpreters on the
+same fixtures and requires byte-identical stdout (it skips the PowerShell half, without
+failing, when neither `pwsh` nor `powershell` is on PATH). A machine with none of the
+three gets no doctrine and no error — degraded, not broken, and `/bbs-checkup` reports it.
+The `.ps1` is written to the PowerShell 5.1 subset (no `??`, no ternary, no
+`-AsHashtable`) so both PowerShells run the same file. `${CLAUDE_PLUGIN_ROOT}` is the only
+path form used.
 
-The same `doctrine.ps1` ships in both plugins because `${CLAUDE_PLUGIN_ROOT}` is per plugin
-and one plugin cannot address another's files. Two copies of code is a drift risk, so the
-checker FAILs if they differ (`doctrine_hook_drift`) — a fact with a checker.
+A Windows machine that skipped the bootstrap has no Git Bash, and Claude Code then hands
+the command string to `powershell.exe`, which cannot parse the `sh` selector: the hook
+reports an error on every skill call and the skill still runs. `/bbs-checkup` check 9 names
+that case; the fix is the bootstrap.
+
+The same `doctrine.ps1` and `doctrine.py` ship in both plugins because
+`${CLAUDE_PLUGIN_ROOT}` is per plugin and one plugin cannot address another's files. Two
+copies of code is a drift risk, so the checker FAILs if either pair differs
+(`doctrine_hook_drift`) — a fact with a checker.
+
+**No shell fast path.** Skipping the interpreter when stdin cannot match (a `grep -q` for
+the plugin's subscription prefixes before the `exec`) would save the interpreter start on
+most Skill calls, but the prefixes would then live a second time inside `hooks.json`, and
+that is the re-keyed fact this repo exists to avoid. The cost stays: one PowerShell start
+per Skill call or typed command, well inside the 10 s timeout.
 
 ### What is dropped with no native equivalent
 
-Skill-bus's `settings` block: `maxMatchesPerSkill`, `telemetry` (the
-`skill-bus-telemetry.jsonl` file), `observeUnmatched`, `monitorSlashCommands`,
-`showConditionSkips`. Native hooks have no telemetry file, so `/bbs-review` can no longer
+From skill-bus's `settings` block: `maxMatchesPerSkill`, `telemetry` (the
+`skill-bus-telemetry.jsonl` file), `observeUnmatched`, `showConditionSkips`.
+`monitorSlashCommands` is **not** dropped — `UserPromptExpansion` is its native
+equivalent, above. Native hooks have no telemetry file, so `/bbs-review` can no longer
 read match/no-match coverage from disk; it now checks coverage by reading the subscription
 table against the plugin's skill list. `/skill-bus:onboard` and `skill-bus:list-subs` no
 longer exist and no step replaces them: the hook is active the moment the plugin is
@@ -125,19 +167,22 @@ installed.
 `plugins/*/hooks/doctrine/subscriptions.json` and FAILs when:
 
 - the file does not parse, or a subscription names an insert the table does not define;
-- an insert's `file` is missing on disk, or is empty;
+- an insert's `file` is missing on disk, or is empty; a `bare_prefixes` entry is not a
+  plugin under `plugins/`;
 - a non-wildcard `plugin:skill` target naming a local plugin resolves to no skill or
   command in that plugin (`doctrine_sub_dangling`), or to a skill that lives in another
   plugin (`doctrine_sub_wrong_plugin`) — the old dangling / wrong-plugin checks, carried;
 - the plugin's `hooks/hooks.json` does not parse, or a `command` / `args` path under
   `${CLAUDE_PLUGIN_ROOT}` does not exist in the plugin (`hook_script_missing`);
-- the two `doctrine.ps1` copies differ.
+- the two `doctrine.ps1` copies differ, or the two `doctrine.py` copies differ.
 
-A new repo-wide scan, `skill_bus_reference`, FAILs on the literal `skill-bus` anywhere
+A new repo-wide scan, `retired_plugin_ref`, FAILs on the literal `skill-bus` anywhere
 outside `docs/superpowers/` and `docs/SESSION-HANDOFF-*` unless the mention is a
-counter-example (a sentence saying it is retired, or telling Parker to uninstall it). The
-checker's own copy of the token is exempt, as its other self-referential scans are.
-`uninstall` joins the counter-example vocabulary for this reason. The name-keying comments
+counter-example. For this scan the qualifier must be **in the same sentence** as the name
+(split on `.`, `!`, `?`), not merely within the usual 200-character proximity: "Never guess
+a price. Then run /skill-bus:onboard to finish." is an instruction to run it and FAILs.
+The checker assembles the token from parts so it is not its own hit. `uninstall` and
+`retire` join the counter-example vocabulary for this reason. The name-keying comments
 that cited skill-bus as the reason skills key on `plugin:skill` now cite the doctrine
 tables.
 
@@ -145,11 +190,12 @@ tables.
 
 `plugins/bbs-foundations/docs/bbs-managed-settings.json`: `extraKnownMarketplaces` loses
 `skill-bus-marketplace`; `enabledPlugins` loses `skill-bus@skill-bus-marketplace`. In
-`claudeMd`, exactly two substrings change and nothing else; both before/after strings are
+`claudeMd`, exactly three substrings change and nothing else; the before/after strings are
 quoted in the PR body. The `permissions` block is byte-identical.
 
 1. `then /skill-bus:onboard so the doctrine injects automatically` → a truthful sentence:
-   the doctrine injects automatically through the plugins' own hooks; nothing to run.
+   the doctrine injects automatically through the plugins' own hooks; nothing to run. The
+   comma before it becomes a full stop (review nit: the first draft left a comma splice).
 2. `The DVBE incentive (SCM 1202) still applies, on competitive solicitations only, never
    on` → `... applies on every competitive solicitation, informal ones included, never on`
    — Parker's 2026-09-22/23 ruling, already in canonical-facts.md and PR #30/#31; this
@@ -181,8 +227,13 @@ canonical-facts line, still open there.
   `origin/main:<skill-bus.json>` — asserted by a script, result printed in the PR.
 - `doctrine.ps1` run under pwsh 7 with a fake stdin returns the grounding doctrine for
   `bbs-sales:naspo-quote`, the storefront doctrine for `bbs-website:product-page`, and
-  nothing for `unrelated`. Windows PowerShell 5.1 is not available in the build
-  environment: that path is unverified by the builder and is called out in the PR.
+  nothing for `unrelated`; `hooks/tests/run-tests.ps1` covers every subscription and both
+  typed-command forms; `hooks/tests/parity.py` covers the edge cases (combined inserts,
+  case, metacharacters in the name, missing or odd `tool_input`, BOM on stdin and on a
+  doctrine file, CRLF doctrine file, missing table, empty stderr) through both
+  interpreters and requires identical bytes. Windows PowerShell 5.1 is not available in
+  the build environment: that path is unverified by the builder and is called out in the
+  PR.
 
 ---
 

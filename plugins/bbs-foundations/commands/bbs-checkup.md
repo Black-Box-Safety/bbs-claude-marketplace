@@ -12,9 +12,10 @@ report format at the end. Read-only: create/modify nothing, send nothing.
 1. **Plugins.** Confirm the bbs-foundations, bbs-sales, bbs-back-office, bbs-website,
    bbs-claude-coach, claudeforge, impeccable, superpowers-chrome, caveman, and
    document-skills plugins are loaded (their skills appear in your available skills).
-   Report each present/absent. If a plugin named `skill-bus` is still loaded, report it as
-   ⚠️ WARN with the sentence "retired 2026-09-28 — Parker uninstalls it per
-   ADMIN-RUNBOOK §1a"; it is not a FAIL and you do not uninstall it.
+   Report each present/absent. Then always add one more line for the retired injection
+   plugin, whichever way it goes: "✅ retired plugin absent" when nothing named `skill-bus`
+   is loaded, or "⚠️ skill-bus still loaded — retired 2026-09-28, see ADMIN-RUNBOOK §1a"
+   when it is. That is a WARN, not a FAIL, and you do not uninstall it yourself.
 2. **Marketplace freshness.** Run `claude plugin marketplace list` via Bash if available;
    note whether bbs-claude-marketplace is registered. If the command is unavailable, say so.
 3. **Business Central connector** (BC MCP Custom API, interim — tool names change at the
@@ -39,13 +40,16 @@ report format at the end. Read-only: create/modify nothing, send nothing.
    installed root (`claude plugin list` via Bash, or the plugin's path in `/plugin`), then
    confirm: `hooks/hooks.json` parses as JSON (read it; a Python or PowerShell parse if
    available), and every file named in `hooks/doctrine/subscriptions.json` under `inserts`
-   exists beside it and is non-empty (four in all: `bbs-claude-md-doctrine.md`,
-   `bbs-grounding-doctrine.md`, `bbs-storefront-doctrine.md`, `bbs-catalog-doctrine.md`).
-   PASS = both parse and all four exist. FAIL = a file missing or a parse error → the fix is
-   `/plugin marketplace update` then restart; if it persists, report it. Also check that
-   `pwsh` or `powershell` resolves (`Get-Command pwsh, powershell` / `command -v`): WARN,
-   not FAIL, if neither does — the hook fails open and the skills run without their
-   guardrail text until PowerShell is installed (macOS: `brew install powershell`).
+   exists beside it and is non-empty. PASS = both parse and every named file exists. FAIL =
+   a file missing or a parse error → the fix is `/plugin marketplace update` then restart;
+   if it persists, report it. Also check an interpreter resolves — PowerShell
+   `Get-Command pwsh, powershell, python3 -ErrorAction SilentlyContinue`, or
+   `command -v pwsh powershell python3` — WARN, not FAIL, if none does: the hook fails open
+   and the skills run without their guardrail text until one is installed (macOS:
+   `brew install powershell`, or the Xcode command-line tools for `python3`). Windows
+   only: `where.exe bash` must resolve too (Git Bash, from `scripts/bbs-setup.ps1`);
+   without it Claude Code hands the hook command to PowerShell, which cannot parse it, and
+   every skill call shows a hook error — WARN, fix is the bootstrap (REP-SETUP step 1).
    Nothing to wire and nothing to run: the hook is active whenever the plugin is loaded.
 10. **Bootstrap tools.** Run `where.exe node pdftotext pandoc uv` via Bash (or PowerShell
     `Get-Command`). PASS = all four resolve. WARN (not FAIL) for any missing one, naming it and

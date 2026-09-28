@@ -223,20 +223,23 @@ Write it up with evidence and move to the next slice. Do not idle.
   It is removed from managed settings, from the checker and from every live doc; the
   doctrine text it injected is **kept**, moved byte for byte into
   `plugins/{bbs-foundations,bbs-website}/hooks/doctrine/*.md`, and re-homed on each
-  plugin's own `hooks/hooks.json` (a `PreToolUse` hook on the Skill tool, PowerShell, fails
-  open). Same subscriptions, plus `bbs-claude-coach:*` on the grounding doctrine (owed from
-  the PR #25 review). `check_marketplace.py` FAILs if the name creeps back into a live file.
-  Its settings block (telemetry, `maxMatchesPerSkill`, `observeUnmatched`,
-  `monitorSlashCommands`, `showConditionSkips`) has no native equivalent and is dropped.
-  Spec and plan: `docs/superpowers/{specs,plans}/2026-09-28-remove-skill-bus.md`.
+  plugin's own `hooks/hooks.json`: `PreToolUse` on the Skill tool for a tool call and
+  `UserPromptExpansion` for a typed slash command (the path `monitorSlashCommands` covered);
+  PowerShell, or python3 where there is none; fails open. Same subscriptions, plus
+  `bbs-claude-coach:*` on the grounding doctrine (owed from the PR #25 review).
+  `check_marketplace.py` FAILs if the name creeps back into a live file. The rest of its
+  settings block (telemetry, `maxMatchesPerSkill`, `observeUnmatched`, `showConditionSkips`)
+  has no native equivalent and is dropped. Spec and plan for the retired plugin's removal:
+  `docs/superpowers/{specs,plans}/2026-09-28-remove-skill-bus.md`.
 - **Parker: after the skill-bus removal merges, re-paste managed settings and, on each
   existing machine, `/plugin uninstall skill-bus@skill-bus-marketplace` and remove the
   `skill-bus-marketplace` entry** (`/plugin marketplace remove skill-bus-marketplace`) —
   a repo change cannot do that. Until both are done a machine still runs the retired
   plugin alongside the native hooks and injects the doctrine twice. Steps:
   `docs/ADMIN-RUNBOOK.md` §1a. The Windows PowerShell 5.1 path of the new hook was not
-  executable in the build environment (pwsh 7 was); the first Windows rep run of any
-  `bbs-sales:*` skill should be watched for the doctrine appearing once.
+  executable in the build environment (pwsh 7 and python3 were, and agree byte for byte);
+  the first Windows rep run of any `bbs-sales:*` skill should be watched for the doctrine
+  appearing once.
 - **`bbs-deck-voice` claims "Largest small business seller to the State of California"** —
   **RESOLVED 2026-09-23, PR #31.** Parker ruled BBS was a California small business when
   it earned that ranking: keep the claim, make it historical. The four present-tense lines

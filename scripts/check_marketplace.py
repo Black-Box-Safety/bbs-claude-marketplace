@@ -75,7 +75,7 @@ def is_narrative(path):
 # value beside it. "do not" / "don't" now have to be negating a verb of *use*
 # ("do not write", "don't copy"), which is what a real counter-example says.
 COUNTER_EXAMPLE = re.compile(
-    r"\b(never|no longer|stale|superseded|retired|deprecated|counter-example|"
+    r"\b(never|no longer|stale|superseded|retired?|deprecated|counter-example|"
     r"earlier revisions?|used to|rather than|instead of|which is how|avoid|became|"
     r"flag it|wrong|replaced?|exists only|exists to prevent|prevent|uninstall|"
     # Vocabulary this repo's own cutover records use to name a dead thing.
@@ -139,6 +139,34 @@ def is_counter_example(text, pos):
         if dist <= PROXIMITY:
             return True
     return False
+
+
+def is_counter_example_in_sentence(text, pos):
+    """Stricter form: the qualifying phrase must sit in the same sentence as the match.
+
+    The proximity test above lets "Never guess a price. Then run /<retired>:onboard to
+    finish." pass, because "Never" is within 200 characters. For a scan whose whole job
+    is to stop a retired name creeping back into an instruction, the warning has to be
+    the sentence the name is in. A sentence ends at . ! or ? followed by whitespace or
+    the end of the text — the dot inside `skill-bus.json` or `~/.claude/` is not a
+    full stop. A heading with no full stop runs into the sentence after it, which is
+    the known cost of not parsing markdown.
+    """
+    lines = text.splitlines(keepends=True)
+    idx = text[:pos].count("\n")
+    lo = max(0, idx - CONTEXT_LINES)
+    hi = min(len(lines), idx + CONTEXT_LINES + 1)
+    start = sum(len(ln) for ln in lines[:lo])
+    window = text[start:start + sum(len(ln) for ln in lines[lo:hi])]
+    collapsed, cmap = _collapse(window)
+    here = cmap[min(max(pos - start, 0), len(window))]
+    bounds = [m.end() for m in SENTENCE_END.finditer(collapsed)]
+    s_start = max([b for b in bounds if b <= here], default=0)
+    s_end = min([b for b in bounds if b > here], default=len(collapsed))
+    return bool(COUNTER_EXAMPLE.search(collapsed[s_start:s_end]))
+
+
+SENTENCE_END = re.compile(r"[.!?](?=\s|$)")
 
 
 def rel(path):
@@ -1179,7 +1207,9 @@ RETIRED_PLUGIN = "skill-" + "bus"
 # Where a doctrine hook keeps its subscriptions, relative to the plugin root. The
 # hook script reads this same file; the checker never carries a copy of the table.
 DOCTRINE_TABLE = os.path.join("hooks", "doctrine", "subscriptions.json")
-DOCTRINE_SCRIPT = os.path.join("hooks", "doctrine.ps1")
+# The same logic twice, for a machine with PowerShell and one with only python3. Each
+# ships in every plugin that carries a table, and every copy must be byte-identical.
+DOCTRINE_SCRIPTS = (os.path.join("hooks", "doctrine.ps1"), os.path.join("hooks", "doctrine.py"))
 
 
 def _hook_command_paths(data):
@@ -1236,13 +1266,15 @@ def check_doctrine_hooks(findings, skills):
         if not os.path.isfile(table):
             continue
         where = rel(table)
-        script = os.path.join(PLUGINS, plugin, DOCTRINE_SCRIPT)
-        if os.path.isfile(script):
-            with open(script, "rb") as fh:
-                scripts[plugin] = fh.read()
-        else:
-            F("doctrine_script_missing", where,
-              f"plugins/{plugin}/{DOCTRINE_SCRIPT} is missing; the table is never read")
+        for script_rel in DOCTRINE_SCRIPTS:
+            script = os.path.join(PLUGINS, plugin, script_rel)
+            if os.path.isfile(script):
+                with open(script, "rb") as fh:
+                    scripts.setdefault(script_rel, {})[plugin] = fh.read()
+            else:
+                F("doctrine_script_missing", where,
+                  f"plugins/{plugin}/{script_rel} is missing; the table is never read "
+                  f"on a machine whose only interpreter is that one")
         hooks = os.path.join(PLUGINS, plugin, "hooks", "hooks.json")
         if not os.path.isfile(hooks):
             F("doctrine_hook_unwired", where,
@@ -1268,6 +1300,13 @@ def check_doctrine_hooks(findings, skills):
                   f"insert {name!r} points at {fn!r}, which does not exist beside the table")
             elif os.path.getsize(path) == 0:
                 F("doctrine_file_empty", where, f"insert {name!r}'s file {fn!r} is empty")
+        # A typed command arrives bare; the hook tries it under these prefixes. Each must
+        # be a plugin that exists, or the prefix matches nothing and hides a typo.
+        for p in (data.get("bare_prefixes") or []):
+            if p not in local_plugins:
+                F("doctrine_bare_prefix_unknown", where,
+                  f"bare_prefixes names {p!r}, which is not a plugin under plugins/; a "
+                  f"typed command is never tried under it")
         used = set()
         for sub in (data.get("subscriptions") or []):
             insert, target = sub.get("insert"), sub.get("on", "")
@@ -1303,12 +1342,14 @@ def check_doctrine_hooks(findings, skills):
 
     # The script is the same code in every plugin that carries it. Two copies of a
     # matcher is a drift risk; a checker that fails on the drift makes it a fact.
-    if len(scripts) > 1:
-        first = sorted(scripts)[0]
-        for plugin in sorted(scripts)[1:]:
-            if scripts[plugin] != scripts[first]:
-                F("doctrine_hook_drift", rel(os.path.join(PLUGINS, plugin, DOCTRINE_SCRIPT)),
-                  f"differs from plugins/{first}/{DOCTRINE_SCRIPT}; the two must be "
+    for script_rel, copies in scripts.items():
+        if len(copies) < 2:
+            continue
+        first = sorted(copies)[0]
+        for plugin in sorted(copies)[1:]:
+            if copies[plugin] != copies[first]:
+                F("doctrine_hook_drift", rel(os.path.join(PLUGINS, plugin, script_rel)),
+                  f"differs from plugins/{first}/{script_rel}; the copies must be "
                   f"byte-identical, fix one and copy it")
 
 
@@ -1318,8 +1359,10 @@ def check_retired_plugin_refs(findings):
     Scanned repo-wide with the usual exemptions: the archive dirs and the session
     records are history and may name it; this file assembles the name from parts.
     Prose naming it in order to say it is gone — the runbook telling Parker to
-    uninstall it, the steward log recording the ruling — is correct content and
-    is exempted by the shared counter-example test.
+    uninstall it, the steward log recording the ruling — is correct content. The
+    exemption here is the same-sentence form, not the proximity form: an
+    instruction to run it two sentences after an unrelated "never" is still an
+    instruction to run it.
     """
     pat = re.compile(re.escape(RETIRED_PLUGIN), re.I)
     for path in walk(ROOT, (".md", ".json", ".py", ".ps1", ".mdc", ".yml", ".yaml",
@@ -1330,7 +1373,7 @@ def check_retired_plugin_refs(findings):
         with open(path, encoding="utf-8", errors="replace") as fh:
             text = fh.read()
         for m in pat.finditer(text):
-            if is_counter_example(text, m.start()):
+            if is_counter_example_in_sentence(text, m.start()):
                 continue
             line = text[:m.start()].count("\n") + 1
             findings.append({"level": "FAIL", "code": "retired_plugin_ref",

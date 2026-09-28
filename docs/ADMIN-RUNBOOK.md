@@ -41,13 +41,16 @@ and a machine that still has it injects the doctrine twice. On the admin machine
 each rep machine, in Claude Code:
 
 1. `/plugin uninstall skill-bus@skill-bus-marketplace`
-2. `/plugin marketplace remove skill-bus-marketplace`
-3. Delete the per-machine copies it made, if present: `~/.claude/skill-bus.json`, and at
-   the desk root `.claude/skill-bus.json` and `.claude/skill-bus-telemetry.jsonl`.
+2. `/plugin marketplace remove skill-bus-marketplace` (the retired marketplace)
+3. Delete the per-machine copies the retired plugin made, if present: `~/.claude/skill-bus.json`,
+   and at the desk root `.claude/skill-bus.json` and `.claude/skill-bus-telemetry.jsonl`
+   (both retired; `.gitignore` keeps a stale one out of a commit).
 4. Re-paste managed settings (§1) — the pasted copy no longer registers the marketplace
    or enables the plugin, so a machine that never had it stays clean.
-5. `/plugin marketplace update`, restart, `/bbs-checkup`: check 1 reports the retired
-   plugin as absent and check 9 finds both `hooks.json` files and the four doctrine files.
+5. `/plugin marketplace update`, restart, `/bbs-checkup`: check 1 always prints one line
+   for the retired plugin ("retired plugin absent" is the one you want; "still loaded — see
+   §1a" means steps 1–2 did not take) and check 9 finds both `hooks.json` files and every
+   doctrine file they name.
    On the first Windows rep machine, run one `bbs-sales:*` skill and confirm the grounding
    doctrine appears once in context — the hook's Windows PowerShell 5.1 path was written to
    that subset but could not be executed by the builder (only pwsh 7 was).

@@ -28,7 +28,9 @@ python3 plugins/bbs-foundations/skills/bbs-claude-md-forge/scripts/check_claude_
 | `stale_model_id` | Read from `models.json`, so the checker cannot itself go stale |
 | `unknown_form_id` | A form ID not in `ca-form-rules.md` — this is the one that reaches a bid |
 | `vendor_profile_key_missing` | A field map reading a key that does not exist, so the field fills with nothing |
-| `skill_bus_dangling` | A subscription naming a skill or command that is gone |
+| `doctrine_sub_dangling` | A doctrine subscription (`hooks/doctrine/subscriptions.json`) naming a skill or command that is gone — the doctrine silently never fires |
+| `doctrine_hook_drift` | The two plugins' copies of `hooks/doctrine.ps1` or `hooks/doctrine.py` differ — one matcher was fixed and the other was not |
+| `retired_plugin_ref` | A live file names the retired injection plugin outside a sentence saying it is retired — an instruction to run something that no longer exists |
 
 It is **counter-example aware**: prose that names a bad value in order to warn about it
 ("earlier revisions said GSPD-05-106, which is not a form BBS files") is correct content,

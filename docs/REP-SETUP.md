@@ -20,7 +20,7 @@ Claude is reading, side by side. Screenshots will be pinned in the Teams sales c
    extensions.
 5. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
    exact sentence to send Parker — send it, use the Desktop app meanwhile.
-7. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
+6. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
 
 ## What you just installed, and what each plugin needs
 

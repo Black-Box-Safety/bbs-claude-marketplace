@@ -7,6 +7,12 @@
       "file": "bbs-grounding-doctrine.md"
     }
   },
+  "bare_prefixes": [
+    "bbs-foundations",
+    "bbs-sales",
+    "bbs-website",
+    "bbs-claude-coach"
+  ],
   "subscriptions": [
     {
       "insert": "bbs-claude-md-doctrine",

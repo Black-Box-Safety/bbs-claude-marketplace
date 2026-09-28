@@ -18,7 +18,7 @@ Execute deliberately, one block at a time. Nothing here touches rep machines.
       a week of prompts beats a standing contradiction of your own guardrails
 - [ ] Delete `~/.claude.json.backup` (51 KB, stale, may hold old keys)
 
-## Marketplaces (11 → keep 5)
+## Marketplaces (11 → keep 4)
 
 - [ ] Keep: claude-plugins-official, bbs-claude-marketplace (register it here — this
       machine never had it), superpowers-marketplace, caveman (ruled in 2026-09-13; becomes a
