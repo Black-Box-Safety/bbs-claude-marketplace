@@ -19,7 +19,8 @@ $packages = @(
   @{ Id = 'JohnMacFarlane.Pandoc';   Why = 'Word attachments to markdown' },
   @{ Id = 'astral-sh.uv';            Why = 'Python runtime for form-fill and document-skills scripts, zero config' },
   @{ Id = 'DuckDB.cli';              Why = 'query price lists and SCPRS exports instead of reading them whole' },
-  @{ Id = 'jqlang.jq';               Why = 'JSON plumbing for scripts and hooks' }
+  @{ Id = 'jqlang.jq';               Why = 'JSON plumbing for scripts and hooks' },
+  @{ Id = 'TheDocumentFoundation.LibreOffice'; Why = 'soffice: quote-builder PDF export and document-skills conversion' }
 )
 
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
@@ -56,4 +57,4 @@ if ($failed.Count -gt 0) {
 } else {
   Write-Host "Done."
 }
-Write-Host "Close and reopen VS Code so PATH picks up the new tools, then run /bbs-checkup in Claude."
+Write-Host "Close and reopen VS Code or Cursor so PATH picks up the new tools, then run /bbs-checkup in Claude."

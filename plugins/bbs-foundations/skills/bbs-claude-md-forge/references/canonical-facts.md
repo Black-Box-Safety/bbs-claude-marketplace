@@ -140,6 +140,11 @@ the send-class tools.
 Quote desk (2026-07): Aanya Samarasinghe (quotes/crossovers), Kim Quezon (door/tactical),
 Joyce Newell (POs), Jeff Azar (body armor), Griffin (federal). Accounting: Amy Leath.
 
+## CA state book scope
+
+Body armor (contract codes `BA-CA`, `BODYARMOR`, `BA-SRCWL`) and CSU/UC are **out** of the
+Kim/Aanya CA state book. Ruling: Parker, in session, 2026-09-28.
+
 ## Model IDs
 
 `claude-opus-5` · `claude-sonnet-5` · `claude-haiku-4-5`. Anything with a dated suffix or

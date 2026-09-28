@@ -7,6 +7,11 @@ not hold review posture or build posture; those differ by tool and live in
 `.cursor/rules/` and `.claude/agents/` respectively. Two agents that share a stance share
 blind spots, and then review is theatre.
 
+`.cursor/rules/bbs-invariants.mdc` is the short always-on injection of the five
+invariants for Cursor sessions that do not load this file (the quote-desk workspace).
+Keep it a pointer, not a second fact base. Stamp the same file onto the desk root;
+do not rewrite it per machine.
+
 ---
 
 ## What this repo is
@@ -30,8 +35,10 @@ that sentence.
    `claude-opus-4-8` survived being superseded because the checker still enforced it.
 4. **Fail loudly on a binding document.** A skill that guesses a checkbox, a signer, or a
    form ID is the failure mode this repo exists to prevent.
-5. **Humans send.** Managed settings deny the send-class tools. Documents are produced
-   ready; a person transmits them.
+5. **Humans send.** On Claude Code, managed settings deny the send-class tools. On
+   Cursor, `.cursor/rules/bbs-invariants.mdc` is the control — Cursor does not inherit
+   that deny list. Documents are produced ready; a person transmits them. Do not add
+   send-capable MCP servers to a rep machine.
 
 ## Where the load-bearing facts live
 
@@ -134,4 +141,4 @@ and answer different questions, so they stay apart.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-09-16.
+Owner: Parker Marshall. Last verified 2026-09-17.
