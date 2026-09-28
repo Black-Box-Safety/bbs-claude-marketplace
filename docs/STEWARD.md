@@ -269,6 +269,22 @@ Write it up with evidence and move to the next slice. Do not idle.
   PR #30 (which fixed the same wording in the foundations hook only). Parker approved
   aligning them with canon: §1204 is never claimed on any California solicitation; §1202 is
   claimed on every California competitive solicitation, informal ones included.
+- **Outlook and Teams Cursor plugins for reps — RULED 2026-09-28: reps do not use Cursor.**
+  Parker, in session: "Reps do not need to use Cursor; that is a guide down the line."
+  Raised in the PR #27 review: `docs/CURSOR-SETUP.md` told every quoting rep to add the
+  Outlook and Teams Cursor plugins, both send-capable, while Cursor does not inherit the
+  managed deny list. Applied in PR #27: `docs/CURSOR-SETUP.md` is now a maintainer / future
+  guide for Parker, not rep onboarding; reps set up with `docs/REP-SETUP.md` (VS Code /
+  Claude Code), and every rep-facing Cursor path the PR added is gone. The Outlook and Teams
+  Cursor plugins are marked send-capable, Parker/Griffin only — not for rep machines.
+  No exception is granted: `.cursor/rules/bbs-invariants.mdc` keeps "Do not add
+  send-capable MCP servers" and AGENTS.md is unchanged.
+- **Body armor and CSU/UC out of the Kim/Aanya CA state book — RULED 2026-09-28: canon.**
+  Parker, in session: "Body armor (BA-CA, BODYARMOR, BA-SRCWL) and CSU/UC are out of the
+  Kim/Aanya CA state book." Raised in the PR #27 review, where the line lived only in the
+  Cursor rule. Its single home is now "CA state book scope" in
+  `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`;
+  `.cursor/rules/bbs-invariants.mdc` points at it instead of restating it.
 - **Who certifies the CalRecycle 74 — RULED 2026-09-18: the rep who quoted the job.**
   `naspo-quote` §5 no longer defaults to Griffin; `ca-form-rules.md` already said the rep.
 - **Sequencing the territory work — RULED 2026-09-28 (Parker, in session): land the

@@ -4,20 +4,28 @@ You already use Claude Code in the Desktop app. **Everything you do today keeps 
 This adds the VS Code quote desk: same Claude, same skills — plus you can SEE the files
 Claude is reading, side by side. Screenshots will be pinned in the Teams sales channel.
 
+On a Mac the steps are the same, with Cmd for Ctrl; step 1 uses `scripts/bbs-setup.sh`.
+
 ## Set up (once)
 
 1. **Run the bootstrap** — download `scripts/bbs-setup.ps1` from the marketplace repo (Parker
    posts it in Teams with the workspace file), then in PowerShell:
    `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1`. It installs Git, Node, Chrome,
-   and the PDF/OCR/Office command-line tools Claude uses to read RFQs. Two minutes, safe to rerun.
+   LibreOffice, and the PDF/OCR tools Claude uses to read RFQs. Two minutes, safe to rerun.
+   Mac: `scripts/bbs-setup.sh` (needs Homebrew). Preview with `-DryRun` / `--dry-run`.
 2. **Install VS Code** — code.visualstudio.com, all defaults.
 3. **Install the Claude Code extension** — Extensions sidebar (Ctrl+Shift+X), search
    "Claude Code", install, then sign in with your BBS Claude account (same login as the
    Desktop app).
 4. **Open the quote desk** — grab `workspace/bbs-rep.code-workspace` from the marketplace
-   repo (Parker posts it in Teams). First open: replace `REPLACE-ON-FIRST-OPEN` with your
-   OneDrive root per `workspace/README.md`, save, reopen. Accept the 4 recommended
-   extensions.
+   repo (Parker posts it in Teams), or run `scripts/install-desktop-launchers.ps1` so it
+   lands on your Desktop with the other workspaces. First open: replace
+   `REPLACE-ON-FIRST-OPEN` with your OneDrive root per `workspace/README.md`, save, reopen.
+   Accept the 4 recommended extensions. The file explorer / primary sidebar stays
+   on the **left**. If yours is on the right: View → Appearance → Move Primary
+   Side Bar Left. Site maintainers open `bbs-web` instead; see
+   `workspace/README.md`. Nothing to wire for the BBS doctrine — the plugins' own
+   hooks inject it whenever a BBS skill runs.
 5. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
    exact sentence to send Parker — send it, use the Desktop app meanwhile.
 6. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
@@ -45,9 +53,9 @@ ones you have. Without them the skills still load, they just have nothing to rea
 
 | Your plugin | Connectors it needs | What breaks without them |
 |---|---|---|
-| `bbs-foundations` | none | nothing — works standalone |
-| `bbs-sales` | BC MCP, SCPRS, Microsoft 365, Firecrawl | pricing and precedent lookups degrade; intake can't pull from Outlook |
-| `bbs-back-office` | **BC MCP** | all 4 skills have nothing to read at all |
+| `bbs-foundations` | Microsoft 365 (`bbs-voice-template` only) | the voice template can't sample your Sent Items; everything else works standalone |
+| `bbs-sales` | BC MCP, Grainger, Microsoft 365, SCPRS (CA book); Firecrawl optional | Grainger pricing, NASPO quotes and promo pages stop; precedent lookups degrade; intake can't pull from Outlook |
+| `bbs-back-office` | **BC MCP**, Grainger, Microsoft 365; CData Connect for `bbs-rebate-profitability` | without BC, nothing to read at all; order reconciliation also needs Grainger and Microsoft 365 |
 | `bbs-website` | Supabase, Shopify, Grainger MCP, Firecrawl | catalog and storefront skills can't act |
 
 Missing one? That is the `/bbs-checkup` line you send Parker — it is an admin assignment,
@@ -90,10 +98,7 @@ command, so a missing library is a clear message, never a half-written bid docum
   Tip: the Claude side panel shows a subset of commands and skills. If a `/command` you
   expect is not offered there, typing `claude` in the integrated terminal gives you all of
   them. Either window works; use whichever you prefer.
-- **Using Cursor instead of VS Code?** Fine. Same extension, same Claude, same skills. One
-  caution: use the Claude panel or `claude` in the terminal for desk work, not Cursor's own
-  Agent or Composer. Cursor's Agent does not read the desk `CLAUDE.md`, so it does not know
-  the folder rules (never rename a folder; account numbers ride on the names).
+- **Cursor** is not part of rep setup; see [`CURSOR-SETUP.md`](CURSOR-SETUP.md) for the maintainer guide.
 - **Desktop app**: everything else, or if VS Code is ever broken. Same Claude.
 
 ## Want an agency storefront?

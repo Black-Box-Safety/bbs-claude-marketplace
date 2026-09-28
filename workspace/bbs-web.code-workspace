@@ -1,0 +1,51 @@
+{
+  "folders": [
+    {
+      "name": "Shopify (storefront)",
+      "path": "REPLACE-REPOS-ROOT/bbs-shopify"
+    },
+    {
+      "name": "Database (product truth)",
+      "path": "REPLACE-REPOS-ROOT/bbs-database"
+    },
+    {
+      "name": "Quote bot (production)",
+      "path": "REPLACE-REPOS-ROOT/bbs-quote-bot"
+    },
+    {
+      "name": "Customer bots (tenants)",
+      "path": "REPLACE-REPOS-ROOT/bbs-customer-bots"
+    }
+  ],
+  "settings": {
+    "window.title": "BBS Web — ${activeEditorShort}",
+    "workbench.sideBar.location": "left",
+    "workbench.activityBar.location": "default",
+    "files.autoSave": "afterDelay",
+    "editor.formatOnSave": true,
+    "editor.minimap.enabled": false,
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/__pycache__": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/*.jsonl": true
+    },
+    "files.associations": {
+      "*.liquid": "liquid"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "anthropic.claude-code",
+      "shopify.theme-check-vscode",
+      "shopify.ruby-lsp",
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "eamodio.gitlens",
+      "ms-python.python",
+      "bradlc.vscode-tailwindcss"
+    ]
+  }
+}

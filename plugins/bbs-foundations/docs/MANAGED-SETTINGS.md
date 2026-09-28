@@ -93,6 +93,14 @@ Parker asked for actually happens. Of the connectors on Parker's account today:
 The `claudeMd` block already tells every session which system of record answers which
 question, so a teammate with the right connectors gets routed correctly without reading this.
 
+**Cursor is a different surface.** claude.ai connectors reach Cursor only through the
+Claude Code extension (`/mcp` in that panel). Cursor Settings → MCP / Plugins is a
+separate list, and reps do not use Cursor (ruled 2026-09-28): Outlook and Teams are
+send-capable and Parker/Griffin only, Mobbin for UI work, Supabase / Vercel / Firecrawl
+for site maintainers. Do not put Grainger keys,
+SCPRS path tokens, or CRM path tokens in a committed `mcp.json`. The role matrix and
+the first-open path live in `docs/CURSOR-SETUP.md`.
+
 ## Parker-local skills — already promoted, now waiting to be retired
 
 This section used to list personal skills "worth promoting". **They are promoted.** Every

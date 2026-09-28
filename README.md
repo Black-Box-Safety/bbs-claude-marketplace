@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/company-Black%20Box%20Safety%2C%20Inc.-051c2c" alt="Black Box Safety, Inc.">
   <img src="https://img.shields.io/badge/certified-SDVOSB%20%C2%B7%20CA%20DVBE%202009473-b19800" alt="SDVOSB federal and California DVBE 2009473">
-  <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, VS Code, and Desktop">
+  <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20Cursor%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, Cursor, VS Code, and Desktop">
   <img src="https://img.shields.io/badge/plugins-5%20BBS%20%2B%205%20pinned-2dd4bf" alt="Five BBS plugins plus five pinned external">
 </p>
 
@@ -29,7 +29,9 @@ The canon. One place holds everything a BBS machine needs to do the job the BBS 
   company-wide doctrine every skill inherits.
 - **Managed settings** the admin pushes from the Claude console: permissions, guardrails, the
   company memory every session starts with.
-- **The rep workspace**: a VS Code workspace pointed at the shared quote-desk folder tree.
+- **Workspaces**: VS Code entry points for the quote desk, the website stack, and admin —
+  Desktop launchers optional, same files on Mac and Windows. (Cursor opens the same files;
+  that is a maintainer guide for later, not rep onboarding.)
 - **Operating docs**: setup guides, runbook, metrics, registry of what is canon and what is
   archived.
 
@@ -44,7 +46,8 @@ Nothing drifts.
 | Deciding what we build next | [`docs/PRODUCT.md`](docs/PRODUCT.md) — the living product plan: principles, the rep experience, merge order, roadmap | ~10 min read |
 | A sales rep | [`docs/REP-SETUP.md`](docs/REP-SETUP.md), then `/bbs-checkup` | ~20 min, once |
 | The admin | [`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §0 → §3a | One morning |
-| Maintaining the website | [`plugins/bbs-website/README.md`](plugins/bbs-website/README.md), then `/bbs-onboard` | ~15 min |
+| Parker, trying Cursor (future; not rep onboarding) | [`docs/CURSOR-SETUP.md`](docs/CURSOR-SETUP.md) — maintainer guide | As needed |
+| Maintaining the website | [`workspace/README.md`](workspace/README.md) (open `bbs-web`), then [`plugins/bbs-website/README.md`](plugins/bbs-website/README.md) and `/bbs-onboard` | ~15 min |
 | Changing a skill | [`plugins/bbs-website/docs/CONTRIBUTING.md`](plugins/bbs-website/docs/CONTRIBUTING.md) and the [design spec](docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md) | As needed |
 
 ## Sixty-second install
@@ -104,7 +107,8 @@ flowchart LR
 These are enforced in settings and doctrine, not left to memory.
 
 - **Claude drafts; a human sends.** Send-class email and e-signature tools are denied by managed
-  policy. Every quote, price, and form is a draft until a rep reviews it.
+  policy in Claude Code. Cursor does not inherit that list — the invariants rule is the control
+  there. Every quote, price, and form is a draft until a rep reviews it.
 - **Never an invented number.** No price, stock, lead time, or certification fact from memory or the
   open web. Unknown becomes `[FLAG: why]`, never a guess.
 - **Certification language follows the channel, and so does small-business status.** Federal and
@@ -127,11 +131,14 @@ forms, and tells you where every number came from. The judgment stays with the p
 ```text
 bbs-claude-marketplace/
 ├── .claude-plugin/marketplace.json     # manifest: 5 BBS plugins (unpinned) + 5 external (pinned)
+├── .cursor/rules/bbs-invariants.mdc    # always-on Cursor doctrine; stamp onto the desk too
 ├── README.md                           # this file
 ├── REGISTRY.md                         # every BBS repo and asset: canon, harvest, parked, archived
-├── workspace/                          # bbs-rep.code-workspace + desk CLAUDE.md template
+├── workspace/                          # bbs-rep · bbs-web · bbs-admin + desk CLAUDE.md template
+├── scripts/bbs-setup.ps1 · bbs-setup.sh · bbs-clone-web-stack.sh
+├── scripts/install-desktop-launchers.sh · install-desktop-launchers.ps1
 ├── docs/
-│   ├── PRODUCT.md · REP-SETUP.md · ADMIN-RUNBOOK.md · ADMIN-CLEANUP.md · MEASUREMENT.md
+│   ├── PRODUCT.md · REP-SETUP.md · CURSOR-SETUP.md · ADMIN-RUNBOOK.md · ADMIN-CLEANUP.md · MEASUREMENT.md
 │   ├── acceptance/                     # one file per pilot gate run
 │   ├── assessments/                    # what we found, dated
 │   └── superpowers/                    # design specs and implementation plans
@@ -157,8 +164,8 @@ bbs-claude-marketplace/
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/models.json`. Anything else is
   stale.
 - **Invariants:** `python3 scripts/check_marketplace.py` catches the defects that fail silently,
-  and runs on every pull request (`.github/workflows/check-marketplace.yml`). It reports rather
-  than blocks for now.
+  and runs on every pull request (`.github/workflows/check-marketplace.yml`). A FAIL fails the PR
+  check (ruled 2026-09-18).
 - **Dependencies:** every skill declares the connectors, MCPs and command-line tools it needs in
   its own frontmatter. `python3 scripts/check_marketplace.py --requirements` prints the table, so
   you can tell before installing whether a job will run on your machine.

@@ -6,20 +6,63 @@
     }
   ],
   "settings": {
+    "window.title": "BBS Quote Desk — ${activeEditorShort}",
     "workbench.startupEditor": "none",
     "workbench.activityBar.location": "default",
     "workbench.statusBar.visible": true,
+    "workbench.sideBar.location": "left",
+    "workbench.panel.defaultLocation": "bottom",
+    "workbench.editor.enablePreview": false,
     "explorer.confirmDelete": true,
     "explorer.confirmDragAndDrop": true,
+    "explorer.compactFolders": false,
+    "explorer.autoReveal": true,
+    "breadcrumbs.enabled": true,
     "editor.formatOnSave": false,
     "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
     "editor.minimap.enabled": false,
+    "editor.wordWrap": "on",
+    "editor.tabSize": 2,
+    "editor.renderWhitespace": "none",
     "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
+    "files.trimTrailingWhitespace": false,
+    "files.insertFinalNewline": false,
+    "files.hotExit": "onExitAndWindowClose",
+    "git.enabled": false,
+    "search.useIgnoreFiles": false,
+    "search.useGlobalIgnoreFiles": false,
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/.git": true,
+      "**/FILLED": false
+    },
+    "files.exclude": {
+      "**/.tmp*": true,
+      "**/~$*": true,
+      "**/.DS_Store": true,
+      "**/Thumbs.db": true
+    },
+    "files.watcherExclude": {
+      "**/.git/objects/**": true,
+      "**/.tmp*": true,
+      "**/~$*": true
+    },
     "terminal.integrated.defaultProfile.windows": "PowerShell",
-    "workbench.panel.defaultLocation": "bottom",
-    "search.exclude": { "**/FILLED": false },
-    "files.exclude": { "**/.tmp*": true },
-    "window.title": "BBS Quote Desk — ${activeEditorShort}"
+    "terminal.integrated.profiles.windows": {
+      "PowerShell": {
+        "source": "PowerShell",
+        "icon": "terminal-powershell"
+      }
+    },
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.profiles.osx": {
+      "zsh": {
+        "path": "zsh",
+        "args": ["-l"]
+      }
+    }
   },
   "extensions": {
     "recommendations": [
