@@ -44,7 +44,7 @@ import sys
 try:
     import pypdf
 except ImportError:
-    sys.exit("pypdf required: pip install pypdf --break-system-packages -q")
+    sys.exit("pypdf required: python -m pip install pypdf (Mac: python3 -m pip install --user pypdf, or use a venv)")
 
 FORM_SIGNATURES = [
     ("CalRecycle 74", ("CALRECYCLE", "POSTCONSUMER RECYCLED")),

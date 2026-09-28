@@ -199,7 +199,7 @@ departs from, and that the concern was actually put to them.)
 Run <date> on the rendered artifact:
 
 ```
-$ python3 tools/brand_check.py <path-to-rendered-piece> --scope <track> --scope agency
+$ python tools/brand_check.py <path-to-rendered-piece> --scope <track> --scope agency
 <pasted output>
 exit=<n>
 ```
