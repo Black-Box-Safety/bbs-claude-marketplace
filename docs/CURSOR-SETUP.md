@@ -13,7 +13,10 @@ file is the same either way.
 1. **Run the bootstrap** — Parker posts the script in Teams with the workspace file.
    - **Mac:** download `scripts/bbs-setup.sh`, then in Terminal:
      `chmod +x bbs-setup.sh && ./bbs-setup.sh`. Needs Homebrew ([brew.sh](https://brew.sh))
-     the first time; after that it is two minutes and safe to rerun.
+     the first time; after that it is two minutes and safe to rerun. It does **not**
+     install PowerShell: the BBS doctrine hook runs on the `python3` that ships with the
+     Xcode command-line tools (Homebrew installs those), so nothing more is needed.
+     `brew install powershell` is optional.
    - **Windows:** `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1`.
    It installs Git, Node, Chrome, LibreOffice, and the PDF/OCR tools used to read RFQs.
 2. **Install Cursor** — [cursor.com](https://cursor.com), all defaults. Sign in with the
@@ -42,11 +45,11 @@ file is the same either way.
 7. **User rule, once** — Cursor Settings → Rules → User Rules. Paste the body of
    `.cursor/rules/bbs-invariants.mdc` from this repo (skip the `---` frontmatter). That
    covers you if you ever open a folder that is not the quote desk.
-8. **Run `/bbs-onboard`** once in the **Claude Code panel** (not the Cursor Agent panel) —
-   wires the skill-bus doctrine so BBS grounding rules fire inside the quoting skills.
-9. **Run `/bbs-checkup`** in that same Claude Code panel. Everything ✅? Done. Anything ❌?
-   It prints the exact sentence to send Parker — send it, use the Desktop app meanwhile.
-10. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
+8. **Run `/bbs-checkup`** in the **Claude Code panel** (not the Cursor Agent panel).
+   Everything ✅? Done. Anything ❌? It prints the exact sentence to send Parker — send it,
+   use the Desktop app meanwhile. Nothing to wire for the BBS doctrine: the plugins' own
+   hooks inject it whenever a BBS skill runs, and check 9 confirms they are live.
+9. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
 
 ## What you just installed, and what each surface needs
 
@@ -54,15 +57,16 @@ Cursor is two tools in one window. Mixing them up is the usual first-week failur
 
 | Surface | How you open it | What it can see |
 |---|---|---|
-| **Claude Code panel** | Claude icon / the extension you signed into | Marketplace plugins, `/ca-rfq-quote`, `/bbs-checkup`, claude.ai connectors (Grainger, BC, CRM, M365, SCPRS). Managed settings deny send-class tools. |
+| **Claude Code panel** | Claude icon / the extension you signed into | Marketplace plugins, `/ca-rfq`, `/bbs-checkup`, claude.ai connectors (Grainger, BC, CRM, M365, SCPRS). Managed settings deny send-class tools. |
 | **Cursor Agent chat** | Cmd+L / Agent | The files you @-mention, Cursor plugins (Outlook, Teams, …), project rules. **Does not inherit Claude Code's deny list or connectors.** Pricing still happens in the Claude Code panel. |
 
-Install only the marketplace plugin for your desk. Everyone gets `bbs-foundations`.
+Install the plugins you need. Everyone gets `bbs-foundations` and `bbs-claude-coach`.
 Run these in the Claude Code panel:
 
 ```bash
 /plugin marketplace add Black-Box-Safety/bbs-claude-marketplace   # once
 /plugin install bbs-foundations@bbs-claude-marketplace            # everyone
+/plugin install bbs-claude-coach@bbs-claude-marketplace           # everyone — understand / start / extend
 /plugin install bbs-sales@bbs-claude-marketplace                  # sales reps
 /plugin install bbs-back-office@bbs-claude-marketplace            # purchasing / accounting
 /plugin install bbs-website@bbs-claude-marketplace                # whoever maintains the site
@@ -76,6 +80,7 @@ is the source; short version:
 | Your plugin | claude.ai connectors it needs |
 |---|---|
 | `bbs-foundations` | none |
+| `bbs-claude-coach` | none |
 | `bbs-sales` | BC, Grainger, M365, SCPRS (CA book), Sales CRM |
 | `bbs-back-office` | BC |
 | `bbs-website` | Supabase, Shopify, Grainger, Firecrawl — **Parker / Griffin only** |
@@ -103,8 +108,8 @@ are a Cursor Agent habit.
 
 | You want | Type |
 |---|---|
-| File today's RFQ and start the record | `/ca-rfq-log` — or "Log this RFQ for [agency]" with the PDF @-mentioned |
-| Price it | `/ca-rfq-quote` — or "Price this against CMC" / the buying institution's name |
+| New RFQ, end to end | `/ca-rfq` with the PDF @-mentioned — it asks first whether to file it, then prices, quotes, and fills the packet |
+| Just file it, or just price it | "Log this RFQ for [agency]" / "Price this against CMC" (or the buying institution's name) — `/ca-rfq` carries either as a gate |
 | Last time we quoted this buyer | "What did we quote this buyer last? Check quote-log and BC." |
 | Grainger cost on NASPO | "Price these Grainger parts against [institution]'s own account." |
 | Packet | "Fill the CA packet for this quote. Flag anything you cannot source." |
