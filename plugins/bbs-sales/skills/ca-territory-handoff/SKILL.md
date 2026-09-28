@@ -45,13 +45,14 @@ overlapping.
 
 ## 1. Get the book, with the scope filter
 
-Invoke `ca-state-sales-grounding` first, every run. It carries the account split, the
-`AREA = CA-STATE` filter, the body-armor exclusion by contract code, the salesperson-code
-caveats and the SCPRS denominator rule. Do not restate any of that here or in your output —
-it changes, and a copy is a second place to be wrong.
-`ca-state-sales-grounding` is account-synced, not part of this marketplace: if it is not
-installed, say so and ask the rep for the account split and scope filter rather than
-assuming them.
+The book's scope — body armor (by contract code) and CSU/UC are out of the Kim/Aanya CA
+state book — lives in `bbs-foundations` `references/canonical-facts.md`, "CA state book scope". Take the exclusions from there, every run, and do not restate
+the codes here or in your output: a copy is a second place to be wrong.
+
+Where the account-synced `ca-state-sales-grounding` is installed, invoke it too for
+additional context: the account split, the `AREA = CA-STATE` filter, the salesperson-code
+caveats and the SCPRS denominator rule. It is not part of this marketplace; if it is not
+installed, say so and ask the rep for the account split rather than assuming it.
 
 Per facility, you need these fields, whatever extract they arrive in. Revenue, rep
 attribution, order months and the customer number come from Business Central

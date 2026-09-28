@@ -49,6 +49,11 @@ without a bid. One sentence, in their language:
 > "Anything not in the catalog can still be bought on the NASPO contract through Grainger's
 > Sourcing team — you don't go to bid, and it lands on a vehicle you already have."
 
+[FLAG: confirm with Parker] — this sentence is not yet sourced to canon or to the LPA's own
+terms. Until Parker confirms that off-catalog Grainger Sourcing orders land on the NASPO
+contract without a bid for this buyer, do not say it in the room; ask the buyer how they
+have handled off-catalog items before instead.
+
 Pair it with a specific instance where this site already used it. Abstract capability is
 forgettable; "you did this in August for the uniform shirts" is not.
 

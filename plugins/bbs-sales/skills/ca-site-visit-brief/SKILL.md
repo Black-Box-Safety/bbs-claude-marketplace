@@ -43,19 +43,23 @@ and let `naspo-quote` build it.
 
 ## 1. Ground first, every run
 
-Invoke `ca-state-sales-grounding` before anything else. It carries the account split, the
-`AREA = CA-STATE` scope filter, the body-armor and higher-ed exclusions, the salesperson-code
-caveats, and the SCPRS denominator rule. Do not restate it in your output.
-`ca-state-sales-grounding` is account-synced, not part of this marketplace: if it is not
-installed, say so and ask the rep for the account split and scope filter rather than
-assuming them.
+Before anything else, take the book's scope from `bbs-foundations` `references/canonical-facts.md`, "CA state book scope": body armor and CSU/UC are out of
+the Kim/Aanya CA state book. Do not restate it in your output.
+
+Where the account-synced `ca-state-sales-grounding` is installed, invoke it too for
+additional context: the account split, the `AREA = CA-STATE` scope filter, the
+salesperson-code caveats, and the SCPRS denominator rule. It is not part of this
+marketplace; if it is not installed, say so and ask the rep for the account split rather
+than assuming it.
 
 Two house rules that bite specifically here:
 
 - **Cancelled invoices are excluded from revenue.** They double-count. A brief quoting gross
   revenue overstates the account to the rep's face.
-- **`bbs_accepted` is not a win flag.** If the CRM shows open RFQs with nothing marked
-  decided, the honest statement is "we do not know if we won these" — never "we won them".
+- **`bbs_accepted` is not a confirmed win** (what it means is open for Parker in
+  `docs/STEWARD.md`). A win is confirmed by a BC quote `acceptedDate`, a converted order, or
+  a quote-log Outcome of *won* the rep has confirmed. Without one, the honest statement is
+  "we do not know if we won these" — never "we won them".
 
 ## 2. Assemble from four sources, and keep them separate
 
@@ -99,7 +103,9 @@ Order matters more than content. The pattern that works:
 2. **The honest item.** Anything going up, any line where we are exposed. Say it before they
    find it, and say it as one sentence, not as a contradiction spread across three bullets.
 3. **The mechanism that makes it easy.** How the agency can buy without going to bid —
-   typically Grainger Sourcing under the LPA (`bbs_lpa = S`). Do not introduce a contract
+   typically Grainger Sourcing under the LPA (`bbs_lpa = S`) [FLAG: confirm with Parker
+   that off-catalog Sourcing orders need no bid — see `references/opening-moves.md`; until
+   then, describe only what this site has already done]. Do not introduce a contract
    vehicle the site has no history on; adding a vehicle to a working punch-out account
    solves a problem they do not have.
 4. **The expansion ask**, tied to something physical they are doing.

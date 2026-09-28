@@ -37,23 +37,36 @@ about the next thing on their list, not this one.
 > prices at."
 
 Quote-first, not conversation-first. Pricing is live against that account today, so the
-opening can carry actual numbers. Then the mechanism:
-
-> "For anything under the threshold you don't have to advertise, and you only need two bids."
-
-That is the SB/DVBE Option — two certified SB or DVBE quotes, no advertising, under a dollar
-threshold whose figure and citation live in `ca-budget-timing` §1 (read it there, not from
-memory). It is the sentence that converts a never-used
-account into a first order, because it removes the work rather than adding a vendor.
+opening can carry actual numbers. Then, where it applies, the mechanism — the SB/DVBE
+Option. Read `ca-budget-timing` §1 before saying anything about it: the agency needs Option
+purchasing authority, it is still a competitive solicitation (only the advertising goes),
+and because BBS is DVBE only in California, BBS can only be one of two or more DVBE quotes.
+Do not paraphrase it from memory and do not promise a buyer that BBS alone makes it easy;
+say what §1 says, or say you will confirm and come back. Used correctly it converts a
+never-used account into a first order, because it removes work rather than adding a vendor.
 
 ## Cold start — no account, no history
 
 > "The competition on this is already done — you can order off our statewide contract today."
 
-Name the vehicle and say what it removes from the buyer's desk: the MRO statewide LPA,
-NASPO ValuePoint, NPPGov, OMNIA, Sourcewell, the Grainger GEUS eMarketplace. The public
-buyer's constraint is process, not preference; being the easiest compliant path is the only
-lever that moves them.
+Name the vehicle this buyer can actually use and say what it removes from their desk. The
+vehicle list and numbers live in `bbs-foundations` `references/canonical-facts.md`,
+"Contract vehicles" — take the number from there, never from memory. Which one fits depends
+on the channel:
+
+| Buyer | Vehicle to name |
+|---|---|
+| California state agency | The NASPO ValuePoint CA MRO statewide LPA |
+| California state agency, body armor | The CA Body Armor LPA |
+| UC campus | UC / OMNIA — a UC vehicle, not a state-agency one |
+| Local law enforcement | NPPGov — not a state-agency vehicle |
+| Body armor, where the buyer orders through Sourcewell | Sourcewell Body Armor — not a state-agency vehicle |
+
+A vehicle a buyer's channel cannot use is not a speed argument, it is a wrong statement in
+front of a procurement officer. Body armor and CSU/UC are also outside the Kim/Aanya state
+book (canonical-facts.md, "CA state book scope"), so on that book the MRO LPA is almost
+always the one. The public buyer's constraint is process, not preference; being the easiest
+compliant path is the only lever that moves them.
 
 ## The true things, and where they come from
 
@@ -63,7 +76,7 @@ statement when a buyer pushes:
 | The claim | Where it comes from |
 |---|---|
 | In California BBS is DVBE-certified and is not a California small business; federally it is SDVOSB and a small business. Never both channels on one document | canonical-facts.md, "Certifications, by jurisdiction", for the ruling; `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` for the cert number and expiry |
-| SB/DVBE Option: two certified quotes, no advertising, under the threshold | State Contracting Manual Vol. 2 §1200 — figure as stated in `ca-budget-timing` §1 |
+| The SB/DVBE Option — authority, mechanics, threshold, and BBS's place in it | `ca-budget-timing` §1, which carries the SCM citation and the figure |
 | Encumbrance is a signed PO, not a delivery | Gov. Code §16304, SAM §8325 — see `ca-budget-timing` |
 | An agency's DVBE attainment against its goal | The agency's own published attainment; cite the report and its date |
 
@@ -72,13 +85,13 @@ this run. Verify before it is spoken, not after.
 
 ## Objections, with answers
 
-**"We already have a supplier for this."** Correct, and this is not a replacement pitch. The
-same items at the same contract price routed through a certified firm move the agency's
-participation numbers. Ask what they buy and on what vehicle; that answer is the next call.
+**"We already have a supplier for this."** Correct, and this is not a replacement pitch.
+Ask what they buy and on what vehicle; that answer is the next call.
 
-**"I have to run a solicitation."** Under the threshold they do not — SB/DVBE Option, two
-certified quotes, no advertising. Above it, the vehicle they can already order from is the
-speed argument.
+**"I have to run a solicitation."** Often they do — the SB/DVBE Option is still a
+competitive solicitation, only without advertising, and it has conditions BBS alone cannot
+meet (`ca-budget-timing` §1). The stronger answer is usually the vehicle they can already
+order from, where the competition is done.
 
 **"I don't have budget right now."** Ask when their money has to be encumbered rather than
 accepting the close. Invoke `ca-budget-timing` before the call and know both deadlines; a

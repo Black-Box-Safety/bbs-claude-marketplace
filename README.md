@@ -94,7 +94,7 @@ flowchart LR
 | Plugin | What it covers | Detail |
 |---|---|---|
 | `bbs-claude-coach` | Empowerment / literacy: understand the toolkit, start any overlapping job, extend it; `/bbs-what-can-i-do`, `/bbs-start`, `/bbs-explain-claude` | [README](plugins/bbs-claude-coach/README.md) |
-| `bbs-sales` | The California quote desk end to end: RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled — plus promo pages and federal deck copy; `/ca-rfq` | [README](plugins/bbs-sales/README.md) |
+| `bbs-sales` | The California quote desk end to end — RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled — plus the territory work in front of it: book handoff, budget timing, agency primers, site-visit prep and the weekly sales report; promo pages and federal deck copy; `/ca-rfq`, `/ca-territory-handoff` | [README](plugins/bbs-sales/README.md) |
 | `bbs-back-office` | After the bid is won, out of Business Central: order status, vendor PO receipts, problem-order reconciliation, true margin after Grainger rebates | [README](plugins/bbs-back-office/README.md) |
 | `bbs-foundations` | Company memory, doctrine every skill inherits, the BBS way to write a CLAUDE.md, personal voice skills, `/bbs-checkup`, managed settings, the one-page AUP | [README](plugins/bbs-foundations/README.md) |
 | `bbs-website` | The storefront: price list to product page across the database, Shopify, and the quote bot | [README](plugins/bbs-website/README.md) |

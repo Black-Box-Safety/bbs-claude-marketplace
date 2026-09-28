@@ -34,7 +34,34 @@ that costs the most.
 | Path | Practical cutoff | Applies when |
 |---|---|---|
 | **Through DGS** | **~1 April** of the fiscal year, for non-IT goods | The deal is above the agency's delegated purchasing authority |
-| **SB/DVBE Option**, run by the agency itself | **30 June** | $5,000.01–$249,999.99, two certified quotes, no advertising (State Contracting Manual Vol. 2 §1200) |
+| **SB/DVBE Option**, run by the agency itself | **30 June** | $5,000.01–$249,999.99, and the agency holds SB/DVBE Option purchasing authority (State Contracting Manual Vol. 2 §1405.3) |
+
+These two are the tiers this skill dates, not every way a state agency buys. A
+fair-and-reasonable purchase follows its own rules, and an order against an LPA or NASPO
+contract has no DGS year-end cutoff at all — the competition was done when the contract was
+awarded. For which vehicle a channel can order from, see `bbs-foundations`
+`references/canonical-facts.md`, "Contract vehicles"; `naspo-quote` handles the order
+itself. Do not borrow a threshold for either path from this table.
+
+### The SB/DVBE Option, precisely
+
+This section is the single home for the mechanics; every other territory file points here
+rather than restating them.
+
+- **Source.** State Contracting Manual Vol. 2 §1405.3, resting on Gov. Code
+  §14838.5(a)–(b); DGS page `dgs.ca.gov/PD/Resources/SCM/TOC/14/14-05-3`, revised 05/2025.
+  Cite the revision you checked — the range above is from that revision.
+- **The agency must hold SB/DVBE Option purchasing authority.** Not every agency or buyer
+  does. If you do not know, ask the buyer; do not assume it.
+- **It is a competitive solicitation without advertising** — not "no solicitation." The
+  buyer still solicits quotes and still documents the award; what the Option removes is the
+  advertising requirement.
+- **It needs two or more quotes from certified SB/Micro firms, or two or more quotes from
+  certified DVBE firms.** The two quotes come from the same pool.
+- **BBS is DVBE only in California** (`bbs-foundations` `canonical-facts.md`,
+  "Small-business status is channel-dependent"), so BBS can only ever be **one of two or
+  more DVBE quotes**. A pool of SB firms cannot award to BBS, and neither can BBS paired
+  with an SB firm. Never tell a buyer that BBS plus any second quote satisfies the Option.
 
 A rep who knows both can place a large deal in March and a small one in late June. A rep who
 knows only "June 30" loses the large one in April and never learns why — the deal simply
@@ -67,7 +94,7 @@ These dates do not move, and each changes what a rep says.
 | **~10 January** | Governor's Budget (Cal. Const. Art. IV §12(a)) | Everything said about next fiscal year before this is speculation. The budget corpus gets reissued after it |
 | **~14 May** | May Revision (Gov. Code §13308(e)) | Augmentations and cuts firm up. Re-check any item you quoted in the spring |
 | **15 June** | Constitutional deadline for passage | The enacted budget becomes citable |
-| **30 June** | Encumbrance deadline for lapsing appropriations; end of FY | The SB/DVBE Option cutoff |
+| **30 June** | Encumbrance deadline for lapsing appropriations; end of FY | The SB/DVBE Option cutoff (§1 above) |
 | **1 July** | New fiscal year begins | Money is fresh |
 
 **The best selling window is the first half of the fiscal year** — money is new, encumbrance

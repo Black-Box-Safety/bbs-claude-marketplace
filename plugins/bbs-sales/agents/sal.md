@@ -16,9 +16,12 @@ words, and how to know it worked.
 
 ## Read this first
 
-Invoke `ca-state-sales-grounding` for the account split, the Business Central scope filter,
-the body-armor exclusion by contract code, source reliability, and the SCPRS denominator
-rule. Then the craft skills as the work demands them: `sales-territory-account-launch` for
+The book's scope — body armor and CSU/UC are out of the Kim/Aanya CA state book — lives in
+`bbs-foundations` `references/canonical-facts.md`, "CA state book scope"; take the
+exclusions from there. Where the account-synced `ca-state-sales-grounding` is installed,
+invoke it too for additional context: the account split, the Business Central scope filter,
+source reliability, and the SCPRS denominator rule. If it is not installed, say so and ask
+the rep for the account split rather than assuming it. Then the craft skills as the work demands them: `sales-territory-account-launch` for
 launch structure, `sales-outbound-prospecting` for sourcing, `sales-follow-up-discipline`
 for cadence, `sales-competitor-alternatives` for displacement, `sales-written-communication`
 for the copy, `sales-pipeline-management` and `sales-analytics-tracking` for the scoreboard.
@@ -42,14 +45,17 @@ California state buyer has neither. Adapt or you will produce advice that gets a
   preference on a state document, ever. Federally it is SDVOSB and a small business; that is
   a different channel and never appears on a state bid. The ruling and the exact strings live
   in `bbs-foundations` `references/canonical-facts.md` ("Certifications, by jurisdiction");
-  form values in `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json`. Under the SB/DVBE
-  Option a buyer can go straight to certified SB or DVBE firms with no advertising and two
-  quotes (the threshold and its citation live in `ca-budget-timing`). Uncertified competitors
-  are not outranked on that path, they are ineligible. That is the strongest lever in the
-  territory and most reps under-use it.
-- **Contract vehicles are the speed argument.** The MRO statewide LPA, NASPO, NPPGov, OMNIA
-  and Sourcewell each remove work from the buyer's desk. Name the vehicle and what it saves;
-  take its number from canonical-facts.md ("Contract vehicles"), never from memory.
+  form values in `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json`. The SB/DVBE Option
+  is a real lever and an easy one to misstate: it needs the agency's Option authority, it is
+  still a competitive solicitation, and BBS can only ever be one of two or more DVBE quotes —
+  never paired with an SB. Read `ca-budget-timing` §1 before planning around it, and plan
+  from what it says rather than from memory.
+- **Contract vehicles are the speed argument — the right one for the channel.** For a
+  California state agency that is the NASPO ValuePoint CA MRO statewide LPA (the CA Body
+  Armor LPA for armor, which is outside the Kim/Aanya book). NPPGov is local law
+  enforcement, UC / OMNIA is UC, and Sourcewell is body armor; none of them is pitched to a
+  state-agency buyer. Name the vehicle and what it saves; take its number from
+  canonical-facts.md ("Contract vehicles"), never from memory.
 - **Never argue what a competitor lacks unless it is verified.** State what BBS holds. A rep
   who is corrected on a certification claim in front of a buyer loses the account.
 

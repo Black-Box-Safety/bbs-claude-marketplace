@@ -60,9 +60,10 @@ in public.
 
 - **State what BBS holds, by channel.** In California, DVBE only — BBS is not a California
   small business. Federally, SDVOSB and small business. Never state it without the channel
-  (canonical-facts.md, "Certifications, by jurisdiction"). Under the SB/DVBE Option a buyer
-  can go straight to certified SB or DVBE firms with two quotes and no advertising, which
-  means an uncertified competitor is not outranked, it is ineligible for that path.
+  (canonical-facts.md, "Certifications, by jurisdiction"). What that certification means
+  under the SB/DVBE Option — including that BBS can only be one of two or more DVBE quotes,
+  and cannot win a pool of SB quotes — is in `ca-budget-timing` §1. Do not size a slice on
+  the Option without reading it.
 - **Never state what a competitor lacks unless it has been verified** in the certification
   registry, with the date of the check recorded. Carry unverified competitor status as an
   open verification item in the output, never as a claim.

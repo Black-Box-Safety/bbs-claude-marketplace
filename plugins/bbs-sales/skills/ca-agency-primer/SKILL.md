@@ -35,11 +35,14 @@ Stop at the document. No outreach, no quotes, no campaign.
 
 ## 1. Ground first
 
-Invoke `ca-state-sales-grounding` every run — account split, scope filter, exclusions,
-SCPRS rules. Cancelled invoices stay excluded. Do not restate the grounding in the output.
-`ca-state-sales-grounding` is account-synced, not part of this marketplace: if it is not
-installed, say so and ask the rep for the account split and scope filter rather than
-assuming them.
+Take the book's scope from `bbs-foundations` `references/canonical-facts.md`, "CA state book scope" every run — body armor and CSU/UC are out of the
+Kim/Aanya CA state book. Cancelled invoices stay excluded. Do not restate either in the
+output.
+
+Where the account-synced `ca-state-sales-grounding` is installed, invoke it too for
+additional context — account split, scope filter, SCPRS rules. It is not part of this
+marketplace; if it is not installed, say so and ask the rep for the account split rather
+than assuming it.
 
 ## 2. Research the agency as a public institution
 

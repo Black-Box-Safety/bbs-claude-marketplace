@@ -10,6 +10,8 @@ description: >-
   market figure in front of a procurement officer. It checks five things — what a rep would
   add, what would hurt them in the room, whether the product story is right, which catalog
   gaps need verifying, and whether it works on a phone ten minutes before the meeting.
+  Do NOT use to write the brief itself (ca-site-visit-brief) or for agency background
+  (ca-agency-primer).
 requires: []
 degrades-without: [business-central, sales-crm]
 ---
@@ -25,11 +27,13 @@ get applied back to the source document.
 
 ## Ground first
 
-Invoke `ca-state-sales-grounding`. A reviewer working from stale account assumptions
-produces confident wrong corrections, which is worse than no review.
-`ca-state-sales-grounding` is account-synced, not part of this marketplace: if it is not
-installed, say so and ask the rep for the account split and scope filter rather than
-assuming them.
+Take the book's scope from `bbs-foundations` `references/canonical-facts.md`, "CA state book scope" — body armor and CSU/UC are out of the Kim/Aanya CA
+state book. A reviewer working from stale account assumptions produces confident wrong
+corrections, which is worse than no review.
+
+Where the account-synced `ca-state-sales-grounding` is installed, invoke it too for
+additional context. It is not part of this marketplace; if it is not installed, say so and
+ask the rep for the account split rather than assuming it.
 
 Read the whole brief, and read the underlying folder and account data too — Business Central
 (`bc_customer_snapshot`) and the Sales CRM (`crm_list_records`) where connected. A review that

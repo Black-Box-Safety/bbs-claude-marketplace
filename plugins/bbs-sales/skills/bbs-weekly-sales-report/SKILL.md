@@ -24,22 +24,25 @@ This skill produces the underlying markdown report he writes the form from.
 The form itself is submitted by a human. Produce the file; do not attempt to submit
 anything on Parker's behalf.
 
-## Invoke the grounding first
+## Ground the scope first
 
-Run `ca-state-sales-grounding` at the start of every run. It carries the Kim/Aanya
-account split, the `AREA = CA-STATE` scope filter, the body-armor and higher-education
-exclusions, the salesperson-code caveats and the source-trust table. Do not restate any
-of it here or in the report — it changes, and a second copy is a second place to be wrong.
-`ca-state-sales-grounding` is account-synced, not part of this marketplace: if it is not
-installed, say so and ask the rep for the account split and scope filter rather than
-assuming them.
+The book's scope — body armor (by contract code) and CSU/UC are out of the Kim/Aanya CA
+state book — lives in `bbs-foundations` `references/canonical-facts.md`, "CA state book
+scope". Take the exclusions from there at the start of every run.
+
+Where the account-synced `ca-state-sales-grounding` is installed, invoke it too for
+additional context: the Kim/Aanya account split, the `AREA = CA-STATE` scope filter, the
+salesperson codes and their caveats, and the source-trust table. Do not restate any of it
+here or in the report — it changes, and a second copy is a second place to be wrong. It is
+not part of this marketplace; if it is not installed, say so and ask Parker for the account
+split rather than assuming it.
 
 ## MCP connectors this needs
 
 | Connector | Used for | If it is absent |
 |---|---|---|
 | Dataverse / Sales CRM (`crm_list_records`, `crm_get_record`, `crm_list_attributes`) | `bbs_rfqs` — the pipeline, per rep | Stop. Say the pipeline section cannot be produced. Do **not** substitute Business Central quote counts for it; that is the specific error this skill exists to prevent. |
-| Business Central (`bc_query_entity`, `bc_list_open_sales_orders`, `bc_get_sales_document`) | Booked orders and invoices for the week | Report the pipeline half and mark bookings "data pending". |
+| Business Central (`bc_query_entity`, `bc_get_sales_document`, `bc_describe_entity`) | Booked orders and invoices for the week | Report the pipeline half and mark bookings "data pending". |
 | Outlook (`outlook_email_search`) | Parker's own outbound activity only | Omit the activity note. Never imply coverage of Kim's or Aanya's mail — there is no delegate access to their mailboxes. |
 
 If a connector needs authorization, say so plainly and stop on that section rather than
@@ -56,20 +59,19 @@ pipeline — often badly. Query the CRM for anything about quotes, RFQs, respons
 win rate. Use BC for what BC is authoritative on: posted orders, invoices, booked revenue,
 AR. The two answer different questions and neither substitutes for the other.
 
-**2. Business Central salesperson codes cannot produce a per-rep split.** `KQUEZON` is
-Kim. `CA STATE TEAM` is a shared Parker-plus-Aanya bucket. `PMARSHALL` exists but is
-unused, and **Aanya has no personal salesperson code at all**. Posted invoices also carry
-codes that predate this arrangement entirely — `AKROTINSKY`, `UNIVERSITY`, `HOUSE`,
-`JEFF`, `CARLOS`, the `BA-*` body-armor codes, and blanks — so do not assume a two-code
-world. Attribute per rep by the CRM record owner (`_ownerid_value`), or failing that by
-the agency-to-rep mapping in the grounding skill (ask Parker for it if that skill is not
-installed). Never by BC salesperson code alone. If a
-BC figure genuinely cannot be split, report it as a team baseline and say in the report
-that it is one.
+**2. Business Central salesperson codes cannot produce a per-rep split.** Which codes
+exist and what each covers is `ca-state-sales-grounding`'s to say, not this skill's —
+read them there, and ask Parker if that skill is not installed. What matters here is the
+consequence: Aanya's work does not land under a code of her own, and posted invoices carry
+codes from earlier arrangements, so do not assume a clean one-code-per-rep world.
+Attribute per rep by the CRM record owner (`_ownerid_value`), or failing that by the
+agency-to-rep mapping in the grounding skill. Never by BC salesperson code alone. If a BC
+figure genuinely cannot be split, report it as a team baseline and say in the report that
+it is one.
 
-**3. Body armor is excluded, by contract code and never by product guesswork.** The
-grounding skill names the codes. Strip them from every figure in this report; they are
-Parker's separate book and leaving them in inflates whichever rep's agency they landed on.
+**3. Body armor and CSU/UC are excluded — body armor by contract code, never by product
+guesswork.** Canon's "CA state book scope" names the codes. Strip them from every figure in
+this report; leaving them in inflates whichever rep's agency they landed on.
 
 **4. Aanya owns CRM records directly.** This is the whole reason her week is measurable.
 Filter `bbs_rfqs` on `_ownerid_value` for her rather than reaching for the BC team bucket.
@@ -89,7 +91,8 @@ mailbox only.
 | `_ownerid_value` | The rep. Kim, Aanya or Parker |
 | `bbs_receiveddate`, `bbs_duedate`, `bbs_submitteddate` | What came in, what was due, what went out on time |
 | `bbs_quotevalue` / `bbs_quotevalue_base` | Dollar value |
-| `bbs_accepted`, `bbs_orderfinalized` | Wins |
+| `bbs_accepted` | **Not a confirmed win.** Report it as "accepted in CRM (unconfirmed)" — see *Wins* below |
+| `bbs_orderfinalized` | Supporting signal only; not by itself a win |
 | `_bbs_accountid_value`, `_bbs_contactid_value` | Agency and named buyer |
 | `statuscode` (In Progress 1, Submitted 100000001), `statecode` (0 Active) | Where it stands |
 | `bbs_quotemethod` (0 Business Central, 1 Provision Connect, 2 Customer Documents) | How it was quoted |
@@ -100,9 +103,22 @@ Three counts carry the week: **received** (`bbs_receiveddate` inside the week),
 passed with no `bbs_submitteddate`). The third is the one worth surfacing every time —
 it is the only number in the report that names work that did not happen.
 
-**Bookings, from Business Central** (`bc_list_open_sales_orders`, `bc_query_entity`) — sales
-orders and posted invoices with their document
-date inside the week, under the grounding skill's scope filter. On documents,
+**Wins.** What `bbs_accepted` means is not yet ruled (open for Parker in `docs/STEWARD.md`,
+*Already open for Parker*; when ruled, the ruling gets one home and this skill points
+there). Until then, take the safe reading: `bbs_accepted` is **not** a confirmed win.
+Report those records in their own column, "accepted in CRM (unconfirmed)". Count a record
+as a **win** only when one of these confirms it — a Business Central quote with an
+`acceptedDate`, a quote converted to a sales order, or a quote-log Outcome of *won* — and
+the rep has confirmed it. Keep the unconfirmed column out of wins and out of any win rate.
+
+**Bookings, from Business Central** (`bc_query_entity`) — query the `salesOrders` entity
+filtered on `documentDate` inside the week, and the `salesInvoices` entity on the same
+filter to catch orders booked and shipped inside the week (an order that shipped in full
+may already have become an invoice). Count each booking once: match an invoice to its
+order where the invoice carries the order number (check with `bc_describe_entity`), and
+say in the report if some could not be matched. Do not use the open-orders tool for
+bookings: it returns only orders not yet fully shipped, so anything booked and shipped in
+the same week disappears. Apply the book's scope as above. On documents,
 `shortcutDimension1Code` is CONTRACT and `shortcutDimension2Code` is the CUSTOMER agency
 code; AREA is not a shortcut dimension and has to be joined through dimension set lines,
 so filtering on dimension 2 for the agency and dimension 1 to exclude the body-armor codes
@@ -120,7 +136,7 @@ Write to `~/weekly-sales-reports/YYYY-MM-DD_weekly-sales-report.md`, Monday date
 [Three or four sentences. What moved, what did not, what needs a decision.]
 
 ## Pipeline (Sales CRM, bbs_rfqs, as of [date])
-| Rep | RFQs received | Submitted | Overdue | Quoted value |
+| Rep | RFQs received | Submitted | Overdue | Quoted value | Accepted in CRM (unconfirmed) | Confirmed wins |
 
 ## Bookings (Business Central, as of [date])
 [Orders and invoices in the week, in scope. Team baseline where it cannot be split — say so.]
@@ -145,6 +161,7 @@ here is read-only — no writes to BC, Dataverse, QuickBooks or Supabase, and no
 on anyone's behalf. Any procurement figure drawn from the SCPRS warehouse is the
 SB/DVBE-visible slice and must say so; it is not the market.
 
-Where a week looks bad, say why before saying who. The FY26-27 revenue drop on this book
-is a departed rep's collapsed territory, not Kim or Aanya underperforming, and a report
-that omits that turns a structural fact into a performance accusation.
+Where a week looks bad, say why before saying who. Explain structural causes — a
+territory in transition, a fiscal-year boundary, a one-time buy in the comparison period,
+an attribution gap in the codes — before naming any person. A report that skips that step
+turns a structural fact into a performance accusation.

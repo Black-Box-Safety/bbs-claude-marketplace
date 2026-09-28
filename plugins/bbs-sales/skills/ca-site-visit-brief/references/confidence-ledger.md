@@ -51,8 +51,8 @@ Say exactly "data pending". Never estimate, never bracket, never round toward a 
 
 The recurring members of this tier:
 
-- **Win/loss on open RFQs.** `bbs_accepted` is not a win flag. If nothing is marked decided,
-  we do not know.
+- **Win/loss on open RFQs.** `bbs_accepted` is not a confirmed win (see `SKILL.md` §1 for
+  what confirms one). Without a confirmation, we do not know.
 - **Contact titles.** Frequently blank in the CRM.
 - **Requester identity** on historical quotes that were addressed to a shared mailbox.
 - **Any site with no BC history at all** — a cold start is a cold start, not a small number.

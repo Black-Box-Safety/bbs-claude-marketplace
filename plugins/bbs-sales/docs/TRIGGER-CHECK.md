@@ -74,7 +74,7 @@ description in `bbs-sales` plus `bbs-claude-coach`, whose `/bbs-what-can-i-do` a
 | Phrasing | Fires | Nearest competitor, and why it loses |
 |---|---|---|
 | "the agency emailed a worksheet from a buyer Kim just called — what now" | `ca-rfq-intake` / `/ca-rfq` | `ca-territory-handoff`. Its description now says in so many words not to use it for a request or worksheet that has arrived |
-| "how do I start on the CDCR book Aanya inherited" | `ca-territory-handoff` | `bbs-claude-coach` ("how do I start"). The coach orients on the toolkit and hands a named job to its skill; "the CDCR book" is a named job. If the coach does fire, it routes here |
+| "how do I start on the CDCR book Aanya inherited" | `ca-territory-handoff` | `bbs-claude-coach` ("how do I start"). The coach orients on the toolkit and hands a named job to its skill; "the CDCR book" is a named job. If the coach does fire, its `references/jobs-map.md` has a territory-handoff row that names this skill |
 | "what can I do about the accounts that went quiet" | `ca-territory-handoff` | `bbs-claude-coach` ("what can I do"). Same reasoning: the object of the sentence is accounts, not the toolkit |
 | "prep Aanya for her Metro visit Thursday" | `ca-site-visit-brief` | `ca-agency-primer`. The primer is agency-wide background; each description now names the other for the boundary |
 | "tell me about DSH before I take it on" | `ca-agency-primer` | `ca-site-visit-brief` — no booked meeting, so the primer |
@@ -84,9 +84,14 @@ description in `bbs-sales` plus `bbs-claude-coach`, whose `/bbs-what-can-i-do` a
 | "is this part on the BPO" | `dgs-bpo-item-check` | `brenda`, who now points at it for exactly this |
 | "price these Grainger items for CalVet" | `grainger-pricing` / `naspo-quote` | `ca-territory-handoff` names "a Grainger account but never ordered" as whitespace; it prices nothing and has no item-number trigger |
 
-**Result:** one obvious collision fixed — the handoff description gained a "do NOT use"
-clause for arrived requests, the primer and the visit brief each name the other, and every
+**Result — a desk read, not a measurement.** Each phrasing above was read against the
+descriptions by one reader judging which a model would pick; nothing was run, and nothing
+here shows how often any skill actually fires. Within that limit: one obvious collision was
+fixed — the handoff description gained a "do NOT use" clause for arrived requests — the
+primer and the visit brief each name the other, the readiness review names both, and every
 new description sits under 960 characters so none of those clauses can be truncated away.
-The coach overlap is a routing overlap, not a contest: the coach exists to hand a job to its
-skill. Skill triggering itself is not machine-checked here; `docs/evals/` needs Claude auth
-to reproduce.
+The coach overlap is meant as a routing overlap rather than a contest, and the coach's
+`jobs-map.md` now carries rows for territory handoff, visit prep, the weekly report and
+budget timing so that it can route there; whether it does in practice is unmeasured. Skill
+triggering is not machine-checked; `docs/evals/` needs Claude auth to reproduce, and until
+it is run this file is a reasoned expectation, not evidence.

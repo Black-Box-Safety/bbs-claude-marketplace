@@ -10,7 +10,7 @@ figure and deadline that leaves this skill carries where it came from.
 | **The enacted Budget Act** (the budget bill as chaptered, plus its trailer bills) | Every appropriation, by item number | The authoritative amount, fiscal year, and any item-stated encumbrance deadline |
 | **Legislative Analyst's Office**, lao.ca.gov/budget | Analysis of the Governor's Budget, the May Revision and the enacted budget, by department | Understanding what an augmentation is *for*, and whether it is one-time. Analysis, not authority — cite the Budget Act for the number |
 | **DGS bulletins** (Purchasing Authority / procurement bulletins) | Purchasing authority thresholds, year-end cutoff dates | The ~1 April DGS cutoff. This is the one that moves; always cite the current fiscal year's bulletin by number |
-| **State Contracting Manual**, Vol. 2 | The SB/DVBE Option mechanics | §1200 for the threshold, the two-quote rule, and the no-advertising provision. Cite the revision date |
+| **State Contracting Manual**, Vol. 2 | The SB/DVBE Option mechanics | §1405.3 (resting on Gov. Code §14838.5(a)–(b)); DGS page `dgs.ca.gov/PD/Resources/SCM/TOC/14/14-05-3`, revised 05/2025. The threshold figure and the mechanics are stated once, in `SKILL.md` §1. Cite the revision date |
 | **Gov. Code §16304 / SAM §8325** | Encumbrance and reversion | The PO-not-delivery rule |
 | **The budget corpus** in `Customers/State of CA Agencies/.sales-team/` | The above, digested per agency | Fast lookup. Always check `as_of`; it is derived, not authoritative |
 

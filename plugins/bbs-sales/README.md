@@ -82,7 +82,7 @@ anything; each stops at a document a rep works from.
 | Skill | Job | Stops at |
 |---|---|---|
 | `ca-territory-handoff` | Band a book by relationship state (recover, defend, watch, provisioned whitespace, cold start), rank by dollars at risk, size the pond, and write the dated call list with the opening words per band | The call list. A request it produces goes to `/ca-rfq` |
-| `ca-budget-timing` | When an agency has money, by when it must encumber it, and which of the two deadlines (DGS ~1 April, agency-run 30 June) governs a deal | The dated answer, with its source. The other territory skills call it for every date they print |
+| `ca-budget-timing` | When an agency has money, by when it must encumber it, and which deadline governs a deal | The dated answer, with its source. The other territory skills call it for every date they print |
 | `ca-agency-primer` | A multi-site department as a system: what each site does, how each buys, where BBS stands, public and internal figures kept visibly apart | The internal primer |
 | `ca-site-visit-brief` | One booked meeting: the long call plan for the night before and the one-screen pocket card for the parking lot | The two documents |
 | `ca-visit-readiness-review` | Pressure-test a finished brief from the side of the person who has to say it in the room | An ordered list of changes, applied back to the brief |
@@ -100,8 +100,10 @@ California BBS is **DVBE only** and not a California small business; federally i
 and a small business. They point at `bbs-foundations` `canonical-facts.md` rather than
 restating the ruling.
 
-`docs/TRIGGER-CHECK.md` records how these descriptions were checked against the desk's
-existing skills, so a territory question does not steal an RFQ intake.
+`docs/TRIGGER-CHECK.md` is a desk read of these descriptions against the desk's existing
+skills — one reader's judgement of which skill each phrasing should reach, aimed at a
+territory question not stealing an RFQ intake. It is not a measurement of triggering; that
+needs `docs/evals/` with Claude auth, and has not been run for these skills.
 
 ## One-time setup
 
