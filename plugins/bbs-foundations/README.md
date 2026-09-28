@@ -59,7 +59,7 @@ nothing beyond the Xcode command-line tools.
 |---|---|
 | `/bbs-claude-md [init\|audit\|sync] [path]` | Runs the checker, decides the kind of place, drafts or repairs from the matching template, hands cap and chain repair to `claudeforge` if present. Nothing is written until you say go; nothing is committed. |
 | `/bbs-my-voice [first-name]` | Samples your real Sent Items, fills the voice profile with you, and writes a personal `<first>-voice` skill into your own `~/.claude/skills/`. Never touches a repo. |
-| `/bbs-workspaces [discover\|request\|custom]` | Finds BBS folders on **this** computer and writes Cursor workspaces for them (quote desk, web, admin, or a custom set of folders you already have). Puts a logo'd launcher on the Desktop. |
+| `/bbs-workspaces [discover\|request\|custom]` | Finds BBS folders on **this** computer and writes VS Code workspaces for them (quote desk, web, admin, or a custom set of folders you already have). Puts a logo'd launcher on the Desktop. |
 
 ## The rules that don't bend
 

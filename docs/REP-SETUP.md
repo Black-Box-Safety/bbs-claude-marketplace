@@ -4,8 +4,7 @@ You already use Claude Code in the Desktop app. **Everything you do today keeps 
 This adds the VS Code quote desk: same Claude, same skills — plus you can SEE the files
 Claude is reading, side by side. Screenshots will be pinned in the Teams sales channel.
 
-On a Mac, or if you use Cursor instead of VS Code, start at
-[`docs/CURSOR-SETUP.md`](CURSOR-SETUP.md). The workspace file is the same.
+On a Mac the steps are the same, with Cmd for Ctrl; step 1 uses `scripts/bbs-setup.sh`.
 
 ## Set up (once)
 
@@ -99,12 +98,7 @@ command, so a missing library is a clear message, never a half-written bid docum
   Tip: the Claude side panel shows a subset of commands and skills. If a `/command` you
   expect is not offered there, typing `claude` in the integrated terminal gives you all of
   them. Either window works; use whichever you prefer.
-- **Using Cursor instead of VS Code?** Fine. Same workspace file, same extension, same
-  Claude, same skills — [`CURSOR-SETUP.md`](CURSOR-SETUP.md) walks it through (Mac
-  included). One caution: use the Claude panel or `claude` in the terminal for desk work,
-  not Cursor's own Agent or Composer. Cursor's Agent does not read the desk `CLAUDE.md`, so
-  it does not know the folder rules (never rename a folder; account numbers ride on the
-  names).
+- **Cursor** is not part of rep setup; see [`CURSOR-SETUP.md`](CURSOR-SETUP.md) for the maintainer guide.
 - **Desktop app**: everything else, or if VS Code is ever broken. Same Claude.
 
 ## Want an agency storefront?

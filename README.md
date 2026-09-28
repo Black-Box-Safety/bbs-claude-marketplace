@@ -29,8 +29,9 @@ The canon. One place holds everything a BBS machine needs to do the job the BBS 
   company-wide doctrine every skill inherits.
 - **Managed settings** the admin pushes from the Claude console: permissions, guardrails, the
   company memory every session starts with.
-- **Workspaces**: Cursor / VS Code entry points for the quote desk, the website stack, and
-  admin — Desktop launchers optional, same files on Mac and Windows.
+- **Workspaces**: VS Code entry points for the quote desk, the website stack, and admin —
+  Desktop launchers optional, same files on Mac and Windows. (Cursor opens the same files;
+  that is a maintainer guide for later, not rep onboarding.)
 - **Operating docs**: setup guides, runbook, metrics, registry of what is canon and what is
   archived.
 
@@ -43,9 +44,9 @@ Nothing drifts.
 |---|---|---|
 | New to any of this | [`plugins/bbs-claude-coach/docs/TOOLKIT.md`](plugins/bbs-claude-coach/docs/TOOLKIT.md) — what the tools are, in plain words, and how to extend them; or run `/bbs-what-can-i-do` | ~10 min read |
 | Deciding what we build next | [`docs/PRODUCT.md`](docs/PRODUCT.md) — the living product plan: principles, the rep experience, merge order, roadmap | ~10 min read |
-| A sales rep on VS Code (Windows) | [`docs/REP-SETUP.md`](docs/REP-SETUP.md), then `/bbs-checkup` | ~20 min, once |
-| A sales rep on Cursor (Mac or Windows) | [`docs/CURSOR-SETUP.md`](docs/CURSOR-SETUP.md), then `/bbs-checkup` | ~20 min, once |
+| A sales rep | [`docs/REP-SETUP.md`](docs/REP-SETUP.md), then `/bbs-checkup` | ~20 min, once |
 | The admin | [`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §0 → §3a | One morning |
+| Parker, trying Cursor (future; not rep onboarding) | [`docs/CURSOR-SETUP.md`](docs/CURSOR-SETUP.md) — maintainer guide | As needed |
 | Maintaining the website | [`workspace/README.md`](workspace/README.md) (open `bbs-web`), then [`plugins/bbs-website/README.md`](plugins/bbs-website/README.md) and `/bbs-onboard` | ~15 min |
 | Changing a skill | [`plugins/bbs-website/docs/CONTRIBUTING.md`](plugins/bbs-website/docs/CONTRIBUTING.md) and the [design spec](docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md) | As needed |
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Discover BBS folders on this machine and write Cursor / VS Code workspaces.
+"""Discover BBS folders on this machine and write VS Code workspaces (Cursor opens them too).
 
 Teammates request workspaces from what is actually on disk — never from guessed
 paths. Named recipes (quote desk, web, admin) fill in when their folders exist.
@@ -305,7 +305,7 @@ def write_unix_command(name: str, target: Path, desktop: Path) -> None:
     quoted = quote_sh(str(target))
     path = desktop / f"Open {name}.command"
     path.write_text(
-        f"#!/bin/zsh\nopen -a Cursor {quoted} 2>/dev/null || open -a 'Visual Studio Code' {quoted}\n",
+        f"#!/bin/zsh\nopen -a 'Visual Studio Code' {quoted} 2>/dev/null || open -a Cursor {quoted}\n",
         encoding="utf-8",
         newline="\n",
     )
@@ -316,8 +316,8 @@ def write_windows_bat(name: str, target: Path, desktop: Path) -> None:
     bat = desktop / f"Open {name}.bat"
     bat.write_text(
         "@echo off\n"
-        f'where cursor >nul 2>&1 && start "" cursor "{target}" && exit /b 0\n'
         f'where code >nul 2>&1 && start "" code "{target}" && exit /b 0\n'
+        f'where cursor >nul 2>&1 && start "" cursor "{target}" && exit /b 0\n'
         f'start "" "{target}"\n',
         encoding="ascii",
         newline="\r\n",
@@ -401,7 +401,7 @@ def compile_chooser(dest: Path, desktop: Path, icon: Path | None, pairs: list[tu
         "  return\n"
         "end if\n"
         "set chosen to choose from list workspaceNames with title \"BBS Workspaces\" "
-        "with prompt \"Open a workspace in Cursor:\" default items "
+        "with prompt \"Open a workspace:\" default items "
         "{item 1 of workspaceNames} OK button name \"Open\"\n"
         "if chosen is false then return\n"
         "set chosenName to item 1 of chosen\n"
@@ -411,8 +411,8 @@ def compile_chooser(dest: Path, desktop: Path, icon: Path | None, pairs: list[tu
         "    exit repeat\n"
         "  end if\n"
         "end repeat\n"
-        "do shell script \"open -a Cursor \" & quoted form of targetFile & "
-        "\" || open -a \" & quoted form of \"Visual Studio Code\" & \" \" & quoted form of targetFile\n"
+        "do shell script \"open -a \" & quoted form of \"Visual Studio Code\" & \" \" & "
+        "quoted form of targetFile & \" || open -a Cursor \" & quoted form of targetFile\n"
     )
     tmp = dest / "_chooser.applescript"
     tmp.write_text(applescript, encoding="utf-8", newline="\n")

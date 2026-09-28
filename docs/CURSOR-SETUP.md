@@ -1,12 +1,12 @@
-# Cursor setup — one sitting, ~20 minutes
+# Cursor setup — maintainer guide (future)
 
-You already use Claude Code in the Desktop app. **Everything you do today keeps working.**
-This adds Cursor as a quote-desk window: the same workspace file as VS Code, the same
-Claude Code skills and connectors, plus Cursor chat that can see the RFQ folder you
-@-mention. Screenshots will be pinned in the Teams sales channel.
+**Reps: this is not your setup.** Reps set up with [`docs/REP-SETUP.md`](REP-SETUP.md)
+(VS Code / Claude Code). This Cursor guide is for Parker and for future use, and is not
+part of rep onboarding (Parker, ruled 2026-09-28).
 
-On Windows with VS Code instead, use [`docs/REP-SETUP.md`](REP-SETUP.md). The workspace
-file is the same either way.
+It adds Cursor as a second window beside the Claude Code Desktop app: the same workspace
+file as VS Code, the same Claude Code skills and connectors, plus Cursor chat that can see
+the folder you @-mention. Everything in the Desktop app keeps working.
 
 ## Set up (once)
 
@@ -38,10 +38,10 @@ file is the same either way.
 5. **Wait for OneDrive** — the agency folders should not show cloud-only placeholders.
    Open the RFQ PDF once so it actually downloads before you ask Claude to read it.
 6. **Cursor plugins (not the same as Claude Code connectors)** — Cursor Settings → Plugins.
-   Everyone who quotes: **Outlook** and **Teams**, signed in as *you*. Site maintainers
-   only: Supabase, Vercel, Firecrawl. Anyone doing UI: Mobbin. Parker assigns the rest
-   (see the matrix below). Do not paste API keys or URLs with tokens into
-   `~/.cursor/mcp.json`.
+   **Outlook and Teams are send-capable: Parker/Griffin only, not for rep machines.**
+   Cursor has no org-wide deny, so humans-send would rest on instructions alone. Site
+   maintainers: Supabase, Vercel, Firecrawl. Anyone doing UI: Mobbin. See the matrix
+   below. Do not paste API keys or URLs with tokens into `~/.cursor/mcp.json`.
 7. **User rule, once** — Cursor Settings → Rules → User Rules. Paste the body of
    `.cursor/rules/bbs-invariants.mdc` from this repo (skip the `---` frontmatter). That
    covers you if you ever open a folder that is not the quote desk.
@@ -94,8 +94,8 @@ These are Cursor Settings → Plugins. They are *not* the claude.ai connectors.
 
 | Cursor plugin | Who | Why |
 |---|---|---|
-| Outlook | Everyone who quotes | RFQs in **your** inbox. Sign in as yourself. |
-| Teams | Everyone who quotes | The sales channel, not a second chat silo |
+| Outlook | **Parker / Griffin only** — send-capable; not for rep machines | RFQs in **your** inbox. Sign in as yourself. Cursor has no org-wide deny, so humans-send would rest on instructions alone |
+| Teams | **Parker / Griffin only** — send-capable; not for rep machines | The sales channel. Same reason as Outlook |
 | Mobbin | Anyone doing UI on the site | Real-app design references |
 | Firecrawl | Site maintainers / Parker | Crawl; needs its own login |
 | Supabase | Site maintainers / Parker | Catalog. A mass UPDATE from a quote session is the failure mode |
@@ -143,9 +143,9 @@ out from under you.
 
 ## When to use which window
 
-- **Cursor**: quote work on a machine where you want the file tree, Outlook/Teams plugins,
-  and Claude Code in one app. Default on Mac.
-- **VS Code**: the same workspace file, if that is what your machine already runs. Same
+- **Cursor**: Parker's machine, when you want the file tree, Cursor plugins, and Claude
+  Code in one app. Not a rep window.
+- **VS Code**: the rep default, Mac and Windows — the same workspace file and the same
   Claude Code extension. [`REP-SETUP.md`](REP-SETUP.md).
 - **Desktop app**: everything that is not folder work, or if Cursor/VS Code is broken.
   Same Claude, same connectors.
@@ -179,8 +179,8 @@ Deliberately **not** in git (Parker-local or a later pass):
   actually get; LibreOffice covers export.
 
 Parker still does the clicks a repo cannot: assign claude.ai connectors, stamp
-`.cursor/rules/bbs-invariants.mdc` onto the desk root, post the workspace + bootstrap in
-Teams, and enable Outlook/Teams for each quoting rep's Cursor account.
+`.cursor/rules/bbs-invariants.mdc` onto the desk root, and post the workspace + bootstrap
+in Teams. Outlook/Teams Cursor plugins go on Parker's and Griffin's Cursor only.
 
 ## Level up (optional, free)
 

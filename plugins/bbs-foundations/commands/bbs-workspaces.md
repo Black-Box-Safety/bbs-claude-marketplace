@@ -1,5 +1,5 @@
 ---
-description: Discover BBS folders on this computer and request Cursor workspaces for them — named recipes (quote desk, web, admin) or a custom workspace from folders you already have. Writes Desktop launchers with the BBS logo.
+description: Discover BBS folders on this computer and request VS Code workspaces for them — named recipes (quote desk, web, admin) or a custom workspace from folders you already have. Writes Desktop launchers with the BBS logo.
 argument-hint: "[discover|request|custom]"
 ---
 

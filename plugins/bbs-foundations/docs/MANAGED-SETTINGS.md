@@ -95,8 +95,9 @@ question, so a teammate with the right connectors gets routed correctly without 
 
 **Cursor is a different surface.** claude.ai connectors reach Cursor only through the
 Claude Code extension (`/mcp` in that panel). Cursor Settings → MCP / Plugins is a
-separate list: Outlook and Teams for quoting reps (their own mailbox), Mobbin for UI
-work, Supabase / Vercel / Firecrawl for site maintainers. Do not put Grainger keys,
+separate list, and reps do not use Cursor (ruled 2026-09-28): Outlook and Teams are
+send-capable and Parker/Griffin only, Mobbin for UI work, Supabase / Vercel / Firecrawl
+for site maintainers. Do not put Grainger keys,
 SCPRS path tokens, or CRM path tokens in a committed `mcp.json`. The role matrix and
 the first-open path live in `docs/CURSOR-SETUP.md`.
 

@@ -1,8 +1,8 @@
 # Admin runbook — Parker's operating manual
 
-Everything the solo admin does, with exact steps. Companion: REP-SETUP.md (VS Code),
-CURSOR-SETUP.md (Cursor / Mac), MEASUREMENT.md (metrics), ADMIN-CLEANUP.md (one-time
-machine cleanup).
+Everything the solo admin does, with exact steps. Companion: REP-SETUP.md (reps: VS Code,
+Mac and Windows), CURSOR-SETUP.md (maintainer guide for later; not rep onboarding),
+MEASUREMENT.md (metrics), ADMIN-CLEANUP.md (one-time machine cleanup).
 
 ## 0. Prerequisites (before ANY deployment)
 
@@ -70,10 +70,11 @@ M365, Grainger, Sales CRM; CA-book reps add SCPRS; BC Chat Connector is retired 
 Supabase/Shopify/Vercel/QuickBooks stay admin-only.
 
 Those assignments are **claude.ai connectors** (Claude Code, Desktop, and the Claude Code
-extension inside Cursor/VS Code). Cursor's own Plugins list is a separate surface: Outlook
-and Teams for everyone who quotes, signed in as themselves; Supabase / Vercel / Firecrawl
-stay Parker/Griffin; never copy `~/.cursor/mcp.json` onto a rep machine. Role matrix:
-`docs/CURSOR-SETUP.md`.
+extension inside Cursor/VS Code). Reps do not use Cursor (ruled 2026-09-28).
+Cursor's own Plugins list is a separate surface, Parker/Griffin only: Outlook and Teams
+are send-capable and never go on a rep machine (Cursor has no org-wide deny); Supabase /
+Vercel / Firecrawl stay Parker/Griffin; never copy `~/.cursor/mcp.json` onto a rep
+machine. Role matrix: `docs/CURSOR-SETUP.md`.
 
 ## 3a. First-deployment sequence (once, in this order)
 

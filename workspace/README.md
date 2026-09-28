@@ -1,6 +1,6 @@
 # Workspaces
 
-Three Cursor / VS Code entry points. Same files on Mac and Windows. A plugin install
+Three VS Code entry points. Same files on Mac and Windows. A plugin install
 does **not** open a folder for you — grab the file from this directory (or let
 `scripts/install-desktop-launchers.sh` copy a filled-in version to your Desktop).
 
@@ -29,11 +29,10 @@ Usual OneDrive shapes (the middle folder name varies by how OneDrive was install
 - **Mac:** `/Users/<you>/Library/CloudStorage/OneDrive-BlackBoxSafety,Inc/Black Box Safety - MASTER`
 
 Then File → Open Workspace from File. Accept the recommended extensions. Full walk-through:
-`docs/REP-SETUP.md` / `docs/CURSOR-SETUP.md` (screenshots will be pinned in the Teams sales
-channel).
+`docs/REP-SETUP.md` (screenshots will be pinned in the Teams sales channel).
 
 Every BBS workspace pins the primary sidebar on the **left**
-(`workbench.sideBar.location: left`). Put the same two keys in Cursor / VS Code
+(`workbench.sideBar.location: left`). Put the same two keys in VS Code
 **User** settings so a folder opened without a workspace file still matches:
 
 ```json
@@ -46,9 +45,15 @@ the BBS folders that already exist on **your** computer and writes only those wo
 then puts a logo'd launcher on the Desktop. Same thing from a terminal:
 
 ```bash
-# Mac / Windows
+# Mac
 python3 scripts/bbs-workspaces.py discover
 python3 scripts/bbs-workspaces.py request --yes --install-desktop
+```
+
+```powershell
+# Windows — scripts\bbs-setup.ps1 installs uv, not python3
+uv run --no-project --python 3 python scripts\bbs-workspaces.py discover
+uv run --no-project --python 3 python scripts\bbs-workspaces.py request --yes --install-desktop
 ```
 
 A custom workspace from folders you already have:
@@ -56,6 +61,8 @@ A custom workspace from folders you already have:
 ```bash
 python3 scripts/bbs-workspaces.py request --custom "Field work" --folder ~/bbs-shopify --install-desktop
 ```
+
+(On Windows, swap `python3` for `uv run --no-project --python 3 python`.)
 
 That writes filled copies under `~/bbs-workspaces/` and a **BBS Workspaces** folder on
 the Desktop. Drag the folder to the Dock (Mac) or pin it (Windows). Double-click
@@ -67,12 +74,13 @@ overwrites it. Clone this repo (or copy the `workspace/` files out) and substitu
 ## Quote desk (`bbs-rep`)
 
 Format-on-save stays off so customer RFQs are not rewritten; `FILLED/` stays searchable
-on purpose. Full walk-through: [`docs/REP-SETUP.md`](../docs/REP-SETUP.md) (VS Code on
-Windows) or [`docs/CURSOR-SETUP.md`](../docs/CURSOR-SETUP.md) (Cursor, including Mac).
+on purpose. Full walk-through: [`docs/REP-SETUP.md`](../docs/REP-SETUP.md) (VS Code, Mac
+and Windows). Cursor is not part of rep setup; [`docs/CURSOR-SETUP.md`](../docs/CURSOR-SETUP.md)
+is the maintainer guide.
 
 The desk folder's `CLAUDE.md` (stamped from `DESK-CLAUDE-template.md`) is what makes
-Claude sessions know the folder rules. Cursor also needs `.cursor/rules/bbs-invariants.mdc`
-at the desk root — Parker stamps that from this repo as part of first-deployment.
+Claude sessions know the folder rules. For a Cursor session (maintainers only), Parker also
+stamps `.cursor/rules/bbs-invariants.mdc` at the desk root from this repo.
 
 ## Web (`bbs-web`)
 

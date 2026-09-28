@@ -55,7 +55,7 @@ report format at the end. Read-only: create/modify nothing, send nothing.
     (`command -v` on macOS; `where.exe` / `Get-Command` on Windows). PASS = all four
     resolve. WARN (not FAIL) for any missing one, naming it and pointing at
     `scripts/bbs-setup.ps1` (Windows, REP-SETUP step 1) or `scripts/bbs-setup.sh` (macOS,
-    CURSOR-SETUP step 1). Also resolve `soffice` (LibreOffice): WARN if missing —
+    REP-SETUP step 1). Also resolve `soffice` (LibreOffice): WARN if missing —
     quote-builder PDF export and document-skills conversion need it.
 
 ## Report format
