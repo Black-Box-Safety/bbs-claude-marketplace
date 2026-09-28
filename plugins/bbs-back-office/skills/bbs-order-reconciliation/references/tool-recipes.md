@@ -141,7 +141,7 @@ need rather than reading the whole thing:
 ```bash
 python -c "
 import re
-t = open('<saved-file>').read()
+t = open('<saved-file>', encoding='utf-8', errors='replace').read()
 t = re.sub(r'<[^>]+>', ' ', t)
 t = re.sub(r'&nbsp;|&#160;', ' ', t)
 t = re.sub(r'&amp;', '&', t)

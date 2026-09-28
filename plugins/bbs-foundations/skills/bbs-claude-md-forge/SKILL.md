@@ -91,8 +91,11 @@ Structure rules the fleet already follows, now stated:
 Run the checker on any folder before calling the work done:
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/bbs-claude-md-forge/scripts/check_claude_md.py" <path> [--json]
+python "${CLAUDE_PLUGIN_ROOT}/skills/bbs-claude-md-forge/scripts/check_claude_md.py" <path> [--json]
 ```
+
+`python` is the interpreter `scripts/bbs-setup.ps1` installs on Windows (where `python3` is
+only the Microsoft Store stub). Mac: type `python3` instead.
 
 It walks every `CLAUDE.md` under the path and fails on: the 150-line cap; a line-one `@`
 import or markdown link that does not resolve; a sandbox path (`/mnt/skills`,

@@ -268,7 +268,7 @@ the tags makes it readable:
 ```bash
 python -c "
 import re
-t = open('<saved-file>').read()
+t = open('<saved-file>', encoding='utf-8', errors='replace').read()
 t = re.sub(r'<[^>]+>', ' ', t); t = re.sub(r'\s+', ' ', t)
 i = t.find('<a phrase you expect>')
 print(t[max(0,i-2500):i+3000])

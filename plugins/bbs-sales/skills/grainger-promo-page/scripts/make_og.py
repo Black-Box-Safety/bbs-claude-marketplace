@@ -60,8 +60,14 @@ def die(msg):
 
 
 def find_chrome(explicit):
+    if explicit:
+        # A path the rep typed is an instruction, not a hint: never fall through
+        # to a different browser than the one they named.
+        if os.path.exists(explicit):
+            return explicit
+        die('--chrome %s does not exist. Pass the full path to a Chrome or '
+            'Chromium binary, or omit --chrome to search the usual places.' % explicit)
     candidates = [
-        explicit,
         os.environ.get('CHROME'),
         CHROME,
         shutil.which('google-chrome'),

@@ -170,6 +170,9 @@ Run from the repo root, on the rendered artifact and not the template:
 python tools/brand_check.py <path-to-index.html> --scope mro --scope agency
 ```
 
+`python` is the interpreter `scripts/bbs-setup.ps1` installs on Windows (where `python3` is
+only the Microsoft Store stub). Mac: type `python3` instead.
+
 Green is not sufficient. The gate catches superseded wording, expired claims, and missing
 required wording. It cannot see an implied endorsement, an unregistered discount claim, a
 substituted contact email, an em dash, or anything set as artwork. Check those by eye and

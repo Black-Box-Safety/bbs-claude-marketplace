@@ -89,6 +89,9 @@ For a form revision you haven't seen, run:
 python scripts/inspect_form.py "<blank form>.pdf"
 ```
 
+`python` is the interpreter `scripts/bbs-setup.ps1` installs on Windows (where `python3` is
+only the Microsoft Store stub). Mac: type `python3` instead, here and in every command below.
+
 Then write one JSON spec covering every form and run:
 
 ```bash
@@ -168,7 +171,7 @@ These forms clip overflowing text silently and radio groups can render with two
 options filled. Render every page and actually look at it:
 
 ```bash
-python -c "import fitz; [p.get_pixmap(dpi=110).save(f'/tmp/v{i}.png') for i,p in enumerate(fitz.open('filled.pdf'))]"
+python -c "import fitz, os, tempfile; [p.get_pixmap(dpi=110).save(os.path.join(tempfile.gettempdir(), f'v{i}.png')) for i,p in enumerate(fitz.open('filled.pdf'))]"
 ```
 
 Check: no clipped values, one radio selected per group, signatures on the line
