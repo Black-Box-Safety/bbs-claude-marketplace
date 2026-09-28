@@ -14,8 +14,8 @@ when that file changes, change the block.
 
 | Block | Purpose | Why it matters for a small team |
 |---|---|---|
-| `extraKnownMarketplaces` | Registers **one** BBS marketplace plus the `skill-bus` marketplace | Two marketplaces named after forks confused install instructions in August. `skill-bus` is the mechanism that injects BBS doctrine when a skill runs — without it the doctrine never fires |
-| `enabledPlugins` | `bbs-foundations`, `bbs-claude-coach`, `bbs-sales`, `bbs-back-office`, `bbs-website`, `claudeforge`, `impeccable`, `skill-bus`, plus the commons: `superpowers-chrome`, `caveman`, `document-skills` — all on, for everyone | Nine people. The cost of an unused plugin is a few lines of context; the cost of a rep missing the quote-desk skill is a lost bid. Literacy (`bbs-claude-coach`) and post-award (`bbs-back-office`) are company-wide too. `bbs-website` is advisory, so a rep having it costs nothing |
+| `extraKnownMarketplaces` | Registers **one** BBS marketplace | Two marketplaces named after forks confused install instructions in August. The doctrine that fires when a skill runs ships inside the plugins themselves (`hooks/hooks.json`), so no second marketplace is needed for it |
+| `enabledPlugins` | `bbs-foundations`, `bbs-claude-coach`, `bbs-sales`, `bbs-back-office`, `bbs-website`, `claudeforge`, `impeccable`, plus the commons: `superpowers-chrome`, `caveman`, `document-skills` — all on, for everyone | Nine people. The cost of an unused plugin is a few lines of context; the cost of a rep missing the quote-desk skill is a lost bid. Literacy (`bbs-claude-coach`) and post-award (`bbs-back-office`) are company-wide too. `bbs-website` is advisory, so a rep having it costs nothing |
 | _(no `mcpServers`)_ | Grainger, BC, SCPRS, CRM, M365 are all claude.ai connectors (ruled 2026-09-13) | Connectors are assigned in the admin console, never configured per machine. The local `grainger-api` stdio server stays on admin machines only; a `mcpServers` entry here would show red in `/mcp` on every rep machine that lacks it |
 | `permissions.allow` | Read-only git/gh and file tools without prompts + the superpowers-chrome browser tool (full browser access is a ruling; prompts per click would defeat it) | Fewer prompts on the actions that cannot break anything |
 | `permissions.ask` | Push, PR create/merge, Vercel deploy, Shopify theme push | Plan → approve → execute is doctrine; this makes the tool enforce it |
@@ -42,8 +42,9 @@ when that file changes, change the block.
 
 ## After pasting it
 
-Each machine: restart Claude Code, then `/plugin marketplace update`, then `/skill-bus:onboard`
-(wires the skill-bus subscriptions from the plugins; `/bbs-onboard` is the website pipeline tour), then `/bbs-my-voice` once. The test
+Each machine: restart Claude Code, then `/plugin marketplace update`, then `/bbs-my-voice`
+once (`/bbs-onboard` is the website pipeline tour). The doctrine hooks need no step: they
+are active as soon as the plugins load. The test
 that matters: a teammate opens a repo they have never seen and runs `/bbs-claude-md audit`
 without asking anyone.
 
@@ -62,7 +63,6 @@ have bitten people:
 ```json
 "strictKnownMarketplaces": [
   { "source": "github", "repo": "Black-Box-Safety/*" },
-  { "source": "github", "repo": "joeymnguyen/skill-bus" },
   { "source": "skills-dir" },
   { "...": "the official marketplace's source, copied from /plugin marketplace list" }
 ]
@@ -144,7 +144,8 @@ through the managed `env` block; a rep turns it on per session with `/caveman li
   `~/grainger-api/mcp/.env` on admin machines. FEIN, seller's permit and cert numbers live
   in `plugins/bbs-sales/references/vendor_profile.json`, committed deliberately in this
   private repo — not re-keyed into a CLAUDE.md.
-- **No hooks.** The skill-bus plugin carries its own; `bbs-website` ships one template
+- **No hooks.** The plugins carry their own (`bbs-foundations` and `bbs-website` inject
+  doctrine, `bbs-sales` guards the quote-desk tree); `bbs-website` ships one template
   validator in `bbs-database`'s repo settings where it belongs.
 - **No model pin.** People pick per task; the `claudeMd` block names the three current IDs
   so nobody writes a stale one into a file.

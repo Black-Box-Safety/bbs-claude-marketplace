@@ -26,7 +26,7 @@ files here.
    tool result or a named reference file — or was it guessed from a neighbouring file?
 2. **Fact and checker together.** A fact with a checker is one thing; changing one and not
    the other is how a superseded value stays enforced.
-3. **Propagation.** A fixed value also lives in `hooks/skill-bus.json` and the managed
+3. **Propagation.** A fixed value also lives in `plugins/*/hooks/doctrine/*.md` and the managed
    `claudeMd`. Grep the whole repo for the old value before believing "fixed".
 4. **Fail loud on a binding document.** `[FLAG: why]` and `[MISSING — NEEDS INPUT]` are
    correct outputs; a guessed checkbox, signer, cert, or form ID is the defect this repo

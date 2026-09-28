@@ -75,9 +75,9 @@ def is_narrative(path):
 # value beside it. "do not" / "don't" now have to be negating a verb of *use*
 # ("do not write", "don't copy"), which is what a real counter-example says.
 COUNTER_EXAMPLE = re.compile(
-    r"\b(never|no longer|stale|superseded|retired|deprecated|counter-example|"
+    r"\b(never|no longer|stale|superseded|retired?|deprecated|counter-example|"
     r"earlier revisions?|used to|rather than|instead of|which is how|avoid|became|"
-    r"flag it|wrong|replaced?|exists only|exists to prevent|prevent|"
+    r"flag it|wrong|replaced?|exists only|exists to prevent|prevent|uninstall|"
     # Vocabulary this repo's own cutover records use to name a dead thing.
     r"merged (?:away|into)|orphans?|contradictions?|contradictory|"
     r"(?:do not|don't|does not|doesn't|cannot|can't)\s+"
@@ -141,6 +141,34 @@ def is_counter_example(text, pos):
     return False
 
 
+def is_counter_example_in_sentence(text, pos):
+    """Stricter form: the qualifying phrase must sit in the same sentence as the match.
+
+    The proximity test above lets "Never guess a price. Then run /<retired>:onboard to
+    finish." pass, because "Never" is within 200 characters. For a scan whose whole job
+    is to stop a retired name creeping back into an instruction, the warning has to be
+    the sentence the name is in. A sentence ends at . ! or ? followed by whitespace or
+    the end of the text — the dot inside `skill-bus.json` or `~/.claude/` is not a
+    full stop. A heading with no full stop runs into the sentence after it, which is
+    the known cost of not parsing markdown.
+    """
+    lines = text.splitlines(keepends=True)
+    idx = text[:pos].count("\n")
+    lo = max(0, idx - CONTEXT_LINES)
+    hi = min(len(lines), idx + CONTEXT_LINES + 1)
+    start = sum(len(ln) for ln in lines[:lo])
+    window = text[start:start + sum(len(ln) for ln in lines[lo:hi])]
+    collapsed, cmap = _collapse(window)
+    here = cmap[min(max(pos - start, 0), len(window))]
+    bounds = [m.end() for m in SENTENCE_END.finditer(collapsed)]
+    s_start = max([b for b in bounds if b <= here], default=0)
+    s_end = min([b for b in bounds if b > here], default=len(collapsed))
+    return bool(COUNTER_EXAMPLE.search(collapsed[s_start:s_end]))
+
+
+SENTENCE_END = re.compile(r"[.!?](?=\s|$)")
+
+
 def rel(path):
     return os.path.relpath(path, ROOT).replace(os.sep, "/")
 
@@ -162,7 +190,8 @@ def walk(root, suffixes):
 def load_skills():
     """Return ({name: {plugin, dir, meta, body}}, duplicates) for every SKILL.md.
 
-    Keyed on the bare folder name because that is what skill-bus subscriptions and
+    Keyed on the bare folder name because that is what the doctrine subscription
+    tables (hooks/doctrine/subscriptions.json, matched on plugin:skill) and
     cross-references use. That makes a name reused in two plugins a silent data
     loss — the second load overwrote the first and the first vanished from every
     check — so collisions are collected and reported rather than swallowed.
@@ -218,7 +247,7 @@ def check(findings):
     for name, first, second in dupes:
         F("duplicate_skill_name", f"plugins/{second}/skills/{name}/SKILL.md",
           f"skill folder {name!r} also exists in {first!r}. Skills are keyed on the bare "
-          f"name — skill-bus matches on plugin:skill and cross-references name it — so one "
+          f"name — the doctrine hooks match on plugin:skill and cross-references name it — so one "
           f"of the two disappears from every check. Rename one, or finish the move")
     if not skills:
         F("no_skills", "plugins/", "no SKILL.md found; is this the marketplace root?")
@@ -244,7 +273,7 @@ def check(findings):
         elif meta["name"] != s["folder"]:
             F("name_folder_mismatch", where,
               f"frontmatter name {meta['name']!r} != folder {s['folder']!r}; "
-              f"skill-bus matches subscriptions on plugin:skill, so this silently "
+              f"the doctrine hooks match subscriptions on plugin:skill, so this silently "
               f"stops doctrine firing")
         desc = " ".join((meta.get("description") or "").split())
         if not desc:
@@ -345,8 +374,11 @@ def check(findings):
     # --- 7. Every skill declares the external systems it needs ----------------
     check_dependencies(findings, skills)
 
-    # --- 8. skill-bus subscriptions resolve to a real plugin:skill ------------
-    check_skill_bus(findings, skills)
+    # --- 8. Doctrine hooks: subscriptions resolve, files exist, hooks parse -----
+    check_doctrine_hooks(findings, skills)
+
+    # --- 8b. The retired injection plugin has not crept back ------------------
+    check_retired_plugin_refs(findings)
 
     # --- 9. marketplace.json lists the plugins that exist ---------------------
     check_marketplace_manifest(findings)
@@ -1166,43 +1198,192 @@ def requirements_table(skills):
     return sorted(rows)
 
 
-def check_skill_bus(findings, skills):
-    """Every skill-bus subscription must name a skill that exists."""
-    for path in walk(PLUGINS, ("skill-bus.json", "hooks.json")):
+# The name of the retired third-party injection plugin, assembled so this file is not
+# itself a hit for the scan below. Parker ruled it out 2026-09-28: it kept a
+# per-machine copy of the doctrine tables and needed a manual onboarding step, so the
+# truth lived in three places. The doctrine now rides the plugins' own hooks.
+RETIRED_PLUGIN = "skill-" + "bus"
+
+# Where a doctrine hook keeps its subscriptions, relative to the plugin root. The
+# hook script reads this same file; the checker never carries a copy of the table.
+DOCTRINE_TABLE = os.path.join("hooks", "doctrine", "subscriptions.json")
+# The same logic twice, for a machine with PowerShell and one with only python3. Each
+# ships in every plugin that carries a table, and every copy must be byte-identical.
+DOCTRINE_SCRIPTS = (os.path.join("hooks", "doctrine.ps1"), os.path.join("hooks", "doctrine.py"))
+
+
+def _hook_command_paths(data):
+    """Every ${CLAUDE_PLUGIN_ROOT}/... path a hooks.json names, in command or args."""
+    out = []
+    pat = re.compile(r"\$\{CLAUDE_PLUGIN_ROOT\}/([^\s\"']+)")
+    for event, groups in (data.get("hooks") or {}).items():
+        for group in groups or []:
+            for hook in (group.get("hooks") or []):
+                strings = [hook.get("command") or ""] + list(hook.get("args") or [])
+                for s in strings:
+                    out += pat.findall(s)
+    return out
+
+
+def check_doctrine_hooks(findings, skills):
+    """Doctrine rides native plugin hooks; prove every piece of that wiring exists.
+
+    A subscription naming a skill that does not exist, an insert whose file is not
+    on disk, a hooks.json that does not parse, or a script path that resolves only
+    on the author's machine all fail the same way: the doctrine silently never
+    fires, and the skill runs without its guardrail text. This is the replacement
+    for the old subscription check, plus the file-level facts the old plugin used
+    to own. Counter-example awareness is not needed here: these are structured
+    files, not prose.
+    """
+    def F(code, where, msg):
+        findings.append({"level": "FAIL", "code": code, "where": where, "msg": msg})
+
+    local_plugins = {d for d in os.listdir(PLUGINS)
+                     if os.path.isdir(os.path.join(PLUGINS, d))}
+
+    # Every hooks.json parses and its script paths exist under the plugin.
+    for plugin in sorted(local_plugins):
+        hooks = os.path.join(PLUGINS, plugin, "hooks", "hooks.json")
+        if not os.path.isfile(hooks):
+            continue
         try:
-            with open(path, encoding="utf-8") as fh:
+            with open(hooks, encoding="utf-8") as fh:
                 data = json.load(fh)
         except (OSError, ValueError) as exc:
-            findings.append({"level": "FAIL", "code": "hook_unparseable",
-                             "where": rel(path), "msg": str(exc)})
+            F("hook_unparseable", rel(hooks), f"{exc}; no hook in this plugin fires")
             continue
+        for p in _hook_command_paths(data):
+            if not os.path.isfile(os.path.join(PLUGINS, plugin, p)):
+                F("hook_script_missing", rel(hooks),
+                  f"names ${{CLAUDE_PLUGIN_ROOT}}/{p}, which does not exist in "
+                  f"plugins/{plugin}; the hook errors on every call")
+
+    # Every doctrine table resolves.
+    scripts = {}
+    for plugin in sorted(local_plugins):
+        table = os.path.join(PLUGINS, plugin, DOCTRINE_TABLE)
+        if not os.path.isfile(table):
+            continue
+        where = rel(table)
+        for script_rel in DOCTRINE_SCRIPTS:
+            script = os.path.join(PLUGINS, plugin, script_rel)
+            if os.path.isfile(script):
+                with open(script, "rb") as fh:
+                    scripts.setdefault(script_rel, {})[plugin] = fh.read()
+            else:
+                F("doctrine_script_missing", where,
+                  f"plugins/{plugin}/{script_rel} is missing; the table is never read "
+                  f"on a machine whose only interpreter is that one")
+        hooks = os.path.join(PLUGINS, plugin, "hooks", "hooks.json")
+        if not os.path.isfile(hooks):
+            F("doctrine_hook_unwired", where,
+              f"plugins/{plugin}/hooks/hooks.json is missing; nothing runs the script")
+        try:
+            with open(table, encoding="utf-8") as fh:
+                data = json.load(fh)
+        except (OSError, ValueError) as exc:
+            F("doctrine_table_unparseable", where, str(exc))
+            continue
+        inserts = data.get("inserts") or {}
+        if not isinstance(inserts, dict) or not inserts:
+            F("doctrine_table_empty", where, "no inserts defined")
+            continue
+        for name, spec in inserts.items():
+            fn = (spec or {}).get("file") if isinstance(spec, dict) else None
+            if not fn:
+                F("doctrine_file_unnamed", where, f"insert {name!r} names no file")
+                continue
+            path = os.path.join(os.path.dirname(table), fn)
+            if not os.path.isfile(path):
+                F("doctrine_file_missing", where,
+                  f"insert {name!r} points at {fn!r}, which does not exist beside the table")
+            elif os.path.getsize(path) == 0:
+                F("doctrine_file_empty", where, f"insert {name!r}'s file {fn!r} is empty")
+        used = set()
         for sub in (data.get("subscriptions") or []):
-            target = sub.get("on", "")
-            if ":" not in target:
+            insert, target = sub.get("insert"), sub.get("on", "")
+            if insert not in inserts:
+                F("doctrine_sub_unknown_insert", where,
+                  f"subscription on {target!r} names insert {insert!r}, which the table "
+                  f"does not define")
+            used.add(insert)
+            if not target:
+                F("doctrine_sub_no_target", where, f"subscription for {insert!r} has no on:")
                 continue
-            plugin, _, skill = target.partition(":")
-            if skill in ("*", ""):
-                continue
-            local_plugins = {d for d in os.listdir(PLUGINS)
-                             if os.path.isdir(os.path.join(PLUGINS, d))}
-            if plugin not in local_plugins:
+            if ":" not in target or "*" in target:
+                continue          # bare or wildcard pattern; nothing to resolve
+            tplugin, _, skill = target.partition(":")
+            if tplugin not in local_plugins:
                 continue          # pinned external plugin; not ours to resolve
             s = skills.get(skill)
             if s is None:
-                # A subscription may legitimately target a command rather than a skill.
-                cmd = os.path.join(PLUGINS, plugin, "commands", f"{skill}.md")
+                cmd = os.path.join(PLUGINS, tplugin, "commands", f"{skill}.md")
                 if os.path.isfile(cmd):
                     continue
-                findings.append({"level": "FAIL", "code": "skill_bus_dangling",
-                                 "where": rel(path),
-                                 "msg": f"subscribes to {target!r}, but {plugin!r} has no "
-                                        f"skill or command named {skill!r}; doctrine "
-                                        f"silently never fires"})
-            elif s["plugin"] != plugin:
-                findings.append({"level": "FAIL", "code": "skill_bus_wrong_plugin",
-                                 "where": rel(path),
-                                 "msg": f"subscribes to {target!r}, but {skill!r} lives in "
-                                        f"{s['plugin']!r}; the match is on plugin:skill"})
+                F("doctrine_sub_dangling", where,
+                  f"subscribes to {target!r}, but {tplugin!r} has no skill or command "
+                  f"named {skill!r}; doctrine silently never fires")
+            elif s["plugin"] != tplugin:
+                F("doctrine_sub_wrong_plugin", where,
+                  f"subscribes to {target!r}, but {skill!r} lives in {s['plugin']!r}; "
+                  f"the match is on plugin:skill")
+        for name in sorted(set(inserts) - used):
+            findings.append({"level": "WARN", "code": "doctrine_insert_unused",
+                             "where": where,
+                             "msg": f"insert {name!r} has no subscription; it never fires"})
+
+    # The script is the same code in every plugin that carries it. Two copies of a
+    # matcher is a drift risk; a checker that fails on the drift makes it a fact.
+    for script_rel, copies in scripts.items():
+        if len(copies) < 2:
+            continue
+        first = sorted(copies)[0]
+        for plugin in sorted(copies)[1:]:
+            if copies[plugin] != copies[first]:
+                F("doctrine_hook_drift", rel(os.path.join(PLUGINS, plugin, script_rel)),
+                  f"differs from plugins/{first}/{script_rel}; the copies must be "
+                  f"byte-identical, fix one and copy it")
+
+
+def check_retired_plugin_refs(findings):
+    """The retired injection plugin must not creep back into anything live.
+
+    Scanned repo-wide with the usual exemptions: the archive dirs and the session
+    records are history and may name it; this file assembles the name from parts.
+    Prose naming it in order to say it is gone — the runbook telling Parker to
+    uninstall it, the steward log recording the ruling — is correct content. The
+    exemption here is the same-sentence form, not the proximity form: an
+    instruction to run it two sentences after an unrelated "never" is still an
+    instruction to run it.
+    """
+    pat = re.compile(re.escape(RETIRED_PLUGIN), re.I)
+    for path in walk(ROOT, (".md", ".json", ".py", ".ps1", ".mdc", ".yml", ".yaml",
+                            ".txt", ".js", ".mjs")):
+        r = rel(path)
+        if is_archive(path) or is_narrative(path) or r == "scripts/check_marketplace.py":
+            continue
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            text = fh.read()
+        for m in pat.finditer(text):
+            if is_counter_example_in_sentence(text, m.start()):
+                continue
+            line = text[:m.start()].count("\n") + 1
+            findings.append({"level": "FAIL", "code": "retired_plugin_ref",
+                             "where": f"{r}:{line}",
+                             "msg": f"names {m.group(0)!r}, which is retired (Parker, "
+                                    f"2026-09-28); doctrine rides the plugins' own "
+                                    f"hooks/hooks.json now"})
+    # .gitignore is not in the suffix list above and is the one place it hid.
+    gi = os.path.join(ROOT, ".gitignore")
+    if os.path.isfile(gi):
+        with open(gi, encoding="utf-8", errors="replace") as fh:
+            for n, line in enumerate(fh, 1):
+                if pat.search(line):
+                    findings.append({"level": "FAIL", "code": "retired_plugin_ref",
+                                     "where": f".gitignore:{n}",
+                                     "msg": f"ignores a {RETIRED_PLUGIN} artifact; the "
+                                            f"plugin is retired and writes nothing"})
 
 
 def check_counts(findings, skills):

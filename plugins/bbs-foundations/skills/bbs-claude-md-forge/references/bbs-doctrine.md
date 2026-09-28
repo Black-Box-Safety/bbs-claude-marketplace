@@ -28,7 +28,7 @@ do not paraphrase it weaker.
 5. **Never fabricate.** "Never fabricate compliance, contract, spend, or pricing facts.
    Unknown → `null`/`[]` with a note. This is the repo's credibility contract, especially
    for federal/SLED bids." (`bbs-suppliers`). "NEVER an invented price, stock, lead time,
-   or brand fact." (skill-bus grounding doctrine).
+   or brand fact." (bbs-foundations grounding doctrine, `hooks/doctrine/`).
 6. **One source of truth per fact; point, never copy.** "Spend → BC. SKUs/specs/prices →
    Supabase. Tier/battlecard/relationship → the brief." (`bbs-suppliers`). "Don't re-type
    DB facts. Point to Supabase; state truth once." (`bbs-database`). "git = the brain;
@@ -61,7 +61,8 @@ do not paraphrase it weaker.
     time." (`bbs-sales-vault`). "Do not use DVBE certification language for
     non-California-state contacts (Bechtel, USACE, LA County, federal) — use SDVOSB."
     (`bbs-agent`). "No cross-jurisdiction cert credit: San Diego SLBE 17BB1659 and LA
-    County DVBE 10086 are LOCAL only; statewide credit = OSDS DVBE 2009473." (skill-bus).
+    County DVBE 10086 are LOCAL only; statewide credit = OSDS DVBE 2009473." (bbs-website
+    storefront doctrine, `hooks/doctrine/`).
 13. **Preferences are bid-evaluation mechanisms, not marketing claims — and BBS holds
     only one of them in California.** On California competitive solicitations, informal
     included, BBS claims the **DVBE incentive** (SCM §1202) under OSDS `2009473`. BBS does

@@ -1,0 +1,31 @@
+{
+  "description": "bbs-foundations doctrine: before a subscribed skill runs — whether Claude calls the Skill tool (PreToolUse) or the user types the slash command (UserPromptExpansion) — inject the BBS CLAUDE.md doctrine or the grounding doctrine as context. Subscriptions and text live in hooks/doctrine/; the scripts re-key nothing. Interpreter chosen by the shell Claude Code runs hooks through (Git Bash on Windows, sh on macOS): pwsh 7, else Windows PowerShell 5.1, else python3 (doctrine.py, same logic), else nothing. Fails open: never blocks a skill.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v pwsh >/dev/null 2>&1 && exec pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/doctrine.ps1\"; command -v powershell >/dev/null 2>&1 && exec powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/doctrine.ps1\"; command -v python3 >/dev/null 2>&1 && exec python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/doctrine.py\"; exit 0",
+            "timeout": 10,
+            "statusMessage": "bbs-foundations: loading BBS doctrine"
+          }
+        ]
+      }
+    ],
+    "UserPromptExpansion": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v pwsh >/dev/null 2>&1 && exec pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/doctrine.ps1\"; command -v powershell >/dev/null 2>&1 && exec powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/doctrine.ps1\"; command -v python3 >/dev/null 2>&1 && exec python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/doctrine.py\"; exit 0",
+            "timeout": 10,
+            "statusMessage": "bbs-foundations: loading BBS doctrine"
+          }
+        ]
+      }
+    ]
+  }
+}

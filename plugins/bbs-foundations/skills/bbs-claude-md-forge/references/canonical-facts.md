@@ -71,22 +71,26 @@ cost); federal and prime bids (SDVOSB there, never DVBE); and storefront or mark
 where an evaluation incentive is not a customer benefit.
 
 The `bbs-shopify` canonical-facts line "BBS is NOT SB-certified" (2026-07-10) and the
-storefront skill-bus doctrine that carries it are **correct for California** and need no
-change on that point. They are, however, written channel-neutrally, and read federally they
-are false. **Reword** (recorded as outstanding for Parker by PR #29): name the channel —
+storefront doctrine that carries it are **correct for California** and need no change on
+that point. They are, however, written channel-neutrally, and read federally they are
+false. **Reword** (recorded as outstanding for Parker by PR #29): name the channel —
 "BBS is not a California small business; no SB or DVBE preference language in storefront
 copy" — so they cannot be read as denying BBS's federal small-business status. **Applied
-to `plugins/bbs-website/hooks/skill-bus.json` 2026-09-22, PR #30.** The `bbs-shopify`
-line is in another repo and still outstanding there.
+to the storefront doctrine 2026-09-22, PR #30** (then in the website plugin's hook file;
+since 2026-09-28 the same text, byte for byte, lives in
+`plugins/bbs-website/hooks/doctrine/bbs-storefront-doctrine.md`). The `bbs-shopify` line is
+in another repo and still outstanding there.
 
-**There are two `hooks/skill-bus.json` files and they carried different problems. Both
-were RESOLVED 2026-09-22 in PR #30.** Record kept in `docs/STEWARD.md` (the resolved
-entry under *Already open for Parker*).
+**The two injected doctrine sets carried different problems. Both were RESOLVED
+2026-09-22 in PR #30.** Record kept in `docs/STEWARD.md` (the resolved entry under
+*Already open for Parker*). The files named below are where the text lives today; on
+2026-09-22 it lived in each plugin's `hooks/` config for the since-retired injection plugin,
+and the 2026-09-28 move carried it over unchanged.
 
 | File | What it carried | Status |
 |---|---|---|
-| `plugins/bbs-foundations/hooks/skill-bus.json` | The **affirmative false claim**: "OSDS SB/DVBE 2009473 for California state, where the 5% SB preference (SCM §1204) … apply on competitive solicitations incl. informal." Injected into **every CLAUDE.md-writing skill run** | **RESOLVED 2026-09-22, PR #30** — now the channel split above |
-| `plugins/bbs-website/hooks/skill-bus.json` | "BBS is NOT SB-certified — never claim 'SB credit'." Correct for California, but channel-neutral | **RESOLVED 2026-09-22, PR #30** — reworded as above |
+| `plugins/bbs-foundations/hooks/doctrine/bbs-claude-md-doctrine.md` | The **affirmative false claim**: "OSDS SB/DVBE 2009473 for California state, where the 5% SB preference (SCM §1204) … apply on competitive solicitations incl. informal." Injected into **every CLAUDE.md-writing skill run** | **RESOLVED 2026-09-22, PR #30** — now the channel split above |
+| `plugins/bbs-website/hooks/doctrine/bbs-storefront-doctrine.md` | "BBS is NOT SB-certified — never claim 'SB credit'." Correct for California, but channel-neutral | **RESOLVED 2026-09-22, PR #30** — reworded as above |
 
 ## Contract vehicles (canonical count: 8)
 

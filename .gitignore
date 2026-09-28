@@ -1,6 +1,6 @@
 node_modules/
 .DS_Store
 *.log
-skill-bus-telemetry.jsonl
+.claude/*.jsonl
 __pycache__/
 *.pyc

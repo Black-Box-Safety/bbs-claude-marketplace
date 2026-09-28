@@ -56,7 +56,6 @@ Nothing drifts.
 /plugin install bbs-sales@bbs-claude-marketplace
 /plugin install bbs-back-office@bbs-claude-marketplace
 /plugin install bbs-website@bbs-claude-marketplace
-/skill-bus:onboard
 /bbs-checkup
 /bbs-what-can-i-do
 ```

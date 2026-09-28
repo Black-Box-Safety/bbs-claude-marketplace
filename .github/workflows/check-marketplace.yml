@@ -3,7 +3,7 @@ name: Marketplace invariants
 # The repo's structural invariants have had a checker since PR #12 and no gate: it ran
 # when an agent remembered to run it. `refresh-models.yml` is a scheduled model-ID refresh,
 # not a PR check. So nothing mechanically stopped a stale model ID, an unquoted
-# `description:` colon, a dangling skill-bus subscription, a drifted README badge count or
+# `description:` colon, a dangling doctrine subscription, a drifted README badge count or
 # — as of this PR — an undeclared connector from reaching `main`.
 #
 # THIS BLOCKS. Ruled by Parker 2026-09-18 (PR #21): a FAIL from either checker fails the
@@ -56,6 +56,22 @@ jobs:
           echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
           set -e
         continue-on-error: true
+
+      # The doctrine hook ships twice, as doctrine.ps1 and doctrine.py, and the two must
+      # emit identical bytes for identical input. ubuntu-latest carries pwsh, and
+      # BBS_REQUIRE_PS=1 turns the test's "no PowerShell, skip" into a failure, so this
+      # step proves parity rather than quietly skipping it. It fails the job directly.
+      - name: Doctrine hook parity (doctrine.ps1 == doctrine.py)
+        env:
+          BBS_REQUIRE_PS: "1"
+        run: |
+          pwsh -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
+          for p in plugins/bbs-foundations plugins/bbs-website; do
+            echo "== $p"
+            pwsh -NoProfile -File "$p/hooks/tests/run-tests.ps1"
+            python3 "$p/hooks/tests/parity.py" | tail -3
+            test "${PIPESTATUS[0]}" = "0"
+          done
 
       # What each skill needs installed, printed on every run, so the "will this run on my
       # machine?" answer is in the PR rather than in someone's head.
