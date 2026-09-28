@@ -1,0 +1,18 @@
+{
+  "name": "bbs-claude-coach",
+  "description": "Teaches BBS teammates how Claude works here and helps them start any overlapping job confidently — what skills, commands, plugins, and connectors are; how to extend the toolkit; the two safety rails without control culture. Use when someone asks what they can do, how to start a job, or how Claude is set up at Black Box Safety.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Black Box Safety, Inc."
+  },
+  "keywords": [
+    "bbs",
+    "coach",
+    "empowerment",
+    "foundations",
+    "literacy",
+    "onboarding",
+    "toolkit"
+  ],
+  "skills": "./skills/"
+}

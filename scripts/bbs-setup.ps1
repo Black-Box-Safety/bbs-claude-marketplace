@@ -19,9 +19,9 @@ $packages = @(
   @{ Id = 'JohnMacFarlane.Pandoc';   Why = 'Word attachments to markdown' },
   @{ Id = 'astral-sh.uv';            Why = 'fast Python env manager for the bbs-website venvs' },
   @{ Id = 'Python.Python.3.12';      Why = 'the python the form-fill, quote and reconciliation scripts run on; pypdf/pymupdf/openpyxl install into it below' },
-  @{ Id = 'TheDocumentFoundation.LibreOffice'; Why = 'soffice: renders and PDF-converts the pptx/docx/xlsx and marketing skills so decks and one-pagers actually come out right' },
   @{ Id = 'DuckDB.cli';              Why = 'query price lists and SCPRS exports instead of reading them whole' },
-  @{ Id = 'jqlang.jq';               Why = 'JSON plumbing for scripts and hooks' }
+  @{ Id = 'jqlang.jq';               Why = 'JSON plumbing for scripts and hooks' },
+  @{ Id = 'TheDocumentFoundation.LibreOffice'; Why = 'soffice: quote-builder PDF export and document-skills conversion' }
 )
 
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
@@ -105,4 +105,4 @@ if ($failed.Count -gt 0) {
 } else {
   Write-Host "Done."
 }
-Write-Host "Close and reopen VS Code so PATH picks up the new tools. If any line above said [later], run this script once more after reopening to finish those, then run /bbs-checkup in Claude."
+Write-Host "Close and reopen VS Code or Cursor so PATH picks up the new tools. If any line above said [later], run this script once more after reopening to finish those, then run /bbs-checkup in Claude."

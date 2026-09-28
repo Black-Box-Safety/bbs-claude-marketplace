@@ -75,8 +75,12 @@ FAIL_PATTERNS = [
      "placeholder content left from a template"),
     ("wrong_mro_lpa", re.compile(r"7-25-52-02\.03|7-18-51-02\.18"),
      "MRO LPA is 7-25-51-02.03"),
-    # No SB-preference check: BBS holds OSDS SB/DVBE 2009473 and the 5% preference applies
-    # on competitive solicitations (SCM §1204). Where it belongs is a reviewer's judgment.
+    # No SB-preference check, still. BBS is a small business federally and NOT in
+    # California (OSDS 2009473 is DVBE only; state SB revenue threshold exceeded —
+    # Parker, in session, 2026-09-22). So the same words are correct in one channel and a
+    # false certification in the other, and a word-match check cannot tell them apart.
+    # Where a claim belongs is a reviewer's judgment against canonical-facts.md,
+    # "Small-business status is channel-dependent".
 ]
 
 WARN_PATTERNS = [

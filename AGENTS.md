@@ -7,11 +7,16 @@ not hold review posture or build posture; those differ by tool and live in
 `.cursor/rules/` and `.claude/agents/` respectively. Two agents that share a stance share
 blind spots, and then review is theatre.
 
+`.cursor/rules/bbs-invariants.mdc` is the short always-on injection of the five
+invariants for Cursor sessions that do not load this file (the quote-desk workspace).
+Keep it a pointer, not a second fact base. Stamp the same file onto the desk root;
+do not rewrite it per machine.
+
 ---
 
 ## What this repo is
 
-The BBS Claude marketplace: four local plugins and a pinned commons, distributing the way
+The BBS Claude marketplace: five local plugins and a pinned commons, distributing the way
 Black Box Safety works to a small team that is not technical. Its output is quotes and
 bids sent to California public agencies under a DVBE certification.
 
@@ -30,8 +35,10 @@ that sentence.
    `claude-opus-4-8` survived being superseded because the checker still enforced it.
 4. **Fail loudly on a binding document.** A skill that guesses a checkbox, a signer, or a
    form ID is the failure mode this repo exists to prevent.
-5. **Humans send.** Managed settings deny the send-class tools. Documents are produced
-   ready; a person transmits them.
+5. **Humans send.** On Claude Code, managed settings deny the send-class tools. On
+   Cursor, `.cursor/rules/bbs-invariants.mdc` is the control — Cursor does not inherit
+   that deny list. Documents are produced ready; a person transmits them. Do not add
+   send-capable MCP servers to a rep machine.
 
 ## Where the load-bearing facts live
 
@@ -43,8 +50,21 @@ that sentence.
 | Company-wide canon | `.../references/canonical-facts.md` | Inferred from a neighbouring file |
 | Supplier context | `bbs-suppliers` repo, bonded by immutable `slug` | Duplicated here |
 
-**Certifications follow the channel.** SDVOSB for federal and primes; SB/DVBE (one OSDS
-cert, `2009473`) for California state. Never mixed on one form.
+**Certifications follow the channel — and so does small-business status.**
+
+- **Federal and primes:** **SDVOSB**, and BBS **is** a small business under SBA size
+  standards. Both are claimable; federal small-business language is correct.
+- **California state:** **DVBE only** (OSDS cert `2009473`). BBS passed California's SB
+  revenue threshold, so BBS is **not** a California small business and the 5% SB
+  preference (SCM §1204) is **never** claimed on a California bid. The DVBE incentive
+  (SCM §1202) is unaffected and still claimed on competitive solicitations.
+
+Never mixed on one form, and never stated channel-neutrally — "BBS is a small business"
+is true federally and false in California, so a sentence that omits the channel is wrong
+in one direction or the other. Ruling and reasoning:
+`plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`,
+"Small-business status is channel-dependent" (Parker, in session, 2026-09-22, superseding
+the 2026-09-02 ruling).
 
 **Signatures.** Parker and Jackson have each delegated signing authority for the forms the
 skills fill (counsel confirmed 2026-09-16), so packets are produced signed. The rule is
@@ -61,13 +81,20 @@ and never a line whose signer you cannot determine. The customer-facing storefro
 ## Verify before you assert
 
 ```bash
-python3 scripts/check_marketplace.py     # structural invariants; exit 1 on FAIL
+python3 scripts/check_marketplace.py         # structural invariants; exit 1 on FAIL
+python3 scripts/check_marketplace.py --requirements   # what each skill needs installed
 ```
 
 It catches what fails silently: a skill that never loads, a description truncated through
-its own "do NOT use" clause, a pointer to a merged-away skill, a path that resolves only
+its own "do NOT use" clause, a pointer to a merged-away skill or a retired slash
+command, a path that resolves only
 on the author's machine, a stale model ID, a form ID that is not in the rules, a
-vendor-profile key that does not exist, a drifted README badge count.
+vendor-profile key that does not exist, an external system a skill uses without declaring,
+a drifted README badge count.
+
+It runs on every pull request via `.github/workflows/check-marketplace.yml` and **a FAIL
+fails the check** (ruled 2026-09-18). Require the `invariants` job in branch protection so
+the merge button follows it.
 
 It is **counter-example aware** — prose naming a bad value in order to warn about it is
 correct content. If you add a check, add that awareness, or the checker will flag its own
@@ -77,6 +104,11 @@ fixes and get ignored.
 reproduce), anything behind an MCP connector, and anything about account-synced skills,
 which live in Parker's claude.ai account and not in git.
 
+That second limit bounds the dependency check too. It proves a **floor**, not a ceiling:
+it can show that a skill naming `grainger_price` must declare `grainger`, and it cannot
+show that a skill which only says "look it up in Business Central" needs anything at all.
+Which is why `requires:` is mandatory rather than inferred — see the working rule below.
+
 ## Working rules
 
 - **Branch, PR, review, merge.** Never commit to `main`. A PR is merged only after review
@@ -85,6 +117,12 @@ which live in Parker's claude.ai account and not in git.
   receiving upstream fixes.
 - **Portable paths only.** `${CLAUDE_PLUGIN_ROOT}` and `$SKILL_DIR`. Never `/mnt/skills/`,
   `/Users/<someone>/`, or a per-machine dotfile copy.
+- **Every skill declares what it needs**, in its own frontmatter: `requires:` for systems
+  the job cannot complete without, `degrades-without:` for ones it says are unavailable and
+  carries on. Both name systems, never kinds — the kind of a system lives once, in the
+  checker's registry, and `--requirements` prints it. A skill that needs nothing writes
+  `requires: []`; an omitted key is a FAIL, because to a rep it reads the same as an
+  oversight. Declare the system, not the brand name a paragraph happens to mention.
 - **Quote a `description:` containing a colon**, or use a `>-` block scalar. An unquoted
   colon means the skill never loads at all.
 - **Keep a skill description under 1024 characters.** Past that it is truncated at
@@ -103,4 +141,4 @@ and answer different questions, so they stay apart.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-09-16.
+Owner: Parker Marshall. Last verified 2026-09-17.

@@ -1,6 +1,8 @@
 ---
 name: brand-page-builder
 description: 'Create an enriched manufacturer brand page in the BBS "Field Manual" Shopify theme, matching the existing 24 brand pages. Use whenever a new manufacturer/vendor is added to the catalog and needs a brand collection page — i.e. a vendor smart-collection + brand.* metafields + a CDN hero image + a true-color logo + a per-brand accent color + Brands-nav wiring, in the established navy style. Triggers: "add a brand page", "create a brand page for <X>", "new manufacturer page", "brand page like the others", "onboard <manufacturer> brand page".'
+requires: [supabase, shopify, shopify-cli]
+degrades-without: [firecrawl]
 ---
 > **BBS Website pipeline — stage: Storefront.** See `site-wiring-map` for how this fits the whole flow.
 

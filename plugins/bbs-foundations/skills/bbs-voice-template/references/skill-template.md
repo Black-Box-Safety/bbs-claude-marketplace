@@ -52,8 +52,9 @@ sign-off from the profile; full signature block on external mail.
 **Never invent facts to make prose flow.** Missing detail → bracketed placeholder, flagged.
 **Never soften substance to sound friendlier.** Warm tone, precise content.
 **Do not replicate their typos.** Match the rhythm, not the errors.
-**Certification discipline:** SDVOSB for federal and primes; OSDS SB/DVBE 2009473 for
-California state; the signature block carries both.
+**Certification discipline:** SDVOSB for federal and primes (BBS is a small business
+federally too); OSDS DVBE 2009473 for California state, never "SB" or "SB/DVBE" there;
+the signature block carries both certifications.
 **Leave untouched:** quoted prior emails, signature blocks, part numbers, specs, prices,
 contract language.
 

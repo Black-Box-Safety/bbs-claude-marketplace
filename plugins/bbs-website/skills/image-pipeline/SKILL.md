@@ -1,6 +1,8 @@
 ---
 name: image-pipeline
 description: 'Prepare and place BBS product/brand imagery — scrape or receive source images, optimize, push to the Sirv CDN, and wire the resulting URLs into Supabase product image fields and Shopify metafields. Use when a product has no image, an image is broken or wrong, or a new brand needs a hero/logo. NOTE: this workflow is being formalized; follow the documented steps and record any gap for /bbs-review.'
+requires: [supabase, sirv]
+degrades-without: [firecrawl, shopify]
 ---
 
 > **BBS Website pipeline — stage: Enrichment.** See `site-wiring-map`.

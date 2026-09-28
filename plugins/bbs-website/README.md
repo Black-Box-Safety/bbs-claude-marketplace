@@ -70,7 +70,7 @@ Generic Shopify/Liquid reference skills (`shopify-plugin:*`, `liquid-skills:*`, 
 
 | Command | Does |
 |---|---|
-| `/bbs-onboard` | Walk the pipeline + roster, wire the skill-bus guardrails, and point at `site-wiring-map`. Start here. |
+| `/bbs-onboard` | Walk the pipeline + roster, confirm the doctrine hook is live, and point at `site-wiring-map`. Start here. |
 | `/bbs-add-product` | Route "upload a product" through intake → pricing → enrichment → storefront. |
 | `/bbs-new-brand` | New-manufacturer flow: import + contract eligibility + brand page. |
 | `/bbs-review` | Run Arthur + Tom against recent changes; write findings back into the skills and docs. |
@@ -114,8 +114,9 @@ doing it, and the rules apply whether or not you've read them.
   source, Shopify renders it, and the quote bot advises over a frozen snapshot plus live search. A
   database change reaches the storefront only after sync, and the bot only after a `gen-*.mjs`
   regen is committed.
-- **Docs teach, the skill-bus enforces**: doctrine inserts auto-inject as context whenever a
-  relevant skill runs. `/bbs-review` reads `skill-bus-telemetry.jsonl` to catch coverage gaps.
+- **Docs teach, the hook enforces**: `hooks/hooks.json` injects the storefront or catalog doctrine
+  (`hooks/doctrine/*.md`) as context whenever a subscribed skill runs. `/bbs-review` reads
+  `hooks/doctrine/subscriptions.json` against the skill list to catch coverage gaps.
 - **Reviewers keep it living**: Arthur (architecture) and Tom (delivery) review recent changes and
   write findings back into the skills.
 - **Reference skills are linked, not copied**: generic Shopify/Liquid skills update on their own.

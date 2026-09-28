@@ -21,14 +21,16 @@ python3 plugins/bbs-foundations/skills/bbs-claude-md-forge/scripts/check_claude_
 | Check | The silent failure it catches |
 |---|---|
 | `frontmatter_unparseable` | An unquoted colon in `description:` — the skill never loads at all |
-| `name_folder_mismatch` | skill-bus matches on `plugin:skill`; a mismatch stops doctrine firing |
+| `name_folder_mismatch` | The doctrine hooks match on `plugin:skill`; a mismatch stops doctrine firing |
 | `description_truncated` | Over 1,024 chars, the tail is dropped at selection time — usually the "Do NOT use for" clause |
 | `dangling_skill_ref` | A skill points at one that was merged away; a rep follows a dead pointer |
 | `nonportable_path` | `/mnt/skills/`, `/Users/<someone>/`, `~/.bbs/` — works for the author, fails for everyone |
 | `stale_model_id` | Read from `models.json`, so the checker cannot itself go stale |
 | `unknown_form_id` | A form ID not in `ca-form-rules.md` — this is the one that reaches a bid |
 | `vendor_profile_key_missing` | A field map reading a key that does not exist, so the field fills with nothing |
-| `skill_bus_dangling` | A subscription naming a skill or command that is gone |
+| `doctrine_sub_dangling` | A doctrine subscription (`hooks/doctrine/subscriptions.json`) naming a skill or command that is gone — the doctrine silently never fires |
+| `doctrine_hook_drift` | The two plugins' copies of `hooks/doctrine.ps1` or `hooks/doctrine.py` differ — one matcher was fixed and the other was not |
+| `retired_plugin_ref` | A live file names the retired injection plugin outside a sentence saying it is retired — an instruction to run something that no longer exists |
 
 It is **counter-example aware**: prose that names a bad value in order to warn about it
 ("earlier revisions said GSPD-05-106, which is not a form BBS files") is correct content,
@@ -77,11 +79,21 @@ Claude is good at producing internally consistent, confident prose. That is exac
 failure mode to review for. The questions that pay:
 
 1. **Is every factual claim sourced, or is it inferred from a neighbouring file?** This
-   repo has already been burned once: a session inferred "BBS is NOT SB-certified" from a
-   storefront doctrine file whose scope it had not checked, which would have cost the 5%
-   Small Business preference on every competitive solicitation. Canonical facts come from
-   `bbs-foundations`, and cert/contract numbers ultimately from primary sources — not from
-   whichever file was open.
+   repo has been burned both ways on the same fact. A session once read "BBS is NOT
+   SB-certified" out of a storefront doctrine file whose scope it had not checked and
+   propagated it as a company-wide fact; a later session reversed it on the same kind of
+   evidence. The conclusion is now settled — see below — but note what the failure was in
+   both directions: **a certification claim taken from whichever file happened to be
+   open, without a channel and without a source.** Canonical facts come from
+   `bbs-foundations`, and cert/contract numbers ultimately from primary sources.
+   A certification claim with no channel on it is not sourced, even when it is true
+   somewhere.
+
+   The settled fact, for reference: federally BBS **is** a small business and SDVOSB; in
+   California BBS is **DVBE only** and not a small business, having passed the state SB
+   revenue threshold. Parker, in session, 2026-09-22, superseding 2026-09-02. Reasoning
+   lives in `canonical-facts.md`, "Small-business status is channel-dependent" — do not
+   re-litigate it from this paragraph.
 
 2. **Does a measurement claim name its conditions?** "It routes correctly" is not a
    finding. Runs per query, named or anonymized, and the actual distribution are.
@@ -91,7 +103,7 @@ failure mode to review for. The questions that pay:
    `claude-opus-4-8` stayed enforced after it was superseded.
 
 4. **Did a fix reach its propagation sites?** Fixing `canonical-facts.md` is the easy half.
-   The value also lives in `hooks/skill-bus.json` (injected into every skill run) and
+   The value also lives in `plugins/*/hooks/doctrine/*.md` (injected into every subscribed skill run) and
    `docs/bbs-managed-settings.json` (the CLAUDE.md pushed to every machine). Grep the whole
    repo for the old value before accepting "fixed".
 
@@ -134,7 +146,7 @@ expiry goes stale in one place while bids go out from another.
 | CA form semantics — who signs, what stays blank | `plugins/bbs-sales/references/ca-form-rules.md` | Restated in a skill (field **IDs** do stay local — a field ID belongs to one PDF) |
 | Model IDs | `plugins/bbs-foundations/.../references/models.json` | Hand-edited; it is generated |
 | Company-wide canon | `plugins/bbs-foundations/.../references/canonical-facts.md` | Inferred from a neighbouring file |
-| Certifications by channel | SDVOSB federal · SB/DVBE (OSDS 2009473) California | Mixed on one form |
+| Certifications by channel | SDVOSB + small business federal · DVBE only (OSDS 2009473) California, no SB preference | Mixed on one form; stated without naming the channel |
 
 ---
 
