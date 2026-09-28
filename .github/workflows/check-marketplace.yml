@@ -3,7 +3,7 @@ name: Marketplace invariants
 # The repo's structural invariants have had a checker since PR #12 and no gate: it ran
 # when an agent remembered to run it. `refresh-models.yml` is a scheduled model-ID refresh,
 # not a PR check. So nothing mechanically stopped a stale model ID, an unquoted
-# `description:` colon, a dangling skill-bus subscription, a drifted README badge count or
+# `description:` colon, a dangling doctrine subscription, a drifted README badge count or
 # — as of this PR — an undeclared connector from reaching `main`.
 #
 # THIS BLOCKS. Ruled by Parker 2026-09-18 (PR #21): a FAIL from either checker fails the

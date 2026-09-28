@@ -32,6 +32,26 @@ MEASUREMENT.md (metrics), ADMIN-CLEANUP.md (one-time machine cleanup).
    role (§3) before rollout.
 4. Only after that machine is green: tell the reps to restart Claude Code.
 
+## 1a. Retire the skill-bus plugin on every existing machine (once, after 2026-09-28)
+
+Ruled 2026-09-28: the third-party `joeymnguyen/skill-bus` plugin is retired. The doctrine
+it injected now rides the plugins' own hooks (`plugins/*/hooks/hooks.json`), so nothing
+needs wiring — but a repo change cannot uninstall a plugin that is already on a machine,
+and a machine that still has it injects the doctrine twice. On the admin machines and
+each rep machine, in Claude Code:
+
+1. `/plugin uninstall skill-bus@skill-bus-marketplace`
+2. `/plugin marketplace remove skill-bus-marketplace`
+3. Delete the per-machine copies it made, if present: `~/.claude/skill-bus.json`, and at
+   the desk root `.claude/skill-bus.json` and `.claude/skill-bus-telemetry.jsonl`.
+4. Re-paste managed settings (§1) — the pasted copy no longer registers the marketplace
+   or enables the plugin, so a machine that never had it stays clean.
+5. `/plugin marketplace update`, restart, `/bbs-checkup`: check 1 reports the retired
+   plugin as absent and check 9 finds both `hooks.json` files and the four doctrine files.
+   On the first Windows rep machine, run one `bbs-sales:*` skill and confirm the grounding
+   doctrine appears once in context — the hook's Windows PowerShell 5.1 path was written to
+   that subset but could not be executed by the builder (only pwsh 7 was).
+
 ## 2. Enable analytics (one-time)
 
 claude.ai → admin settings → Claude Code → enable analytics dashboard + spend report.

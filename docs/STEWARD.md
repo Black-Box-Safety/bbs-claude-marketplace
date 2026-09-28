@@ -199,21 +199,44 @@ Write it up with evidence and move to the next slice. Do not idle.
   to quote" runs `ca-rfq-intake` before anything is priced. `/ca-rfq` Gate 0 (c) no longer
   asks. `docs/evals/queries-ambiguous.json` `naspo-1` is still `__unscored__`; re-score it
   against `ca-rfq-intake` on the next eval run that has Claude auth.
-- **Both `hooks/skill-bus.json` files carried pre-2026-09-22 certification wording —
+- **Both injected doctrine sets carried pre-2026-09-22 certification wording —
   RESOLVED 2026-09-22 in PR #30.** Neither was changed by the SB correction (PR #29),
-  which was scoped out of them; this was a documented deferral, now closed.
-  - `plugins/bbs-foundations/hooks/skill-bus.json` — **RESOLVED 2026-09-22, PR #30.** It
-    injected the *affirmative false claim* that the 5% SB preference (SCM §1204) applies on
-    California competitive solicitations, into **every CLAUDE.md-writing skill run**. Now
-    carries the channel split: California DVBE only, §1204 never, §1202 still claimed;
-    federal SDVOSB and small business.
-  - `plugins/bbs-website/hooks/skill-bus.json` — **RESOLVED 2026-09-22, PR #30.** Its
-    channel-neutral "BBS is NOT SB-certified" is replaced by the reword recorded in
-    canonical facts, which names California. The matching `bbs-shopify` canonical-facts
-    line lives in another repo and is still open there.
+  which was scoped out of them; this was a documented deferral, now closed. (At the time
+  the text lived in each plugin's `hooks/skill-bus.json`, a file retired 2026-09-28; since
+  then the same text, byte for byte, is in `hooks/doctrine/*.md` — see the next entry. The old file names
+  below are kept as the historical record.)
+  - `plugins/bbs-foundations/hooks/skill-bus.json` (retired path; now `hooks/doctrine/bbs-claude-md-doctrine.md`)
+    — **RESOLVED 2026-09-22, PR #30.** It injected the *affirmative false claim* that the
+    5% SB preference (SCM §1204) applies on California competitive solicitations, into
+    **every CLAUDE.md-writing skill run**. Now carries the channel split: California DVBE
+    only, §1204 never, §1202 still claimed; federal SDVOSB and small business.
+  - `plugins/bbs-website/hooks/skill-bus.json` (retired path; now `hooks/doctrine/bbs-storefront-doctrine.md`)
+    — **RESOLVED 2026-09-22, PR #30.** Its channel-neutral "BBS is NOT SB-certified" is
+    replaced by the reword recorded in canonical facts, which names California. The
+    matching `bbs-shopify` canonical-facts line lives in another repo and is still open
+    there.
 
   A PR touching either gets a second reviewer: they reach every skill run without anyone
   installing anything.
+- **The third-party injection plugin (`joeymnguyen/skill-bus`) — RULED 2026-09-28: retired.**
+  Parker, in session: it "causes issues and has permeated throughout the entire set up."
+  It is removed from managed settings, from the checker and from every live doc; the
+  doctrine text it injected is **kept**, moved byte for byte into
+  `plugins/{bbs-foundations,bbs-website}/hooks/doctrine/*.md`, and re-homed on each
+  plugin's own `hooks/hooks.json` (a `PreToolUse` hook on the Skill tool, PowerShell, fails
+  open). Same subscriptions, plus `bbs-claude-coach:*` on the grounding doctrine (owed from
+  the PR #25 review). `check_marketplace.py` FAILs if the name creeps back into a live file.
+  Its settings block (telemetry, `maxMatchesPerSkill`, `observeUnmatched`,
+  `monitorSlashCommands`, `showConditionSkips`) has no native equivalent and is dropped.
+  Spec and plan: `docs/superpowers/{specs,plans}/2026-09-28-remove-skill-bus.md`.
+- **Parker: after the skill-bus removal merges, re-paste managed settings and, on each
+  existing machine, `/plugin uninstall skill-bus@skill-bus-marketplace` and remove the
+  `skill-bus-marketplace` entry** (`/plugin marketplace remove skill-bus-marketplace`) —
+  a repo change cannot do that. Until both are done a machine still runs the retired
+  plugin alongside the native hooks and injects the doctrine twice. Steps:
+  `docs/ADMIN-RUNBOOK.md` §1a. The Windows PowerShell 5.1 path of the new hook was not
+  executable in the build environment (pwsh 7 was); the first Windows rep run of any
+  `bbs-sales:*` skill should be watched for the doctrine appearing once.
 - **`bbs-deck-voice` claims "Largest small business seller to the State of California"** —
   **RESOLVED 2026-09-23, PR #31.** Parker ruled BBS was a California small business when
   it earned that ranking: keep the claim, make it historical. The four present-tense lines

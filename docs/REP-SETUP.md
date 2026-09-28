@@ -18,9 +18,7 @@ Claude is reading, side by side. Screenshots will be pinned in the Teams sales c
    repo (Parker posts it in Teams). First open: replace `REPLACE-ON-FIRST-OPEN` with your
    OneDrive root per `workspace/README.md`, save, reopen. Accept the 4 recommended
    extensions.
-5. **Run `/skill-bus:onboard`** once — wires the skill-bus doctrine injection so BBS grounding rules
-   fire inside the quoting skills. Without it the skills run with no guardrail text.
-6. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
+5. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
    exact sentence to send Parker — send it, use the Desktop app meanwhile.
 7. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
 

@@ -89,6 +89,6 @@ the form merge surfaced two wrong form IDs and seven vendor-profile keys that do
 ## Adding a skill
 
 Drop it in `plugins/<plugin>/skills/<name>/`, with `name:` in the SKILL.md frontmatter
-matching the folder exactly — the skill-bus matches subscriptions on `plugin:skill`, so a
-mismatch silently stops doctrine from firing. Quote the `description:` if it contains a
+matching the folder exactly — the doctrine hooks (`hooks/doctrine/subscriptions.json`)
+match on `plugin:skill`, so a mismatch silently stops doctrine from firing. Quote the `description:` if it contains a
 colon, or the frontmatter will not parse and the skill will not load at all.

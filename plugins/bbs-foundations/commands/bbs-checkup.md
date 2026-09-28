@@ -10,9 +10,11 @@ report format at the end. Read-only: create/modify nothing, send nothing.
 ## Checks
 
 1. **Plugins.** Confirm the bbs-foundations, bbs-sales, bbs-back-office, bbs-website,
-   bbs-claude-coach, skill-bus, claudeforge, impeccable, superpowers-chrome, caveman, and
+   bbs-claude-coach, claudeforge, impeccable, superpowers-chrome, caveman, and
    document-skills plugins are loaded (their skills appear in your available skills).
-   Report each present/absent.
+   Report each present/absent. If a plugin named `skill-bus` is still loaded, report it as
+   ⚠️ WARN with the sentence "retired 2026-09-28 — Parker uninstalls it per
+   ADMIN-RUNBOOK §1a"; it is not a FAIL and you do not uninstall it.
 2. **Marketplace freshness.** Run `claude plugin marketplace list` via Bash if available;
    note whether bbs-claude-marketplace is registered. If the command is unavailable, say so.
 3. **Business Central connector** (BC MCP Custom API, interim — tool names change at the
@@ -33,10 +35,18 @@ report format at the end. Read-only: create/modify nothing, send nothing.
 8. **OneDrive sync health.** Note the desk folder's most recently modified file and its
    timestamp; if nothing changed in 7+ days on a weekday-active desk, flag possible sync
    stall (informational, not FAIL).
-9. **Skill-bus wiring.** Look for `~/.claude/skill-bus.json` (or `.claude/skill-bus.json` at the
-   desk root) containing `bbs-grounding-doctrine`. PASS = present. FAIL = absent → the fix is
-   `/skill-bus:onboard`. If `.claude/skill-bus-telemetry.jsonl` exists at the desk, note whether it
-   shows a `match` for a `bbs-sales:` skill (informational).
+9. **Doctrine hooks.** For each of the bbs-foundations and bbs-website plugins, locate its
+   installed root (`claude plugin list` via Bash, or the plugin's path in `/plugin`), then
+   confirm: `hooks/hooks.json` parses as JSON (read it; a Python or PowerShell parse if
+   available), and every file named in `hooks/doctrine/subscriptions.json` under `inserts`
+   exists beside it and is non-empty (four in all: `bbs-claude-md-doctrine.md`,
+   `bbs-grounding-doctrine.md`, `bbs-storefront-doctrine.md`, `bbs-catalog-doctrine.md`).
+   PASS = both parse and all four exist. FAIL = a file missing or a parse error → the fix is
+   `/plugin marketplace update` then restart; if it persists, report it. Also check that
+   `pwsh` or `powershell` resolves (`Get-Command pwsh, powershell` / `command -v`): WARN,
+   not FAIL, if neither does — the hook fails open and the skills run without their
+   guardrail text until PowerShell is installed (macOS: `brew install powershell`).
+   Nothing to wire and nothing to run: the hook is active whenever the plugin is loaded.
 10. **Bootstrap tools.** Run `where.exe node pdftotext pandoc uv` via Bash (or PowerShell
     `Get-Command`). PASS = all four resolve. WARN (not FAIL) for any missing one, naming it and
     pointing at `scripts/bbs-setup.ps1` (REP-SETUP step 1).

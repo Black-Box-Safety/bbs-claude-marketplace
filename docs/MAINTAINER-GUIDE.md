@@ -21,7 +21,7 @@ python3 plugins/bbs-foundations/skills/bbs-claude-md-forge/scripts/check_claude_
 | Check | The silent failure it catches |
 |---|---|
 | `frontmatter_unparseable` | An unquoted colon in `description:` — the skill never loads at all |
-| `name_folder_mismatch` | skill-bus matches on `plugin:skill`; a mismatch stops doctrine firing |
+| `name_folder_mismatch` | The doctrine hooks match on `plugin:skill`; a mismatch stops doctrine firing |
 | `description_truncated` | Over 1,024 chars, the tail is dropped at selection time — usually the "Do NOT use for" clause |
 | `dangling_skill_ref` | A skill points at one that was merged away; a rep follows a dead pointer |
 | `nonportable_path` | `/mnt/skills/`, `/Users/<someone>/`, `~/.bbs/` — works for the author, fails for everyone |
@@ -101,7 +101,7 @@ failure mode to review for. The questions that pay:
    `claude-opus-4-8` stayed enforced after it was superseded.
 
 4. **Did a fix reach its propagation sites?** Fixing `canonical-facts.md` is the easy half.
-   The value also lives in `hooks/skill-bus.json` (injected into every skill run) and
+   The value also lives in `plugins/*/hooks/doctrine/*.md` (injected into every subscribed skill run) and
    `docs/bbs-managed-settings.json` (the CLAUDE.md pushed to every machine). Grep the whole
    repo for the old value before accepting "fixed".
 

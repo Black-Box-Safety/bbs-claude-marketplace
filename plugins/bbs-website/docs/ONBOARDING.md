@@ -3,7 +3,7 @@
 You don't need to be an AI expert. Run `/bbs-onboard` and follow it. In one sitting you should:
 
 1. Read the `site-wiring-map` (three repos, two sync gaps, task→skill→agent table).
-2. Confirm the skill-bus guardrails are wired (the command does this).
+2. Confirm the doctrine hook is live (the command does this).
 3. Meet the agent roster — who to call for what.
 4. Do the real test: run `/bbs-add-product` on one product and see it render as a card + PDP.
 

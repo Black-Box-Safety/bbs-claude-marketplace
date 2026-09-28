@@ -44,9 +44,13 @@ explains every block. Optional, and worth it:
 /plugin install claudeforge@bbs-claude-marketplace   # cap enforcement, chain repair, /sync-claude-md
 ```
 
-The skill-bus subscriptions in `hooks/skill-bus.json` inject the BBS doctrine whenever
-this skill, any `claudeforge` skill, or Anthropic's `claude-md-improver` runs. Wire them
-once with `/skill-bus:onboard`, or let `/bbs-onboard` do it.
+The plugin's own hook (`hooks/hooks.json`, a `PreToolUse` hook on the Skill tool) injects
+the BBS doctrine whenever this skill, any `claudeforge` skill, or Anthropic's
+`claude-md-improver` runs, and the grounding doctrine whenever a `bbs-foundations`,
+`bbs-sales`, `bbs-claude-coach` or quote-bot lane-tuning skill runs. The text lives in
+`hooks/doctrine/*.md` and the subscriptions in `hooks/doctrine/subscriptions.json`; nothing
+to wire — it is active the moment the plugin is installed. PowerShell: pwsh 7 if present,
+else Windows PowerShell 5.1 (a Mac needs `brew install powershell`).
 
 ## Command
 

@@ -52,4 +52,4 @@ The bot and these skills **reference** MCP connectors by name; they are provided
 
 ## The rules that always hold
 
-The skill-bus injects three doctrine sets automatically when a relevant skill runs — see the plugin README. Storefront and catalog doctrine ship with this plugin. **Grounding doctrine ships with `bbs-foundations`** and fires on the two lane-tuning skills here; install that plugin too, or the quote-bot skills run without it. You do not have to memorize them; you do have to not fight them.
+The plugins' own hooks inject three doctrine sets automatically when a relevant skill runs — see the plugin README. Storefront and catalog doctrine ship with this plugin. **Grounding doctrine ships with `bbs-foundations`** and fires on the two lane-tuning skills here; install that plugin too, or the quote-bot skills run without it. You do not have to memorize them; you do have to not fight them.
