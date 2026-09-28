@@ -58,4 +58,4 @@ links (Business Central, Grainger, and so on).
 ---
 
 <sub>Spec: `docs/superpowers/specs/2026-09-17-bbs-claude-coach-design.md` · Owner: Parker
-Marshall · Last verified 2026-09-17.</sub>
+Marshall · Last verified 2026-09-24.</sub>

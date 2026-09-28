@@ -11,7 +11,7 @@ blind spots, and then review is theatre.
 
 ## What this repo is
 
-The BBS Claude marketplace: four local plugins and a pinned commons, distributing the way
+The BBS Claude marketplace: five local plugins and a pinned commons, distributing the way
 Black Box Safety works to a small team that is not technical. Its output is quotes and
 bids sent to California public agencies under a DVBE certification.
 

@@ -2,7 +2,7 @@
 
 Signed company policy (read and sign the full one-pager):
 
-`plugins/bbs-foundations/docs/AUP.md`
+the `bbs-foundations` plugin's `docs/AUP.md`
 
 Do **not** restate every AUP paragraph here. Coach with these two rails and point at that
 file for the rest.
