@@ -10,7 +10,6 @@ $here   = Split-Path -Parent $MyInvocation.MyCommand.Path
 $hooks  = Split-Path -Parent $here
 $script = Join-Path $hooks 'doctrine.ps1'
 $ddir   = Join-Path $hooks 'doctrine'
-$own    = Split-Path -Leaf (Split-Path -Parent $hooks)
 $table  = Get-Content -LiteralPath (Join-Path $ddir 'subscriptions.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $exe    = (Get-Process -Id $PID).Path
 
@@ -27,21 +26,26 @@ function Expected($name) {
   $t = Get-Content -LiteralPath (Join-Path $ddir ([string]$table.inserts.$name.file)) -Raw -Encoding UTF8
   return ($t -replace "`r`n", "`n")
 }
-# Independent computation of what a set of candidate names should inject.
-function ExpectedFor([string[]]$names) {
+# Independent computation of what a name should inject. $bare = the typed-command rule for
+# a name with no colon: bare patterns as is, plugin:suffix by suffix, plugin:* skipped.
+function ExpectedFor([string]$name, [bool]$bare) {
   $seen = New-Object System.Collections.Generic.List[string]
   foreach ($s in @($table.subscriptions)) {
     if ($seen.Contains([string]$s.insert)) { continue }
-    foreach ($n in $names) { if ($n -like ([string]$s.on)) { $seen.Add([string]$s.insert); break } }
+    $on = [string]$s.on
+    $hit = $false
+    if (-not $bare -or $on.IndexOf(':') -lt 0) { $hit = ($name -like $on) }
+    else {
+      $suffix = $on.Substring($on.IndexOf(':') + 1)
+      if ($suffix -ne '*' -and $suffix -ne '**') { $hit = ($name -like $suffix) }
+    }
+    if ($hit) { $seen.Add([string]$s.insert) }
   }
   if ($seen.Count -eq 0) { return $null }
   return (@($seen | ForEach-Object { Expected $_ }) -join "`n`n")
 }
-# The prefixes a bare typed name is tried under: this plugin, then the table's bare_prefixes.
-function Prefixes() {
-  $p = New-Object System.Collections.Generic.List[string]; $p.Add($own)
-  foreach ($x in @($table.bare_prefixes)) { if ($x -and -not $p.Contains([string]$x)) { $p.Add([string]$x) } }
-  return $p
+function Typed([string]$name, [string]$source) {
+  return (Run @{ hook_event_name = 'UserPromptExpansion'; expansion_type = 'slash_command'; command_name = $name; command_args = 'x'; command_source = $source; prompt = "/$name x" })
 }
 
 $fail = 0
@@ -57,7 +61,6 @@ Check 'unrelated skill is silent' ($null -eq (Context (Run @{ tool_name = 'Skill
 Check 'missing tool_input is silent' ($null -eq (Context (Run @{ hook_event_name = 'PreToolUse'; tool_name = 'Skill' })))
 Check 'non-string skill is silent' ($null -eq (Context (Run @{ hook_event_name = 'PreToolUse'; tool_name = 'Skill'; tool_input = @{ skill = 42 } })))
 Check 'unknown event is silent' ($null -eq (Context (Run @{ hook_event_name = 'SessionStart'; command_name = 'bbs-checkup' })))
-Check 'typed unrelated prefixed command is silent' ($null -eq (Context (Run @{ hook_event_name = 'UserPromptExpansion'; command_name = 'nobody:unrelated'; command_source = 'user' })))
 
 # 2. PreToolUse: every non-wildcard subscription injects, byte for byte, every insert whose
 #    pattern matches that name (a name can sit under an exact pattern AND a plugin:* one).
@@ -65,11 +68,11 @@ foreach ($sub in @($table.subscriptions)) {
   if ([string]$sub.on -like '*[*]*') { continue }
   $out = Run @{ hook_event_name = 'PreToolUse'; tool_name = 'Skill'; tool_input = @{ skill = [string]$sub.on } }
   $p = Parsed $out
-  Check ("PreToolUse {0} -> {1}" -f $sub.on, $sub.insert) ($p -and $p.hookEventName -eq 'PreToolUse' -and $p.additionalContext -eq (ExpectedFor @([string]$sub.on)))
+  Check ("PreToolUse {0} -> {1}" -f $sub.on, $sub.insert) ($p -and $p.hookEventName -eq 'PreToolUse' -and $p.additionalContext -eq (ExpectedFor ([string]$sub.on) $false))
 }
 # 2b. The same, without hook_event_name (older input shape): tool_name alone routes it.
 $first = @($table.subscriptions | Where-Object { [string]$_.on -notlike '*[*]*' })[0]
-Check ("PreToolUse without hook_event_name: {0}" -f $first.on) ((Context (Run @{ tool_name = 'Skill'; tool_input = @{ skill = [string]$first.on } })) -eq (ExpectedFor @([string]$first.on)))
+Check ("PreToolUse without hook_event_name: {0}" -f $first.on) ((Context (Run @{ tool_name = 'Skill'; tool_input = @{ skill = [string]$first.on } })) -eq (ExpectedFor ([string]$first.on) $false))
 
 # 3. A wildcard subscription fires on a concrete name under it; matching is case-insensitive.
 foreach ($sub in @($table.subscriptions)) {
@@ -78,27 +81,36 @@ foreach ($sub in @($table.subscriptions)) {
   $got = Context (Run @{ hook_event_name = 'PreToolUse'; tool_name = 'Skill'; tool_input = @{ skill = $name } })
   Check ("{0} matches {1} -> {2}" -f $sub.on, $name, $sub.insert) ($got -and $got.Contains((Expected $sub.insert)))
 }
-Check ("case-insensitive: {0}" -f $first.on.ToUpperInvariant()) ((Context (Run @{ hook_event_name = 'PreToolUse'; tool_name = 'Skill'; tool_input = @{ skill = $first.on.ToUpperInvariant() } })) -eq (ExpectedFor @([string]$first.on)))
+Check ("case-insensitive: {0}" -f $first.on.ToUpperInvariant()) ((Context (Run @{ hook_event_name = 'PreToolUse'; tool_name = 'Skill'; tool_input = @{ skill = $first.on.ToUpperInvariant() } })) -eq (ExpectedFor ([string]$first.on) $false))
 
-# 4. UserPromptExpansion: a typed command, prefixed and bare.
-$prefixes = Prefixes
+# 4. UserPromptExpansion: a typed command, prefixed (whole-pattern match) and bare (the
+#    retired plugin's bare-name rule: plugin:* skipped, plugin:suffix by suffix).
 foreach ($sub in @($table.subscriptions)) {
   $on = [string]$sub.on
-  if ($on -like '*[*]*' -or $on -notlike '*:*') { continue }
-  $bare = $on.Substring($on.IndexOf(':') + 1)
-  $out = Run @{ hook_event_name = 'UserPromptExpansion'; expansion_type = 'slash_command'; command_name = $on; command_args = ''; command_source = 'plugin'; prompt = "/$on" }
-  $p = Parsed $out
-  Check ("typed /{0} (prefixed) -> {1}" -f $on, $sub.insert) ($p -and $p.hookEventName -eq 'UserPromptExpansion' -and $p.additionalContext -eq (ExpectedFor @($on)))
-  $cands = @($bare) + @($prefixes | ForEach-Object { "$($_):$bare" })
-  $got = Context (Run @{ hook_event_name = 'UserPromptExpansion'; expansion_type = 'slash_command'; command_name = $bare; command_args = 'x'; command_source = 'plugin'; prompt = "/$bare x" })
-  Check ("typed /{0} (bare) -> {1}" -f $bare, $sub.insert) ($got -eq (ExpectedFor $cands))
+  if ($on -like '*[*]*') { continue }
+  if ($on -like '*:*') {
+    $p = Parsed (Typed $on 'plugin')
+    Check ("typed /{0} (prefixed) -> {1}" -f $on, $sub.insert) ($p -and $p.hookEventName -eq 'UserPromptExpansion' -and $p.additionalContext -eq (ExpectedFor $on $false))
+    $bare = $on.Substring($on.IndexOf(':') + 1)
+  } else { $bare = $on }
+  $got = Context (Typed $bare 'plugin')
+  Check ("typed /{0} (bare) -> {1} only, plugin:* skipped" -f $bare, $sub.insert) ($got -and $got -eq (ExpectedFor $bare $true))
 }
-# A bare name under a wildcard subscription of this plugin's own prefix.
-$ownWild = @($table.subscriptions | Where-Object { [string]$_.on -eq "$($own):*" })
-if ($ownWild.Count -gt 0) {
-  $got = Context (Run @{ hook_event_name = 'UserPromptExpansion'; command_name = 'anything-at-all'; command_source = 'plugin' })
-  Check ("typed bare name under {0}:* -> {1}" -f $own, $ownWild[0].insert) ($got -eq (ExpectedFor (@('anything-at-all') + @($prefixes | ForEach-Object { "$($_):anything-at-all" }))))
+# 4b. Bare names that only a plugin:* pattern could claim get nothing (the retired injection plugin's rule).
+foreach ($n in @('brainstorming', 'bbs-checkup', 'ca-rfq', 'anything-at-all')) {
+  Check ("typed bare /{0} is silent" -f $n) (($null -eq (ExpectedFor $n $true)) -and ($null -eq (Context (Typed $n 'plugin'))))
 }
+# 4c. A bare name under a bare pattern gets that insert and NOT the plugin:* ones.
+$barePat = @($table.subscriptions | Where-Object { [string]$_.on -notlike '*:*' -and [string]$_.on -notlike '*[*]*' })
+if ($barePat.Count -gt 0) {
+  $got = Context (Typed ([string]$barePat[0].on) 'plugin')
+  $others = @($table.inserts.PSObject.Properties.Name | Where-Object { $_ -ne [string]$barePat[0].insert })
+  $leak = $false; foreach ($o in $others) { if ($got -and $got.Contains((Expected $o))) { $leak = $true } }
+  Check ("typed bare /{0} -> {1} and no other insert" -f $barePat[0].on, $barePat[0].insert) ($got -eq (Expected $barePat[0].insert) -and -not $leak)
+}
+# 4d. An MCP server's prompt named like a skill is not a skill.
+Check 'mcp_prompt expansion is silent' ($null -eq (Context (Run @{ hook_event_name = 'UserPromptExpansion'; expansion_type = 'mcp_prompt'; command_name = [string]$first.on; command_source = 'mcp' })))
+Check 'typed unrelated prefixed command is silent' ($null -eq (Context (Typed 'nobody:unrelated' 'user')))
 
 if ($fail -gt 0) { Write-Host "$fail failure(s)"; exit 1 }
 Write-Host 'all pass'

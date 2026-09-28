@@ -1300,13 +1300,6 @@ def check_doctrine_hooks(findings, skills):
                   f"insert {name!r} points at {fn!r}, which does not exist beside the table")
             elif os.path.getsize(path) == 0:
                 F("doctrine_file_empty", where, f"insert {name!r}'s file {fn!r} is empty")
-        # A typed command arrives bare; the hook tries it under these prefixes. Each must
-        # be a plugin that exists, or the prefix matches nothing and hides a typo.
-        for p in (data.get("bare_prefixes") or []):
-            if p not in local_plugins:
-                F("doctrine_bare_prefix_unknown", where,
-                  f"bare_prefixes names {p!r}, which is not a plugin under plugins/; a "
-                  f"typed command is never tried under it")
         used = set()
         for sub in (data.get("subscriptions") or []):
             insert, target = sub.get("insert"), sub.get("on", "")

@@ -7,9 +7,6 @@
       "file": "bbs-catalog-doctrine.md"
     }
   },
-  "bare_prefixes": [
-    "bbs-website"
-  ],
   "subscriptions": [
     {
       "insert": "bbs-storefront-doctrine",

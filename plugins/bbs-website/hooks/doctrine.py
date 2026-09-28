@@ -41,6 +41,8 @@ def main():
         ti = h.get("tool_input")
         name = ti.get("skill") if isinstance(ti, dict) else None
     elif event == "UserPromptExpansion":
+        if h.get("expansion_type") == "mcp_prompt":
+            return                      # an MCP server's prompt is not a skill
         name = h.get("command_name")
     else:
         return
@@ -53,30 +55,34 @@ def main():
         table = json.load(fh)
     subs = table.get("subscriptions") or []
 
-    # A tool call arrives fully qualified. A typed command arrives bare and does not say
-    # which plugin it came from, so it is also tried under this plugin's own prefix and
-    # under each local plugin prefix the table lists in bare_prefixes (the checker proves
-    # each is a real plugin). Not under every prefix the table mentions: claudeforge:*
-    # would then fire on every bare name.
-    candidates = [name]
-    if event == "UserPromptExpansion" and ":" not in name:
-        prefixes = [os.path.basename(os.path.dirname(here))]
-        for p in table.get("bare_prefixes") or []:
-            if p and str(p) not in prefixes:
-                prefixes.append(str(p))
-        candidates += [f"{p}:{name}" for p in prefixes]
-
     def matches(n, pattern):
         # Only * is a wildcard in a subscription pattern; case-insensitive like -like.
         p = pattern.replace("[", "[[]").replace("?", "[?]")
         return fnmatch.fnmatchcase(n.lower(), p.lower())
+
+    # A name with a colon (every tool call; a typed /plugin:name) matches the whole
+    # pattern. A bare typed name does not say which plugin it came from, and the retired
+    # injection plugin's rule for it is kept verbatim: a bare pattern matches as is; a
+    # plugin:suffix pattern matches the name against its suffix; a plugin:* (or plugin:**)
+    # pattern is skipped, because a bare name cannot claim a whole plugin. So a typed
+    # /bbs-checkup gets nothing and a typed /bbs-claude-md-forge gets the CLAUDE.md
+    # doctrine only.
+    bare = event == "UserPromptExpansion" and ":" not in name
+
+    def sub_matches(n, pattern):
+        if not bare or ":" not in pattern:
+            return matches(n, pattern)
+        suffix = pattern.split(":", 1)[1]
+        if suffix in ("*", "**"):
+            return False
+        return matches(n, suffix)
 
     matched = []
     for sub in subs:
         insert, on = sub.get("insert"), sub.get("on")
         if not insert or not on or insert in matched:
             continue
-        if any(matches(c, str(on)) for c in candidates):
+        if sub_matches(name, str(on)):
             matched.append(insert)
     if not matched:
         return

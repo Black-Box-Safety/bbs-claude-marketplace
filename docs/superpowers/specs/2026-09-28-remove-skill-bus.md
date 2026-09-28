@@ -87,13 +87,17 @@ The script (`doctrine.ps1`, and `doctrine.py` as its twin — below):
 2. routes on `hook_event_name` (falling back to `tool_name == "Skill"` when absent) and
    takes the name from `tool_input.skill` or `command_name`; returns nothing unless it is
    a non-blank string;
-3. builds the candidate names. A tool call is tried as given. A bare typed command does
-   not say which plugin it came from, so it is also tried as `<own plugin>:<name>` and as
-   `<p>:<name>` for each `p` in the table's `bare_prefixes` — the local plugins, which the
-   checker proves exist. Not under every prefix the table mentions: `claudeforge:*` would
-   then fire on every bare name. So a typed `/bbs-checkup` gets the grounding doctrine
-   (via `bbs-foundations:*`), and a typed `/ca-rfq` does too (via `bbs-sales:*`), which is
-   what the retired plugin did on that path;
+3. returns nothing for `expansion_type: "mcp_prompt"` — an MCP server's prompt named
+   like a skill is not a skill. A name with a colon (every tool call; a typed
+   `/plugin:name`) is matched against the whole pattern. A bare typed name does not say
+   which plugin it came from, and skill-bus's own rule for it (`match_subscriptions_prompt`
+   in its dispatcher) is kept verbatim: a bare pattern matches as is; a `plugin:suffix`
+   pattern matches the name against its suffix; a `plugin:*` or `plugin:**` pattern is
+   skipped, because a bare name cannot claim a whole plugin. So a typed `/bbs-checkup` or
+   `/brainstorming` gets nothing, exactly as under skill-bus, and a typed
+   `/bbs-claude-md-forge` gets the CLAUDE.md doctrine (via the bare pattern) and not the
+   grounding doctrine. Nothing is derived from the plugin's directory name: on an installed
+   machine `${CLAUDE_PLUGIN_ROOT}` ends in a version string, not the plugin name;
 4. loads `doctrine/subscriptions.json` beside itself, matches (`*` glob,
    case-insensitive, other metacharacters literal), reads each matched insert's file as
    UTF-8 (BOM stripped, `\r\n` normalised to `\n` in case of an autocrlf checkout);
@@ -128,7 +132,9 @@ runs `brew install powershell`, and without that arm it would silently get no do
 `doctrine.py` is stdlib only (`json`, `fnmatch`) and carries the same semantics, including
 the `UserPromptExpansion` branch; `hooks/tests/parity.py` runs both interpreters on the
 same fixtures and requires byte-identical stdout (it skips the PowerShell half, without
-failing, when neither `pwsh` nor `powershell` is on PATH). A machine with none of the
+failing, when neither `pwsh` nor `powershell` is on PATH — except under `BBS_REQUIRE_PS=1`,
+which the CI workflow sets, so CI proves parity rather than skipping it; GitHub's
+`ubuntu-latest` image ships `pwsh`). A machine with none of the
 three gets no doctrine and no error — degraded, not broken, and `/bbs-checkup` reports it.
 The `.ps1` is written to the PowerShell 5.1 subset (no `??`, no ternary, no
 `-AsHashtable`) so both PowerShells run the same file. `${CLAUDE_PLUGIN_ROOT}` is the only
@@ -167,8 +173,7 @@ installed.
 `plugins/*/hooks/doctrine/subscriptions.json` and FAILs when:
 
 - the file does not parse, or a subscription names an insert the table does not define;
-- an insert's `file` is missing on disk, or is empty; a `bare_prefixes` entry is not a
-  plugin under `plugins/`;
+- an insert's `file` is missing on disk, or is empty;
 - a non-wildcard `plugin:skill` target naming a local plugin resolves to no skill or
   command in that plugin (`doctrine_sub_dangling`), or to a skill that lives in another
   plugin (`doctrine_sub_wrong_plugin`) — the old dangling / wrong-plugin checks, carried;

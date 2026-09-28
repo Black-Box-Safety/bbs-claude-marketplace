@@ -31,6 +31,7 @@ if ($event -eq 'PreToolUse') {
   $name = $null
   if ($null -ne $h.tool_input) { $name = $h.tool_input.skill }
 } elseif ($event -eq 'UserPromptExpansion') {
+  if ([string]$h.expansion_type -eq 'mcp_prompt') { exit 0 }   # an MCP server's prompt is not a skill
   $name = $h.command_name
 } else { exit 0 }
 if (-not ($name -is [string]) -or [string]::IsNullOrWhiteSpace($name)) { exit 0 }
@@ -39,33 +40,33 @@ $dir   = Join-Path $PSScriptRoot 'doctrine'
 $table = Get-Content -LiteralPath (Join-Path $dir 'subscriptions.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $subs  = @($table.subscriptions)
 
-# The names to test. A tool call arrives fully qualified. A typed command arrives bare and
-# does not say which plugin it came from, so it is also tried under this plugin's own
-# prefix and under each local plugin prefix the table lists in bare_prefixes (the checker
-# proves each is a real plugin). Not under every prefix the table mentions: claudeforge:*
-# would then fire on every bare name.
-$candidates = New-Object System.Collections.Generic.List[string]
-$candidates.Add($name)
-if ($event -eq 'UserPromptExpansion' -and $name -notlike '*:*') {
-  $prefixes = New-Object System.Collections.Generic.List[string]
-  $prefixes.Add((Split-Path -Leaf (Split-Path -Parent $PSScriptRoot)))
-  foreach ($p in @($table.bare_prefixes)) { if ($p -and -not $prefixes.Contains([string]$p)) { $prefixes.Add([string]$p) } }
-  foreach ($p in $prefixes) { $candidates.Add("$($p):$name") }
-}
-
 # Only * is a wildcard in a subscription pattern; neutralise the other -like metacharacters.
 function Matches([string]$n, [string]$pattern) {
   $p = $pattern -replace '\[', '`[' -replace '\]', '`]' -replace '\?', '`?'
   return ($n -like $p)
 }
 
+# A name with a colon (every tool call; a typed /plugin:name) matches the whole pattern.
+# A bare typed name does not say which plugin it came from, and the retired injection
+# plugin's rule for it is kept verbatim: a bare pattern matches as is; a plugin:suffix
+# pattern matches the name against its suffix; a plugin:* (or plugin:**) pattern is
+# skipped, because a bare name cannot claim a whole plugin. So a typed /bbs-checkup gets
+# nothing and a typed /bbs-claude-md-forge gets the CLAUDE.md doctrine only.
+$isBare = ($event -eq 'UserPromptExpansion' -and $name -notlike '*:*')
+function SubMatches([string]$n, [string]$pattern, [bool]$bare) {
+  if (-not $bare) { return (Matches $n $pattern) }
+  $i = $pattern.IndexOf(':')
+  if ($i -lt 0) { return (Matches $n $pattern) }
+  $suffix = $pattern.Substring($i + 1)
+  if ($suffix -eq '*' -or $suffix -eq '**') { return $false }
+  return (Matches $n $suffix)
+}
+
 $matched = New-Object System.Collections.Generic.List[string]
 foreach ($sub in $subs) {
   if (-not $sub.insert -or -not $sub.on) { continue }
   if ($matched.Contains([string]$sub.insert)) { continue }
-  foreach ($c in $candidates) {
-    if (Matches $c ([string]$sub.on)) { $matched.Add([string]$sub.insert); break }
-  }
+  if (SubMatches $name ([string]$sub.on) $isBare) { $matched.Add([string]$sub.insert) }
 }
 if ($matched.Count -eq 0) { exit 0 }
 
