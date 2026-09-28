@@ -164,8 +164,8 @@ Picked up by whoever works here next.
   relies on it.
 - **`bbs-quote-builder` prices a line tagged `source: "grainger"` at cost only when the
   spec says so** (`pricing.graingerAtCost: true`, or method `at-cost`); `false` sends it
-  through the method; saying neither is an error. At cost is ruled for CA state schedules
-  only — prime/commercial is open for Parker. The rule only reaches tagged lines: an
+  through the method; saying neither is an error. Which channel is at cost is canon's
+  "Grainger sell rule, by channel" (`canonical-facts.md`). The rule only reaches tagged lines: an
   untagged Grainger line is priced by the method. The mitigation is prose —
   `grainger-pricing` names the tag, and the builder's step 9 checks the echoed Grainger
   count against the lines priced through `grainger-pricing`.

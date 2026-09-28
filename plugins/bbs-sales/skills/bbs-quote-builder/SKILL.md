@@ -146,7 +146,8 @@ read it there rather than recalling it. On a channel canon lists as open, ask
 the rep; never infer.
 
 Mark every Grainger-priced line `"source": "grainger"` with the MCP `unitPrice`
-as its `unitCost`, and state the channel's rule in the spec:
+as its `unitCost` — or, on a prime, the discounted cost the rep obtained from
+BBS's Grainger account manager — and state the channel's rule in the spec:
 
 - `pricing.method: "at-cost"` — the whole quote is at cost (a CA state schedule
   or NASPO order; `naspo-quote` sets this for you).

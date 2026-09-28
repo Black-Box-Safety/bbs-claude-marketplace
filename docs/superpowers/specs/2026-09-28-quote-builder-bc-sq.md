@@ -142,7 +142,9 @@ facts without a source:
 ### Second review round (from the PR #36 review)
 
 Grainger at cost is ruled only for CA state schedule / cooperative quotes (doctrine #17);
-prime/commercial (e.g. Bechtel) is open for Parker. Forcing every Grainger line to cost
+prime/commercial (e.g. Bechtel) is open for Parker. *(Later: superseded by #36 — the rule
+now lives in canon's "Grainger sell rule, by channel"; primes may be marked up after an
+account-manager discount.)* Forcing every Grainger line to cost
 would put a plausible wrong number on a commercial quote. So the builder no longer does:
 a spec with Grainger lines must state `pricing.graingerAtCost` true/false, or use the
 `at-cost` method, or the script exits 1. `naspo-quote` sets it for CA state quotes. The
