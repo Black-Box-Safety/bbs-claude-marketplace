@@ -1,9 +1,9 @@
 ---
 name: dgs-bpo-item-check
 description: >-
-  Determine whether Grainger part numbers are approved for purchase under California's active
-  DGS Blanket Purchase Order by looking each one up in the bundled BPO master item list
-  (2025-2026 pricing). Use whenever a rep asks to check, verify, confirm, or cross-reference
+  Determine whether Grainger part numbers are on California's DGS Blanket Purchase Order item
+  list by looking each one up in the bundled BPO master list, which names its fiscal year and
+  warns when that year has ended. Use whenever a rep asks to check, verify, confirm, or cross-reference
   Grainger part numbers against the BPO, the DGS blanket purchase order, or the BPO list — "is
   this on the BPO", "BPO check", "are these approved". Answers on-list or off-list from the
   bundled file only; never from memory and never a guess. Do NOT use to obtain a price (use
@@ -15,7 +15,7 @@ requires: [python3]
 
 # DGS BPO Item Check
 
-Checks one or more Grainger part numbers against the bundled DGS BPO master item list (the California FY25–26 list — see *Coverage period*) to determine which items are approved for purchase under the active California DGS Blanket Purchase Order.
+Checks one or more Grainger part numbers against the bundled DGS BPO master item list (the California FY25–26 list — see *Coverage period*) to determine which items are on that list. Every answer names the list's fiscal year and says STALE once it has ended.
 
 ## When to use
 
@@ -79,9 +79,9 @@ After running the script, return that output to the rep as-is — do not add a s
 
 ## Important notes
 
-- **The bundled list is the source of truth.** Do not search the web, do not check Grainger.com, do not guess. The skill uses the file at `assets/bpo_part_numbers.txt` which contains 19,390 unique Grainger part numbers from the active BPO.
+- **The bundled list is the source of truth.** Do not search the web, do not check Grainger.com, do not guess. The skill uses the file at `assets/bpo_part_numbers.txt` which contains 19,390 unique Grainger part numbers from the FY25–26 BPO list.
 - **Case-insensitive matching.** `102wz8`, `102WZ8`, and `102Wz8` all match the same record.
-- **Coverage period.** The bundled list is the California **FY25–26** list (1 July 2025 – 30 June 2026), not calendar 2025–2026. FY26–27 began 1 July 2026; its list is blocked on Aanya providing it (Parker, 2026-09-28: "Aanya will provide"). Until it is bundled this skill keeps checking FY25–26 and says so as STALE on every answer. Never substitute another source and never synthesize a list. When the new list lands, replace both asset files and the `BPO_LIST_*` constants at the top of `check_items.py` together.
+- **Coverage period.** The bundled list is the California **FY25–26** list (1 July 2025 – 30 June 2026), not calendar 2025–2026. FY26–27 began 1 July 2026; its list is blocked on Aanya providing it (Parker, 2026-09-28: "Aanya will provide"). Until it is bundled this skill keeps checking FY25–26 and says so as STALE on every answer. Never substitute another source and never synthesize a list. When the new list lands, replace both asset files and the `BPO_LIST_*` constants at the top of `check_items.py` together — the script refuses to answer (exit 1) if the named source file is missing, its name lacks the FY token, or the dates are not that fiscal year.
 - **Duplicates in input.** If the same item appears twice in the rep's input, it's reported once (first occurrence wins, original casing preserved in output).
 
 ## Files in this skill

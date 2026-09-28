@@ -55,8 +55,8 @@ These are the reasons this skill exists rather than a generic weekly-report rout
 **1. The Sales CRM is the pipeline, not Business Central.** Dataverse `bbs_rfqs`, read
 through the Sales CRM connector, is live and Kim and Aanya create records in it
 themselves. Many quotes never reach BC at all, so a BC quote count understates the week's
-pipeline — often badly. Query the CRM for anything about quotes, RFQs, response time or
-win rate. Use BC for what BC is authoritative on: posted orders, invoices, booked revenue,
+pipeline — often badly. Query the CRM for anything about quotes, RFQs or response time.
+Use BC for what BC is authoritative on: posted orders, invoices, booked revenue,
 AR. The two answer different questions and neither substitutes for the other.
 
 **2. Business Central salesperson codes cannot produce a per-rep split.** Which codes
@@ -106,10 +106,10 @@ it is the only number in the report that names work that did not happen.
 **Wins.** What confirms a win, and what `bbs_accepted` means, live once in
 `bbs-foundations` `references/canonical-facts.md`, "What counts as a win". Follow it: count
 a **win** only from Business Central (a quote `acceptedDate`, or a quote converted to an
-order) or a quote-log Outcome of *won* the rep has confirmed. `bbs_accepted` means the quote
-converted, but canon records that it has never been set, so the "Accepted in CRM" column
-reads **"not recorded in CRM"** while the field is empty — never `0`. Keep that column out of wins and out of any
-win rate.
+order) or a quote-log Outcome of *won* the rep has confirmed. `bbs_accepted` is not a win
+source today (see canon for why). While it is unset the "Accepted in CRM (unconfirmed)"
+column reads **"not recorded in CRM"** — never `0`. Keep that column out of wins and out of
+any win rate.
 
 **Bookings, from Business Central** (`bc_query_entity`) — query the `salesOrders` entity
 filtered on `documentDate` inside the week, and the `salesInvoices` entity on the same
@@ -136,7 +136,7 @@ Write to `~/weekly-sales-reports/YYYY-MM-DD_weekly-sales-report.md`, Monday date
 [Three or four sentences. What moved, what did not, what needs a decision.]
 
 ## Pipeline (Sales CRM, bbs_rfqs, as of [date])
-| Rep | RFQs received | Submitted | Overdue | Quoted value | Accepted in CRM | Confirmed wins |
+| Rep | RFQs received | Submitted | Overdue | Quoted value | Accepted in CRM (unconfirmed) | Confirmed wins |
 
 ## Bookings (Business Central, as of [date])
 [Orders and invoices in the week, in scope. Team baseline where it cannot be split — say so.]

@@ -56,9 +56,8 @@ Two house rules that bite specifically here:
 
 - **Cancelled invoices are excluded from revenue.** They double-count. A brief quoting gross
   revenue overstates the account to the rep's face.
-- **`bbs_accepted` is not a win source today** — it means the quote converted, but it has
-  never been set (`bbs-foundations` `references/canonical-facts.md`, "What counts as a
-  win"). A win is confirmed by a BC quote `acceptedDate`, a converted order, or a quote-log
+- **`bbs_accepted` is not a win source today** — see `bbs-foundations`
+  `references/canonical-facts.md`, "What counts as a win". A win is confirmed by a BC quote `acceptedDate`, a converted order, or a quote-log
   Outcome of *won* the rep has confirmed. Without one, the honest statement is
   "we do not know if we won these" — never "we won them".
 

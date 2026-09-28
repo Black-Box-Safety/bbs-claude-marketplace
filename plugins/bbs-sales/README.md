@@ -134,7 +134,7 @@ TODO: the CUF statement (the "distinct element of work" on GSPD-05-105) is **not
 - Parker: `.../Customers/Bechtel/sentinel/vandenburg-sentinel-rfps/RFP-741986-vlc-tempest-filters/signature/parker-signature.png`
 - Jackson: `.../Black Box Safety - MASTER/Jackson Dalton Signature/Copy of JACKSON_SIG.png`
 
-The CalRecycle 74 is signed by the BBS employee preparing the bid (ruled 2026-09-28; `references/ca-form-rules.md`). A skill applies only a delegated signature — Parker's or Jackson's, listed in `vendor_profile.json` under `signature_delegation` — so another rep's CalRecycle 74 comes out with the signature line blank and flagged for them to sign by hand. Recording another rep's signature image needs that rep added to the delegation first, which is Parker's call.
+Who signs the rep-signed lines (CalRecycle 74, Darfur, the OBS 4007(B) bidder line), and when a skill may apply a signature, is in `references/ca-form-rules.md`, "Rep-signed lines" (ruled 2026-09-28). Recording another person's signature image needs them added to `vendor_profile.json` `signature_delegation` first, which is Parker's call.
 
 **4. Make sure OneDrive is actually synced.** This skill reads and writes the `Customers/State of CA Agencies/` tree on disk. A folder that is online-only looks empty to Claude, so a precedent search comes back with nothing and the answer is a guess instead of a lookup. Right-click the `State of CA Agencies` folder and choose "Always keep on this device."
 

@@ -117,10 +117,24 @@ to fulfill unless BBS is a named reseller.
 | Procurement intelligence (SCPRS) | Supabase `jsrcrprxoxlnphhcpnbu` via ca-procurement-intel MCP | |
 | Revenue dashboard | Supabase `hkogytbgmaucjjaeqrgd` | |
 | Customer documents (RFQs, POs, packets) | **SharePoint** `Black Box Safety - MASTER/Customers/…` | Repos hold pointers and lessons, not the documents |
-| Grainger pricing | **Grainger MCP** — per buying account. The `b2b.blackboxsafety.com` punch-out it replaced is retired | Never the open web; never from memory. BBS sells Grainger **at cost**: the returned `unitPrice` is the customer price, never marked up (Parker: ruled 2026-09-18, "confirmed" in session 2026-09-28) |
+| Grainger pricing | **Grainger MCP** — per buying account. The `b2b.blackboxsafety.com` punch-out it replaced is retired | Never the open web; never from memory. Whether a Grainger line is sold at cost depends on the channel — "Grainger sell rule, by channel" below is the one home |
 | Pipeline / outreach | Dynamics 365 Sales | |
 | Storefront | Shopify `bbs-supabase-test.myshopify.com`, theme "BBS — Field Manual" | Verify the live theme id with `shopify theme list` before pushing |
 | BBS form values (FEIN, permit, certs) | `plugins/bbs-sales/references/vendor_profile.json` | Skills resolve it as `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` and never re-key it |
+
+### Grainger sell rule, by channel
+
+The single home for whether a Grainger line may carry markup. Skills point here.
+
+| Channel | Rule | Ruling |
+|---|---|---|
+| California state schedules and cooperative contracts | **At cost.** The Grainger MCP's `unitPrice` is BBS's cost *and* the customer price, never marked up; BBS is paid through the contract rebate | Parker, ruled 2026-09-18; "confirmed" in session 2026-09-28 |
+| Prime contractors (e.g. Bechtel) | **Grainger lines may be marked up.** Before pricing, the rep asks BBS's Grainger account manager for a discount on the items, prices from that discounted cost, then applies whatever markup the rep chooses. No markup figure is set — never invent one — and never invent a discount | Parker, in session, 2026-09-28: "For primes, grainger products can be increased. reps should ask for a discount from our grainger account manager first." |
+| Local / co-op, direct federal, private | **Open for Parker.** Do not infer a rule from the rows above; ask the rep | — |
+
+Where a quote spec records which rule applied (the quote builder's per-quote
+`pricing.graingerAtCost`), it is `true` on a California state or cooperative-contract quote
+and `false` on a prime quote. On an open channel it is not set by inference.
 
 **Customer quote numbers are the Business Central SQ number** (Parker, in session,
 2026-09-28: "use BC SQ number"). The local `900001` series is retired.
@@ -130,16 +144,17 @@ to fulfill unless BBS is a named reseller.
 - **A win is confirmed by Business Central** — a sales quote with an `acceptedDate`, or a
   quote converted to a sales order — **or by a quote-log Outcome of *won* that the rep has
   confirmed.** Nothing else is a win.
-- **`bbs_accepted` on a Sales CRM `bbs_rfqs` record is intended to mean the quote converted
-  to an order.** Parker, in session, 2026-09-28: "I believe [it] is in State of CA Agencies
-  and means the quote has converted" — his own hedge, kept.
+- **`bbs_accepted` on a Sales CRM `bbs_rfqs` record: Parker's stated intent is
+  "converted" ("I believe").** Parker, in session, 2026-09-28: "I believe [it] is in State
+  of CA Agencies and means the quote has converted" — his own hedge, kept. Confirm the
+  meaning before relying on it.
 - **In practice it has never been set.** Checked live in the production CRM on 2026-09-28:
   across 2,550 `bbs_rfqs` records created since 2026-01-01, `bbs_accepted` is never true,
   `bbs_orderfinalized` is never true, and no record has `bbs_ponumber` set.
 - **So no skill counts a win from it today**, and a report that would show it says
   "not recorded in CRM" — never zero, which would read as "we won nothing". When reps start
-  setting it, `true` means converted; re-check the field before relying on it, and change
-  this section, not the skills that point here.
+  setting it, confirm with Parker what `true` means and re-check the field before relying
+  on it, then change this section, not the skills that point here.
 
 ## People and signatures
 
@@ -147,12 +162,12 @@ to fulfill unless BBS is a named reseller.
 |---|---|---|
 | Jackson Dalton | President, DV owner | Ownership lines: DGS PD 843, STD 204, CV 012. Always. |
 | Griffin Forsyth | Vice President | Federal / Sourcewell contracts. Signed most historical CalRecycle 74s — history, not the rule (below) |
-| Parker Marshall | Sales Manager, primary responder | Bidder and cert lines: Darfur, OBS 1000, reps & certs; CalRecycle 74 on bids he prepares |
+| Parker Marshall | Sales Manager, primary responder | Bidder and cert lines when named as signer: OBS 4007(B) bidder, Darfur, CalRecycle 74; OBS 1000, reps & certs |
 
-**CalRecycle 74 is signed by whichever BBS employee prepares the bid** (Parker, in session,
-2026-09-28: "anyone is permitted to sign"), never by a customer, agency or third party. When
-a skill may apply that signature and when it leaves the line for the rep to sign by hand is
-set once, in `plugins/bbs-sales/references/ca-form-rules.md`.
+**Who signs the rep-signed lines (OBS 4007(B) bidder, Darfur, CalRecycle 74)** was ruled by
+Parker in session, 2026-09-28. The rule — who may sign, and when a skill may apply a
+signature — lives once, in `plugins/bbs-sales/references/ca-form-rules.md`, "Rep-signed
+lines". The DV-owner declarations above stay Jackson's.
 
 Signatures are applied by the form skills: Parker and Jackson have each delegated
 authority for the forms those skills fill, confirmed with counsel 2026-09-16. The rule
@@ -163,6 +178,33 @@ the send-class tools.
 
 Quote desk (2026-07): Aanya Samarasinghe (quotes/crossovers), Kim Quezon (door/tactical),
 Joyce Newell (POs), Jeff Azar (body armor), Griffin (federal). Accounting: Amy Leath.
+
+## Rulings on binding documents — what `/ca-rfq` checks
+
+`/ca-rfq` (bbs-sales) stops on an open ruling. This is where it looks, because this file
+ships to reps and the marketplace repo's `docs/` does not. Each row names a question and
+where its answer lives; the answer itself is not restated here. The full record, with
+history, is `docs/STEWARD.md` in the marketplace repo (maintainers only).
+
+**Ruled**
+
+| Question | Ruled | The rule lives in |
+|---|---|---|
+| Fresh "please quote" request: file or price first | 2026-09-24 | `/ca-rfq` Gate 0 (c) |
+| CDCR Packet B SB checkbox | 2026-09-22 | "Small-business status is channel-dependent", above |
+| DGS PD 843 "Name of DVBE" | 2026-09-18, confirmed 2026-09-28 | `ca-form-rules.md`, DGS PD 843 row |
+| Company name on CalRecycle 74, OBS 1000, Darfur OBS 1500 | 2026-09-28 | `ca-form-rules.md`, "Company name" |
+| Who signs the rep-signed lines (OBS 4007(B) bidder, Darfur, CalRecycle 74) | 2026-09-28 | `ca-form-rules.md`, "Rep-signed lines" |
+| Grainger sell rule — CA state and cooperative contracts; primes | 2026-09-18 / 2026-09-28 | "Grainger sell rule, by channel", above |
+| Customer quote number | 2026-09-28 | Systems of record, above |
+
+**Open — awaiting Parker**
+
+- Grainger sell rule for local / co-op, direct federal and private buyers. A run that needs
+  it stops and tells the rep.
+- The OBS Line-Item Cost Worksheet "BUSINESS NAME:" header. The 2026-09-28 legal-name
+  ruling did not cover it; it keeps the short name `fill_obs_packet.py` writes today until
+  Parker rules, and does not stop a run.
 
 ## CA state book scope
 
@@ -207,4 +249,4 @@ Archivo, JetBrains Mono. Quote SLA 48 hours. CA sales tax ~7.75%, F.O.B. Destina
 | Line caps "~120" vs "~200" | 150, hard |
 | Same skill, two names (`bbs-price-list-cleaner` / `price-list-cleaner`; two different `ca-rfq-intake`) | One name per behaviour. Two skills with one name is worse than a missing skill: it fails silently with a plausible answer |
 | Two things named `bbs-ops`: the org repo `Black-Box-Safety/bbs-ops` and the website plugin | Resolved 2026-09-02: the plugin is now `bbs-website` (install `bbs-website@bbs-claude-marketplace`); `bbs-ops` names only the repo |
-| Griffin: "VP" / "Vice President" / "federal signer" / "CalRecycle 74" | Vice President; signs federal and Sourcewell. He signed most historical CalRecycle 74s; since 2026-09-28 the BBS employee preparing the bid signs it (see "People and signatures") |
+| Griffin: "VP" / "Vice President" / "federal signer" / "CalRecycle 74" | Vice President; signs federal and Sourcewell. He signed most historical CalRecycle 74s — history, not the rule; who signs it now is in "People and signatures" |

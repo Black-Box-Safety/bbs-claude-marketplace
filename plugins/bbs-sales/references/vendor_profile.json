@@ -63,9 +63,9 @@
     }
   ],
   "signature_delegation": {
-    "source": "Delegated signing authority for the forms the bbs-sales skills fill, confirmed with counsel 2026-09-16 (AGENTS.md, \"Signatures\"). Only the people listed here may have their signature applied by a skill. Any other BBS employee may still be the right signer on a line (CalRecycle 74: any BBS employee preparing the bid, ruled 2026-09-28) but signs it by hand; a skill leaves that line blank and flags it. Never apply a delegate's signature to another person's line.",
+    "source": "Delegated signing authority for the forms the bbs-sales skills fill, confirmed with counsel 2026-09-16 (AGENTS.md, \"Signatures\"). Only the people listed here may have their signature applied by a skill; who may sign which line is ca-form-rules.md's to say, not this file's.",
     "delegates": [
-      { "name": "Parker Marshall", "email": "parker@blackboxsafety.com" },
+      { "name": "Parker Marshall", "email": "parker@blackboxsafety.com", "aliases": ["pmarshall@blackboxsafety.com"] },
       { "name": "Jackson Dalton", "email": "jackson@blackboxsafety.com" }
     ]
   },
@@ -74,7 +74,7 @@
     "name": "Parker Marshall",
     "title": "Sales Manager",
     "email": "parker@blackboxsafety.com",
-    "signs": "Bidder lines only. The rep is a VARIABLE — whoever quotes the job signs these, so a skill must take the rep from its inputs and use this only as a fallback."
+    "signs": "Nothing by default. A fallback for the rep contact fields only; the signer of the rep-signed lines is named by the rep on every run and never defaulted (ca-form-rules.md, \"Rep-signed lines\")."
   },
   "product_type": "Safety Equipment, MRO, PPE"
 }

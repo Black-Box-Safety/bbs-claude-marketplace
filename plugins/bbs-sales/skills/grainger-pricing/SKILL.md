@@ -32,16 +32,22 @@ pricing schedule and sometimes overridden per account. There are 178 accounts ac
 schedules. You must price against the account that will actually buy. The tools require it
 and fail rather than guess — do not work around that by picking a plausible account.
 
-**2. BBS sells Grainger at cost. Never apply markup.** `unitPrice` from the MCP is BBS's
-cost *and* the customer's price; BBS is paid through a contract rebate rather than margin.
-Confirm it on the response: `account.sellRule` reads `at_cost` on every schedule today. If
-you ever see a different sell rule, stop and ask the rep rather than inventing a margin.
-Rare exceptions are handled by the rep directly, not here. The rule's home is
-`bbs-foundations` `references/canonical-facts.md`, Systems of record, the Grainger row
-(Parker: ruled 2026-09-18, confirmed 2026-09-28).
+**2. Whether a Grainger line may be marked up depends on the channel.** The rule lives
+once, in `bbs-foundations` `references/canonical-facts.md`, "Grainger sell rule, by
+channel" — read it there every run rather than recalling it. Establish the channel before
+pricing; if you cannot name it, ask the rep. What this skill does with each answer:
 
-This second rule matters when the quote document is built: pass these prices through to
-`bbs-quote-builder` as final, and do not let its markup math touch a Grainger line.
+- **California state schedule or cooperative contract:** at cost, per canon. Confirm it on
+  the response — `account.sellRule` reads `at_cost` on every schedule today. If you ever
+  see a different sell rule, stop and ask the rep rather than inventing a margin. Pass the
+  prices through to `bbs-quote-builder` as final; do not let its markup math touch a
+  Grainger line.
+- **Prime contractor (e.g. Bechtel):** before pricing, remind the rep to ask BBS's Grainger
+  account manager for a discount on these items first, and offer to write that request
+  for the rep to send — text only; this skill sends nothing. Price from the discounted cost only once the rep has it
+  in writing; never invent a discount, and never pick a markup — the rep chooses it.
+- **Any channel canon marks open:** stop and ask the rep; do not borrow another channel's
+  rule.
 
 ## Workflow
 

@@ -1,23 +1,25 @@
 #!/usr/bin/env python3
-"""test_fill_obs_packet.py — who and what lands on two binding lines of Packet B.
+"""test_fill_obs_packet.py — who signs, and what name goes where, on Packet B.
 
 Run it:
     python3 test_fill_obs_packet.py
 
-Two rulings are executed here rather than trusted to a comment:
+Parker's rulings, executed rather than trusted to a comment:
 
-- **DGS PD 843 "Name of DVBE" is the legal name** (Parker, 2026-09-18, confirmed
-  2026-09-28: "do legal name"). The expected value is read out of
-  vendor_profile.json at test time, never typed here, so the test follows the
-  profile and fails if the script ever writes the short name.
-- **CalRecycle 74 is signed by the rep preparing the bid, who may be any BBS
-  employee** (Parker, 2026-09-28: "anyone is permitted to sign"). The signature
-  is applied only for a signature delegate; any other rep's line is left for
-  them to sign by hand and flagged; a non-BBS signer stops the run.
+- **DGS PD 843 "Name of DVBE" is the legal name** (2026-09-18, confirmed
+  2026-09-28: "do legal name").
+- **CalRecycle 74, OBS 1000 and Darfur OBS 1500 company names are the legal
+  name** (2026-09-28: "Yes, they can match legal name").
+- **Rep-signed lines — OBS 4007(B) bidder, Darfur OBS 1500, CalRecycle 74 — may
+  be signed by any BBS employee the rep names** (2026-09-28: "anyone is permitted
+  to sign"; "whomever the rep says, they can sign it with anyone"). No default
+  signer; a non-BBS signer stops the run; a signature is applied only for a
+  signature delegate, as the delegate's name of record, never free text.
 
-These call `build_field_values()` — the exact list the filler writes — and do
-not open a PDF. No real California form PDF exists in this repo, so none of this
-is evidence about a rendered packet; that still needs a blank packet in hand.
+Expected values are read out of vendor_profile.json at test time, never typed
+here. These call `build_field_values()` — the exact list the filler writes —
+and do not open a PDF. No real California form PDF exists in this repo, so none
+of this is evidence about a rendered packet.
 
 Stdlib only, no pytest, so it runs wherever the plugin is installed.
 """
@@ -33,24 +35,33 @@ import fill_obs_packet as fop  # noqa: E402
 
 with open(fop.VENDOR_PROFILE, encoding="utf-8") as _fh:
     VP = json.load(_fh)
+TEMPLATE = os.path.join(os.path.dirname(HERE), "assets", "inputs_template.json")
 
 PD843_NAME = "DVBE Dec. DGS PD 843 - Name of DVBE"
-CR_SIG = "DORRR CalRec 74 - Signature"
-CR_DATE = "DORRR CalRec 74 - Date"
-CR_PRINT = "DORRR CalRec 74 - Print Name"
-CR_TITLE = "DORRR CalRec 74 - Title"
+DARFUR_NAME = "Darfur OBS 1500 - CompanyVendor Name Printed"
+OBS1000_NAME = "OBS 1000 - Business Name"
+CR_PRINT, CR_TITLE = "DORRR CalRec 74 - Print Name", "DORRR CalRec 74 - Title"
+# (signature field, its date field) for each rep-signed line
+SIGNED = {
+    "CalRecycle 74": ("DORRR CalRec 74 - Signature", "DORRR CalRec 74 - Date"),
+    "OBS 4007(B) Bidder": ("OBS RFQ 4007(B) - Bidder Signature", "OBS RFQ 4007(B) - Bidder Sig Date"),
+    "Darfur OBS 1500": ("Darfur OBS 1500 - By Authorized Signature", "Darfur OBS 1500 - Date"),
+}
+LEGAL = VP["business_identity"]["legal_name"]
+SHORT = VP["business_identity"]["short_name"]
+DOMAIN = VP["contact"]["email"].rsplit("@", 1)[1]
 
 
-def _delegate(role_name):
-    return next(d for d in VP["signature_delegation"]["delegates"]
-                if d["name"] == role_name)
+def _delegate(name):
+    return next(d for d in VP["signature_delegation"]["delegates"] if d["name"] == name)
 
 
-def _inputs(rep):
-    with open(os.path.join(os.path.dirname(HERE), "assets", "inputs_template.json"),
-              encoding="utf-8") as fh:
+def _inputs(signer, rep=None):
+    with open(TEMPLATE, encoding="utf-8") as fh:
         inp = json.load(fh)
-    inp["rep"] = rep
+    if rep is not None:
+        inp["rep"] = rep
+    inp["signer"] = signer
     return inp
 
 
@@ -59,37 +70,49 @@ def _fields(inp):
             for f in fop.build_field_values(fop.load_profile(), inp)}
 
 
-def _employee_domain():
-    return VP["contact"]["email"].rsplit("@", 1)[1]
+def _exit_message(inp):
+    try:
+        _fields(inp)
+    except SystemExit as e:
+        return str(e.code)
+    raise AssertionError("expected the run to stop, and it wrote fields")
 
 
-def _non_delegate_rep():
-    """A BBS employee who is not a signature delegate — built, not assumed."""
+def _parker(**over):
+    d = _delegate("Parker Marshall")
+    return dict({"name": d["name"], "title": "Sales Manager", "email": d["email"]}, **over)
+
+
+def _employee(**over):
     delegate_emails = {d["email"].lower() for d in VP["signature_delegation"]["delegates"]}
-    email = "test.rep@" + _employee_domain()
+    email = "test.rep@" + DOMAIN
     assert email not in delegate_emails
-    return {"name": "Test Rep", "title": "Account Manager", "email": email,
-            "signature": "Test Rep"}
+    return dict({"name": "Test Rep", "title": "Account Manager", "email": email}, **over)
 
 
-# ---------- DGS PD 843 ----------
+KIM_REP = {"name": "Kim Quezon", "title": "Sales", "email": "kim@" + DOMAIN}
+
+
+def _assert_signed(got, inp, name):
+    for line, (sig, date) in SIGNED.items():
+        assert got.get(sig) == name, (line, got.get(sig))
+        assert got.get(date) == inp["signature_date"], (line, got.get(date))
+
+
+def _assert_blank(got):
+    for line, (sig, date) in SIGNED.items():
+        assert sig not in got, "%s signature applied for a non-delegate" % line
+        assert date not in got, "%s dated on a line nobody has signed" % line
+
+
+# ---------- company names ----------
 
 def test_pd843_name_of_dvbe_is_legal_name():
-    legal = VP["business_identity"]["legal_name"]
-    got = _fields(_inputs(dict(_delegate("Parker Marshall"), title="Sales Manager",
-                               signature="Parker Marshall")))
-    assert got[PD843_NAME] == legal, (PD843_NAME, got.get(PD843_NAME), legal)
-
-
-def test_pd843_name_of_dvbe_is_never_short_name():
-    short = VP["business_identity"]["short_name"]
-    assert short != VP["business_identity"]["legal_name"]
-    got = _fields(_inputs(_non_delegate_rep()))
-    assert got[PD843_NAME] != short
+    assert LEGAL != SHORT
+    assert _fields(_inputs(_parker()))[PD843_NAME] == LEGAL
 
 
 def test_pd843_follows_the_profile_not_a_literal():
-    """Change the profile's legal name and the PD 843 field follows it."""
     real = fop.load_profile
 
     def patched():
@@ -98,77 +121,145 @@ def test_pd843_follows_the_profile_not_a_literal():
         return p
     fop.load_profile = patched
     try:
-        got = _fields(_inputs(_non_delegate_rep()))
+        got = _fields(_inputs(_employee()))
     finally:
         fop.load_profile = real
-    assert got[PD843_NAME] == "Profile Legal Name, Inc."
+    assert got[PD843_NAME] == got[DARFUR_NAME] == got[OBS1000_NAME] == "Profile Legal Name, Inc."
 
 
-# ---------- CalRecycle 74 ----------
-
-def test_calrecycle74_delegate_rep_is_signed():
-    rep = dict(_delegate("Parker Marshall"), title="Sales Manager",
-               signature="Parker Marshall")
-    inp = _inputs(rep)
-    got = _fields(inp)
-    assert got[CR_SIG] == "Parker Marshall"
-    assert got[CR_DATE] == inp["signature_date"]
-    assert got[CR_PRINT] == "Parker Marshall"
-    assert fop.signature_flags(fop.load_profile(), inp) == []
+def test_calrecycle_obs1000_darfur_company_name_is_legal_name():
+    got = _fields(_inputs(_employee()))
+    assert got[DARFUR_NAME] == LEGAL and got[OBS1000_NAME] == LEGAL
+    cr = [a for a in fop.ANNOTATIONS if a["page"] == 15]
+    assert len(cr) == 1 and cr[0]["key"] == "legal_name", cr
+    assert fop.load_profile()[cr[0]["key"]] == LEGAL
 
 
-def test_calrecycle74_non_delegate_employee_is_left_blank_and_flagged():
-    rep = _non_delegate_rep()
-    inp = _inputs(rep)
-    got = _fields(inp)
-    assert CR_SIG not in got, "a non-delegate's signature was applied"
-    assert CR_DATE not in got, "date filled on a line the rep has not signed"
-    assert got[CR_PRINT] == rep["name"] and got[CR_TITLE] == rep["title"]
-    flags = fop.signature_flags(fop.load_profile(), inp)
-    assert len(flags) == 1 and "SIGNATURE REQUIRED" in flags[0]
-    assert "CalRecycle 74" in flags[0] and rep["name"] in flags[0]
+# ---------- the template ----------
+
+def test_template_has_no_prefilled_signer():
+    with open(TEMPLATE, encoding="utf-8") as fh:
+        t = json.load(fh)
+    assert "signature" not in t.get("rep", {}), "template carries a typed signature"
+    assert not any(str(v).strip() for v in t.get("signer", {}).values()), t.get("signer")
 
 
-def test_calrecycle74_never_carries_a_delegates_signature_for_another_rep():
-    """A non-delegate asking for Parker's or Jackson's signature gets neither."""
-    for d in VP["signature_delegation"]["delegates"]:
-        rep = dict(_non_delegate_rep(), signature=d["name"])
-        got = _fields(_inputs(rep))
-        assert CR_SIG not in got, "delegate %s signed for %s" % (d["name"], rep["name"])
+def test_no_signer_stops_missing():
+    msg = _exit_message(_inputs({}))
+    assert msg.startswith("[MISSING — NEEDS INPUT] Signer"), msg
+    with open(TEMPLATE, encoding="utf-8") as fh:
+        assert _exit_message(json.load(fh)).startswith("[MISSING — NEEDS INPUT]")
 
 
-def test_calrecycle74_delegate_email_with_another_name_is_not_delegated():
-    rep = {"name": "Test Rep", "title": "Account Manager",
-           "email": _delegate("Parker Marshall")["email"], "signature": "Test Rep"}
-    got = _fields(_inputs(rep))
-    assert CR_SIG not in got
-
-
-def test_calrecycle74_rep_without_email_is_left_blank_and_flagged():
-    rep = {"name": "Parker Marshall", "title": "Sales Manager", "signature": "Parker Marshall"}
-    inp = _inputs(rep)
-    got = _fields(inp)
-    assert CR_SIG not in got
-    assert "SIGNATURE REQUIRED" in fop.signature_flags(fop.load_profile(), inp)[0]
-
-
-def test_calrecycle74_missing_rep_is_flagged_missing():
-    inp = _inputs({})
-    got = _fields(inp)
-    assert CR_SIG not in got
-    assert fop.signature_flags(fop.load_profile(), inp)[0].startswith(
+def test_signer_without_email_stops_missing():
+    assert _exit_message(_inputs({"name": "Test Rep", "title": "x"})).startswith(
         "[MISSING — NEEDS INPUT]")
 
 
-def test_calrecycle74_non_bbs_signer_refuses():
-    rep = {"name": "Agency Buyer", "title": "Buyer",
-           "email": "buyer@cdcr.ca.gov", "signature": "Agency Buyer"}
-    try:
-        _fields(_inputs(rep))
-    except SystemExit as e:
-        assert "REFUSED" in str(e.code) and "CalRecycle 74" in str(e.code)
-    else:
-        raise AssertionError("a non-BBS signer was accepted on CalRecycle 74")
+# ---------- BBS employees only ----------
+
+def test_non_bbs_signer_refused():
+    msg = _exit_message(_inputs({"name": "Agency Buyer", "email": "buyer@cdcr.ca.gov"}))
+    assert msg.startswith("REFUSED"), msg
+
+
+def test_nameless_signer_with_non_bbs_email_refused():
+    """The domain check runs before the name check."""
+    assert _exit_message(_inputs({"email": "buyer@cdcr.ca.gov"})).startswith("REFUSED")
+
+
+def test_double_at_refused():
+    msg = _exit_message(_inputs({"name": "X", "email": "x@evil.com@" + DOMAIN}))
+    assert msg.startswith("REFUSED"), msg
+
+
+def test_lookalike_domain_refused():
+    msg = _exit_message(_inputs({"name": "X", "email": "x@evil" + DOMAIN}))
+    assert msg.startswith("REFUSED"), msg
+
+
+# ---------- delegates ----------
+
+def test_delegate_signer_signs_all_three_lines():
+    inp = _inputs(_parker())
+    got = _fields(inp)
+    _assert_signed(got, inp, "Parker Marshall")
+    assert got[CR_PRINT] == "Parker Marshall" and got[CR_TITLE] == "Sales Manager"
+
+
+def test_parker_via_recorded_alias_signs():
+    alias = _delegate("Parker Marshall")["aliases"][0]
+    inp = _inputs(_parker(email=alias))
+    _assert_signed(_fields(inp), inp, "Parker Marshall")
+
+
+def test_rep_names_parker_on_a_bid_kim_prepared():
+    inp = _inputs(_parker(), rep=KIM_REP)
+    got = _fields(inp)
+    _assert_signed(got, inp, "Parker Marshall")
+    assert got["OBS RFQ 4007(B) - Business Contact Person"] == "Kim Quezon"
+
+
+def test_parkers_name_with_another_email_is_flagged_as_email_mismatch():
+    inp = _inputs(_parker(email="parker.m@" + DOMAIN))
+    _assert_blank(_fields(inp))
+    block = fop.signer_confirmation(fop.load_profile(), inp)
+    assert any("email does not match the delegate's recorded address" in l for l in block), block
+    assert not any("not a signature delegate" in l for l in block)
+
+
+def test_delegate_email_with_another_name_is_not_applied():
+    inp = _inputs(_employee(email=_delegate("Parker Marshall")["email"]))
+    _assert_blank(_fields(inp))
+
+
+def test_signature_text_is_never_free_text():
+    """A typed `signature` in the inputs is ignored; the name of record is written."""
+    inp = _inputs(_parker(name="parker   marshall", signature="Somebody Else"))
+    inp["rep"]["signature"] = "Somebody Else"
+    got = _fields(inp)
+    _assert_signed(got, inp, "Parker Marshall")
+    assert "Somebody Else" not in got.values()
+
+
+# ---------- any other BBS employee ----------
+
+def test_non_delegate_signer_blank_and_flagged_on_all_three_lines():
+    signer = _employee()
+    inp = _inputs(signer)
+    got = _fields(inp)
+    _assert_blank(got)
+    assert got[CR_PRINT] == signer["name"] and got[CR_TITLE] == signer["title"]
+    block = fop.signer_confirmation(fop.load_profile(), inp)
+    flag = [l for l in block if "SIGNATURE REQUIRED" in l]
+    assert len(flag) == 1 and signer["name"] in flag[0]
+    for line in SIGNED:
+        assert line in flag[0], line
+
+
+def test_non_delegate_asking_for_a_delegates_name_gets_nothing():
+    for d in VP["signature_delegation"]["delegates"]:
+        got = _fields(_inputs(_employee(signature=d["name"])))
+        _assert_blank(got)
+
+
+def test_confirmation_block_format():
+    inp = _inputs(_employee())
+    first = fop.signer_confirmation(fop.load_profile(), inp)[0]
+    assert first.startswith("Signer: Test Rep <test.rep@%s> — applied to: " % DOMAIN), first
+    assert "CalRecycle 74, OBS 4007(B) Bidder, Darfur OBS 1500 (blank for hand signature)" in first
+    assert "CalRecycle 74 PCRC/SABRC = NA/NA — confirm before sending." in first
+    inp = _inputs(_parker())
+    assert "(delegated signature applied)" in fop.signer_confirmation(fop.load_profile(), inp)[0]
+
+
+# ---------- unchanged: DV-owner lines ----------
+
+def test_dv_owner_lines_stay_jacksons_whoever_signs():
+    owner = next(r for r in VP["authorized_representatives"] if r["role"] == "dvbe_owner")
+    got = _fields(_inputs(_employee(), rep=KIM_REP))
+    assert got["DGS PD 843 - DVBE Owner/ Signature 1"] == owner["name"]
+    assert got["Payee Data Record STD 204 - Auth Rep. Signature"] == owner["name"]
 
 
 def main():

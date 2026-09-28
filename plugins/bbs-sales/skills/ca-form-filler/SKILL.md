@@ -50,14 +50,15 @@ this skill and `naspo-quote` stay in agreement.
    pre-fills a BBS field with something different, flag it — do not accept the correction.
 4. **Check the DVBE cert against the due date before filling anything.** Expired, or
    inside 30 days of expiry, is a hard stop.
-5. **Two different people sign, and conflating them is the most common error.** The
-   quoting **rep** signs bidder lines (OBS 4007(B) bidder signature, Darfur, CalRecycle
-   74). **Jackson Dalton**, DV owner and President, signs ownership lines (DGS PD 843,
-   STD 204 authorized payee) — those follow who *owns* the certified DVBE, not who quoted
-   the job, so they do not change with the rep. When the rep's signature may be applied
-   and when a rep line is left for them to sign by hand is in `ca-form-rules.md`; Path A's
-   script prints a `⚑ SIGNATURE REQUIRED` line for each one it leaves, and the cover
-   summary repeats it.
+5. **Two different kinds of line, and conflating them is the most common error.** The
+   **signer the rep names** signs the rep-signed lines (OBS 4007(B) bidder signature,
+   Darfur, CalRecycle 74) — ask for the signer on every run; there is no default.
+   **Jackson Dalton**, DV owner and President, signs ownership lines (DGS PD 843,
+   STD 204 authorized payee) — those follow who *owns* the certified DVBE, so they do not
+   change with the rep. Who may sign, and when a signature may be applied rather than left
+   for a hand signature, is in `ca-form-rules.md`; Path A's script prints a signer
+   confirmation block every run, and the cover summary repeats any
+   `⚑ SIGNATURE REQUIRED` line.
 6. **Agency-side fields stay blank** — method of award, SCPRS ref, PO#, and the STD 204
    paying-agency block are the State's to complete.
 7. **Verify by looking.** Rasterize the pages that matter and inspect them before
@@ -151,16 +152,18 @@ agree.
 ### 2. Collect the inputs
 
 What varies between two runs of the same packet is the quote line items, the dates and
-solicitation number, the agency requestor and ship-to, and which rep signs. Everything
-else comes from the vendor profile.
+solicitation number, the agency requestor and ship-to, the rep, and the signer the rep
+names. Everything else comes from the vendor profile.
 
 The rep supplies the quote (pasted, or as a PDF/xlsx), the solicitation number, dates,
-agency contact, and their own name/title/email. If the items arrive as a Grainger cart
+agency contact, their own name/title/email, and **who signs** — name, title and
+`@blackboxsafety.com` email. Ask; never assume the signer is the rep. If the items arrive as a Grainger cart
 PDF, a screenshot, or a DWR RFQ, run `rfq-item-extract` first and bring the list here.
 
 Defaults when unspecified: `signature_date` today in `M.D.YY` (BBS house style, e.g.
 `5.28.26`), `delivery_days_aro` 30, `shipping_handling` 0.0 (BBS quotes FOB destination),
-CalRecycle PCRC/SABRC "NA", rep `default_rep` from the profile.
+CalRecycle PCRC/SABRC "NA", rep `default_rep` from the profile. The signer has **no**
+default: without one the script stops with `[MISSING — NEEDS INPUT]`.
 
 ### 3. Build the inputs JSON
 
@@ -168,7 +171,7 @@ Copy the `inputs_template` the resolver named. For the CDCR OBS 4007(B) packet t
 `assets/inputs_template.json`, whose schema is `solicitation_number`, `release_date` and
 `due_date` (MM/DD/YYYY), `signature_date` (`M.D.YY`, or `""` to hand-date),
 `delivery_days_aro`, `product_summary` (one line, used on OBS 1000, CalRecycle 74 and PD
-843), `shipping_handling`, `rep{name,title,email,signature}`,
+843), `shipping_handling`, `rep{name,title,email}`, `signer{name,title,email}`,
 `agency{requestor_name,requestor_email,requestor_phone,ship_to_line1..3}`,
 `calrecycle_pcrc`, `calrecycle_sabrc`, and `line_items[]` of
 `{qty, unit, description, part_number, pcrc, unit_price}`. Extended prices, subtotal, S&H

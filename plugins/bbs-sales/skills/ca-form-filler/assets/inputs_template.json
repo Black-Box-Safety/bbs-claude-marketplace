@@ -10,8 +10,13 @@
   "rep": {
     "name": "Parker Marshall",
     "title": "Sales Manager",
-    "email": "parker@blackboxsafety.com",
-    "signature": "Parker Marshall"
+    "email": "parker@blackboxsafety.com"
+  },
+
+  "signer": {
+    "name": "",
+    "title": "",
+    "email": ""
   },
 
   "agency": {

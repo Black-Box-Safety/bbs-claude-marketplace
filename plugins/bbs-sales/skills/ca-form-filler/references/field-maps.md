@@ -89,10 +89,10 @@ not a form BBS files.
 |---|---|---|
 | Company name | VP | `business_identity.legal_name` |
 | FEIN | VP | `business_identity.fein` |
-| Paragraph 1 initials | REP | the signing rep's initials — BBS has no foreign operations |
-| Printed name + title | REP | the signing rep (`default_rep` only as a fallback) |
+| Paragraph 1 initials | REP | the signer's initials — BBS has no foreign operations |
+| Printed name + title | REP | the signer the rep names — no default |
 | County and State | DERIVED | "San Diego County, California" |
-| Signature, date | SIGN | **The rep** who quoted the job — Darfur is a bidder certification (`ca-form-rules.md`: DGS PD 1 is the standalone OBS 1500) |
+| Signature, date | SIGN | **The signer the rep names** — Darfur is a rep-signed line (`ca-form-rules.md`, "Rep-signed lines"; DGS PD 1 is the standalone OBS 1500) |
 
 ## OBS 1000 — GenAI Disclosure
 
@@ -121,8 +121,8 @@ Never left blank — a missing CalRecycle 74 can disqualify the bid. See `ca-for
 | Item # / description | RFQ | from the line items |
 | Postconsumer recycled % | REP | BBS resells finished goods and rarely certifies a percentage; "NA" is the normal answer. Only a real percentage from the rep overrides it |
 | SABRC category code | REP | as above |
-| Print name, title | REP | the signing rep |
-| Signature, date | SIGN | **The BBS employee preparing the bid** (ruled 2026-09-28). A perjury certification: applied only when that rep is a signature delegate, otherwise left blank for the rep to sign by hand and flagged `⚑ SIGNATURE REQUIRED`. The rule is in `ca-form-rules.md` |
+| Print name, title | REP | the signer the rep names |
+| Signature, date | SIGN | **The signer the rep names.** When it may be applied and when it is left blank and flagged: `ca-form-rules.md`, "Rep-signed lines" |
 
 ## Form detection
 

@@ -36,6 +36,33 @@ BPO_LIST_FY = "FY25-26"
 BPO_LIST_SOURCE = "Final_BPO_Item_List_25-26B.xlsx"
 BPO_LIST_VALID_FROM = date(2025, 7, 1)
 BPO_LIST_VALID_TO = date(2026, 6, 30)
+ASSETS_DIR = os.path.join(SCRIPT_DIR, 'assets')
+
+
+def constants_problem():
+    """Why the BPO_LIST_* constants cannot be trusted, or None.
+
+    The constants are typed by hand when the list is replaced, so they are
+    checked against the bundled files rather than believed: the source
+    spreadsheet they name must be in assets/, its name must carry the FY token
+    ("25-26" for "FY25-26"), and the validity dates must be that token's
+    California fiscal year. A list swapped without its constants -- or the
+    reverse -- stops the run instead of answering under the wrong year.
+    """
+    m = re.fullmatch(r'FY(\d{2})-(\d{2})', BPO_LIST_FY)
+    if not m:
+        return f"BPO_LIST_FY {BPO_LIST_FY!r} is not of the form FYyy-yy"
+    token = f"{m.group(1)}-{m.group(2)}"
+    if not os.path.isfile(os.path.join(ASSETS_DIR, BPO_LIST_SOURCE)):
+        return f"the source file {BPO_LIST_SOURCE} named by BPO_LIST_SOURCE is not in assets/"
+    if token not in BPO_LIST_SOURCE:
+        return (f"BPO_LIST_SOURCE {BPO_LIST_SOURCE} does not carry the fiscal-year token "
+                f"{token} from BPO_LIST_FY")
+    if (BPO_LIST_VALID_FROM != date(2000 + int(m.group(1)), 7, 1)
+            or BPO_LIST_VALID_TO != date(2000 + int(m.group(2)), 6, 30)):
+        return (f"BPO_LIST_VALID_FROM/TO {BPO_LIST_VALID_FROM}-{BPO_LIST_VALID_TO} are not "
+                f"the California fiscal year {BPO_LIST_FY}")
+    return None
 
 
 def list_header(today=None):
@@ -91,6 +118,13 @@ def main():
 
     if not items:
         sys.stderr.write("No item numbers provided.\n")
+        sys.exit(1)
+
+    problem = constants_problem()
+    if problem:
+        sys.stderr.write(f"ERROR: the bundled BPO list and check_items.py disagree: {problem}. "
+                         f"Replace the asset files and the BPO_LIST_* constants together; "
+                         f"no answer given.\n")
         sys.exit(1)
 
     bpo_set = load_bpo_set()

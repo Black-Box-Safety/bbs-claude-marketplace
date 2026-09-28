@@ -43,7 +43,7 @@ Nothing drifts.
 | You are | Start here | Time |
 |---|---|---|
 | New to any of this | [`plugins/bbs-claude-coach/docs/TOOLKIT.md`](plugins/bbs-claude-coach/docs/TOOLKIT.md) — what the tools are, in plain words, and how to extend them; or run `/bbs-what-can-i-do` | ~10 min read |
-| Deciding what we build next | [`docs/PRODUCT.md`](docs/PRODUCT.md) — the living product plan: principles, the rep experience, merge order, roadmap | ~10 min read |
+| Deciding what we build next | [`docs/STEWARD.md`](docs/STEWARD.md) — how a work session runs, merge order, and the register of Parker's rulings and open questions | ~10 min read |
 | A sales rep | [`docs/REP-SETUP.md`](docs/REP-SETUP.md), then `/bbs-checkup` | ~20 min, once |
 | The admin | [`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §0 → §3a | One morning |
 | Parker, trying Cursor (future; not rep onboarding) | [`docs/CURSOR-SETUP.md`](docs/CURSOR-SETUP.md) — maintainer guide | As needed |
@@ -138,7 +138,7 @@ bbs-claude-marketplace/
 ├── scripts/bbs-setup.ps1 · bbs-setup.sh · bbs-clone-web-stack.sh
 ├── scripts/install-desktop-launchers.sh · install-desktop-launchers.ps1
 ├── docs/
-│   ├── PRODUCT.md · REP-SETUP.md · CURSOR-SETUP.md · ADMIN-RUNBOOK.md · ADMIN-CLEANUP.md · MEASUREMENT.md
+│   ├── STEWARD.md · REP-SETUP.md · CURSOR-SETUP.md · ADMIN-RUNBOOK.md · ADMIN-CLEANUP.md · MEASUREMENT.md
 │   ├── acceptance/                     # one file per pilot gate run
 │   ├── assessments/                    # what we found, dated
 │   └── superpowers/                    # design specs and implementation plans
