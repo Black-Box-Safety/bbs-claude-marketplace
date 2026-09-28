@@ -52,8 +52,11 @@ SHORT = VP["business_identity"]["short_name"]
 DOMAIN = VP["contact"]["email"].rsplit("@", 1)[1]
 
 
+DELEGATES = fop.load_profile()["signature_delegates"]  # roles resolved by the loader
+
+
 def _delegate(name):
-    return next(d for d in VP["signature_delegation"]["delegates"] if d["name"] == name)
+    return next(d for d in DELEGATES if d["name"] == name)
 
 
 def _inputs(signer, rep=None):
@@ -84,7 +87,7 @@ def _parker(**over):
 
 
 def _employee(**over):
-    delegate_emails = {d["email"].lower() for d in VP["signature_delegation"]["delegates"]}
+    delegate_emails = {d["email"].lower() for d in DELEGATES}
     email = "test.rep@" + DOMAIN
     assert email not in delegate_emails
     return dict({"name": "Test Rep", "title": "Account Manager", "email": email}, **over)
@@ -238,7 +241,7 @@ def test_non_delegate_signer_blank_and_flagged_on_all_three_lines():
 
 
 def test_non_delegate_asking_for_a_delegates_name_gets_nothing():
-    for d in VP["signature_delegation"]["delegates"]:
+    for d in DELEGATES:
         got = _fields(_inputs(_employee(signature=d["name"])))
         _assert_blank(got)
 
@@ -251,6 +254,19 @@ def test_confirmation_block_format():
     assert "CalRecycle 74 PCRC/SABRC = NA/NA — confirm before sending." in first
     inp = _inputs(_parker())
     assert "(delegated signature applied)" in fop.signer_confirmation(fop.load_profile(), inp)[0]
+
+
+# ---------- the profile's delegation ----------
+
+def test_delegation_roles_resolve_to_representatives():
+    roles = VP["signature_delegation"]["delegates"]
+    reps = {r["role"]: r for r in VP["authorized_representatives"]}
+    assert roles == ["sales_manager", "dvbe_owner"], roles
+    assert [d["name"] for d in DELEGATES] == [reps[r]["name"] for r in roles]
+    assert "pmarshall@" + DOMAIN in _delegate("Parker Marshall")["aliases"]
+    for r in roles:
+        assert reps[r]["signature_image"], r
+    assert "signature_image" not in VP["default_rep"], "Parker's image moved to sales_manager"
 
 
 # ---------- unchanged: DV-owner lines ----------

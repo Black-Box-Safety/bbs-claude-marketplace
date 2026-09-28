@@ -94,11 +94,12 @@ def load_profile():
         "dvbe_owner": {k: owner[k] for k in ("name", "title", "email")},
         "accounting_contact": {k: acct[k] for k in ("name", "title", "phone", "email")},
         # Whose signature a skill may apply (counsel, 2026-09-16). Everyone else
-        # signs by hand. Read from the profile, never listed in this script.
+        # signs by hand. signature_delegation lists roles; each resolves to its
+        # authorized_representatives entry, so identity is written once.
         "signature_delegates": [
-            {"name": d["name"], "email": d["email"],
-             "aliases": list(d.get("aliases", []))}
-            for d in vp["signature_delegation"]["delegates"]],
+            {"role": d["role"], "name": d["name"], "email": d["email"],
+             "aliases": list(d.get("aliases") or [])}
+            for d in (_rep(vp, role) for role in vp["signature_delegation"]["delegates"])],
         # A BBS employee has an address on this domain. Derived from the
         # profile's own contact address so the domain is never re-keyed here.
         "employee_domain": contact["email"].rsplit("@", 1)[1].lower(),

@@ -154,9 +154,23 @@ review has happened for this RFQ, then apply:
 Ask the rep who signs rather than defaulting to last time's answer.
 `references/filled-form-precedents.md` has the split with counts.
 
-Signature images:
-- Parker — `.../Customers/Bechtel/sentinel/vandenburg-sentinel-rfps/RFP-741986-vlc-tempest-filters/signature/parker-signature.png`
-- Jackson — `.../Black Box Safety - MASTER/Jackson Dalton Signature/Copy of JACKSON_SIG.png`
+The spec names the signer as `signer{name,title,email}` — the person the rep named,
+every run. `fill_ca_forms.py` refuses a spec with no signer, a signer who is not a BBS
+employee, or a delegate's image on a rep-signed line whose signer is not that delegate;
+mark a DV-owner declaration's `sign` entry `"line": "dv_owner"` (the script's docstring
+has the shape).
+
+Signature images: each delegate's PNG location is `signature_image` on that person in
+`${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` `authorized_representatives` — the
+roles `signature_delegation.delegates` lists (Parker on `sales_manager`, Jackson on
+`dvbe_owner`). Read it from there; never copy a path into this file. Pass it
+unchanged in the spec's `signatures` map and set `master_root` to the synced
+`Black Box Safety - MASTER` folder; the script joins the `MASTER/` path itself, so never
+build an absolute path by hand. `fill_ca_forms.py` checks every signer's image and every
+blank form before it opens a PDF, and writes nothing unless every form filled and every
+`sign` entry stamped. On a `⚑ SIGNATURE REQUIRED` or `⚑ SIGNATURE NOT APPLIED` stop, fix
+the path or field name, or drop that `sign` entry and leave the line unsigned for the
+rep. Never work around the stop.
 
 No other signer has an image, by design; `ca-form-rules.md` says what happens to their
 lines. Never stamp Parker's or Jackson's image for anyone else.

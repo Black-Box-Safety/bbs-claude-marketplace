@@ -282,6 +282,11 @@ way Path A does before writing anything.
 **Flat or scanned PDFs** fall back to coordinate stamping. Rasterize every page, map the
 coordinates visually, then stamp. This is slower and more error-prone, so verify harder.
 
+**Signatures follow the same rule on this path.** Ask the rep who signs; there is no
+default. Apply a delegate's signature only as `ca-form-rules.md`, "Rep-signed lines" allows,
+and otherwise leave the line blank and flagged. `naspo-quote`'s `fill_ca_forms.py` enforces
+this in code for a spec that names its `signer`.
+
 ### 4. Verify
 
 Rasterize and inspect every page you touched. Same rule as Path A: look at the render, not

@@ -24,7 +24,8 @@ contact.{phone, email, website}
 certifications.sb_dvbe.{osds_ref_number, expiration, scope, carries}
 certifications.local_only[].{name, number, scope}
 certifications.federal.{designation, gsa_mas}
-authorized_representatives[].{role, name, title, email, phone, signs}   # role, not index
+authorized_representatives[].{role, name, title, email, phone, aliases, signs, signature_image}   # role, not index
+signature_delegation.delegates[]   # roles in authorized_representatives, not people
 default_rep.{role, name, title, email, signs}
 ```
 

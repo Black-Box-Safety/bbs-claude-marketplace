@@ -330,8 +330,11 @@ Write it up with evidence and move to the next slice. Do not idle.
   (`resolve_signer`, a confirmation block every run) and `test_fill_obs_packet.py`. Path B:
   `naspo-quote/scripts/fill_ca_forms.py` refuses a spec with no signer, a non-BBS signer,
   or a delegate's image for a signer whose email/alias is not that delegate's
-  (`test_fill_ca_forms.py`). Canon, `naspo-quote` §5, `field-maps.md` and the `bbs-sales`
-  README point at the rule.
+  (`test_fill_ca_forms.py`). Signer data (after PR #37): Parker has his own
+  `authorized_representatives` entry, role `sales_manager`, with his alias and the
+  `signature_image` moved off `default_rep`; `signature_delegation.delegates` is
+  `["sales_manager", "dvbe_owner"]`, resolved to those entries by both loaders. Canon,
+  `naspo-quote` §5, `field-maps.md` and the `bbs-sales` README point at the rule.
 - **Company name on CalRecycle 74, OBS 1000 and Darfur OBS 1500 — RULED 2026-09-28: legal
   name.** Parker, in session: "Yes, they can match legal name". They take
   `vendor_profile.json` `business_identity.legal_name`, as DGS PD 843 already did; rule in
