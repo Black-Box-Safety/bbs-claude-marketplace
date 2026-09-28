@@ -46,7 +46,9 @@ report format at the end. Read-only: create/modify nothing, send nothing.
    `Get-Command pwsh, powershell, python3 -ErrorAction SilentlyContinue`, or
    `command -v pwsh powershell python3` — WARN, not FAIL, if none does: the hook fails open
    and the skills run without their guardrail text until one is installed (macOS:
-   `brew install powershell`, or the Xcode command-line tools for `python3`). Windows
+   `brew install powershell`, or the Xcode command-line tools for `python3`). On Windows a
+   `python3` found only under `\WindowsApps\` is the Microsoft Store stub and does not
+   count as resolving. Windows
    only: `where.exe bash` must resolve too (Git Bash, from `scripts/bbs-setup.ps1`);
    without it Claude Code hands the hook command to PowerShell, which cannot parse it, and
    every skill call shows a hook error — WARN, fix is the bootstrap (REP-SETUP step 1).
@@ -58,13 +60,22 @@ report format at the end. Read-only: create/modify nothing, send nothing.
     REP-SETUP step 1). Also resolve `soffice` (LibreOffice): WARN if missing —
     quote-builder PDF export and document-skills conversion need it.
     Then the libraries the document-producing skills import (form-fill, quote builder,
-    reconciliation). Windows: resolve `python` — a hit only under `\WindowsApps\` is the
-    Microsoft Store stub and counts as missing — then run
-    `python -c "import pypdf, fitz, openpyxl"` and `node -e "require('docx')"`. macOS: the
-    same with `python3`. PASS = both exit 0. WARN (not FAIL) for a missing `python` or a
-    failed import, naming it and pointing at `scripts/bbs-setup.ps1` — if its last run said
-    `[later]`, reopening VS Code and rerunning the script finishes it. On a Mac,
-    `bbs-setup.sh` does not install these libraries yet; name what is missing for Parker.
+    reconciliation), using the interpreter `bbs-setup.ps1` installed them into:
+    - **Python.** Windows: the first `python` from
+      `Get-Command python -CommandType Application -All` whose path is not under
+      `\WindowsApps\` (that is the Microsoft Store stub; if it is the only hit, python is
+      missing). macOS: `python3`. Run `<that interpreter> -c "import pypdf, fitz, openpyxl"`.
+    - **docx.** Resolve it the way `build_quote.js` does — from the script's own folder plus
+      NODE_PATH, not from the current folder. Find the installed bbs-sales plugin root (as
+      in check 9), then run
+      `node -e "require.resolve('docx',{paths:[process.argv[1]]})" "<bbs-sales root>/skills/bbs-quote-builder/scripts"`.
+      If bbs-sales is not installed, skip this probe (informational).
+    PASS = both exit 0. WARN (not FAIL) for a missing python or a failed import, naming it.
+    Windows fix: `scripts/bbs-setup.ps1` — if its last run said `[later]` or `Not done yet`,
+    close that PowerShell window, open a new one, run the script again, then reopen VS Code.
+    Any OS, docx only: `npm install docx` inside `<bbs-sales root>/skills/bbs-quote-builder`
+    (once per plugin update). On a Mac, `bbs-setup.sh` does not install these libraries yet;
+    name what is missing for Parker.
 
 ## Report format
 

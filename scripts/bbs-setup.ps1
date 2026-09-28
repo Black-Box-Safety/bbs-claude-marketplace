@@ -33,6 +33,7 @@ Write-Host "BBS rep-machine bootstrap $(if ($DryRun) { '(dry run - nothing will 
 Write-Host ""
 
 $failed = @()
+$deferred = @()
 
 foreach ($p in $packages) {
   winget list --id $p.Id --exact --accept-source-agreements > $null 2>&1
@@ -83,8 +84,8 @@ if (Get-Command npm -ErrorAction SilentlyContinue) {
     }
   }
   # Node's require() never looks in the npm global folder on its own, so a global `docx` is
-  # invisible to build_quote.js and to /bbs-checkup's `node -e "require('docx')"` without
-  # NODE_PATH. Point it there, once, for this user.
+  # invisible to build_quote.js (and to /bbs-checkup, which resolves it from that script's
+  # folder) without NODE_PATH. Point it there, once, for this user.
   $npmRoot = (npm root -g 2>$null | Select-Object -First 1)
   if ($npmRoot) {
     $npmRoot = $npmRoot.Trim()
@@ -96,13 +97,21 @@ if (Get-Command npm -ErrorAction SilentlyContinue) {
       Write-Host ("[would]   {0,-28} {1}" -f 'NODE_PATH', "add $npmRoot so node finds the global docx/pptxgenjs")
     } else {
       Write-Host ("[install] {0,-28} {1}" -f 'NODE_PATH', "add $npmRoot so node finds the global docx/pptxgenjs")
-      $newNodePath = if ($nodePath) { "$nodePath;$npmRoot" } else { $npmRoot }
+      # A User NODE_PATH shadows a Machine one, so carry any Machine entries into it.
+      $parts = @()
+      foreach ($v in @($nodePath, [Environment]::GetEnvironmentVariable('NODE_PATH', 'Machine'), $npmRoot)) {
+        if ($v) { foreach ($e in ($v -split ';')) { if ($e -and ($parts -notcontains $e)) { $parts += $e } } }
+      }
+      $newNodePath = $parts -join ';'
       [Environment]::SetEnvironmentVariable('NODE_PATH', $newNodePath, 'User')
       $env:NODE_PATH = $newNodePath
     }
   }
-} elseif (-not $DryRun) {
-  Write-Host "[later]   docx and pptxgenjs need Node on PATH; reopen VS Code and rerun this script to add them."
+} elseif ($DryRun) {
+  Write-Host ("[would]   {0,-28} {1}" -f 'docx, pptxgenjs, NODE_PATH', 'after Node is on PATH (npm global + NODE_PATH)')
+} else {
+  Write-Host "[later]   docx and pptxgenjs need Node on PATH: close this PowerShell window, open a new one, run the script again, then reopen VS Code."
+  $deferred += 'docx, pptxgenjs'
 }
 
 # Python libraries the form-fill (ca-form-filler, naspo-quote), quote and reconciliation
@@ -128,14 +137,22 @@ if ($realPython) {
       $failed += 'python packages (pypdf/pymupdf/openpyxl)'
     }
   }
-} elseif (-not $DryRun) {
-  Write-Host "[later]   pypdf/pymupdf/openpyxl need Python on PATH; reopen VS Code and rerun this script to add them."
+} elseif ($DryRun) {
+  Write-Host ("[would]   {0,-28} {1}" -f 'python packages', (($pyPackages -join ', ') + ' after Python is on PATH'))
+} else {
+  Write-Host "[later]   pypdf/pymupdf/openpyxl need Python on PATH: close this PowerShell window, open a new one, run the script again, then reopen VS Code."
+  $deferred += 'pypdf, pymupdf, openpyxl'
 }
 
 Write-Host ""
 if ($failed.Count -gt 0) {
   Write-Host ("Finished with {0} item(s) to install by hand: {1}" -f $failed.Count, ($failed -join ', '))
-} else {
-  Write-Host "Done."
 }
-Write-Host "Close and reopen VS Code or Cursor so PATH picks up the new tools. If any line above said [later], run this script once more after reopening to finish those, then run /bbs-checkup in Claude."
+if ($deferred.Count -gt 0) {
+  Write-Host ("Not done yet - still to add: {0}" -f ($deferred -join '; '))
+  Write-Host "To finish: close this PowerShell window, open a new one, run the script again, then reopen VS Code."
+}
+if ($failed.Count -eq 0 -and $deferred.Count -eq 0) {
+  if ($DryRun) { Write-Host "Dry run complete." } else { Write-Host "Done." }
+}
+Write-Host "Close and reopen VS Code or Cursor so PATH picks up the new tools, then run /bbs-checkup in Claude."

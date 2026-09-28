@@ -15,10 +15,13 @@ On a Mac the steps are the same, with Cmd for Ctrl; step 1 uses `scripts/bbs-set
      `-DryRun` if you like).
    - It installs Git, Node, Python, Chrome, LibreOffice, the PDF/OCR tools Claude uses to read
      RFQs, and the Python and Node libraries the form-fill and quote skills build documents with.
-   - **Done** looks like the last line saying `Done.` If any line said `[later]`, reopen VS
-     Code and run the script once more — Node and Python only finish their extra libraries
-     after a reopen.
-   - If anything turns red, copy the whole window and send it to Parker; don't try to fix it.
+   - **Done** looks like a line saying `Done.` near the bottom. If instead it says
+     `Not done yet`, or any line above says `[later]`: close this PowerShell window, open a
+     new one, run the script again, then reopen VS Code. Node and Python only finish their
+     extra libraries from a fresh window.
+   - Yellow `WARNING:` lines, or `Finished with … to install by hand`, mean something failed.
+   - If anything turns red or yellow, copy the whole window and send it to Parker; don't try
+     to fix it.
    - Mac: `scripts/bbs-setup.sh` (needs Homebrew; `--dry-run` to preview). It does not install
      the Python/Node libraries yet — `/bbs-checkup` (step 5) names any that are missing.
 2. **Install VS Code** — code.visualstudio.com, all defaults.
