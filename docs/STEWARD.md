@@ -67,8 +67,36 @@ practice. Both are certification or pricing rulings on binding documents.
   specifies. Closed — `/ca-rfq` Gate 1 no longer stops on it. Fact and reasoning:
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`,
   "Small-business status is channel-dependent".
-- **Grainger at-cost vs the old margin practice — RULED 2026-09-18.** Grainger at cost is
-  the standing pricing rule. Recorded in `docs/PRODUCT.md` §9.
+- **Grainger at-cost vs the old margin practice — RULED 2026-09-18 and confirmed
+  2026-09-28 for California state agencies; primes RULED 2026-09-28; other channels
+  OPEN.** Parker, in session, 2026-09-28: "confirmed" (to the at-cost rule; recorded only for
+  California state agencies — CA state schedules and the NASPO ValuePoint CA MRO LPA —
+  until the open question below is answered), and on primes: "For primes,
+  grainger products can be increased. reps should ask for a discount from our grainger
+  account manager first." So on a prime (e.g. Bechtel) Grainger lines may be marked up:
+  the rep asks BBS's Grainger account manager for a discount first, prices from the
+  discounted cost, and applies whatever markup the rep chooses — no figure is set, and
+  none is invented. **Still open for Parker:** national and local cooperative contracts,
+  direct federal and private. **Ask:** are national cooperative contracts (Sourcewell,
+  NPPGov, UC/OMNIA) at cost? A draft of this PR had put "cooperative contracts" in the
+  at-cost row, which Parker did not rule; review caught it and it was narrowed.
+  The single home is `canonical-facts.md`, "Grainger sell rule, by channel" (the Systems
+  of record Grainger row points there); `grainger-pricing` §2 points at it, reminds the rep
+  on a prime to request the discount first and offers to write the request (never sends,
+  never invents a discount). The quote builder's per-quote `pricing.graingerAtCost` (PR
+  #34) follows it: `true` on a California state-schedule / NASPO LPA quote, `false` on a
+  prime. PR #34 restates the rule (`spec-schema.md:30`, `:126`, `SKILL.md:142`, "not ruled
+  for primes"); it merges after this PR and is to repoint at canon.
+  An earlier version of this entry said every live file "agrees" with an unconditional
+  at-cost rule; since the prime ruling that is no longer the test. Scoped to California
+  state / NASPO and therefore still correct: `naspo-quote`, `ca-rfq-intake`, the
+  `bbs-sales` README, `supply-lane-tuning`, `quote-bot`, `bbs-order-reconciliation`
+  ("on these accounts"). Stated unconditionally and corrected in PR #36:
+  `grainger-pricing` §2 and `bbs-doctrine.md` rule 19 (now a pointer). **Still unconditional, not edited
+  here:** the managed `claudeMd` in `bbs-foundations/docs/bbs-managed-settings.json` ("BBS
+  sells Grainger at cost") — a managed artifact, so it needs its own PR with a second
+  reviewer and then Parker's re-paste. `bbs-quote-builder`'s 20% gross-margin house
+  default (`SKILL.md:69-71`) is being changed by a separate worker (PR #34).
 
 **Done:** findings cleared, `check_marketplace.py` exits 0, fresh review is clean, PR
 merged, the six verified-dead branches deleted (`v1.1` held back — it reads as a version
@@ -83,6 +111,14 @@ miss plus restricted-item alerts that production does not have.
 
 Needs the FY26/27 list from Aanya's bundle. **Escalate if it is not available** — do not
 synthesize a list.
+
+**Decision 2026-09-28 (still BLOCKED on Aanya).** Parker, in session: "Aanya will
+provide." Until she does, `dgs-bpo-item-check` keeps the FY25–26 list, and every answer
+opens with the list it checked against plus a `⚠ STALE LIST` line once that fiscal year has
+ended (`check_items.py`, `BPO_LIST_*`). The constants are now checked against the bundle:
+the script exits 1 unless the named source file is in `assets/`, its name carries the FY
+token, the years are consecutive, the dates are that fiscal year, and both asset files
+match fingerprints stored beside the constants (`test_check_items.py`). No list is synthesized.
 
 **Done:** current list bundled, alternates-on-miss and restricted-item alerting present,
 coverage note accurate.
@@ -285,8 +321,48 @@ Write it up with evidence and move to the next slice. Do not idle.
   Cursor rule. Its single home is now "CA state book scope" in
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`;
   `.cursor/rules/bbs-invariants.mdc` points at it instead of restating it.
-- **Who certifies the CalRecycle 74 — RULED 2026-09-18: the rep who quoted the job.**
-  `naspo-quote` §5 no longer defaults to Griffin; `ca-form-rules.md` already said the rep.
+- **Who signs the rep-signed lines (CalRecycle 74, OBS 4007(B) Bidder Signature, Darfur
+  OBS 1500) — RULED 2026-09-18: the rep who quoted the job; superseded, RULED 2026-09-28:
+  any BBS employee, named by the rep.** Parker, in session, 2026-09-28: "anyone is
+  permitted to sign", and, asked whether the rep names the signer: "yes, or whomever the
+  rep says, they can sign it with anyone." The rule lives once, in `ca-form-rules.md`,
+  "Rep-signed lines": the rep names the signer on every run (no template default; none
+  given → `[MISSING — NEEDS INPUT]`); the signer must be a BBS employee (one `@`, BBS's
+  domain, checked before the name; otherwise REFUSED, nothing written); a delegate in
+  `vendor_profile.json` (Parker, Jackson — counsel, 2026-09-16; matched on the recorded
+  email or alias) gets the delegated signature, including on a bid someone else prepared;
+  any other signer gets name and title, signature and date blank, `⚑ SIGNATURE REQUIRED`.
+  The signature can never differ from the signer (no free-text signature input). The DV-owner
+  declarations (DGS PD 843, CV 012, STD 204) stay Jackson's. Path A: `fill_obs_packet.py`
+  (`resolve_signer`, a confirmation block every run) and `test_fill_obs_packet.py`. Path B:
+  `naspo-quote/scripts/fill_ca_forms.py` refuses a spec with no signer, a non-BBS signer,
+  or a delegate's image for a signer whose email/alias is not that delegate's; the image
+  is always the delegate's own `signature_image` from the profile (never a spec path);
+  every form declares its `form` kind, and only PD843/CV012/STD204/STD205 take the
+  dvbe_owner's `dv_owner` stamp (`test_fill_ca_forms.py`). OBS 1000's signer is not
+  ruled (`field-maps.md`): no skill stamps it, and the draft line in this PR assigning it
+  to Parker was removed — **open for Parker**. Signer data (after PR #37): Parker has his own
+  `authorized_representatives` entry, role `sales_manager`, with his alias and the
+  `signature_image` moved off `default_rep`; `signature_delegation.delegates` is
+  `["sales_manager", "dvbe_owner"]`, resolved to those entries by both loaders. Canon,
+  `naspo-quote` §5, `field-maps.md` and the `bbs-sales` README point at the rule.
+- **Company name on CalRecycle 74, OBS 1000 and Darfur OBS 1500 — RULED 2026-09-28: legal
+  name.** Parker, in session: "Yes, they can match legal name". They take
+  `vendor_profile.json` `business_identity.legal_name`, as DGS PD 843 already did; rule in
+  `ca-form-rules.md`, "Company name"; `fill_obs_packet.py` writes it and
+  `test_fill_obs_packet.py` asserts it. **Open for Parker:** the OBS Line-Item Cost
+  Worksheet "BUSINESS NAME:" header was not covered and still takes the short name.
+- **DGS PD 843 "Name of DVBE" — RULED 2026-09-18; confirmed RULED 2026-09-28.** Parker,
+  in session: "do legal name". The field takes `vendor_profile.json`
+  `business_identity.legal_name`, never `short_name`. `fill_obs_packet.py` already wrote
+  `legal_name`; `ca-form-rules.md` records the confirmation, and `test_fill_obs_packet.py`
+  now asserts the field equals the profile's legal name and follows the profile rather
+  than a literal.
+- **Quote numbers — RULED 2026-09-28: BC SQ number.** Parker, in session: "use BC SQ
+  number". BBS customer quotes carry the Business Central SQ number; the local `900001`
+  series is retired. Recorded in canon (Systems of record). `bbs-quote-builder`, which
+  still describes the 900001 series, is being changed by a separate worker and is not
+  edited by the PR that records this entry.
 - **Sequencing the territory work — RULED 2026-09-28 (Parker, in session): land the
   sales-territory work before the weekly rep review build.** Landed by the PR that records
   this entry (`claude/sales-territory-land`), which brings the genuinely new work from
@@ -307,7 +383,18 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **Reactive/proactive and new/repeat tags — RULED 2026-09-28 (Parker, in session):
   workbook-only.** They live in the rep review's workbook and nowhere else; **no new Sales
   CRM fields** are created for them.
-- **What `bbs_accepted` means — OPEN (raised in the PR #33 review, 2026-09-28).** The
+- **What `bbs_accepted` means — RULED 2026-09-28.** Parker, in session: "I believe [it] is
+  in State of CA Agencies and means the quote has converted." Checked live in the
+  production CRM the same day: across 2,550 `bbs_rfqs` records created since 2026-01-01,
+  `bbs_accepted` is never true, `bbs_orderfinalized` is never true, and no record has
+  `bbs_ponumber` set. Home: `canonical-facts.md`, "What counts as a win" — Parker's stated
+  intent is "converted" ("I believe"), to be confirmed before anything relies on it; never
+  set in practice, so no skill counts a win from it today, and a report says "not recorded
+  in CRM", never zero. `bbs-weekly-sales-report` (column "Accepted in CRM (unconfirmed)"),
+  `ca-site-visit-brief` (and its `confidence-ledger.md`) and the `ca-territory-handoff`
+  scoreboard say only that it is not a win source today and point there; none restates
+  its meaning (PR #36 review). Closed. Original entry,
+  kept for history: The
   territory work used the Sales CRM field two ways: `ca-site-visit-brief` said it is not a
   win flag, while `bbs-weekly-sales-report` counted it as a win and `ca-territory-handoff`'s
   scoreboard derived win rate from it. Until Parker rules, every skill takes the safe
@@ -325,8 +412,22 @@ Write it up with evidence and move to the next slice. Do not idle.
   `scripts/check_marketplace.py` gets anchored to that canon row, clearing the WARN. If
   not, the Sales CRM needs its own canon row — Parker's call either way, since canon names
   BBS's systems.
+- **Where `/ca-rfq` looks for rulings — RULED 2026-09-28: canon.** Parker, in session:
+  "Yes" (to repointing it at `canonical-facts.md`). `/ca-rfq` ships to reps in `bbs-sales`
+  without this repo's `docs/`, and its Gate 1 "an open ruling stops the run" looked for a
+  *Ruled* table in `docs/PRODUCT.md` §9 that never existed. It now reads
+  `bbs-foundations` `canonical-facts.md`, "Rulings on binding documents" — a *Ruled* table
+  that points at where each rule lives, and an *Open* list — at Gate 0 (c), Gate 1 and
+  *What this command deliberately does not do*; the stale "does not decide the open
+  routing ruling at Gate 0 (c)" (ruled 2026-09-24) is gone. This register stays the
+  maintainers' full record.
 - **`docs/PRODUCT.md` is empty on main, and Parker has no content for it — noted
-  2026-09-28 (Parker, in session). OPEN: repoint `lead-reviewer`.**
+  2026-09-28 (Parker, in session). RESOLVED 2026-09-28: `lead-reviewer` repointed; file
+  deleted in PR #36.** `lead-reviewer` checks rulings against this register (*Already open
+  for Parker*), merge order against *Tonight's slices*, and invariants against `AGENTS.md`.
+  With `/ca-rfq` repointed at canon (above) and `README.md`'s two lines repointed at this
+  file, nothing referenced it, so it is deleted.
+  Original entry, kept for history:
   `.claude/agents/lead-reviewer.md` still tells the reviewer to check PRs against
   `docs/PRODUCT.md` §2 (what a rep should understand), §5 (merge order) and §9 (recorded
   rulings), none of which exist. A reviewer following it either skips those checks or
@@ -337,4 +438,4 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-09-18.
+Owner: Parker Marshall. Last verified 2026-09-28.
