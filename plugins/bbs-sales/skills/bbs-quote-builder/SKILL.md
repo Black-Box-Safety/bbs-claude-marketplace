@@ -1,9 +1,9 @@
 ---
 name: bbs-quote-builder
 description: >-
-  Build a Black Box Safety, Inc. (BBS) sales quote on company letterhead in the
-  standard SQ-104032 format and deliver it as a PDF, numbered with the Business
-  Central SQ number of the sales quote it represents. Use this skill whenever a
+  Build a Black Box Safety, Inc. (BBS) sales quote in the Business Central print
+  layout and deliver it as a PDF, numbered with the Business Central SQ number of
+  the sales quote it represents. Use this skill whenever a
   BBS rep wants to turn a source document — a vendor cart PDF (Office Depot,
   Staples, Amazon), an RFQ spreadsheet, a customer item list, Grainger pricing,
   or pasted SKUs and quantities — into a formatted, customer-ready price quote.
@@ -19,28 +19,29 @@ requires: [business-central, node, docx-npm, libreoffice]
 
 # BBS Quote Builder
 
-Produces a Black Box Safety sales quote PDF that matches the company-standard
-SQ-104032 layout. The goal is uniformity: every rep's quote should look
-identical and do the pricing math the same way, so customers and colleagues see
-one consistent BBS document.
+Produces a Black Box Safety sales quote PDF in the layout Business Central prints
+for BBS quotes (reference SQ-104776; Parker chose this layout on 2026-09-28). The
+goal is uniformity: a quote built here should be indistinguishable in form from
+one printed out of BC, and every rep's quote should do the pricing math the same
+way.
 
 ## What the finished quote looks like
 
-A single-page (or multi-page if needed) document with:
+- **Header**: BBS logo top-left; `Quote - SQ-######` centered, with the company
+  block beneath it — legal name, street, city/state/zip, phone, and the
+  certification line for the channel (`certChannel`). All of it is read from
+  `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json`; nothing is typed.
+- **Bill to Address** / **Ship to Address** columns.
+- **Metadata grid**: Document Date, Valid to, Payment Terms on the left;
+  Shipment Method and optional Solicitation on the right.
+- **Optional note lines** under the grid (`notes[]`).
+- **Line table**: `Item No. | Description | Qty | Unit Price | Amount`, with
+  optional `UOM`, `Country of Origin` and `Lead Time` columns.
+- **Totals band**: `Subtotal | Tax % | Tax Basis | Tax Amount | Total`.
+- **Optional footer notes** (`footerNotes[]`) and **Page X / Y** bottom-right.
 
-- **Header**: "Sales Quote - {SQ number}" title (the Business Central number),
-  BBS company block on the left (name, address, email, phone, website), BBS logo
-  top-right, "Page X / Y".
-- **Bill to** / **Ship to** columns.
-- **Metadata block**: Solicitation (optional), Shipment Method, Document Date,
-  Valid to.
-- **Line-item table**: columns `# | Part # | Description | Qty | UOM | Unit Price | Amount`,
-  with an optional `Lead Time` column before Unit Price.
-- **Totals**: right-aligned Subtotal, Sales Tax (if any), Total.
-
-The logo and exact layout are produced by `scripts/build_quote.js` using the
-bundled `assets/bbs_logo.png` — do not re-create the layout by hand, and do not
-re-crop the logo.
+The layout comes from `scripts/build_quote.js` and the bundled
+`assets/bbs_logo.png` — do not re-create it by hand, and do not re-crop the logo.
 
 ## Workflow
 
@@ -79,9 +80,17 @@ creates that record — this skill reads Business Central and never writes to it
    `customerNumber` (and `customerName`): it must be the customer this document is for.
    On the `naspo-quote` path, compare it with the "BC customer ID" in the buyer's
    `<Buyer Name>.txt`. Say which customer you found; if it is a different one, stop.
-4. **Take the header from the record** rather than re-typing it: bill-to and ship-to
-   address fields, `documentDate`, `validUntilDate`. Where the rep's source disagrees with
-   BC, show both and ask. **If the BC bill-to address fields are empty** (it happens), say
+4. **Take the header from the record** rather than re-typing it:
+   - bill-to and ship-to address fields → `billTo`, `shipTo`
+   - `documentDate`, `validUntilDate` → `documentDate`, `validTo`
+   - `paymentTermsId` → look it up in `paymentTerms` (`bc_query_entity`,
+     `filter=id eq <paymentTermsId>`) and print its `displayName` as `paymentTerms`
+   - `shipmentMethodId` → look it up in `shipmentMethods` the same way →
+     `shipmentMethod`
+
+   Where the rep's source disagrees with BC, show both and ask — a `[FLAG: …]`, never a
+   silent overwrite. If BC has no payment terms or shipment method (the id is all
+   zeros), ask the rep; the script has no default for either. **If the BC bill-to address fields are empty** (it happens), say
    so and ask the rep for the bill-to address — do not print a name-only Bill to block.
 5. **If the BC quote already has lines**, compare them with the lines you are about to
    print — item, quantity, total. A mismatch is a `[FLAG: …]` for the rep, not something
@@ -110,7 +119,14 @@ getting them wrong is costly:
    is no house figure to fall back on, and the script fails without one. If
    there are Grainger lines, also confirm whether they are at cost on this
    channel (see "Pricing").
-2. **Tax** — ask whether to add sales tax and at what rate. Tax is based on the
+2. **Certification channel** — `certChannel` picks the certification line on the
+   header, and there is no default. `california` prints DVBE (California state
+   agencies — never SB; BBS is not a California small business), `federal`
+   prints SDVOSB (federal agencies and primes), `none` prints no line (local or
+   commercial buyers, unless the rep says otherwise). The strings come from
+   `vendor_profile.json`; the channel rule is canon — `AGENTS.md`,
+   "Certifications follow the channel".
+3. **Tax** — ask whether to add sales tax and at what rate. Tax is based on the
    **ship-to jurisdiction**. Pre-tax quotes are common and fully supported. Check
    the rate against the BC quote's tax (step 2.5). The script accepts only a
    decimal from 0 to under 0.2 (`0.0875`, not `8.75` or `"0.0875"`).
@@ -173,13 +189,32 @@ quotes), set `estimatedPricing: true`. The script appends a `*` to every price
 and adds a footnote. Use this for any quote built before real vendor costs are
 in — it keeps the rep honest with the customer and reminds them to revise.
 
-### 6. Optional Lead Time column
+### 6. Optional columns and notes
 
-`columns.leadTime: true` adds a **Lead Time** column, filled from
-`items[].leadTime` (em-dash when a line has none). It narrows the description,
-so turn it on only when the customer asked for lead times or they differ by
-line. Lead times come from a tool result (e.g. `grainger_availability`) or the
-vendor's written quote — never estimated.
+Turn columns on only when they earn their place — each one narrows the
+description.
+
+- `columns.uom` — a **UOM** column. Use when units vary (Pack, Box, Case); skip
+  it when everything is Each.
+- `columns.countryOfOrigin` — a **Country of Origin** column, for federal or
+  Buy American-sensitive bids. **Print only a documented origin.** On a federal
+  or prime document an origin is a certification, so a guessed one is a false
+  certification. Each line's `countryOfOrigin` needs a `countryOfOriginSource`
+  naming where it is documented (a tool result, the manufacturer's spec sheet,
+  the vendor's written quote) or the script refuses to build. A line with no
+  documented origin: leave `countryOfOrigin` out — the cell prints blank and the
+  script prints a `[FLAG: …]` for the rep. There is no default origin.
+- `columns.leadTime` — a **Lead Time** column from `items[].leadTime` (em-dash
+  when a line has none). Lead times come from a tool result (e.g.
+  `grainger_availability`) or the vendor's written quote — never estimated.
+- `notes[]` — free-text lines under the metadata grid (BC prints things like
+  "75 day lead time" there). Rep-supplied.
+- `footerNotes[]` — small grey lines under the totals band, e.g. "Quote valid
+  through date shown. Pricing subject to product availability. Reference quote
+  number on any resulting order." Rep-supplied.
+- `taxBasis` — only when tax applies to less than the full subtotal (e.g. a
+  non-taxable line). It must not exceed the subtotal; check it against the BC
+  quote's tax the same way as the rate.
 
 ### 7. Build the spec and generate the docx
 
@@ -198,10 +233,14 @@ bootstrap), run `npm install docx` inside `$SKILL_DIR` once per plugin update.
 The script reads the BBS logo from `assets/bbs_logo.png` relative to its own
 location, so it does not care where the spec or the output live. It runs
 offline and exits with an `ERROR:` line — building nothing — if `bcQuote` is
-missing or malformed, the pricing method is missing, or the spec still uses the
-retired `quoteNumber` field. Its last line echoes the SQ number, the BC
-customer, the pricing basis and the totals; check that against what the rep
-expects before converting.
+missing or malformed, a required field is missing (`certChannel`, dates,
+addresses, payment terms, shipment method, descriptions), the pricing or tax
+values are invalid, a country of origin has no source, or the spec still uses
+the retired `quoteNumber` field. It reads the company block from
+`vendor_profile.json` and fails if that file or a key in it is missing. Its
+last lines echo the SQ number, the BC customer, the certification line, the
+pricing basis, the totals and any `[FLAG: …]` count; check them against what
+the rep expects before converting.
 
 ### 8. Convert to PDF (this skill delivers PDF)
 
@@ -233,8 +272,9 @@ the PDF unless the rep also asks for the editable Word file.
 
 Render the first page (e.g. `pdftoppm -png -r 100 output.pdf preview`) and
 eyeball it: the SQ number in the title is the one you read back, logo present,
-all line items, correct totals, tax line correct, estimate footnote present if
-flagged, Grainger lines priced by the rule the spec states. Confirm the math on at
+the certification line right for the channel, all line items, correct totals
+band, estimate footnote present if flagged, Grainger lines priced by the rule
+the spec states, and every flagged blank origin reported to the rep. Confirm the math on at
 least one line (cost → sell → amount) matches the chosen method.
 
 Check the script's `Pricing:` line: the Grainger count it echoes ("N Grainger

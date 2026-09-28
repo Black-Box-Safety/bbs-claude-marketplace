@@ -1,40 +1,25 @@
 #!/usr/bin/env node
 /*
- * build_quote.js — Black Box Safety Sales Quote generator (SQ-104032 format)
+ * build_quote.js — Black Box Safety Sales Quote generator, Business Central print layout
+ *
+ * Matches the layout Business Central prints for BBS sales quotes (reference
+ * SQ-104776, CAL FIRE Shasta-Trinity, 08/28/2026; Parker chose this layout on
+ * 2026-09-28):
+ *   - Logo top-left; "Quote - SQ-######" centered with the company block beneath
+ *   - "Bill to Address" / "Ship to Address" columns
+ *   - Metadata grid: Document Date / Valid to / Payment Terms | Shipment Method / Solicitation
+ *   - Optional note lines under the grid
+ *   - Line table: Item No. | Description | Qty | [UOM] | [Country of Origin] | [Lead Time] | Unit Price | Amount
+ *   - Totals band: Subtotal | Tax % | Tax Basis | Tax Amount | Total
+ *   - Optional footer notes; "Page X / Y" bottom-right
  *
  * Usage:
  *   node build_quote.js <spec.json> <output.docx>
  *
- * Reads a JSON spec describing the quote and emits a .docx on BBS letterhead
- * matching the SQ-104032 template. Convert to PDF separately (see SKILL.md).
  * Runs offline: it never calls Business Central and never writes anywhere but
- * <output.docx>.
- *
- * SPEC SCHEMA (see references/spec-schema.md for full detail):
- * {
- *   "bcQuote": {                                 // what the BC read-back returned
- *     "number": "SQ-104797",                     // the BC sales quote this document is
- *     "customerNumber": "C10171",
- *     "customerName": "U.S. Air Force"
- *   },
- *   "documentDate": "09/28/2026",
- *   "validTo": "10/28/2026",
- *   "shipmentMethod": "FOB Destination",        // optional, default "FOB Destination"
- *   "solicitation": "SCTASK0021599",            // optional; omit to hide the row
- *   "billTo":  ["Customer Name", "Line 2"],
- *   "shipTo":  ["Customer Name", "Street", "City, ST ZIP", "US"],
- *   "pricing": { "method": "margin", "rate": 0.20,     // "margin" | "markup" | "at-cost"
- *                "graingerAtCost": true },             // required with Grainger lines
- *                                                      // unless method is "at-cost"
- *   "taxRate": 0.0875,                          // 0 for pre-tax; omit = pre-tax
- *   "estimatedPricing": false,                  // true adds the "*" estimate footnote
- *   "columns": { "leadTime": true },            // optional Lead Time column
- *   "items": [
- *     { "partNumber": "9828588", "description": "...", "qty": 8, "uom": "Pack", "unitCost": 16.99 },
- *     { "partNumber": "1ZRZ8", "description": "...", "qty": 1, "unitCost": 175.36,
- *       "source": "grainger", "leadTime": "1-3 business days" }
- *   ]
- * }
+ * <output.docx>. Company identity (legal name, address, phone, certification)
+ * is read from the bbs-sales plugin's references/vendor_profile.json, never
+ * typed here. Full schema: references/spec-schema.md.
  *
  * unitCost is the VENDOR COST. The script derives the customer Unit Price:
  *   margin:   sell = cost / (1 - rate)
@@ -66,6 +51,7 @@ const {
   AlignmentType, WidthType, ShadingType, BorderStyle, VerticalAlign,
   ImageRun, Footer
 } = docx;
+const { PageNumber } = docx;
 
 const specPath = process.argv[2];
 const outPath = process.argv[3];
@@ -137,10 +123,72 @@ if (needsMethod) {
   if (typeof it.qty !== 'number' || !(it.qty > 0)) errors.push('items[' + i + '].qty is not a positive number.');
   if (it.source !== undefined && !isGrainger(it)) errors.push('items[' + i + '].source "' + it.source + '" is unknown; the only value is "grainger".');
 });
+
+// ---- layout-specific validation ----
+const CHANNELS = ['california', 'federal', 'none'];
+if (!CHANNELS.includes(spec.certChannel)) {
+  errors.push('certChannel must be one of ' + CHANNELS.join(' | ') + ' (got ' + JSON.stringify(spec.certChannel) + '). ' +
+    'It picks the certification line: california -> DVBE, federal (federal agencies and primes) -> SDVOSB, none -> no line. No default.');
+}
+// Both live on the BC quote (paymentTermsId, shipmentMethodId). No default: a typed-in
+// "Net 30" or "FOB Destination" is a fact that belongs to the system of record.
+if (!nonEmptyStr(spec.paymentTerms)) errors.push('"paymentTerms" is missing — look up the BC quote\'s paymentTermsId in paymentTerms; if BC has none, ask the rep.');
+if (!nonEmptyStr(spec.shipmentMethod)) errors.push('"shipmentMethod" is missing — look up the BC quote\'s shipmentMethodId in shipmentMethods; if BC has none, ask the rep.');
+if (spec.taxBasis !== undefined && !(typeof spec.taxBasis === 'number' && spec.taxBasis >= 0)) {
+  errors.push('taxBasis ' + JSON.stringify(spec.taxBasis) + ' is not a number of 0 or more.');
+}
+for (const k of ['notes', 'footerNotes']) {
+  if (spec[k] !== undefined && !strLines(spec[k])) errors.push(k + ', when present, must be a non-empty list of text lines.');
+}
+const COLS = ['uom', 'countryOfOrigin', 'leadTime'];
+const cols = spec.columns || {};
+Object.keys(cols).forEach(k => {
+  if (!COLS.includes(k)) errors.push('columns.' + k + ' is unknown; columns are ' + COLS.join(', ') + '.');
+  else if (typeof cols[k] !== 'boolean') errors.push('columns.' + k + ' must be true or false.');
+});
+(spec.items || []).forEach((it, i) => {
+  // An origin on a federal or prime document is a certification. One without a
+  // named source is a guess, and a guess there is a false certification.
+  if (it.countryOfOrigin !== undefined && !(nonEmptyStr(it.countryOfOrigin) && nonEmptyStr(it.countryOfOriginSource))) {
+    errors.push('items[' + i + '].countryOfOrigin needs a non-empty countryOfOriginSource naming where it is documented ' +
+      '(tool result, manufacturer spec sheet, vendor quote). Without one, omit countryOfOrigin — the cell prints blank and is flagged.');
+  }
+  if (it.leadTime !== undefined && !nonEmptyStr(it.leadTime)) errors.push('items[' + i + '].leadTime, when present, must be text.');
+  if (it.uom !== undefined && !nonEmptyStr(it.uom)) errors.push('items[' + i + '].uom, when present, must be text.');
+});
+
+// ---- company identity from vendor_profile.json (never literals) ----
+// Resolved from this script's own location (skills/bbs-quote-builder/scripts -> plugin root),
+// so it is always the bbs-sales plugin's profile, whichever plugin the session started in.
+const pluginRoot = path.join(__dirname, '..', '..', '..');
+const profilePath = path.join(pluginRoot, 'references', 'vendor_profile.json');
+let vp = null;
+try { vp = JSON.parse(fs.readFileSync(profilePath, 'utf8')); } catch (e) {
+  errors.push('cannot read the vendor profile at ' + profilePath + ' (' + e.message + '). Company identity comes from there only.');
+}
+const get = (o, ks) => ks.reduce((a, k) => (a && a[k] !== undefined ? a[k] : undefined), o);
+const need = ks => {
+  const v = vp && get(vp, ks);
+  if (vp && !nonEmptyStr(v)) errors.push('vendor_profile.json has no ' + ks.join('.') + '.');
+  return v;
+};
+const co = {
+  name: need(['business_identity', 'legal_name']),
+  street: need(['address', 'mailing_street']),
+  city: need(['address', 'city']),
+  state: need(['address', 'state']),
+  zip: need(['address', 'zip']),
+  phone: need(['contact', 'phone']),
+};
+let certLine = null;
+if (spec.certChannel === 'california') certLine = 'DVBE ' + need(['certifications', 'sb_dvbe', 'osds_ref_number']);
+if (spec.certChannel === 'federal') certLine = need(['certifications', 'federal', 'designation']);
+
 if (errors.length) {
   errors.forEach(e => console.error('ERROR: ' + e));
   process.exit(1);
 }
+
 const quoteNumber = bc.number;
 // The customer on the BC quote should be the one this document is addressed to.
 const addrText = [].concat(spec.billTo, spec.shipTo).join(' ').toLowerCase();
@@ -153,7 +201,9 @@ if (!addrText.includes(String(bc.customerName).toLowerCase())) {
 const taxRate = spec.taxRate || 0;
 const estimated = !!spec.estimatedPricing;
 const star = estimated ? '*' : '';
-const showLead = !!(spec.columns && spec.columns.leadTime);
+const showUom = cols.uom === true;
+const showCoo = cols.countryOfOrigin === true;
+const showLead = cols.leadTime === true;
 
 // Round to the cent, half up. Plain Math.round(x * 100) rounds 12.42 / 0.80 = 15.525
 // down to 15.52, because 15.525 * 100 is 1552.4999999999998 in floating point.
@@ -168,142 +218,187 @@ function sellPrice(it) {
   return r2(s);
 }
 const fmt = n => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const money = n => '$' + fmt(n);
 
+const flags = [];
 let subtotal = 0;
 const rows = spec.items.map((it, i) => {
   const sell = sellPrice(it);
   const amt = r2(sell * it.qty);
   subtotal += amt;
+  if (showCoo && it.countryOfOrigin === undefined) {
+    flags.push('[FLAG: line ' + (i + 1) + ' (' + (it.partNumber || it.description) + ') has no documented country of origin — ' +
+      'printed blank. Get it from a documented source before this goes out; never fill it by inference.]');
+  }
   return {
-    ln: i + 1,
-    partNumber: it.partNumber || '—',
+    itemNo: it.partNumber || '—',
     desc: it.description,
     qty: it.qty,
     uom: it.uom || 'Each',
+    coo: it.countryOfOrigin || '',
     lead: it.leadTime || '—',
     sell, amt
   };
 });
 subtotal = r2(subtotal);
-const tax = r2(subtotal * taxRate);
+const taxBasis = typeof spec.taxBasis === 'number' ? r2(spec.taxBasis) : subtotal;
+if (taxBasis > subtotal) {
+  console.error('ERROR: taxBasis ' + fmt(taxBasis) + ' is more than the subtotal ' + fmt(subtotal) + '.');
+  process.exit(1);
+}
+const tax = r2(taxBasis * taxRate);
 const total = r2(subtotal + tax);
+flags.forEach(f => console.error('WARNING: ' + f));
 
-// ---- style constants ----
-const BLACK = "000000";
-const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
+// ---- style ----
+const BLACK = '000000';
+const noBorder = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
 const noBorders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder };
-const botRule = { style: BorderStyle.SINGLE, size: 4, color: "000000" };
+const rule = { style: BorderStyle.SINGLE, size: 6, color: '000000' };
 const logoBuf = fs.readFileSync(path.join(__dirname, '..', 'assets', 'bbs_logo.png'));
+const L = AlignmentType.LEFT, C = AlignmentType.CENTER, R = AlignmentType.RIGHT;
+const PAGE_W = 9360; // 12240 page width - 1440 margin each side
 
-function plain(text, opts = {}) {
-  return new Paragraph({ spacing: { after: opts.after || 0 }, children: [new TextRun({ text, size: opts.size || 16, bold: opts.bold || false, color: BLACK })] });
+function p(text, o = {}) {
+  return new Paragraph({
+    alignment: o.align || L,
+    spacing: { after: o.after || 0, before: o.before || 0 },
+    children: [new TextRun({ text, size: o.size || 18, bold: !!o.bold, italics: !!o.italics, color: o.color || BLACK })]
+  });
+}
+function cell(children, o = {}) {
+  return new TableCell({
+    borders: o.borders || noBorders,
+    width: { size: o.w, type: WidthType.DXA },
+    margins: o.margins || { top: 0, bottom: 0, left: 0, right: 0 },
+    verticalAlign: o.valign || VerticalAlign.TOP,
+    children
+  });
 }
 
-// ---- header: company info + logo ----
+// ---- header: logo left, title + company block centered ----
+const companyBlock = [
+  p('Quote - ' + quoteNumber, { bold: true, size: 30, align: C, after: 140 }),
+  p(co.name, { bold: true, size: 19, align: C, after: 70 }),
+  p(co.street, { size: 17, align: C, after: 20 }),
+  p(co.city + ', ' + co.state + ' ' + co.zip, { size: 17, align: C, after: 20 }),
+  p(co.phone, { size: 17, align: C, after: certLine ? 20 : 0 }),
+];
+if (certLine) companyBlock.push(p(certLine, { size: 17, bold: true, align: C }));
 const headerTable = new Table({
-  width: { size: 9360, type: WidthType.DXA }, columnWidths: [6360, 3000], borders: noBorders,
+  width: { size: PAGE_W, type: WidthType.DXA }, columnWidths: [2600, 6760], borders: noBorders,
   rows: [new TableRow({ children: [
-    new TableCell({ borders: noBorders, width: { size: 6360, type: WidthType.DXA }, margins: { top: 0, bottom: 0, left: 0, right: 0 }, children: [
-      new Paragraph({ spacing: { after: 40 }, children: [new TextRun({ text: "Sales Quote - " + quoteNumber, bold: true, size: 30, color: BLACK })] }),
-      plain("Black Box Safety, Inc.", { bold: true, size: 18, after: 20 }),
-      plain("1950 Cordell Ct, Suite 103", { size: 16 }),
-      plain("El Cajon, CA 92020-0923", { size: 16 }),
-      plain("sales@blackboxsafety.com", { size: 16 }),
-      plain("(619) 499-7943", { size: 16 }),
-      plain("https://blackboxsafety.com/", { size: 16 }),
-    ]}),
-    new TableCell({ borders: noBorders, width: { size: 3000, type: WidthType.DXA }, verticalAlign: VerticalAlign.TOP, margins: { top: 0, bottom: 0, left: 0, right: 0 }, children: [
-      new Paragraph({ alignment: AlignmentType.RIGHT, children: [new ImageRun({ type: "png", data: logoBuf, transformation: { width: 150, height: 170 } })] }),
-      new Paragraph({ alignment: AlignmentType.RIGHT, spacing: { before: 80 }, children: [new TextRun({ text: "Page 1 / 1", bold: true, size: 15, color: BLACK })] }),
-    ]}),
+    cell([new Paragraph({ children: [new ImageRun({ type: 'png', data: logoBuf, transformation: { width: 150, height: 150 } })] })], { w: 2600 }),
+    cell(companyBlock, { w: 6760 }),
   ]})],
 });
 
 // ---- bill to / ship to ----
-function addr(label, lines, width) {
-  return new TableCell({ borders: noBorders, width: { size: width, type: WidthType.DXA }, margins: { top: 0, bottom: 0, left: 0, right: 0 }, children: [
-    new Paragraph({ spacing: { after: 30 }, children: [new TextRun({ text: label, bold: true, size: 17, color: BLACK })] }),
-    ...lines.map(l => new Paragraph({ spacing: { after: 10 }, children: [new TextRun({ text: l, size: 16, color: BLACK })] })),
-  ]});
+function addrCell(label, lines, w) {
+  return cell([p(label, { bold: true, size: 18, after: 40 }), ...lines.map(l => p(l, { size: 18, after: 20 }))], { w });
 }
 const billShipTable = new Table({
-  width: { size: 9360, type: WidthType.DXA }, columnWidths: [4680, 4680], borders: noBorders,
-  rows: [new TableRow({ children: [addr("Bill to", spec.billTo, 4680), addr("Ship to", spec.shipTo, 4680)] })],
+  width: { size: PAGE_W, type: WidthType.DXA }, columnWidths: [4680, 4680], borders: noBorders,
+  rows: [new TableRow({ children: [addrCell('Bill to Address', spec.billTo, 4680), addrCell('Ship to Address', spec.shipTo, 4680)] })],
 });
 
-// ---- metadata block ----
-function lblVal(label, val) {
-  return new TableRow({ children: [
-    new TableCell({ borders: noBorders, width: { size: 2600, type: WidthType.DXA }, margins: { top: 0, bottom: 0, left: 0, right: 0 }, children: [new Paragraph({ spacing: { after: 10 }, children: [new TextRun({ text: label, bold: true, size: 16, color: BLACK })] })] }),
-    new TableCell({ borders: noBorders, width: { size: 6760, type: WidthType.DXA }, margins: { top: 0, bottom: 0, left: 0, right: 0 }, children: [new Paragraph({ spacing: { after: 10 }, children: [new TextRun({ text: val, size: 16, color: BLACK })] })] }),
-  ]});
-}
+// ---- metadata grid: left pairs | right pairs ----
+const leftMeta = [['Document Date', spec.documentDate], ['Valid to', spec.validTo]];
+leftMeta.push(['Payment Terms', spec.paymentTerms]);
+const rightMeta = [['Shipment Method', spec.shipmentMethod]];
+if (spec.solicitation) rightMeta.push(['Solicitation', spec.solicitation]);
 const metaRows = [];
-if (spec.solicitation) metaRows.push(lblVal("Solicitation", spec.solicitation));
-metaRows.push(lblVal("Shipment Method", spec.shipmentMethod || "FOB Destination"));
-metaRows.push(lblVal("Document Date", spec.documentDate));
-metaRows.push(lblVal("Valid to", spec.validTo));
-const shipBlock = new Table({ width: { size: 9360, type: WidthType.DXA }, columnWidths: [2600, 6760], borders: noBorders, rows: metaRows });
+for (let i = 0; i < Math.max(leftMeta.length, rightMeta.length); i++) {
+  const lf = leftMeta[i] || ['', ''];
+  const rg = rightMeta[i] || ['', ''];
+  metaRows.push(new TableRow({ children: [
+    cell([p(lf[0], { bold: true, size: 18, after: 30 })], { w: 1900 }),
+    cell([p(lf[1], { size: 18, after: 30 })], { w: 2780 }),
+    cell([p(rg[0], { bold: true, size: 18, after: 30 })], { w: 1900 }),
+    cell([p(rg[1], { size: 18, after: 30 })], { w: 2780 }),
+  ]}));
+}
+const metaTable = new Table({ width: { size: PAGE_W, type: WidthType.DXA }, columnWidths: [1900, 2780, 1900, 2780], borders: noBorders, rows: metaRows });
 
-// ---- line items ----
-// Widths sum to 9160. The optional Lead Time column takes its width from Description.
-const LEAD_W = 1100;
-const COL = showLead
-  ? [450, 1500, 3160 - LEAD_W, 650, 950, LEAD_W, 1150, 1300]
-  : [450, 1500, 3160, 650, 950, 1150, 1300];
+// ---- line table: optional columns take their width from Description ----
+const widths = [], heads = [];
+let descW = 4560;
+if (showUom) descW -= 700;
+if (showCoo) descW -= 1000;
+if (showLead) descW -= 1100;
+widths.push(1450); heads.push(['Item No.', L]);
+widths.push(descW); heads.push(['Description', L]);
+widths.push(700); heads.push(['Qty', C]);
+if (showUom) { widths.push(700); heads.push(['UOM', C]); }
+if (showCoo) { widths.push(1000); heads.push(['Country of Origin', C]); }
+if (showLead) { widths.push(1100); heads.push(['Lead Time', C]); }
+widths.push(1250); heads.push(['Unit Price', R]);
+widths.push(1400); heads.push(['Amount', R]);
+
 function headCell(text, w, align) {
-  return new TableCell({ borders: { top: noBorder, left: noBorder, right: noBorder, bottom: botRule }, width: { size: w, type: WidthType.DXA }, margins: { top: 40, bottom: 60, left: 60, right: 60 }, verticalAlign: VerticalAlign.BOTTOM, children: [new Paragraph({ alignment: align, children: [new TextRun({ text, bold: true, size: 16, color: BLACK })] })] });
+  return new TableCell({
+    borders: { top: rule, left: noBorder, right: noBorder, bottom: rule },
+    width: { size: w, type: WidthType.DXA }, margins: { top: 70, bottom: 70, left: 60, right: 60 },
+    verticalAlign: VerticalAlign.BOTTOM, children: [p(text, { bold: true, size: 17, align })]
+  });
 }
 function bodyCell(text, w, align) {
-  return new TableCell({ borders: noBorders, width: { size: w, type: WidthType.DXA }, margins: { top: 50, bottom: 50, left: 60, right: 60 }, verticalAlign: VerticalAlign.TOP, children: [new Paragraph({ alignment: align, children: [new TextRun({ text, size: 15, color: BLACK })] })] });
+  return new TableCell({
+    borders: noBorders, width: { size: w, type: WidthType.DXA },
+    margins: { top: 70, bottom: 70, left: 60, right: 60 }, verticalAlign: VerticalAlign.TOP,
+    children: [p(text, { size: 17, align })]
+  });
 }
-const L = AlignmentType.LEFT, C = AlignmentType.CENTER, R = AlignmentType.RIGHT;
-const heads = [["#", L], ["Part #", L], ["Description", L], ["Qty", C], ["UOM", C]];
-if (showLead) heads.push(["Lead Time", C]);
-heads.push(["Unit Price", R], ["Amount", R]);
-const liHeader = new TableRow({ tableHeader: true, children: heads.map(([t, a], k) => headCell(t, COL[k], a)) });
+const liHeader = new TableRow({ tableHeader: true, children: heads.map((h, i) => headCell(h[0], widths[i], h[1])) });
 const liRows = rows.map(r => {
-  const vals = [[String(r.ln), L], [r.partNumber, L], [r.desc, L], [String(r.qty), C], [r.uom, C]];
+  const vals = [[r.itemNo, L], [r.desc, L], [String(r.qty), C]];
+  if (showUom) vals.push([r.uom, C]);
+  if (showCoo) vals.push([r.coo, C]);
   if (showLead) vals.push([r.lead, C]);
-  vals.push([fmt(r.sell) + star, R], [fmt(r.amt) + star, R]);
-  return new TableRow({ children: vals.map(([t, a], k) => bodyCell(t, COL[k], a)) });
+  vals.push([money(r.sell) + star, R], [money(r.amt) + star, R]);
+  return new TableRow({ children: vals.map(([t, a], k) => bodyCell(t, widths[k], a)) });
 });
-const liTable = new Table({ width: { size: 9160, type: WidthType.DXA }, columnWidths: COL, borders: noBorders, rows: [liHeader, ...liRows] });
+const liTable = new Table({ width: { size: PAGE_W, type: WidthType.DXA }, columnWidths: widths, borders: noBorders, rows: [liHeader, ...liRows] });
 
-// ---- totals ----
-function totalRow(label, val, opts = {}) {
-  return new TableRow({ children: [
-    new TableCell({ borders: noBorders, width: { size: 6010, type: WidthType.DXA }, children: [new Paragraph({ children: [new TextRun({ text: "", size: 2 })] })] }),
-    new TableCell({ borders: noBorders, width: { size: 2050, type: WidthType.DXA }, margins: { top: 30, bottom: 30, left: 80, right: 80 }, children: [new Paragraph({ alignment: R, children: [new TextRun({ text: label, bold: opts.bold || false, size: 16, color: BLACK })] })] }),
-    new TableCell({ borders: opts.rule ? { top: botRule, left: noBorder, right: noBorder, bottom: noBorder } : noBorders, width: { size: 1300, type: WidthType.DXA }, margins: { top: 30, bottom: 30, left: 80, right: 80 }, children: [new Paragraph({ alignment: R, children: [new TextRun({ text: val, bold: opts.bold || false, size: 16, color: BLACK })] })] }),
-  ]});
+// ---- totals band ----
+const bandW = [1872, 1872, 1872, 1872, 1872];
+function bandCell(text, w, o = {}) {
+  return new TableCell({
+    borders: { top: o.top ? rule : noBorder, bottom: o.bottom ? rule : noBorder, left: noBorder, right: noBorder },
+    width: { size: w, type: WidthType.DXA }, margins: { top: 90, bottom: 90, left: 40, right: 40 },
+    children: [p(text, { bold: !!o.bold, size: 19, align: C })]
+  });
 }
-const totalsRows = [];
-if (taxRate > 0) {
-  totalsRows.push(totalRow("Subtotal", fmt(subtotal), { bold: true, rule: true }));
-  totalsRows.push(totalRow("Sales Tax (" + (taxRate * 100).toFixed(2).replace(/\.?0+$/, '') + "%)", fmt(tax)));
-  totalsRows.push(totalRow("Total $ Incl. Tax", "$" + fmt(total), { bold: true, rule: true }));
-} else {
-  totalsRows.push(totalRow("Subtotal", fmt(subtotal), { bold: true, rule: true }));
-  totalsRows.push(totalRow("Total $ (Pre-Tax)", "$" + fmt(subtotal), { bold: true, rule: true }));
-}
-const totalsTable = new Table({ width: { size: 9360, type: WidthType.DXA }, columnWidths: [6010, 2050, 1300], borders: noBorders, rows: totalsRows });
+const totalsTable = new Table({
+  width: { size: PAGE_W, type: WidthType.DXA }, columnWidths: bandW, borders: noBorders,
+  rows: [
+    new TableRow({ children: ['Subtotal', 'Tax %', 'Tax Basis', 'Tax Amount', 'Total'].map((t, i) => bandCell(t, bandW[i], { bold: true, top: true })) }),
+    new TableRow({ children: [money(subtotal), pct(taxRate) + '%', money(taxBasis), money(tax), money(total)].map((t, i) => bandCell(t, bandW[i], { bottom: true })) }),
+  ],
+});
 
-const spacer = (h = 120) => new Paragraph({ spacing: { after: h }, children: [new TextRun({ text: "", size: 2 })] });
-
+const spacer = (h = 120) => new Paragraph({ spacing: { after: h }, children: [new TextRun({ text: '', size: 2 })] });
 const footer = new Footer({ children: [
-  new Paragraph({ alignment: AlignmentType.CENTER, border: { top: { style: BorderStyle.SINGLE, size: 4, color: "999999", space: 4 } }, children: [new TextRun({ text: "Black Box Safety, Inc.  |  1950 Cordell Ct, Suite 103, El Cajon, CA 92020  |  (619) 499-7943  |  sales@blackboxsafety.com", size: 13, color: "666666" })] }),
+  new Paragraph({ alignment: R, children: [new TextRun({ children: ['Page ', PageNumber.CURRENT, ' / ', PageNumber.TOTAL_PAGES], bold: true, size: 16, color: BLACK })] }),
 ]});
 
-const children = [headerTable, spacer(160), billShipTable, spacer(160), shipBlock, spacer(200), liTable, spacer(60), totalsTable];
+const children = [headerTable, spacer(200), billShipTable, spacer(220), metaTable];
+if (spec.notes) {
+  children.push(spacer(120));
+  spec.notes.forEach(n => children.push(p(n, { size: 17, after: 40 })));
+}
+children.push(spacer(200), liTable, spacer(220), totalsTable);
 if (estimated) {
   children.push(spacer(160));
-  children.push(new Paragraph({ children: [new TextRun({ text: "* Estimated unit pricing based on current online retail; pending confirmed vendor quotes. Subject to revision.", size: 14, italics: true, color: "666666" })] }));
+  children.push(p('* Estimated unit pricing based on current online retail; pending confirmed vendor quotes. Subject to revision.', { size: 15, italics: true, color: '666666' }));
 }
-children.push(new Paragraph({ spacing: { before: 40 }, children: [new TextRun({ text: "Quote valid through date shown. Pricing subject to product availability. Reference quote number on any resulting order.", size: 14, color: "666666" })] }));
+if (spec.footerNotes) {
+  children.push(spacer(140));
+  spec.footerNotes.forEach(n => children.push(p(n, { size: 15, color: '666666', after: 40 })));
+}
 
 const doc = new Document({
-  styles: { default: { document: { run: { font: "Arial", size: 16 } } } },
+  styles: { default: { document: { run: { font: 'Arial', size: 18 } } } },
   sections: [{
     properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1080, right: 1440, bottom: 1080, left: 1440 } } },
     footers: { default: footer },
@@ -322,6 +417,9 @@ Packer.toBuffer(doc).then(buf => {
   if (nGm) basis.push(nGm + ' Grainger line(s) ' + byMethod + ' (graingerAtCost false)');
   const nOther = spec.items.length - nG - nGm;
   if (nOther) basis.push(nOther + ' other line(s) ' + byMethod);
-  console.log('Quote ' + quoteNumber + '  |  BC customer ' + bc.customerNumber + ' ' + bc.customerName);
-  console.log('Pricing: ' + basis.join(', ') + '  |  Subtotal ' + fmt(subtotal) + (taxRate > 0 ? '  Tax ' + fmt(tax) + '  Total ' + fmt(total) : '  (pre-tax)'));
+  console.log('Quote ' + quoteNumber + '  |  BC customer ' + bc.customerNumber + ' ' + bc.customerName +
+    '  |  Cert line: ' + (certLine || '(none)'));
+  console.log('Pricing: ' + basis.join(', ') + '  |  Subtotal ' + fmt(subtotal) + '  Tax ' + fmt(tax) +
+    ' (' + pct(taxRate) + '% of ' + fmt(taxBasis) + ')  Total ' + fmt(total) +
+    (flags.length ? '  |  ' + flags.length + ' FLAG(s) — see WARNING lines' : ''));
 });

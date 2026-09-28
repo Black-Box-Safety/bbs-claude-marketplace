@@ -35,8 +35,8 @@ What *is* taken from it:
 | "Log it in BC after it goes out" | **No**, reversed | the record exists first; the document follows it |
 | Optional `Lead Time` column (commit `fbcd2f8`, Parker's WIP) | Yes | fits main's table cleanly |
 | At-cost pricing (`passthrough`) | Yes, reshaped | canon says Grainger is at cost; see Pricing |
-| BC-print layout (SQ-104776: logo left, centered title, totals band) | **No — Parker to choose** | see Layout |
-| `paymentTerms`, `taxBasis`, `notes[]`, `footerNotes[]`, UOM/COO toggles | No | layout-bound; they come with the layout choice |
+| BC-print layout (SQ-104776: logo left, centered title, totals band) | **Yes — Parker chose it 2026-09-28** | see Layout |
+| `paymentTerms`, `taxBasis`, `notes[]`, `footerNotes[]`, UOM/COO toggles | Yes, with the layout | BC-held facts now come from the read-back; see Layout |
 
 ## Design
 
@@ -94,10 +94,34 @@ unchanged.
 
 ### Layout
 
-Kept as main's (SQ-104032 letterhead). The old branch describes itself as matching BC's own
-print (SQ-104776), which may well be the newer intent, but nothing on `main` or in canon
-says so, and changing a customer-facing layout is Parker's call. The differences go in the
-PR body for him to choose.
+**Ruled: Parker, 2026-09-28 — "do the bc print layout".** An earlier revision of this
+spec kept main's SQ-104032 letterhead and left the choice to him; he chose the Business
+Central print layout from `origin/sales-territory-0.3.0` (reference SQ-104776). Ported:
+
+- Logo top-left, `Quote - SQ-######` centered, company block beneath; Bill to Address /
+  Ship to Address; two-column metadata grid; totals band (Subtotal · Tax % · Tax Basis ·
+  Tax Amount · Total); real Page X / Y footer field.
+- `paymentTerms`, `taxBasis`, `notes[]`, `footerNotes[]`, and the UOM / Country of Origin
+  column toggles, alongside the Lead Time column already ported.
+
+Changed on the way in, because the old design typed facts BC already holds or printed
+facts without a source:
+
+- **Company block** (legal name, street, city/state/zip, phone) is read from
+  `bbs-sales/references/vendor_profile.json`; the old design, and main, had literals. The
+  printed address follows the profile's spelling ("1950 Cordell CT Ste 103", ZIP 92020).
+- **Certification line**, new: a required `certChannel` — `california` → `DVBE 2009473`,
+  `federal` → `SDVOSB`, `none` → no line — strings from the vendor profile, never mixed
+  and never SB in California (AGENTS.md, "Certifications follow the channel").
+- **Payment terms and shipment method** are required and come from the BC quote
+  (`paymentTermsId` → `paymentTerms`, `shipmentMethodId` → `shipmentMethods`). The old
+  "FOB Destination" default is gone: a typed default is a fact owned by BC.
+- **Country of origin** prints only when documented: each value needs
+  `countryOfOriginSource` or the build fails; an undocumented line prints blank and is
+  flagged. On a federal or prime document an unsupported origin is a false certification.
+- **`taxBasis`** is validated (0 ≤ basis ≤ subtotal).
+- Salesperson is not printed by this layout, so it is not read.
+- The logo asset is shared with main (identical file); kept.
 
 ### Review round (independent review of `be4216a`)
 

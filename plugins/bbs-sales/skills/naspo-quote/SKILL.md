@@ -71,7 +71,8 @@ Use the **bbs-quote-builder** skill. NASPO-specific spec values:
 | `pricing` | `{"method": "at-cost", "graingerAtCost": true}` — CA state schedule, no markup |
 | `taxRate` | `0` — the worksheet prints "Do not include sales tax" |
 | `solicitation` | the number off the worksheet header |
-| `shipmentMethod` | `FOB Destination` |
+| `certChannel` | `"california"` — prints DVBE on the header |
+| `shipmentMethod`, `paymentTerms` | from the BC quote read-back (`bbs-quote-builder` step 2). The worksheet expects FOB Destination; if BC says otherwise, flag it |
 | `unitCost` | the Grainger `unitPrice` |
 | `items[].source` | `"grainger"` on every Grainger-priced line |
 
