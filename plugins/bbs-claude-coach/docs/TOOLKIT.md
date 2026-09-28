@@ -10,8 +10,9 @@ and to grow as you find new uses for it.
 in front of you). Those commands ship in the `bbs-claude-coach` plugin, next to this file.
 
 At BBS one person keeps the toolkit consistent so every machine works the same way and gets
-improvements automatically. You never install or update anything by hand. You just use it —
-and tell us when it should do more.
+improvements automatically. You never install or update anything by hand on a managed
+machine (once Parker has pushed managed settings); until then, see the install block in
+`docs/REP-SETUP.md`. You just use it — and tell us when it should do more.
 
 ## The five kinds of tools, in plain words
 
@@ -71,9 +72,13 @@ The toolkit grows *because* people push it. You are invited to:
 - **Build your own skill — you already have the tool for it.** If you find yourself
   explaining the same job to Claude twice, that job wants to be a skill. Ask Claude to use
   **`skill-creator`**: it interviews you about how the job works and writes the skill for
-  you — no technical background needed, just describe how you do your own work well. Then
-  `bbs-claude-md-forge` aligns it to the BBS house style. Keep it for yourself, or if it
-  helps everyone, Parker folds it into the shared toolkit so the whole team gets it.
+  you — no technical background needed, just describe how you do your own work well.
+  (`skill-creator` reaches reps only through the additive marketplace load described in
+  `docs/COMMONS.md`, so it may be absent on some machines.) The house rules a skill must
+  follow live in `AGENTS.md`, "When the work is a skill." Send the draft to Parker as a PR
+  (or a Teams message) for review — not through `bbs-claude-md-forge`, which only writes
+  and audits `CLAUDE.md` files — and if it helps everyone, Parker folds it into the shared
+  toolkit so the whole team gets it.
 
 When something you built or asked for turns out to help everyone, it gets added to the
 shared toolkit so the whole team gets it.

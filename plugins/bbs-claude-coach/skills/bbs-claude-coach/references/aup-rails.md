@@ -21,9 +21,9 @@ price is binding.
 
 ## Channel reminder (do not invent variants)
 
-- **Federal and primes:** SDVOSB, and BBS is a small business under federal size standards.
-- **California state:** DVBE only. BBS is not a California small business and never claims
-  the state SB preference.
+- Certification and small-business language follow the channel; the rule and its reasoning
+  live in `bbs-foundations` `canonical-facts.md`, "Small-business status is
+  channel-dependent" — read it there, never paraphrase it.
 - Never mixed on one form, and never a small-business claim without naming the channel. The
   certification numbers, exact strings and vehicles live in `bbs-foundations` canonical
   facts and `bbs-sales` `vendor_profile.json` — point there; never re-key them here.

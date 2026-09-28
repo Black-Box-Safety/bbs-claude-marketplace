@@ -29,9 +29,12 @@ that fork goes stale and silently disagrees with the company copy.
 
 If you explain the same job to Claude twice, that job wants to be a skill. You do not have
 to be technical: write how you do the job well (inputs, steps, what "done" looks like,
-what must never be guessed). Hand that to Parker, or ask Claude to help shape it using
-`bbs-claude-md-forge` / house doctrine — still land shared skills in the marketplace via
-PR, not as a private copy of a company playbook.
+what must never be guessed). Ask Claude to draft it with `skill-creator` (reaches reps only
+through the additive marketplace load in `docs/COMMONS.md`, so it may be absent on some
+machines). The house rules for a skill live in `AGENTS.md`, "When the work is a skill." Send
+the draft to Parker as a PR (or a Teams message) for review — not through
+`bbs-claude-md-forge`, which only writes and audits `CLAUDE.md` files — so shared skills
+land in the marketplace, not as a private copy of a company playbook.
 
 ## 5. Propose an outside tool (commons)
 

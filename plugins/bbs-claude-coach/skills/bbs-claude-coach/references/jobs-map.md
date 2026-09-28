@@ -11,7 +11,7 @@ the closer job and say so.
 | Fill CA / CDCR compliance packet | Ask after pricing — `ca-form-filler` / packet path | `bbs-sales` | usually local PDF tools from bootstrap |
 | Marketing one-pager, deck, brand page | Ask; design polish via `impeccable`; docs via document-skills | commons + `bbs-website` / foundations deck voice | varies |
 | Order / invoice / "what do they owe us?" | Ask about the PO, order, or vendor balance | `bbs-back-office` | **Business Central** |
-| Problem order / reconciliation | Ask what the order needs; foundations also has related doctrine | `bbs-back-office` | **Business Central** |
+| Problem order / reconciliation | Ask what the order needs (`bbs-order-reconciliation` lives in `bbs-back-office`) | `bbs-back-office` | **Business Central** |
 | Supplier scouting / product research | Ask Claude to open your real Chrome and look; prices still from a real source | commons `superpowers-chrome` | Chrome/Node from bootstrap |
 | Channel-partner / federal deck copy | Ask for deck copy in BBS voice (`bbs-deck-voice`) | `bbs-foundations` | document skills for assembly |
 | Read or build a PDF / Word / Excel / PPT | Hand the file over or ask to build it | commons `document-skills` | LibreOffice caveat for some PDF paths |

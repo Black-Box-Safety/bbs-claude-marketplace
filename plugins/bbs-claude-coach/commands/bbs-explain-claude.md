@@ -6,8 +6,8 @@ description: Explain in plain words how Claude is set up at BBS — skills, comm
 
 Run the `bbs-claude-coach` skill in **explain** mode.
 
-1. Teach from `references/glossary.md` — the five kinds of tools — in plain language.
-2. Explain draft vs send using `references/aup-rails.md` (point at the full AUP; do not
+1. Teach from `${CLAUDE_PLUGIN_ROOT}/skills/bbs-claude-coach/references/glossary.md` — the five kinds of tools — in plain language.
+2. Explain draft vs send using `${CLAUDE_PLUGIN_ROOT}/skills/bbs-claude-coach/references/aup-rails.md` (point at the full AUP; do not
    paste it).
 3. One short example of each: a skill that fires on a job, a `/command` they type, a
    plugin as a bundle, a connector as a live link Parker assigns, a hook as background

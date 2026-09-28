@@ -6,8 +6,8 @@ description: Show what Claude can help with at BBS, organized by the job in fron
 
 Run the `bbs-claude-coach` skill in **capability-map** mode.
 
-1. Read `references/jobs-map.md` and `references/glossary.md` from this plugin's
-   `bbs-claude-coach` skill.
+1. Read `${CLAUDE_PLUGIN_ROOT}/skills/bbs-claude-coach/references/jobs-map.md` and
+   `${CLAUDE_PLUGIN_ROOT}/skills/bbs-claude-coach/references/glossary.md`.
 2. Ask once what kind of work they have open (or infer from the conversation if they
    already said).
 3. Present a short map: job → first step → which plugin area. Keep it scannable.
