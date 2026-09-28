@@ -102,8 +102,12 @@ if days < 30:
 
 ```bash
 SKILL_DIR=<the folder containing this SKILL.md>
-python3 "$SKILL_DIR/scripts/packet_profile.py" --recognize-pdf <blank_packet.pdf>
+python "$SKILL_DIR/scripts/packet_profile.py" --recognize-pdf <blank_packet.pdf>
 ```
+
+`python` here is the interpreter `scripts/bbs-setup.ps1` installs on Windows, where
+`python3` is only the Microsoft Store stub. On a Mac, where only `python3` exists, type
+that instead. Every command in this skill follows the same rule.
 
 It reports one of four things, and each is an instruction. It checks the profile set
 conforms before it evaluates a single marker, so a malformed profile is a refusal here
@@ -224,7 +228,7 @@ python "$SKILL_DIR/scripts/fill_obs_packet.py" --inspect <blank_packet.pdf>
 Reconcile that against the `add(...)` calls and `LINE_FIELD_IDS` in the script, update the
 profile — its page map, its `revision`, its annotation coordinates and its recognition
 markers, which are all tied to one revision — and re-run
-`python3 "$SKILL_DIR/scripts/packet_profile.py" --validate`.
+`python "$SKILL_DIR/scripts/packet_profile.py" --validate`.
 
 Expect the field names to be irregular: in the OBS packet one extended-price field is
 literally named `"OBS Line-Item Cost Wrksht - Ext Price LOBS Line-Item Cost Wrksht - Ext

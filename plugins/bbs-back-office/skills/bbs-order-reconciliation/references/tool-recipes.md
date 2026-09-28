@@ -139,7 +139,7 @@ return limit and get saved to a file instead. Strip the markup and seek to the p
 need rather than reading the whole thing:
 
 ```bash
-python3 -c "
+python -c "
 import re
 t = open('<saved-file>').read()
 t = re.sub(r'<[^>]+>', ' ', t)
@@ -190,7 +190,7 @@ done
 The highest-yield command in the workflow. Run from the project root:
 
 ```bash
-python3 - <<'EOF'
+python - <<'EOF'
 import openpyxl, os
 TARGET = "34-874"
 for root, dirs, files in os.walk('.'):
@@ -215,7 +215,7 @@ unit-of-measure error.
 ### Dumping specific tabs
 
 ```bash
-python3 - <<'EOF'
+python - <<'EOF'
 import openpyxl
 wb = openpyxl.load_workbook('1. Processing Sheets/CTF_PO_4500755180_Order_Sheet.xlsx',
                             data_only=True)

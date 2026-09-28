@@ -164,10 +164,12 @@ denominators. A sourcing tab computing 360 each × $2.89 = $1,040.40 and a bid t
 computing 30 packs × $2.89 = $86.70 are the same number doing two different jobs. The
 second one is wrong, and it is wrong in a way that looks completely normal on the page.
 
-A fast way to see every place an item appears across a project:
+A fast way to see every place an item appears across a project (`python` is the
+interpreter `scripts/bbs-setup.ps1` installs on Windows, where `python3` is only the
+Microsoft Store stub; on a Mac, use `python3` — the same rule for every command here):
 
 ```bash
-python3 - <<'EOF'
+python - <<'EOF'
 import openpyxl, os
 TARGET = "34-874"          # mfg PN, Grainger SKU, or a distinctive description word
 for root, dirs, files in os.walk('.'):
@@ -264,7 +266,7 @@ the tool's return limit; when that happens the result is saved to a file, and st
 the tags makes it readable:
 
 ```bash
-python3 -c "
+python -c "
 import re
 t = open('<saved-file>').read()
 t = re.sub(r'<[^>]+>', ' ', t); t = re.sub(r'\s+', ' ', t)
