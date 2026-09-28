@@ -26,10 +26,13 @@ python3 "${CLAUDE_PLUGIN_ROOT}/../../scripts/bbs-workspaces.py" discover
 If neither path exists, say so and stop. A plugin install that has not been
 updated from `main` will not have this script yet.
 
-**Windows.** A rep bootstrapped by `scripts\bbs-setup.ps1` has `uv`, not `python3`.
-Every command below runs the same way with `python3` swapped for the uv form:
+**Windows.** A rep bootstrapped by `scripts\bbs-setup.ps1` has `python` (and `uv`), not
+`python3` — on Windows that name is the Microsoft Store stub. Every command below runs the
+same way with `python3` swapped for `python`, or for the uv form if `python` does not
+resolve yet:
 
 ```powershell
+python scripts\bbs-workspaces.py discover
 uv run --no-project --python 3 python scripts\bbs-workspaces.py discover
 ```
 

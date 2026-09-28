@@ -626,10 +626,15 @@ EXTERNAL_SYSTEMS = {
 
     # --- command-line tools ------------------------------------------------
     "python3": {
-        "kind": "cli", "canon": None, "bootstrap": "astral-sh.uv",
-        "caveat": "winget-installing 'astral-sh.uv' puts `uv` on PATH, not `python3`. "
-                  "Every skill here invokes the interpreter directly (`python3 x.py`), "
-                  "so a rep who ran only the bootstrap still has no `python3` to run",
+        # Was 'astral-sh.uv', which put `uv` on PATH and no interpreter at all. The
+        # python.org build installs `python` and the `py` launcher, never `python3.exe`
+        # (on Windows that name is the Microsoft Store stub), so the caveat narrows to
+        # the spelling rather than going away.
+        "kind": "cli", "canon": None, "bootstrap": "Python.Python.3.12",
+        "caveat": "winget-installing 'Python.Python.3.12' puts `python` and `py` on PATH, "
+                  "not `python3` \u2014 on Windows `python3` is the Microsoft Store stub. "
+                  "A skill that tells a rep to run `python3 x.py` fails on a bootstrapped "
+                  "Windows machine; rep-facing invocations should say `python`",
         # The trailing class carries `-` so the heredoc form matches. Without it
         # `python3 - <<'EOF'` — a whole runnable script, imports and all — read
         # as no dependency at all, and bbs-order-reconciliation's cross-project
@@ -642,12 +647,11 @@ EXTERNAL_SYSTEMS = {
         "kind": "cli", "canon": None, "bootstrap": "OpenJS.NodeJS.LTS",
         "signals": [r"\bnode\s+\S*\.(?:js|mjs)\b", r"\bnpm (?:install|run|ci)\b"],
     },
-    # Not in bbs-setup.ps1. bbs-quote-builder converts its docx to the PDF it
-    # promises to deliver with `soffice --headless`, so a rep who ran the
-    # bootstrap and nothing else cannot finish a quote. cli_not_bootstrapped
-    # exists to say so out loud.
+    # bbs-quote-builder converts its docx to the PDF it promises to deliver with
+    # `soffice --headless`. bbs-setup.ps1 has installed it since #27; the registry
+    # said None until it was told, so cli_not_bootstrapped warned on a solved problem.
     "libreoffice": {
-        "kind": "cli", "canon": None, "bootstrap": None,
+        "kind": "cli", "canon": None, "bootstrap": "TheDocumentFoundation.LibreOffice",
         "signals": [r"\bsoffice\b", r"\blibreoffice\b"],
     },
     "shopify-cli": {
@@ -1469,12 +1473,10 @@ def main():
             print(f"  {name:<{w}}  requires: {req}")
             if opt != "nothing":
                 print(f"  {'':<{w}}  degrades without: {opt}")
-        # This footer used to say cli AND python-package were installed by
-        # scripts/bbs-setup.ps1. That script is winget-only and installs no pip
-        # package at all, so the line told a rep the one thing they still had to
-        # do was already done for them. What saves them is not the bootstrap: it
-        # is that every python import in the tree is guarded and dies with an
-        # explicit `pip install ...` instead of a traceback.
+        # This footer once said python-package was installed by bbs-setup.ps1 when
+        # the script installed no pip package at all. It now installs a named few
+        # (after winget, and often only on the rerun once PATH lands), so the footer
+        # names them rather than claiming the kind. Change it with the script.
         bootstrapped = sorted(k for k, v in EXTERNAL_SYSTEMS.items()
                               if v["kind"] == "cli" and v.get("bootstrap"))
         byhand = sorted(k for k, v in EXTERNAL_SYSTEMS.items()
@@ -1489,10 +1491,11 @@ def main():
               f"{', '.join(bootstrapped)}." + pad
               + f"On the rep to install by hand: {', '.join(byhand)}.")
         print("  python-package, npm-package")
-        print("        NOT bootstrapped. bbs-setup.ps1 is winget-only: it installs no pip"
-              + pad + "package, no npm package, and no pip. What saves a rep here is not"
-              + pad + "the bootstrap \u2014 it is that every import in the tree is guarded and"
-              + pad + "fails with the install command to run rather than a traceback.")
+        print("        bbs-setup.ps1 (Windows only) installs pypdf, pymupdf, openpyxl (pip)"
+              + pad + "and docx (npm, with NODE_PATH set) \u2014 on a first run often only after"
+              + pad + "the rerun it asks for. Anything else, and every package on macOS, is on"
+              + pad + "the rep; what saves them is that every import in the tree is guarded"
+              + pad + "and fails with the install command to run rather than a traceback.")
         for sid, spec in sorted(EXTERNAL_SYSTEMS.items()):
             if spec.get("caveat"):
                 print(f"\n  caveat \u00b7 {sid}: {spec['caveat']}.")
