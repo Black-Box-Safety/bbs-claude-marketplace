@@ -287,6 +287,53 @@ Write it up with evidence and move to the next slice. Do not idle.
   `.cursor/rules/bbs-invariants.mdc` points at it instead of restating it.
 - **Who certifies the CalRecycle 74 — RULED 2026-09-18: the rep who quoted the job.**
   `naspo-quote` §5 no longer defaults to Griffin; `ca-form-rules.md` already said the rep.
+- **Sequencing the territory work — RULED 2026-09-28 (Parker, in session): land the
+  sales-territory work before the weekly rep review build.** Landed by the PR that records
+  this entry (`claude/sales-territory-land`), which brings the genuinely new work from
+  Parker's branch `sales-territory-0.3.0` onto main — `ca-territory-handoff`,
+  `ca-budget-timing`, `ca-agency-primer`, `ca-site-visit-brief`,
+  `ca-visit-readiness-review`, `bbs-weekly-sales-report`, `/ca-territory-handoff`, and the
+  `sal` and `brenda` agents — and leaves that branch untouched. The weekly rep review is
+  built after it, on top of it.
+- **What the weekly rep review may read — RULED 2026-09-28 (Parker, in session).** It may
+  read a rep's own Sent Items **only when the rep runs it on themselves**. Business facts
+  only: counterparty, agency domain, date, subject, attachment names and quote
+  attachments. No personal mail, no sentiment, and no timing or volume surveillance
+  metrics. Parker's team view covers **his own mailbox only**, and the output says so in
+  words — it never implies coverage of anyone else's mail. Applies to the review when it is
+  built; `bbs-weekly-sales-report` already reads only Parker's own mailbox. (The list of
+  business facts above comes from §3.2 of the weekly-review brief, which Parker approved in
+  session; it is the approved brief's wording, not his verbatim words.)
+- **Reactive/proactive and new/repeat tags — RULED 2026-09-28 (Parker, in session):
+  workbook-only.** They live in the rep review's workbook and nowhere else; **no new Sales
+  CRM fields** are created for them.
+- **What `bbs_accepted` means — OPEN (raised in the PR #33 review, 2026-09-28).** The
+  territory work used the Sales CRM field two ways: `ca-site-visit-brief` said it is not a
+  win flag, while `bbs-weekly-sales-report` counted it as a win and `ca-territory-handoff`'s
+  scoreboard derived win rate from it. Until Parker rules, every skill takes the safe
+  reading: `bbs_accepted` is **not** a confirmed win; the weekly report shows it as
+  "accepted in CRM (unconfirmed)" and counts a win only on a BC quote `acceptedDate`, a
+  converted order, or a quote-log Outcome of *won* confirmed by the rep. **Ask:** rule what
+  `bbs_accepted` means. The ruling gets one home (canon or this register), and
+  `bbs-weekly-sales-report`, `ca-site-visit-brief` and the handoff scoreboard all point
+  there instead of each carrying the reading.
+- **Is canon's "Dynamics 365 Sales" the BBS Sales CRM connector? — OPEN (raised in the
+  PR #33 review, 2026-09-28).** Canonical facts' Systems of record table names "Pipeline /
+  outreach — Dynamics 365 Sales"; the territory skills declare `sales-crm` (the BBS Sales
+  CRM connector, Dataverse `bbs_rfqs`), which the checker WARNs as `system_not_in_canon`.
+  **Ask:** if they are the same system, say so and the `sales-crm` registry entry in
+  `scripts/check_marketplace.py` gets anchored to that canon row, clearing the WARN. If
+  not, the Sales CRM needs its own canon row — Parker's call either way, since canon names
+  BBS's systems.
+- **`docs/PRODUCT.md` is empty on main, and Parker has no content for it — noted
+  2026-09-28 (Parker, in session). OPEN: repoint `lead-reviewer`.**
+  `.claude/agents/lead-reviewer.md` still tells the reviewer to check PRs against
+  `docs/PRODUCT.md` §2 (what a rep should understand), §5 (merge order) and §9 (recorded
+  rulings), none of which exist. A reviewer following it either skips those checks or
+  holds a PR for a ruling it cannot find. **Recommendation:** repoint lead-reviewer's §9
+  and §5 checks at this register (*Already open for Parker*, and *Tonight's slices* for
+  merge order) and drop §2 or give it a real home, in its own PR — agent config is outside
+  the territory PR's scope, so `lead-reviewer.md` is deliberately unchanged there.
 
 ---
 

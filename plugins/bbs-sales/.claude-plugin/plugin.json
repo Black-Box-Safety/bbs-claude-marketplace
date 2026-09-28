@@ -1,13 +1,17 @@
 {
   "name": "bbs-sales",
-  "description": "The California state quote desk, end to end: log an inbound RFQ, pull items out of whatever the agency sent (DWR RFQ PDF, Grainger cart, or a screenshot), check DGS BPO eligibility, price it through the Grainger MCP or vendor sourcing, build the customer quote on BBS letterhead, and fill the CDCR and CA compliance packets. Plus Grainger promo pages.",
-  "version": "0.3.0",
+  "description": "The California state book, end to end: work the territory that creates the demand, then run the quote desk it feeds. Territory: segment a book into a dated call list, time it to the state budget calendar, brief an agency and a site visit, pressure-test the brief, and write the weekly sales report; Sal plans territory launches and Brenda runs DGS blanket purchase orders. Quote desk: log an inbound RFQ, pull items out of whatever the agency sent (DWR RFQ PDF, Grainger cart, or a screenshot), check DGS BPO eligibility, price it through the Grainger MCP or vendor sourcing, build the customer quote on BBS letterhead, and fill the CDCR and CA compliance packets. Plus Grainger promo pages.",
+  "version": "0.4.0",
   "author": {
     "name": "Black Box Safety, Inc."
   },
   "keywords": [
+    "account-planning",
     "bbs",
     "bid-forms",
+    "bpo",
+    "budget-calendar",
+    "call-plan",
     "cdcr",
     "compliance-forms",
     "dvbe",
@@ -17,8 +21,11 @@
     "rfq",
     "sales",
     "sdvosb",
+    "site-visit",
     "sourcing",
-    "state-of-california"
+    "state-of-california",
+    "territory",
+    "weekly-report"
   ],
   "skills": "./skills/"
 }
