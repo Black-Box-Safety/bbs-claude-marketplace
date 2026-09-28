@@ -105,8 +105,12 @@ if days < 30:
 
 ```bash
 SKILL_DIR=<the folder containing this SKILL.md>
-python3 "$SKILL_DIR/scripts/packet_profile.py" --recognize-pdf <blank_packet.pdf>
+python "$SKILL_DIR/scripts/packet_profile.py" --recognize-pdf <blank_packet.pdf>
 ```
+
+`python` here is the interpreter `scripts/bbs-setup.ps1` installs on Windows, where
+`python3` is only the Microsoft Store stub. On a Mac, where only `python3` exists, type
+that instead. Every command in this skill follows the same rule.
 
 It reports one of four things, and each is an instruction. It checks the profile set
 conforms before it evaluates a single marker, so a malformed profile is a refusal here
@@ -184,7 +188,7 @@ the worked example, not the command for every packet.
 It fills every AcroForm field, then writes the company-name lines that have no fillable
 field as text annotations at the coordinates in the profile. It needs `pypdf` and
 `pymupdf`, checks for both before touching the packet, and prints the install command if
-either is missing (`pip install pypdf pymupdf --break-system-packages -q`).
+either is missing (`python -m pip install pypdf pymupdf`).
 
 **It writes the packet only if every field validates**, so a non-zero exit means there is
 no output file rather than a half-filled one. Read any `NOTE:` lines: a checkbox ticked
@@ -227,7 +231,7 @@ python "$SKILL_DIR/scripts/fill_obs_packet.py" --inspect <blank_packet.pdf>
 Reconcile that against the `add(...)` calls and `LINE_FIELD_IDS` in the script, update the
 profile — its page map, its `revision`, its annotation coordinates and its recognition
 markers, which are all tied to one revision — and re-run
-`python3 "$SKILL_DIR/scripts/packet_profile.py" --validate`.
+`python "$SKILL_DIR/scripts/packet_profile.py" --validate`.
 
 Expect the field names to be irregular: in the OBS packet one extended-price field is
 literally named `"OBS Line-Item Cost Wrksht - Ext Price LOBS Line-Item Cost Wrksht - Ext
@@ -245,7 +249,7 @@ standalone form, and the correct answer for a packet nobody has mapped yet.
 ### 1. See what the PDF actually is
 
 ```bash
-python3 "$SKILL_DIR/scripts/fill_obs_packet.py" --inspect /path/to/forms.pdf
+python "$SKILL_DIR/scripts/fill_obs_packet.py" --inspect /path/to/forms.pdf
 ```
 
 The inspector reads any CA form PDF, not just Packet B — it reports each field's page,

@@ -8,11 +8,22 @@ On a Mac the steps are the same, with Cmd for Ctrl; step 1 uses `scripts/bbs-set
 
 ## Set up (once)
 
-1. **Run the bootstrap** — download `scripts/bbs-setup.ps1` from the marketplace repo (Parker
-   posts it in Teams with the workspace file), then in PowerShell:
-   `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1`. It installs Git, Node, Chrome,
-   LibreOffice, and the PDF/OCR tools Claude uses to read RFQs. Two minutes, safe to rerun.
-   Mac: `scripts/bbs-setup.sh` (needs Homebrew). Preview with `-DryRun` / `--dry-run`.
+1. **Run the bootstrap** (~2 minutes, safe to rerun). Download `scripts/bbs-setup.ps1` from
+   the marketplace repo (Parker posts it in Teams with the workspace file), then:
+   - Open PowerShell (Start → type "PowerShell" → Enter) and `cd` to where you saved the file.
+   - Run: `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1` (preview first with
+     `-DryRun` if you like).
+   - It installs Git, Node, Python, Chrome, LibreOffice, the PDF/OCR tools Claude uses to read
+     RFQs, and the Python and Node libraries the form-fill and quote skills build documents with.
+   - **Done** looks like a line saying `Done.` near the bottom. If instead it says
+     `Not done yet`, or any line above says `[later]`: close this PowerShell window, open a
+     new one, run the script again, then reopen VS Code. Node and Python only finish their
+     extra libraries from a fresh window.
+   - Yellow `WARNING:` lines, or `Finished with … to install by hand`, mean something failed.
+   - If anything turns red or yellow, copy the whole window and send it to Parker; don't try
+     to fix it.
+   - Mac: `scripts/bbs-setup.sh` (needs Homebrew; `--dry-run` to preview). It does not install
+     the Python/Node libraries yet — `/bbs-checkup` (step 5) names any that are missing.
 2. **Install VS Code** — code.visualstudio.com, all defaults.
 3. **Install the Claude Code extension** — Extensions sidebar (Ctrl+Shift+X), search
    "Claude Code", install, then sign in with your BBS Claude account (same login as the
@@ -61,19 +72,22 @@ ones you have. Without them the skills still load, they just have nothing to rea
 Missing one? That is the `/bbs-checkup` line you send Parker — it is an admin assignment,
 not something you can fix locally.
 
-**2. Three `bbs-sales` skills shell out to software on your PC.** Step 1's bootstrap
-installs all of it; this table is here so you can tell *before* you start whether a job
-will run. Everything not listed is pure Claude plus connectors.
+**2. Four `bbs-sales` skills shell out to software on your PC.** Step 1's bootstrap installs
+all of it; this table is here so you can tell *before* you start whether a job will run.
+Everything not listed is pure Claude plus connectors.
 
-| Skill | Needs on your machine |
+| Skill | Needs on your machine (all installed by Step 1 on Windows) |
 |---|---|
-| `ca-form-filler` | `pypdf`, `pymupdf`, `pdfplumber`, `pdftotext` (poppler) |
-| `bbs-quote-builder` | Node + `npm install docx`, and LibreOffice (`soffice`) for the PDF |
+| `ca-form-filler` | `pypdf`, `pymupdf`, `pdftotext` (poppler) |
+| `naspo-quote` | `pypdf`, `pymupdf`, `pdftotext` (poppler) |
+| `bbs-quote-builder` | Node, the `docx` library, and LibreOffice (`soffice`) for the PDF |
 | `grainger-promo-page` | `pdftotext` (poppler) |
 | `dgs-bpo-item-check` | nothing — it ships its own 19,390-part lookup |
 
-Each of these checks its dependencies before touching a file and prints the exact install
-command, so a missing library is a clear message, never a half-written bid document.
+Most of these check their dependencies before touching a file and print the exact install
+command if something is missing — a clear message, never a half-written bid document. Run
+`/bbs-checkup` after setup; it verifies these libraries are actually present, so a green
+checkup means the document-producing skills will run.
 
 ## Daily use
 
