@@ -91,8 +91,8 @@ mailbox only.
 | `_ownerid_value` | The rep. Kim, Aanya or Parker |
 | `bbs_receiveddate`, `bbs_duedate`, `bbs_submitteddate` | What came in, what was due, what went out on time |
 | `bbs_quotevalue` / `bbs_quotevalue_base` | Dollar value |
-| `bbs_accepted` | **Not a confirmed win.** Report it as "accepted in CRM (unconfirmed)" — see *Wins* below |
-| `bbs_orderfinalized` | Supporting signal only; not by itself a win |
+| `bbs_accepted` | Not a win source today. See *Wins* below |
+| `bbs_orderfinalized` | Not a win source either (same canon section) |
 | `_bbs_accountid_value`, `_bbs_contactid_value` | Agency and named buyer |
 | `statuscode` (In Progress 1, Submitted 100000001), `statecode` (0 Active) | Where it stands |
 | `bbs_quotemethod` (0 Business Central, 1 Provision Connect, 2 Customer Documents) | How it was quoted |
@@ -103,13 +103,13 @@ Three counts carry the week: **received** (`bbs_receiveddate` inside the week),
 passed with no `bbs_submitteddate`). The third is the one worth surfacing every time —
 it is the only number in the report that names work that did not happen.
 
-**Wins.** What `bbs_accepted` means is not yet ruled (open for Parker in `docs/STEWARD.md`,
-*Already open for Parker*; when ruled, the ruling gets one home and this skill points
-there). Until then, take the safe reading: `bbs_accepted` is **not** a confirmed win.
-Report those records in their own column, "accepted in CRM (unconfirmed)". Count a record
-as a **win** only when one of these confirms it — a Business Central quote with an
-`acceptedDate`, a quote converted to a sales order, or a quote-log Outcome of *won* — and
-the rep has confirmed it. Keep the unconfirmed column out of wins and out of any win rate.
+**Wins.** What confirms a win, and what `bbs_accepted` means, live once in
+`bbs-foundations` `references/canonical-facts.md`, "What counts as a win". Follow it: count
+a **win** only from Business Central (a quote `acceptedDate`, or a quote converted to an
+order) or a quote-log Outcome of *won* the rep has confirmed. `bbs_accepted` means the quote
+converted, but canon records that it has never been set, so the "Accepted in CRM" column
+reads **"not recorded in CRM"** while the field is empty — never `0`. Keep that column out of wins and out of any
+win rate.
 
 **Bookings, from Business Central** (`bc_query_entity`) — query the `salesOrders` entity
 filtered on `documentDate` inside the week, and the `salesInvoices` entity on the same
@@ -136,7 +136,7 @@ Write to `~/weekly-sales-reports/YYYY-MM-DD_weekly-sales-report.md`, Monday date
 [Three or four sentences. What moved, what did not, what needs a decision.]
 
 ## Pipeline (Sales CRM, bbs_rfqs, as of [date])
-| Rep | RFQs received | Submitted | Overdue | Quoted value | Accepted in CRM (unconfirmed) | Confirmed wins |
+| Rep | RFQs received | Submitted | Overdue | Quoted value | Accepted in CRM | Confirmed wins |
 
 ## Bookings (Business Central, as of [date])
 [Orders and invoices in the week, in scope. Team baseline where it cannot be split — say so.]

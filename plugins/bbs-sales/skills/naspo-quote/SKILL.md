@@ -138,11 +138,13 @@ and Jackson each approve their signature being applied to state requests, on the
 understanding that the rep has reviewed the items with the buyer. Confirm that
 review has happened for this RFQ, then apply:
 
-- **The rep who quoted the job** — CalRecycle 74. Ruled by Parker 2026-09-18, matching
+- **The BBS employee preparing the bid** — CalRecycle 74. Ruled by Parker 2026-09-28
+  ("anyone is permitted to sign"); the rule, including when a signature may be applied
+  and when the line is left for the rep to sign by hand, is
   `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md`. The corpus shows Griffin on most
   historical packets; that is history, not the rule. Never default it to last time's signer.
 - **Parker Marshall, Sales Manager** — Darfur OBS 1500, OBS 1000, and CalRecycle 74 on
-  RFQs he quoted himself.
+  bids he prepares himself.
 - **Jackson Dalton, President (DV Owner)** — DGS PD 843 and CV 012, the
   disabled-veteran declarations, and STD 204 as payee representative
   (`jackson@blackboxsafety.com`). These are his to sign, not Parker's.
@@ -154,6 +156,11 @@ Ask who quoted the job rather than defaulting to last time's answer.
 Signature images:
 - Parker — `.../Customers/Bechtel/sentinel/vandenburg-sentinel-rfps/RFP-741986-vlc-tempest-filters/signature/parker-signature.png`
 - Jackson — `.../Black Box Safety - MASTER/Jackson Dalton Signature/Copy of JACKSON_SIG.png`
+
+There is no image for any other rep, by design: only Parker and Jackson have delegated
+signing authority. When another rep prepared the bid, leave their CalRecycle 74 signature
+and date blank and flag `⚑ SIGNATURE REQUIRED — <rep>` — never stamp Parker's or Jackson's
+image on it.
 
 If the rep hasn't reviewed the items, fill everything and leave the signature
 lines blank with a note — an unsigned packet is fixable in a minute; a wrongly

@@ -122,7 +122,7 @@ Never left blank — a missing CalRecycle 74 can disqualify the bid. See `ca-for
 | Postconsumer recycled % | REP | BBS resells finished goods and rarely certifies a percentage; "NA" is the normal answer. Only a real percentage from the rep overrides it |
 | SABRC category code | REP | as above |
 | Print name, title | REP | the signing rep |
-| Signature, date | SIGN | **The rep** who quoted the job — CalRecycle 74 is a bidder certification. It is a perjury certification, so the rep signs it personally and never on another's behalf |
+| Signature, date | SIGN | **The BBS employee preparing the bid** (ruled 2026-09-28). A perjury certification: applied only when that rep is a signature delegate, otherwise left blank for the rep to sign by hand and flagged `⚑ SIGNATURE REQUIRED`. The rule is in `ca-form-rules.md` |
 
 ## Form detection
 

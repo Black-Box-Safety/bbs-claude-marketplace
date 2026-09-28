@@ -28,7 +28,7 @@ false certification.
 
 | Signer | Lines | Why |
 |---|---|---|
-| **The rep** (variable) | Bidder signature, Darfur certification, CalRecycle 74 certification | Whoever quoted the job. Comes from the skill's inputs; `default_rep` in the profile is only a fallback. |
+| **The rep** (variable) | Bidder signature, Darfur certification, CalRecycle 74 certification | Whoever quoted the job. Comes from the skill's inputs; `default_rep` in the profile is only a fallback. On CalRecycle 74 that is any BBS employee preparing the bid, and whether a skill may apply the signature is set in the CalRecycle 74 row below. |
 | **Jackson Dalton** (fixed) | DGS PD 843 DVBE owner declaration, STD 204 authorized payee representative | Tied to who **owns** the certified business, not to who quoted. Never varies by rep. |
 
 ## The sub-forms
@@ -36,8 +36,8 @@ false certification.
 | Form | Rule |
 |---|---|
 | **STD 204** Payee Data Record | Section 1 NAME is the legal name, not the short name. Section 6 is the paying agency's block — leave it entirely blank. Signed by the owner, not the rep. |
-| **DGS PD 843** DVBE declaration | Signed by the DVBE owner. "Name of DVBE" is the **legal name** exactly as `vendor_profile.json` `business_identity.legal_name` gives it (ruled 2026-09-18, matches the filed corpus); never the short name. SCPRS reference number is the State's to fill; leave it. |
-| **CalRecycle 74** (SABRC) | **Never leave blank — a missing CalRecycle 74 can disqualify the bid.** BBS resells finished goods and rarely certifies a postconsumer percentage, so PCRC and SABRC default to "NA". Only override with a real percentage the rep supplies. Certified by the rep. |
+| **DGS PD 843** DVBE declaration | Signed by the DVBE owner. "Name of DVBE" is the **legal name** exactly as `vendor_profile.json` `business_identity.legal_name` gives it (ruled 2026-09-18, matches the filed corpus; confirmed by Parker 2026-09-28, "do legal name"); never the short name, and never typed as a literal. SCPRS reference number is the State's to fill; leave it. |
+| **CalRecycle 74** (SABRC) | **Never leave blank — a missing CalRecycle 74 can disqualify the bid.** BBS resells finished goods and rarely certifies a postconsumer percentage, so PCRC and SABRC default to "NA". Only override with a real percentage the rep supplies. **Signer — ruled 2026-09-28 (Parker: "anyone is permitted to sign"):** any BBS employee preparing the bid signs as BBS's representative; never a customer, an agency or a third party. It is sworn under penalty of perjury, so the signer is the rep preparing the packet, and that rep confirms the certification content (the PCRC and SABRC values) before it is signed. A skill applies the signature only when that rep is a delegate in `vendor_profile.json` `signature_delegation`; for any other rep it fills print name and title, leaves the signature and date blank for the rep to sign by hand, and flags `⚑ SIGNATURE REQUIRED`. Never apply Parker's or Jackson's signature to another rep's CalRecycle 74. |
 | **OBS 1000** GenAI factsheet | Answer the "was GenAI used" question; it is about the *product* being sold, not about how the bid was prepared. |
 | **GSPD-05-105** Bidder Declaration | BBS bids as the certified business, not through subs or brokers, unless the rep says otherwise for this bid. The "distinct element of work" is the CUF statement, which is **not** in the vendor profile — ask the rep. |
 | **STD 205** Payee Data Record Supplement | Accompanies STD 204 when the agency asks for it. Same signer as the STD 204 — the owner, not the rep. Agency block stays blank, exactly as on the STD 204. |
@@ -79,4 +79,4 @@ company-name line came out empty.
 
 ---
 
-Owner: bbs-sales. Last verified 2026-09-15.
+Owner: bbs-sales. Last verified 2026-09-28.

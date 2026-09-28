@@ -39,7 +39,7 @@ This is the part that breaks quietly, so state it explicitly in every handoff:
 | Indicator | Read it from | Caveat |
 |---|---|---|
 | Response time, quotes out | **Dataverse `bbs_rfqs`** (the Sales CRM, via `crm_list_records`) | The pipeline system of record. Reps own records directly, and it carries received / due / submitted dates, so these are genuinely measurable here and are not measurable in BC. Production org only |
-| Win rate | Confirmed wins only — a BC quote `acceptedDate`, a quote converted to an order, or a quote-log Outcome of *won*, confirmed by the rep | `bbs_accepted` in the CRM is **not** a confirmed win until Parker rules what it means (open in `docs/STEWARD.md`). Report it separately as "accepted in CRM (unconfirmed)"; never derive a win rate from it |
+| Win rate | Confirmed wins only — a BC quote `acceptedDate`, a quote converted to an order, or a quote-log Outcome of *won*, confirmed by the rep | `bbs_accepted` in the CRM means the quote converted, but canon records that it has never been set (`bbs-foundations` `references/canonical-facts.md`, "What counts as a win"). Report it as "not recorded in CRM", never as zero, and never derive a win rate from it |
 | Revenue | **Business Central** | Salesperson codes are stamped by whoever keyed the document, so a rep's own code can credit them with a tiny fraction of the book they actually carry. Check whose code is on the documents before reporting a rep's revenue, and say what the code covers |
 | Pipeline | Not Supabase `rep_cockpit` | Stale. Do not point a rep at it |
 

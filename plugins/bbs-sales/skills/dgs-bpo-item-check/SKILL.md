@@ -15,7 +15,7 @@ requires: [python3]
 
 # DGS BPO Item Check
 
-Checks one or more Grainger part numbers against the bundled DGS BPO master item list (covers 2025–2026 pricing) to determine which items are approved for purchase under the active California DGS Blanket Purchase Order.
+Checks one or more Grainger part numbers against the bundled DGS BPO master item list (the California FY25–26 list — see *Coverage period*) to determine which items are approved for purchase under the active California DGS Blanket Purchase Order.
 
 ## When to use
 
@@ -61,12 +61,19 @@ python "$SKILL_DIR/check_items.py" "102WZ8
 
 ## Output format
 
-The script prints one line per item, in the order the rep provided them, using this exact format:
+The script first names the list it checked against, then prints one line per item, in the
+order the rep provided them, using this exact format:
 
 ```
+Checked against: DGS BPO item list FY25-26 (Final_BPO_Item_List_25-26B.xlsx), valid 07/01/2025-06/30/2026
+⚠ STALE LIST: the FY25-26 list expired 06/30/2026. ...
 Item 102WZ8: ✅ Found
 Item FAKE123: ❌ Not Found
 ```
+
+The `Checked against` line is on every answer, so the rep always knows which fiscal
+year's list the answer came from. The `⚠ STALE LIST` line appears whenever that fiscal
+year has ended; never drop it or soften it.
 
 After running the script, return that output to the rep as-is — do not add a summary, table, or extra commentary unless the rep asks. Do not reformat into a table. Do not add prices, descriptions, or other columns — the rep only wants the found/not-found status.
 
@@ -74,7 +81,7 @@ After running the script, return that output to the rep as-is — do not add a s
 
 - **The bundled list is the source of truth.** Do not search the web, do not check Grainger.com, do not guess. The skill uses the file at `assets/bpo_part_numbers.txt` which contains 19,390 unique Grainger part numbers from the active BPO.
 - **Case-insensitive matching.** `102wz8`, `102WZ8`, and `102Wz8` all match the same record.
-- **Coverage period.** This file covers BPO pricing for calendar years 2025 and 2026 only. The rep will replace the bundled file in late 2026 or early 2027 when the new BPO list is published. Until then, never substitute another source.
+- **Coverage period.** The bundled list is the California **FY25–26** list (1 July 2025 – 30 June 2026), not calendar 2025–2026. FY26–27 began 1 July 2026; its list is blocked on Aanya providing it (Parker, 2026-09-28: "Aanya will provide"). Until it is bundled this skill keeps checking FY25–26 and says so as STALE on every answer. Never substitute another source and never synthesize a list. When the new list lands, replace both asset files and the `BPO_LIST_*` constants at the top of `check_items.py` together.
 - **Duplicates in input.** If the same item appears twice in the rep's input, it's reported once (first occurrence wins, original casing preserved in output).
 
 ## Files in this skill

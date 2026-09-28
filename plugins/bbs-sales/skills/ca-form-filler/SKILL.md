@@ -54,7 +54,10 @@ this skill and `naspo-quote` stay in agreement.
    quoting **rep** signs bidder lines (OBS 4007(B) bidder signature, Darfur, CalRecycle
    74). **Jackson Dalton**, DV owner and President, signs ownership lines (DGS PD 843,
    STD 204 authorized payee) — those follow who *owns* the certified DVBE, not who quoted
-   the job, so they do not change with the rep.
+   the job, so they do not change with the rep. When the rep's signature may be applied
+   and when a rep line is left for them to sign by hand is in `ca-form-rules.md`; Path A's
+   script prints a `⚑ SIGNATURE REQUIRED` line for each one it leaves, and the cover
+   summary repeats it.
 6. **Agency-side fields stay blank** — method of award, SCPRS ref, PO#, and the STD 204
    paying-agency block are the State's to complete.
 7. **Verify by looking.** Rasterize the pages that matter and inspect them before

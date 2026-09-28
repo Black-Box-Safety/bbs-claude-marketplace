@@ -56,9 +56,10 @@ Two house rules that bite specifically here:
 
 - **Cancelled invoices are excluded from revenue.** They double-count. A brief quoting gross
   revenue overstates the account to the rep's face.
-- **`bbs_accepted` is not a confirmed win** (what it means is open for Parker in
-  `docs/STEWARD.md`). A win is confirmed by a BC quote `acceptedDate`, a converted order, or
-  a quote-log Outcome of *won* the rep has confirmed. Without one, the honest statement is
+- **`bbs_accepted` is not a win source today** — it means the quote converted, but it has
+  never been set (`bbs-foundations` `references/canonical-facts.md`, "What counts as a
+  win"). A win is confirmed by a BC quote `acceptedDate`, a converted order, or a quote-log
+  Outcome of *won* the rep has confirmed. Without one, the honest statement is
   "we do not know if we won these" — never "we won them".
 
 ## 2. Assemble from four sources, and keep them separate
@@ -161,7 +162,7 @@ If it is not present, say so; the published artifacts are then the copy of recor
 ## Stop rules
 
 - Never state a SCPRS-derived figure to a customer. Sizing is internal posture.
-- Never claim a win that the CRM has not recorded as decided.
+- Never claim a win without the confirmation canon requires (`bbs-foundations` `references/canonical-facts.md`, "What counts as a win").
 - Never put another facility's AR, or another rep's book, in a document going to a site.
 - Never let a competitor's certifications into the room. Check whether ours is actually a
   differentiator against the specific competitors on the account before leaning on it.

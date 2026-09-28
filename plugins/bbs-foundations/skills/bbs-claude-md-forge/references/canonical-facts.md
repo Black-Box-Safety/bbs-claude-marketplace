@@ -117,18 +117,42 @@ to fulfill unless BBS is a named reseller.
 | Procurement intelligence (SCPRS) | Supabase `jsrcrprxoxlnphhcpnbu` via ca-procurement-intel MCP | |
 | Revenue dashboard | Supabase `hkogytbgmaucjjaeqrgd` | |
 | Customer documents (RFQs, POs, packets) | **SharePoint** `Black Box Safety - MASTER/Customers/…` | Repos hold pointers and lessons, not the documents |
-| Grainger pricing | **Grainger MCP** — per buying account. The `b2b.blackboxsafety.com` punch-out it replaced is retired | Never the open web; never from memory |
+| Grainger pricing | **Grainger MCP** — per buying account. The `b2b.blackboxsafety.com` punch-out it replaced is retired | Never the open web; never from memory. BBS sells Grainger **at cost**: the returned `unitPrice` is the customer price, never marked up (Parker: ruled 2026-09-18, "confirmed" in session 2026-09-28) |
 | Pipeline / outreach | Dynamics 365 Sales | |
 | Storefront | Shopify `bbs-supabase-test.myshopify.com`, theme "BBS — Field Manual" | Verify the live theme id with `shopify theme list` before pushing |
 | BBS form values (FEIN, permit, certs) | `plugins/bbs-sales/references/vendor_profile.json` | Skills resolve it as `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` and never re-key it |
+
+**Customer quote numbers are the Business Central SQ number** (Parker, in session,
+2026-09-28: "use BC SQ number"). The local `900001` series is retired.
+
+### What counts as a win
+
+- **A win is confirmed by Business Central** — a sales quote with an `acceptedDate`, or a
+  quote converted to a sales order — **or by a quote-log Outcome of *won* that the rep has
+  confirmed.** Nothing else is a win.
+- **`bbs_accepted` on a Sales CRM `bbs_rfqs` record is intended to mean the quote converted
+  to an order.** Parker, in session, 2026-09-28: "I believe [it] is in State of CA Agencies
+  and means the quote has converted" — his own hedge, kept.
+- **In practice it has never been set.** Checked live in the production CRM on 2026-09-28:
+  across 2,550 `bbs_rfqs` records created since 2026-01-01, `bbs_accepted` is never true,
+  `bbs_orderfinalized` is never true, and no record has `bbs_ponumber` set.
+- **So no skill counts a win from it today**, and a report that would show it says
+  "not recorded in CRM" — never zero, which would read as "we won nothing". When reps start
+  setting it, `true` means converted; re-check the field before relying on it, and change
+  this section, not the skills that point here.
 
 ## People and signatures
 
 | Person | Role | Signs |
 |---|---|---|
 | Jackson Dalton | President, DV owner | Ownership lines: DGS PD 843, STD 204, CV 012. Always. |
-| Griffin Forsyth | Vice President | Federal / Sourcewell contracts; most CalRecycle 74s |
-| Parker Marshall | Sales Manager, primary responder | Bidder and cert lines: Darfur, OBS 1000, reps & certs; CalRecycle 74 on his own RFQs |
+| Griffin Forsyth | Vice President | Federal / Sourcewell contracts. Signed most historical CalRecycle 74s — history, not the rule (below) |
+| Parker Marshall | Sales Manager, primary responder | Bidder and cert lines: Darfur, OBS 1000, reps & certs; CalRecycle 74 on bids he prepares |
+
+**CalRecycle 74 is signed by whichever BBS employee prepares the bid** (Parker, in session,
+2026-09-28: "anyone is permitted to sign"), never by a customer, agency or third party. When
+a skill may apply that signature and when it leaves the line for the rep to sign by hand is
+set once, in `plugins/bbs-sales/references/ca-form-rules.md`.
 
 Signatures are applied by the form skills: Parker and Jackson have each delegated
 authority for the forms those skills fill, confirmed with counsel 2026-09-16. The rule
@@ -183,4 +207,4 @@ Archivo, JetBrains Mono. Quote SLA 48 hours. CA sales tax ~7.75%, F.O.B. Destina
 | Line caps "~120" vs "~200" | 150, hard |
 | Same skill, two names (`bbs-price-list-cleaner` / `price-list-cleaner`; two different `ca-rfq-intake`) | One name per behaviour. Two skills with one name is worse than a missing skill: it fails silently with a plausible answer |
 | Two things named `bbs-ops`: the org repo `Black-Box-Safety/bbs-ops` and the website plugin | Resolved 2026-09-02: the plugin is now `bbs-website` (install `bbs-website@bbs-claude-marketplace`); `bbs-ops` names only the repo |
-| Griffin: "VP" / "Vice President" / "federal signer" / "CalRecycle 74" | Vice President; signs federal, Sourcewell, and most CalRecycle 74s |
+| Griffin: "VP" / "Vice President" / "federal signer" / "CalRecycle 74" | Vice President; signs federal and Sourcewell. He signed most historical CalRecycle 74s; since 2026-09-28 the BBS employee preparing the bid signs it (see "People and signatures") |

@@ -51,8 +51,9 @@ Say exactly "data pending". Never estimate, never bracket, never round toward a 
 
 The recurring members of this tier:
 
-- **Win/loss on open RFQs.** `bbs_accepted` is not a confirmed win (see `SKILL.md` §1 for
-  what confirms one). Without a confirmation, we do not know.
+- **Win/loss on open RFQs.** `bbs_accepted` has never been set, so the CRM records no
+  outcome: "not recorded in CRM" (see `SKILL.md` §1 and `bbs-foundations` `references/canonical-facts.md`, "What counts as a win" for what
+  confirms a win). Without a confirmation, we do not know.
 - **Contact titles.** Frequently blank in the CRM.
 - **Requester identity** on historical quotes that were addressed to a shared mailbox.
 - **Any site with no BC history at all** — a cold start is a cold start, not a small number.

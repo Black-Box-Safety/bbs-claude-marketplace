@@ -36,7 +36,9 @@ and fail rather than guess — do not work around that by picking a plausible ac
 cost *and* the customer's price; BBS is paid through a contract rebate rather than margin.
 Confirm it on the response: `account.sellRule` reads `at_cost` on every schedule today. If
 you ever see a different sell rule, stop and ask the rep rather than inventing a margin.
-Rare exceptions are handled by the rep directly, not here.
+Rare exceptions are handled by the rep directly, not here. The rule's home is
+`bbs-foundations` `references/canonical-facts.md`, Systems of record, the Grainger row
+(Parker: ruled 2026-09-18, confirmed 2026-09-28).
 
 This second rule matters when the quote document is built: pass these prices through to
 `bbs-quote-builder` as final, and do not let its markup math touch a Grainger line.

@@ -20,6 +20,10 @@ Design notes (why it's built this way):
   - Jackson Dalton is the DV owner and ALWAYS signs the DVBE owner lines
     (DGS PD 843) and is the STD 204 authorized payee representative, because
     those certifications are tied to ownership, not to whoever quoted the job.
+  - CalRecycle 74 is signed by the rep preparing the bid, who may be any BBS
+    employee (ruled 2026-09-28). The signature is applied only when that rep
+    is a signature delegate in the vendor profile; otherwise the signature and
+    date are left for the rep to sign by hand and the run prints a flag.
   - Agency-side fields (method of award details the State fills, SCPRS ref,
     PO#, paying-agency block) are left blank on purpose.
   - Signature DATES are filled if provided; if the rep wants to date at the
@@ -87,8 +91,64 @@ def load_profile():
         "product_type": vp["product_type"],
         "dvbe_owner": {k: owner[k] for k in ("name", "title", "email")},
         "accounting_contact": {k: acct[k] for k in ("name", "title", "phone", "email")},
+        # Whose signature a skill may apply (counsel, 2026-09-16). Everyone else
+        # signs by hand. Read from the profile, never listed in this script.
+        "signature_delegates": [
+            {"name": d["name"], "email": d["email"]}
+            for d in vp["signature_delegation"]["delegates"]],
+        # A BBS employee has an address on this domain. Derived from the
+        # profile's own contact address so the domain is never re-keyed here.
+        "employee_domain": contact["email"].rsplit("@", 1)[1].lower(),
         "_notes": vp["_meta"]["notes"],
     }
+
+
+def _norm(s):
+    return " ".join(str(s or "").split()).lower()
+
+
+def calrecycle74_signer(profile, rep):
+    """Decide how the CalRecycle 74 certification line is signed.
+
+    Ruled by Parker 2026-09-28 ("anyone is permitted to sign"): any BBS
+    employee preparing the bid may sign CalRecycle 74 as BBS's representative
+    -- never a customer, an agency or a third party. The signer is the rep in
+    the inputs. The form is sworn under penalty of perjury, so the rep's
+    signature is applied only when the rep is a signature delegate in the
+    vendor profile; otherwise the line is left for the rep to sign by hand.
+    A delegate's signature is never applied to another rep's line: the rep
+    counts as a delegate only when both the email and the name match.
+
+    Returns (apply_signature: bool, flag: str | None). Exits -- writes no
+    packet -- when the named signer is not a BBS employee.
+    """
+    name, title = rep.get("name", ""), rep.get("title", "")
+    email = _norm(rep.get("email", ""))
+    domain = profile["employee_domain"]
+    if not name:
+        return False, ("[MISSING — NEEDS INPUT] CalRecycle 74 signer: no rep name in "
+                       "the inputs. The rep preparing this bid signs it; name them.")
+    if email and not email.endswith("@" + domain):
+        sys.exit(f"REFUSED: CalRecycle 74 is signed by a BBS employee as BBS's "
+                 f"representative, never a customer, agency or third party. The rep "
+                 f"in the inputs ({rep.get('name')}, {rep.get('email')}) is not an "
+                 f"@{domain} address. Correct the rep and run again; no packet written.")
+    for d in profile["signature_delegates"]:
+        if email and email == _norm(d["email"]) and _norm(name) == _norm(d["name"]):
+            return True, None
+    who = f"{name}, {title}" if title else name
+    why = ("no email in the inputs, so delegated signing authority cannot be "
+           "confirmed" if not email else
+           "not a signature delegate in vendor_profile.json signature_delegation")
+    return False, (f"⚑ SIGNATURE REQUIRED — {who} — CalRecycle 74 certification "
+                   f"(page 16), signed and dated by hand under penalty of perjury. "
+                   f"Left blank: {why}. Print name and title are filled.")
+
+
+def signature_flags(profile, inp):
+    """Lines this packet leaves for a person to sign, for the rep's summary."""
+    _, flag = calrecycle74_signer(profile, inp.get("rep", {}))
+    return [flag] if flag else []
 
 
 def build_field_values(profile, inp):
@@ -243,10 +303,14 @@ def build_field_values(profile, inp):
         inp.get("calrecycle_pcrc", "NA"))
     add("DORRR CalRec 74 - 2SABRC Product Category CodeRow1", 16,
         inp.get("calrecycle_sabrc", "NA"))
+    # Signer: any BBS employee preparing the bid (ruled 2026-09-28). Signature
+    # and date applied only for a signature delegate; otherwise left blank for
+    # the rep to sign and date by hand -- see calrecycle74_signer().
+    calrec_sign, _ = calrecycle74_signer(profile, rep)
     add("DORRR CalRec 74 - Print Name", 16, rep_name)
-    add("DORRR CalRec 74 - Signature", 16, rep_sig)
+    add("DORRR CalRec 74 - Signature", 16, rep_sig if calrec_sign else "")
     add("DORRR CalRec 74 - Title", 16, rep_title)
-    add("DORRR CalRec 74 - Date", 16, sig_date)
+    add("DORRR CalRec 74 - Date", 16, sig_date if calrec_sign else "")
 
     # ---------- OBS 1000 GenAI (pages 18-19) ----------
     add("OBS 1000 - Business Name", 18, profile["short_name"])
@@ -262,7 +326,9 @@ def build_field_values(profile, inp):
 
     # ---------- DGS PD 843 DVBE Declarations (page 21) ----------
     # Jackson Dalton ALWAYS signs as DV owner — certification is tied to ownership.
-    add("DVBE Dec. DGS PD 843 - Name of DVBE", 21, profile["legal_name"])  # ruled 2026-09-18: legal name, matches the filed corpus
+    # "Name of DVBE" is the legal name, never the short name: ruled 2026-09-18,
+    # confirmed by Parker 2026-09-28 ("do legal name"). ca-form-rules.md.
+    add("DVBE Dec. DGS PD 843 - Name of DVBE", 21, profile["legal_name"])
     add("DVBE Dec. DGS PD 843 - DVBE Ref #", 21, profile["dvbe_cert"])
     add("DVBE Dec. DGS PD 843 - Desc", 21, desc_short)
     add("DVBE Dec. DGS PD 843 - DVBE not Broker", 21, "/Yes")
@@ -683,6 +749,7 @@ def main():
         inp = json.load(f)
 
     field_values = build_field_values(profile, inp)
+    flags = signature_flags(profile, inp)
 
     # Fill and annotate a scratch copy, then move it into place, so a failure
     # part-way through never leaves a half-filled packet looking finished.
@@ -697,6 +764,11 @@ def main():
 
     print(f"Filled packet written to: {output_pdf}")
     print(f"Fields written: {len(field_values)}")
+
+    # Lines left for a person to sign. Loud, first, and repeated in the rep's
+    # cover summary: an unsigned CalRecycle 74 can disqualify the bid.
+    for flag in flags:
+        print(f"\n{flag}")
 
     # The certification rules are the expensive thing to get wrong on a bid, and
     # they change without the packet changing. Put them in front of the rep.
