@@ -9,8 +9,8 @@ its result goes into `bcQuote`. The script refuses to build without it.
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
 | `bcQuote.number` | string | yes | The Business Central sales quote number this document represents, e.g. `"SQ-104797"`, **as read back from BC**. Must be `SQ-` plus six digits. Never generated, predicted, or taken from a local series. |
-| `bcQuote.customerNumber` | string | yes | From the same read-back, e.g. `"C10171"`. |
-| `bcQuote.customerName` | string | yes | From the same read-back. Check it is the customer this document is for. |
+| `bcQuote.customerNumber` | string | yes | The **sell-to** customer number from the same read-back, e.g. `"C10171"` (bill-to can differ). |
+| `bcQuote.customerName` | string | yes | The sell-to customer name. The script warns if it appears in neither `billTo` nor `shipTo`. |
 | `documentDate` | string | yes | Quote date, e.g. `"09/28/2026"`. Prefer the BC quote's `documentDate`. |
 | `validTo` | string | yes | Expiration date. Prefer the BC quote's `validUntilDate`. |
 | `shipmentMethod` | string | no | Defaults to `"FOB Destination"`. |
@@ -18,8 +18,8 @@ its result goes into `bcQuote`. The script refuses to build without it.
 | `billTo` | string[] | yes | Lines of the Bill-to block. Prefer the BC quote's `billTo*` fields. |
 | `shipTo` | string[] | yes | Lines of the Ship-to block. Prefer the BC quote's `shipTo*` fields. Drives tax jurisdiction. |
 | `pricing.method` | string | yes, unless every line is `source: "grainger"` | `"margin"`, `"markup"`, or `"at-cost"`. No default — the script fails without it. |
-| `pricing.rate` | number | yes for margin/markup | Decimal, e.g. `0.20` for 20%. Ignored for `at-cost`. |
-| `taxRate` | number | no | Decimal, e.g. `0.0875`. Omit or `0` for a pre-tax quote. |
+| `pricing.rate` | number | yes for margin/markup | Decimal from 0 to under 1, e.g. `0.20` for 20% — so markup is capped under 100%. Ignored for `at-cost`. |
+| `taxRate` | number | no | Decimal from 0 to under 0.2, e.g. `0.0875`. Omit or `0` for a pre-tax quote. A string, a percent (`8.75`) or a negative is rejected. Check it against the BC quote's tax (SKILL.md step 2.5). |
 | `estimatedPricing` | boolean | no | `true` appends `*` to prices + estimate footnote. |
 | `columns.leadTime` | boolean | no | `true` adds a Lead Time column (narrows Description). |
 | `items[]` | array | yes | Line items, in order. |
@@ -29,7 +29,10 @@ its result goes into `bcQuote`. The script refuses to build without it.
 | `items[].uom` | string | no | Unit of measure, e.g. `"Pack"`, `"Box"`, `"Each"`. Defaults to `"Each"`. |
 | `items[].leadTime` | string | no | Only rendered if `columns.leadTime` is true, e.g. `"1–3 business days"`. Omit → em-dash. From a tool result or a vendor's written quote, never estimated. |
 | `items[].source` | string | no | `"grainger"` marks a Grainger line: always at cost, whatever `pricing.method` says. The only accepted value. |
-| `items[].unitCost` | number | yes | **Vendor cost.** For a Grainger line, the Grainger MCP `unitPrice`. |
+| `items[].unitCost` | number | yes | **Vendor cost**, 0 or more — discount lines are not supported. For a Grainger line, the Grainger MCP `unitPrice`. |
+
+`documentDate`, `validTo`, `billTo`, `shipTo` and every `items[].description` are checked
+before anything is built; a missing one is an `ERROR:` and exit 1, not a blank on the page.
 
 A spec with a top-level `quoteNumber` (the retired local-series field) is rejected with a
 message pointing here.

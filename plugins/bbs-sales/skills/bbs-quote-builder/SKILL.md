@@ -67,28 +67,37 @@ document represents**. BC assigns it when the quote record is created, and a per
 creates that record — this skill reads Business Central and never writes to it.
 
 1. **Get the SQ number from the rep.** If the quote doesn't exist in BC yet, ask the rep to
-   create it there first and tell you the number. Do not wait on a number you worked out
+   create it there first and tell you the number. Do not rely on a number you worked out
    yourself: never generate one, never take the highest existing SQ and add one, never
    reuse a number off an old PDF. A predicted number can be taken by another rep a minute
    later and then sits on a customer document pointing at someone else's quote.
 2. **Read it back.** `bc_get_sales_document` with the SQ number (it searches quotes), or
    `bc_query_entity` on `salesQuotes` with `filter=number eq 'SQ-######'`.
-3. **Confirm it is the right record**: the customer on the BC quote is the customer this
-   document is for. Say which customer you found; if it is a different one, stop.
+3. **Confirm it is the right record by the sell-to customer.** A BC quote carries two
+   customers and they often differ — a Caltrans district is the sell-to customer while
+   the Department of Transportation is the bill-to. The check uses the **sell-to**
+   `customerNumber` (and `customerName`): it must be the customer this document is for.
+   On the `naspo-quote` path, compare it with the "BC customer ID" in the buyer's
+   `<Buyer Name>.txt`. Say which customer you found; if it is a different one, stop.
 4. **Take the header from the record** rather than re-typing it: bill-to and ship-to
    address fields, `documentDate`, `validUntilDate`. Where the rep's source disagrees with
-   BC, show both and ask.
+   BC, show both and ask. **If the BC bill-to address fields are empty** (it happens), say
+   so and ask the rep for the bill-to address — do not print a name-only Bill to block.
 5. **If the BC quote already has lines**, compare them with the lines you are about to
    print — item, quantity, total. A mismatch is a `[FLAG: …]` for the rep, not something
-   to resolve by picking one side.
+   to resolve by picking one side. Compare **tax** the same way: the spec's `taxRate`
+   against the BC lines' `taxPercent` (or, with no line tax detail, the header
+   `totalTaxAmount` against the tax the document will print). A mismatch is a
+   `[FLAG: …]`; never overwrite either side silently.
 
 **If there is no SQ number, it doesn't resolve, or Business Central is unreachable, stop**
 and tell the rep: `Quote number: [MISSING — NEEDS INPUT] — no Business Central sales quote
 to read back.` There is no fallback. The retired local 900001 series is not one, and
 neither is a placeholder "to fix later".
 
-Copy `number`, `customerNumber` and `customerName` from the read-back into the spec's
-`bcQuote` block. The script refuses to build without it.
+Copy the sell-to `number`, `customerNumber` and `customerName` from the read-back into
+the spec's `bcQuote` block. The script refuses to build without it, and prints a
+`WARNING:` if that customer name appears in neither the Bill to nor the Ship to block.
 
 ### 3. Confirm the things that vary every time
 
@@ -96,12 +105,13 @@ Before building, ALWAYS confirm these with the rep — they change per quote and
 getting them wrong is costly:
 
 1. **Pricing method and rate** — this is the single most error-prone part, so
-   confirm it explicitly every time. See "Pricing" below. BBS's house default
-   for non-Grainger lines is **20% gross margin**, but never assume — confirm the
-   method (margin, markup or at-cost) AND the rate. The script has no default
-   and fails without one.
+   confirm it explicitly every time. See "Pricing" below. The rep chooses the
+   method (margin, markup or at-cost) AND the rate for non-Grainger lines; there
+   is no house figure to fall back on, and the script fails without one.
 2. **Tax** — ask whether to add sales tax and at what rate. Tax is based on the
-   **ship-to jurisdiction**. Pre-tax quotes are common and fully supported.
+   **ship-to jurisdiction**. Pre-tax quotes are common and fully supported. Check
+   the rate against the BC quote's tax (step 2.5). The script accepts only a
+   decimal from 0 to under 0.2 (`0.0875`, not `8.75` or `"0.0875"`).
 
 Also confirm Bill-to and Ship-to against the BC header. For RFQs, the ship-to
 drives the tax rate; if only an agency HQ address is on the document, confirm
@@ -116,10 +126,11 @@ customer price and is never marked up — the rule and its reason live in
 Mark every such line `"source": "grainger"` with the MCP `unitPrice` as its
 `unitCost`; the script then prints it unchanged whatever `pricing.method` says.
 
-For every other line, the rep chooses the method. These are different and
+For every other line, the rep chooses the method and rate. California state
+schedule quotes are at cost (canon: `bbs-doctrine.md` #17). The three methods
 produce different numbers:
 
-- **Margin** (BBS default): `sell = cost ÷ (1 − rate)`. A 20% margin on a $6.49
+- **Margin**: `sell = cost ÷ (1 − rate)`. A 20% margin on a $6.49
   cost → $6.49 ÷ 0.80 = **$8.11**. The profit is 20% *of the sell price*.
 - **Markup**: `sell = cost × (1 + rate)`. A 20% markup on $6.49 → $6.49 × 1.20 =
   **$7.79**. The profit is 20% *of the cost*.
@@ -129,7 +140,13 @@ produce different numbers:
 "Mark it up 20%" colloquially can mean either margin or markup — so restate the
 method and show a one-line example before generating if there's any ambiguity.
 The script takes `pricing.method` = `"margin"`, `"markup"` or `"at-cost"` and
-`pricing.rate` as a decimal.
+`pricing.rate` as a decimal below 1 — so markup is capped under 100%, which also
+catches a percent typed as `20` instead of `0.20`. Discount (negative) lines are
+not supported.
+
+The at-cost guarantee for Grainger depends on the tag: an untagged Grainger line
+in a margin quote **is** marked up. Tag every line priced through `grainger-pricing`,
+and check the count in step 9.
 
 `unitCost` in the spec is always the **vendor cost**; the script derives the
 customer Unit Price. Never pre-apply the markup to the cost yourself.
@@ -156,9 +173,12 @@ Write a JSON spec (schema in `references/spec-schema.md`) and run:
 ```bash
 # SKILL_DIR is the folder holding this SKILL.md — wherever the plugin installed.
 cd "$SKILL_DIR"
-npm install docx        # first run only
 node scripts/build_quote.js /path/to/spec.json /path/to/output.docx
 ```
+
+Windows: `bbs-setup.ps1` installs `docx` globally and sets NODE_PATH — nothing to do (open
+a new window after running it). If `build_quote.js` says docx is missing (Mac, or no
+bootstrap), run `npm install docx` inside `$SKILL_DIR` once per plugin update.
 
 The script reads the BBS logo from `assets/bbs_logo.png` relative to its own
 location, so it does not care where the spec or the output live. It runs
@@ -199,8 +219,12 @@ the PDF unless the rep also asks for the editable Word file.
 Render the first page (e.g. `pdftoppm -png -r 100 output.pdf preview`) and
 eyeball it: the SQ number in the title is the one you read back, logo present,
 all line items, correct totals, tax line correct, estimate footnote present if
-flagged, Grainger lines unchanged from the MCP price. Confirm the math on at least one line
-(cost → sell → amount) matches the chosen method.
+flagged, Grainger lines unchanged from the MCP price. Confirm the math on at
+least one line (cost → sell → amount) matches the chosen method.
+
+Check the script's `Pricing:` line: the "N Grainger line(s) at cost" count must
+equal the number of lines priced through `grainger-pricing`. If it is lower, a
+Grainger line is untagged and has been marked up — fix the spec and rebuild.
 
 ## Naming
 

@@ -142,11 +142,10 @@ Otherwise:
 
 **On the state path this gate is already inside the `naspo-quote` run you entered at Gate
 4.** Its §3 is what hands `bbs-quote-builder` the spec a state worksheet needs, and that
-spec — not the builder's own defaults — is what makes the document right. Do not run the
-builder yourself here: its defaults are written for commercial work, and it will ask the rep
-for values the worksheet has already settled. Answering those questions a second time, off
-the builder's commercial defaults, is how a state quote reaches the agency with the wrong
-tax treatment, the wrong margin, or an empty solicitation line.
+spec is what makes the document right. Do not run the builder yourself here: it will ask the
+rep for values the worksheet has already settled, and answering those questions a second
+time is how a state quote reaches the agency with the wrong tax treatment, a margin on an
+at-cost line, or an empty solicitation line.
 
 Off the state path, run `bbs-quote-builder` directly and confirm its inputs with the rep.
 

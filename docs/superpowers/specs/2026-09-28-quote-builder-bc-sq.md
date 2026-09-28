@@ -99,6 +99,22 @@ print (SQ-104776), which may well be the newer intent, but nothing on `main` or 
 says so, and changing a customer-facing layout is Parker's call. The differences go in the
 PR body for him to choose.
 
+### Review round (independent review of `be4216a`)
+
+- Script validates `taxRate` (number, 0 ≤ rate < 0.2), `documentDate`, `validTo`, `billTo`,
+  `shipTo`, `items[].description`; each missing/bad value is an `ERROR:` and exit 1.
+- Customer check is on the BC **sell-to** customer (sell-to and bill-to differ in live BC);
+  on the NASPO path it is compared with the buyer file's BC customer ID. The script warns
+  when `bcQuote.customerName` is in neither address block. An empty BC bill-to address is
+  asked about, never printed as a name-only block.
+- Tax is compared with the BC quote's line `taxPercent` / header `totalTaxAmount` and
+  flagged on mismatch.
+- The unsourced "20% house default" is gone; the rep chooses method and rate.
+- The Grainger at-cost guarantee depends on the model tagging `source: "grainger"`; this is
+  said plainly, `grainger-pricing` names the tag, and step 9 checks the echoed count.
+- `pricing.rate` stays below 1 for markup too (catches `20` typed for `0.20`); negative
+  `unitCost` (discount lines) stays rejected and is documented.
+
 ## Knock-on changes
 
 - `naspo-quote` §3 — number comes from BC per `bbs-quote-builder`; its spec row moves to

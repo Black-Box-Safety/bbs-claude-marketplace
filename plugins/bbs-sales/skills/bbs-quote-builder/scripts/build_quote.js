@@ -76,6 +76,18 @@ if (!spec.bcQuote) {
   if (!bc.customerName) errors.push('bcQuote.customerName is missing — copy it from the BC read-back.');
 }
 if (!Array.isArray(spec.items) || spec.items.length === 0) errors.push('"items" is empty or missing.');
+const nonEmptyStr = v => typeof v === 'string' && v.trim() !== '';
+const strLines = v => Array.isArray(v) && v.length > 0 && v.every(nonEmptyStr);
+if (!nonEmptyStr(spec.documentDate)) errors.push('"documentDate" is missing — take it from the BC quote\'s documentDate.');
+if (!nonEmptyStr(spec.validTo)) errors.push('"validTo" is missing — take it from the BC quote\'s validUntilDate.');
+if (!strLines(spec.billTo)) errors.push('"billTo" must be a non-empty list of text lines. If the BC bill-to address is empty, ask the rep — do not print a name-only block.');
+if (!strLines(spec.shipTo)) errors.push('"shipTo" must be a non-empty list of text lines.');
+// Tax: a decimal, 0 <= rate < 0.2. A string, a percent (8.75) or a negative would print a
+// wrong total that still looks valid.
+if (spec.taxRate !== undefined && !(typeof spec.taxRate === 'number' && spec.taxRate >= 0 && spec.taxRate < 0.2)) {
+  errors.push('taxRate ' + JSON.stringify(spec.taxRate) + ' is not a decimal between 0 and 0.2 (e.g. 0.0875 for 8.75%). ' +
+    'Omit it or use 0 for a pre-tax quote.');
+}
 
 const METHODS = ['margin', 'markup', 'at-cost'];
 const method = spec.pricing && spec.pricing.method;
@@ -87,11 +99,13 @@ if (needsMethod) {
     errors.push('pricing.method must be one of ' + METHODS.join(' | ') + ' (got ' + JSON.stringify(method) +
       '). Confirm it with the rep; there is no default.');
   } else if (method !== 'at-cost' && !(typeof rate === 'number' && rate >= 0 && rate < 1)) {
-    errors.push('pricing.rate must be a decimal between 0 and 1 for ' + method + ' (got ' + JSON.stringify(rate) + ').');
+    // Also caps markup below 100%, so a percent typed as 20 instead of 0.20 fails here.
+    errors.push('pricing.rate must be a decimal from 0 up to (not including) 1 for ' + method + ' (got ' + JSON.stringify(rate) + ').');
   }
 }
 (spec.items || []).forEach((it, i) => {
-  if (typeof it.unitCost !== 'number' || !(it.unitCost >= 0)) errors.push('items[' + i + '].unitCost is not a number.');
+  if (!nonEmptyStr(it.description)) errors.push('items[' + i + '].description is missing.');
+  if (typeof it.unitCost !== 'number' || !(it.unitCost >= 0)) errors.push('items[' + i + '].unitCost is not a number of 0 or more (discount lines are not supported).');
   if (typeof it.qty !== 'number' || !(it.qty > 0)) errors.push('items[' + i + '].qty is not a positive number.');
   if (it.source !== undefined && !isGrainger(it)) errors.push('items[' + i + '].source "' + it.source + '" is unknown; the only value is "grainger".');
 });
@@ -100,15 +114,22 @@ if (errors.length) {
   process.exit(1);
 }
 const quoteNumber = bc.number;
+// The customer on the BC quote should be the one this document is addressed to.
+const addrText = [].concat(spec.billTo, spec.shipTo).join(' ').toLowerCase();
+if (!addrText.includes(String(bc.customerName).toLowerCase())) {
+  console.error('WARNING: BC customer "' + bc.customerName + '" (' + bc.customerNumber + ') appears in neither billTo nor shipTo. ' +
+    'Confirm with the rep that ' + quoteNumber + ' is the quote for this customer before sending.');
+}
 
 // ---- pricing ----
-const taxRate = typeof spec.taxRate === 'number' ? spec.taxRate : 0;
+const taxRate = spec.taxRate || 0;
 const estimated = !!spec.estimatedPricing;
 const star = estimated ? '*' : '';
 const showLead = !!(spec.columns && spec.columns.leadTime);
 
 // Round to the cent, half up. Plain Math.round(x * 100) rounds 12.42 / 0.80 = 15.525
 // down to 15.52, because 15.525 * 100 is 1552.4999999999998 in floating point.
+const pct = x => (x * 100).toFixed(2).replace(/\.?0+$/, '');
 const r2 = x => Math.round(Number((x * 100).toFixed(6))) / 100;
 
 function sellPrice(it) {
@@ -268,7 +289,7 @@ Packer.toBuffer(doc).then(buf => {
   const nG = spec.items.filter(isGrainger).length;
   const basis = [];
   if (nG) basis.push(nG + ' Grainger line(s) at cost');
-  if (spec.items.length - nG) basis.push((spec.items.length - nG) + ' line(s) ' + (method === 'at-cost' ? 'at cost' : method + ' @ ' + (rate * 100) + '%'));
+  if (spec.items.length - nG) basis.push((spec.items.length - nG) + ' line(s) ' + (method === 'at-cost' ? 'at cost' : method + ' @ ' + pct(rate) + '%'));
   console.log('Quote ' + quoteNumber + '  |  BC customer ' + bc.customerNumber + ' ' + bc.customerName);
   console.log('Pricing: ' + basis.join(', ') + '  |  Subtotal ' + fmt(subtotal) + (taxRate > 0 ? '  Tax ' + fmt(tax) + '  Total ' + fmt(total) : '  (pre-tax)'));
 });
