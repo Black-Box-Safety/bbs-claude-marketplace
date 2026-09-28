@@ -27,10 +27,17 @@
   `docs/superpowers/specs/2026-09-02-bbs-foundations-claude-md-forge-design.md`.
   `bbs-grounding-doctrine` lives here and only here; `bbs-website` no longer carries a copy,
   and its two lane-tuning skills receive it from this plugin.
-  Still planned, each its own spec: the MCP connector roster (ca-procurement-intel,
-  Grainger, BBS KIt, Microsoft 365, Shopify, Supabase) with a degrade-gracefully contract,
-  and AI-literacy onboarding. `bbs-order-reconciliation` moved out to `bbs-back-office`,
-  where the rest of the post-award work lives.
+  Still planned, its own spec: the MCP connector roster (ca-procurement-intel,
+  Grainger, BBS KIt, Microsoft 365, Shopify, Supabase) with a degrade-gracefully contract.
+  AI-literacy onboarding shipped as **`bbs-claude-coach`** (below).
+  `bbs-order-reconciliation` moved out to `bbs-back-office`, where the rest of the
+  post-award work lives.
+- **bbs-claude-coach** (live) — empowerment / AI literacy for the whole team. Teaches
+  what skills, commands, plugins, connectors, and hooks are; routes any overlapping job
+  to a first step; shows how to extend the toolkit (voice skill, FLAGS, propose shared
+  tools) without desk silos or control tone. Commands: `/bbs-what-can-i-do`, `/bbs-start`,
+  `/bbs-explain-claude`. `plugins/bbs-claude-coach`. Spec:
+  `docs/superpowers/specs/2026-09-17-bbs-claude-coach-design.md`.
 - **claudeforge** (pinned external) — the generic CLAUDE.md engine `bbs-foundations`
   depends on, pinned to the BBS fork `Black-Box-Safety/ClaudeForge` at `dev` so it updates
   through git and never gets hand-copied. Install it for `/sync-claude-md` and the

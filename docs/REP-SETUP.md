@@ -26,15 +26,18 @@ Claude is reading, side by side. Screenshots will be pinned in the Teams sales c
 
 ## What you just installed, and what each plugin needs
 
-Install only the plugin for your desk. Everyone gets `bbs-foundations`.
+Install the plugins you need. Everyone gets `bbs-foundations` and `bbs-claude-coach`.
 
 ```bash
 /plugin marketplace add Black-Box-Safety/bbs-claude-marketplace   # once
 /plugin install bbs-foundations@bbs-claude-marketplace            # everyone
-/plugin install bbs-sales@bbs-claude-marketplace                  # sales reps
+/plugin install bbs-claude-coach@bbs-claude-marketplace           # everyone — understand / start / extend
+/plugin install bbs-sales@bbs-claude-marketplace                  # sales / quoting work
 /plugin install bbs-back-office@bbs-claude-marketplace            # purchasing / accounting
 /plugin install bbs-website@bbs-claude-marketplace                # whoever maintains the site
 ```
+
+New to the toolkit? Run `/bbs-explain-claude` or `/bbs-what-can-i-do` after checkup.
 
 **An install gives you the skills, commands and hooks — and nothing else.** Two things it
 does not give you, and they are the two reasons a skill fails on a fresh machine.
