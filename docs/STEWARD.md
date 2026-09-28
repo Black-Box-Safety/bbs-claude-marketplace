@@ -68,25 +68,31 @@ practice. Both are certification or pricing rulings on binding documents.
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`,
   "Small-business status is channel-dependent".
 - **Grainger at-cost vs the old margin practice — RULED 2026-09-18 and confirmed
-  2026-09-28 for California state schedules and cooperative contracts; primes RULED
-  2026-09-28; other channels OPEN.** Parker, in session, 2026-09-28: "confirmed" (at cost on
-  California state schedules and cooperative contracts), and on primes: "For primes,
+  2026-09-28 for California state agencies; primes RULED 2026-09-28; other channels
+  OPEN.** Parker, in session, 2026-09-28: "confirmed" (to the at-cost rule; recorded only for
+  California state agencies — CA state schedules and the NASPO ValuePoint CA MRO LPA —
+  until the open question below is answered), and on primes: "For primes,
   grainger products can be increased. reps should ask for a discount from our grainger
   account manager first." So on a prime (e.g. Bechtel) Grainger lines may be marked up:
   the rep asks BBS's Grainger account manager for a discount first, prices from the
   discounted cost, and applies whatever markup the rep chooses — no figure is set, and
-  none is invented. **Still open for Parker:** local / co-op, direct federal and private.
+  none is invented. **Still open for Parker:** national and local cooperative contracts,
+  direct federal and private. **Ask:** are national cooperative contracts (Sourcewell,
+  NPPGov, UC/OMNIA) at cost? A draft of this PR had put "cooperative contracts" in the
+  at-cost row, which Parker did not rule; review caught it and it was narrowed.
   The single home is `canonical-facts.md`, "Grainger sell rule, by channel" (the Systems
   of record Grainger row points there); `grainger-pricing` §2 points at it, reminds the rep
   on a prime to request the discount first and offers to write the request (never sends,
   never invents a discount). The quote builder's per-quote `pricing.graingerAtCost` (PR
-  #34) follows it: `true` on California state, `false` on a prime.
+  #34) follows it: `true` on a California state-schedule / NASPO LPA quote, `false` on a
+  prime. PR #34 restates the rule (`spec-schema.md:30`, `:126`, `SKILL.md:142`, "not ruled
+  for primes"); it merges after this PR and is to repoint at canon.
   An earlier version of this entry said every live file "agrees" with an unconditional
   at-cost rule; since the prime ruling that is no longer the test. Scoped to California
   state / NASPO and therefore still correct: `naspo-quote`, `ca-rfq-intake`, the
   `bbs-sales` README, `supply-lane-tuning`, `quote-bot`, `bbs-order-reconciliation`
   ("on these accounts"). Stated unconditionally and corrected in PR #36:
-  `grainger-pricing` §2 and `bbs-doctrine.md` rule 19. **Still unconditional, not edited
+  `grainger-pricing` §2 and `bbs-doctrine.md` rule 19 (now a pointer). **Still unconditional, not edited
   here:** the managed `claudeMd` in `bbs-foundations/docs/bbs-managed-settings.json` ("BBS
   sells Grainger at cost") — a managed artifact, so it needs its own PR with a second
   reviewer and then Parker's re-paste. `bbs-quote-builder`'s 20% gross-margin house
@@ -111,7 +117,8 @@ provide." Until she does, `dgs-bpo-item-check` keeps the FY25–26 list, and eve
 opens with the list it checked against plus a `⚠ STALE LIST` line once that fiscal year has
 ended (`check_items.py`, `BPO_LIST_*`). The constants are now checked against the bundle:
 the script exits 1 unless the named source file is in `assets/`, its name carries the FY
-token, and the dates are that fiscal year (`test_check_items.py`). No list is synthesized.
+token, the years are consecutive, the dates are that fiscal year, and both asset files
+match fingerprints stored beside the constants (`test_check_items.py`). No list is synthesized.
 
 **Done:** current list bundled, alternates-on-miss and restricted-item alerting present,
 coverage note accurate.
@@ -329,8 +336,12 @@ Write it up with evidence and move to the next slice. Do not idle.
   declarations (DGS PD 843, CV 012, STD 204) stay Jackson's. Path A: `fill_obs_packet.py`
   (`resolve_signer`, a confirmation block every run) and `test_fill_obs_packet.py`. Path B:
   `naspo-quote/scripts/fill_ca_forms.py` refuses a spec with no signer, a non-BBS signer,
-  or a delegate's image for a signer whose email/alias is not that delegate's
-  (`test_fill_ca_forms.py`). Signer data (after PR #37): Parker has his own
+  or a delegate's image for a signer whose email/alias is not that delegate's; the image
+  is always the delegate's own `signature_image` from the profile (never a spec path);
+  every form declares its `form` kind, and only PD843/CV012/STD204/STD205 take the
+  dvbe_owner's `dv_owner` stamp (`test_fill_ca_forms.py`). OBS 1000's signer is not
+  ruled (`field-maps.md`): no skill stamps it, and the draft line in this PR assigning it
+  to Parker was removed — **open for Parker**. Signer data (after PR #37): Parker has his own
   `authorized_representatives` entry, role `sales_manager`, with his alias and the
   `signature_image` moved off `default_rep`; `signature_delegation.delegates` is
   `["sales_manager", "dvbe_owner"]`, resolved to those entries by both loaders. Canon,

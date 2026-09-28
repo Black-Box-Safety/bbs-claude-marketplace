@@ -128,12 +128,12 @@ The single home for whether a Grainger line may carry markup. Skills point here.
 
 | Channel | Rule | Ruling |
 |---|---|---|
-| California state schedules and cooperative contracts | **At cost.** The Grainger MCP's `unitPrice` is BBS's cost *and* the customer price, never marked up; BBS is paid through the contract rebate | Parker, ruled 2026-09-18; "confirmed" in session 2026-09-28 |
+| California state agencies — CA state schedules, including the NASPO ValuePoint CA MRO Statewide LPA (number in *Contract vehicles*, above) | **At cost.** The Grainger MCP's `unitPrice` is BBS's cost *and* the customer price, never marked up; BBS is paid through the contract rebate | Parker, ruled 2026-09-18; "confirmed" in session 2026-09-28 |
 | Prime contractors (e.g. Bechtel) | **Grainger lines may be marked up.** Before pricing, the rep asks BBS's Grainger account manager for a discount on the items, prices from that discounted cost, then applies whatever markup the rep chooses. No markup figure is set — never invent one — and never invent a discount | Parker, in session, 2026-09-28: "For primes, grainger products can be increased. reps should ask for a discount from our grainger account manager first." |
-| Local / co-op, direct federal, private | **Open for Parker.** Do not infer a rule from the rows above; ask the rep | — |
+| National and local cooperative contracts (Sourcewell, NPPGov, UC/OMNIA, local co-ops), direct federal, private | **Open for Parker.** Do not infer a rule from the rows above; ask the rep | — |
 
 Where a quote spec records which rule applied (the quote builder's per-quote
-`pricing.graingerAtCost`), it is `true` on a California state or cooperative-contract quote
+`pricing.graingerAtCost`), it is `true` on a California state-schedule / NASPO LPA quote
 and `false` on a prime quote. On an open channel it is not set by inference.
 
 **Customer quote numbers are the Business Central SQ number** (Parker, in session,
@@ -162,7 +162,7 @@ and `false` on a prime quote. On an open channel it is not set by inference.
 |---|---|---|
 | Jackson Dalton | President, DV owner | Ownership lines: DGS PD 843, STD 204, CV 012. Always. |
 | Griffin Forsyth | Vice President | Federal / Sourcewell contracts. Signed most historical CalRecycle 74s — history, not the rule (below) |
-| Parker Marshall | Sales Manager, primary responder | Bidder and cert lines when named as signer: OBS 4007(B) bidder, Darfur, CalRecycle 74; OBS 1000, reps & certs |
+| Parker Marshall | Sales Manager, primary responder | Rep-signed lines when the rep names him as signer: OBS 4007(B) bidder, Darfur, CalRecycle 74. (OBS 1000's signer is not ruled — see *Open* below) |
 
 **Who signs the rep-signed lines (OBS 4007(B) bidder, Darfur, CalRecycle 74)** was ruled by
 Parker in session, 2026-09-28. The rule — who may sign, and when a skill may apply a
@@ -195,13 +195,16 @@ history, is `docs/STEWARD.md` in the marketplace repo (maintainers only).
 | DGS PD 843 "Name of DVBE" | 2026-09-18, confirmed 2026-09-28 | `ca-form-rules.md`, DGS PD 843 row |
 | Company name on CalRecycle 74, OBS 1000, Darfur OBS 1500 | 2026-09-28 | `ca-form-rules.md`, "Company name" |
 | Who signs the rep-signed lines (OBS 4007(B) bidder, Darfur, CalRecycle 74) | 2026-09-28 | `ca-form-rules.md`, "Rep-signed lines" |
-| Grainger sell rule — CA state and cooperative contracts; primes | 2026-09-18 / 2026-09-28 | "Grainger sell rule, by channel", above |
+| Grainger sell rule — California state schedules (incl. the NASPO LPA); primes | 2026-09-18 / 2026-09-28 | "Grainger sell rule, by channel", above |
 | Customer quote number | 2026-09-28 | Systems of record, above |
 
 **Open — awaiting Parker**
 
-- Grainger sell rule for local / co-op, direct federal and private buyers. A run that needs
-  it stops and tells the rep.
+- Grainger sell rule for national and local cooperative contracts (Sourcewell, NPPGov,
+  UC/OMNIA, local co-ops), direct federal and private buyers — including whether national
+  cooperative contracts are at cost. A run that needs it stops and tells the rep.
+- Who signs OBS 1000 (GenAI factsheet). `ca-form-rules.md` assigns no signer, so a skill
+  fills the date, leaves the signature blank and flags it.
 - The OBS Line-Item Cost Worksheet "BUSINESS NAME:" header. The 2026-09-28 legal-name
   ruling did not cover it; it keeps the short name `fill_obs_packet.py` writes today until
   Parker rules, and does not stop a run.

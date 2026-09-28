@@ -18,6 +18,7 @@ order provided.
     Item FAKE123: ❌ Not Found
 """
 
+import hashlib
 import sys
 import os
 import re
@@ -36,7 +37,27 @@ BPO_LIST_FY = "FY25-26"
 BPO_LIST_SOURCE = "Final_BPO_Item_List_25-26B.xlsx"
 BPO_LIST_VALID_FROM = date(2025, 7, 1)
 BPO_LIST_VALID_TO = date(2026, 6, 30)
+# Fingerprints that tie the bundle together: the source spreadsheet's bytes,
+# and the lookup file's part-number SET (sorted, stripped, newline-joined), so a
+# Windows CRLF checkout of the .txt still matches. A lookup file regenerated
+# from another list, or a spreadsheet swapped without its lookup file, fails.
+BPO_LIST_SOURCE_SHA256 = "a1f14cfee87bb3f021b20b06eb6f338464f47c7a4b545b5600d966f45e2bdb6a"
+BPO_LOOKUP_SET_SHA256 = "0a27360e172f4bc5bed6981a8e45fc2e9e69a563edbc800c858ebdb8c2161442"
 ASSETS_DIR = os.path.join(SCRIPT_DIR, 'assets')
+
+
+def _sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, 'rb') as fh:
+        for chunk in iter(lambda: fh.read(1 << 16), b''):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _lookup_set_sha256(path):
+    with open(path, 'r', encoding='utf-8') as fh:
+        parts = sorted({line.strip() for line in fh if line.strip()})
+    return hashlib.sha256('\n'.join(parts).encode('utf-8')).hexdigest()
 
 
 def constants_problem():
@@ -53,6 +74,8 @@ def constants_problem():
     if not m:
         return f"BPO_LIST_FY {BPO_LIST_FY!r} is not of the form FYyy-yy"
     token = f"{m.group(1)}-{m.group(2)}"
+    if int(m.group(2)) != (int(m.group(1)) + 1) % 100:
+        return f"BPO_LIST_FY {BPO_LIST_FY} is not two consecutive years"
     if not os.path.isfile(os.path.join(ASSETS_DIR, BPO_LIST_SOURCE)):
         return f"the source file {BPO_LIST_SOURCE} named by BPO_LIST_SOURCE is not in assets/"
     if token not in BPO_LIST_SOURCE:
@@ -62,6 +85,11 @@ def constants_problem():
             or BPO_LIST_VALID_TO != date(2000 + int(m.group(2)), 6, 30)):
         return (f"BPO_LIST_VALID_FROM/TO {BPO_LIST_VALID_FROM}-{BPO_LIST_VALID_TO} are not "
                 f"the California fiscal year {BPO_LIST_FY}")
+    if _sha256_file(os.path.join(ASSETS_DIR, BPO_LIST_SOURCE)) != BPO_LIST_SOURCE_SHA256:
+        return f"{BPO_LIST_SOURCE} does not match BPO_LIST_SOURCE_SHA256"
+    if not os.path.isfile(LOOKUP_FILE) or _lookup_set_sha256(LOOKUP_FILE) != BPO_LOOKUP_SET_SHA256:
+        return ("assets/bpo_part_numbers.txt does not match BPO_LOOKUP_SET_SHA256 -- it was not "
+                f"generated from {BPO_LIST_SOURCE}, or was edited")
     return None
 
 

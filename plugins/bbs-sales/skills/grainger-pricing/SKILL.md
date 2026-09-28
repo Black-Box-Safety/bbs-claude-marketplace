@@ -37,15 +37,15 @@ once, in `bbs-foundations` `references/canonical-facts.md`, "Grainger sell rule,
 channel" — read it there every run rather than recalling it. Establish the channel before
 pricing; if you cannot name it, ask the rep. What this skill does with each answer:
 
-- **California state schedule or cooperative contract:** at cost, per canon. Confirm it on
+- **California state agency — a CA state schedule or the NASPO LPA:** at cost, per canon. Confirm it on
   the response — `account.sellRule` reads `at_cost` on every schedule today. If you ever
   see a different sell rule, stop and ask the rep rather than inventing a margin. Pass the
   prices through to `bbs-quote-builder` as final; do not let its markup math touch a
   Grainger line.
 - **Prime contractor (e.g. Bechtel):** before pricing, remind the rep to ask BBS's Grainger
   account manager for a discount on these items first, and offer to write that request
-  for the rep to send — text only; this skill sends nothing. Price from the discounted cost only once the rep has it
-  in writing; never invent a discount, and never pick a markup — the rep chooses it.
+  for the rep to send — text only; this skill sends nothing. Price from the discounted cost once the rep has it;
+  never invent a discount, and never pick a markup — the rep chooses it.
 - **Any channel canon marks open:** stop and ask the rep; do not borrow another channel's
   rule.
 

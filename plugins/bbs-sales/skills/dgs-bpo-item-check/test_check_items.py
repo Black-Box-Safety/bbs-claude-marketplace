@@ -22,7 +22,8 @@ sys.path.insert(0, HERE)
 import check_items as ci  # noqa: E402
 
 REAL = {k: getattr(ci, k) for k in
-        ("BPO_LIST_FY", "BPO_LIST_SOURCE", "BPO_LIST_VALID_FROM", "BPO_LIST_VALID_TO")}
+        ("BPO_LIST_FY", "BPO_LIST_SOURCE", "BPO_LIST_VALID_FROM", "BPO_LIST_VALID_TO",
+         "BPO_LIST_SOURCE_SHA256", "BPO_LOOKUP_SET_SHA256", "LOOKUP_FILE")}
 
 
 def _with(**over):
@@ -93,6 +94,52 @@ def test_malformed_fy_exits_1():
         assert _run_main()[0] == 1
     finally:
         _restore()
+
+
+def test_non_consecutive_fy_exits_1():
+    _with(BPO_LIST_FY="FY25-27")
+    try:
+        assert "consecutive" in ci.constants_problem()
+        assert _run_main()[0] == 1
+    finally:
+        _restore()
+
+
+def test_source_fingerprint_mismatch_exits_1():
+    _with(BPO_LIST_SOURCE_SHA256="0" * 64)
+    try:
+        assert "BPO_LIST_SOURCE_SHA256" in ci.constants_problem()
+        assert _run_main()[0] == 1
+    finally:
+        _restore()
+
+
+def test_lookup_file_not_from_the_source_exits_1():
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        other = os.path.join(d, "bpo_part_numbers.txt")
+        with open(ci.LOOKUP_FILE, encoding="utf-8") as src, open(other, "w") as dst:
+            dst.write(src.read() + "EXTRA1\n")
+        _with(LOOKUP_FILE=other)
+        try:
+            assert "BPO_LOOKUP_SET_SHA256" in ci.constants_problem()
+            assert _run_main()[0] == 1
+        finally:
+            _restore()
+
+
+def test_crlf_lookup_file_still_matches():
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        crlf = os.path.join(d, "bpo_part_numbers.txt")
+        with open(ci.LOOKUP_FILE, encoding="utf-8") as src, \
+                open(crlf, "w", newline="\r\n") as dst:
+            dst.write(src.read())
+        _with(LOOKUP_FILE=crlf)
+        try:
+            assert ci.constants_problem() is None, ci.constants_problem()
+        finally:
+            _restore()
 
 
 def main():

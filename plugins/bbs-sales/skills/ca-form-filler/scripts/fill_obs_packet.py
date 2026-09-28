@@ -141,7 +141,11 @@ def resolve_signer(profile, inp):
     signer = inp.get("signer") or {}
     name = " ".join(str(signer.get("name", "")).split())
     title = " ".join(str(signer.get("title", "")).split())
-    email = str(signer.get("email", "")).strip().lower()
+    raw_email = str(signer.get("email", "")).strip()
+    # ASCII only, checked BEFORE lower-casing: str.lower() folds look-alikes
+    # such as the Kelvin sign (U+212A) into "k", which would pass the domain.
+    ascii_ok = raw_email.isascii()
+    email = raw_email.lower()
     if not name and not email:
         _missing("Signer: the rep names who signs CalRecycle 74, the OBS 4007(B) "
                  "bidder line and Darfur OBS 1500 (`signer{name,title,email}`)")
@@ -149,7 +153,7 @@ def resolve_signer(profile, inp):
         _missing(f"Signer email for {name or 'the signer'}: it is how the signer is "
                  f"confirmed as a BBS employee.")
     domain = profile["employee_domain"]
-    if email.count("@") != 1 or email.split("@")[1] != domain:
+    if not ascii_ok or email.count("@") != 1 or email.split("@")[1] != domain:
         sys.exit(f"REFUSED: the signer must be a BBS employee (an @{domain} address). "
                  f"{signer.get('name') or '(no name)'} <{signer.get('email')}> is not. "
                  f"Customers, agencies and third parties never sign BBS's lines. "

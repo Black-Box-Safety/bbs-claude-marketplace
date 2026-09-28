@@ -176,6 +176,12 @@ def test_double_at_refused():
     assert msg.startswith("REFUSED"), msg
 
 
+def test_non_ascii_lookalike_email_refused():
+    # KELVIN SIGN (U+212A) lower-cases to "k"; it must not pass as a BBS address
+    msg = _exit_message(_inputs({"name": "Kim", "email": "\u212aim@" + DOMAIN}))
+    assert msg.startswith("REFUSED"), msg
+
+
 def test_lookalike_domain_refused():
     msg = _exit_message(_inputs({"name": "X", "email": "x@evil" + DOMAIN}))
     assert msg.startswith("REFUSED"), msg
@@ -267,6 +273,13 @@ def test_delegation_roles_resolve_to_representatives():
     for r in roles:
         assert reps[r]["signature_image"], r
     assert "signature_image" not in VP["default_rep"], "Parker's image moved to sales_manager"
+
+
+def test_no_profile_entry_assigns_obs1000_a_signer():
+    """OBS 1000's signer is not ruled (field-maps.md; canon, Open). The profile
+    must not say otherwise, or a skill reading `signs` would stamp it."""
+    for r in VP["authorized_representatives"] + [VP["default_rep"]]:
+        assert "OBS 1000" not in r.get("signs", ""), (r["role"], r["signs"])
 
 
 # ---------- unchanged: DV-owner lines ----------

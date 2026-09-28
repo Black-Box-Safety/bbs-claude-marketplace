@@ -44,8 +44,9 @@ def _png(d, name="sig.png", data=PNG_MAGIC + b"rest-of-png"):
     return path
 
 
-def _form(who="parker", src="a.pdf", out="a-out.pdf", field="Signature"):
-    return {"src": src, "out": out, "sign": {field: {"who": who}}}
+def _form(who="parker", src="a.pdf", out="a-out.pdf", field="Signature",
+          kind="CalRecycle74", **sig):
+    return {"form": kind, "src": src, "out": out, "sign": {field: dict(sig, who=who)}}
 
 
 def _raises(fn, *a, **kw):
@@ -141,11 +142,24 @@ JACKSON = {"name": _BY_ROLE["dvbe_owner"]["name"], "title": "President",
 EMPLOYEE = {"name": "Test Rep", "title": "Account Manager", "email": "test.rep@" + DOMAIN}
 
 
-def _spec(d, forms, signatures, **kw):
+def _profile_png(root, role):
+    """Where the profile says `role`'s signature is, under a fake MASTER root."""
+    return resolve_sig_path(_BY_ROLE[role]["signature_image"], root)
+
+
+def _spec(d, forms, signatures=None, **kw):
+    """A spec over a fake MASTER root holding both delegates' PNGs at their
+    vendor_profile.json paths. No `signatures` map unless a test passes one."""
     for f in forms:
         _png(d, os.path.join("blank", f["src"]), b"%PDF-blank")
+    root = os.path.join(d, "Black Box Safety - MASTER")
+    for role in _BY_ROLE:
+        path = _profile_png(root, role)
+        _png(os.path.dirname(path), os.path.basename(path))
     spec = {"src_dir": os.path.join(d, "blank"), "out_dir": os.path.join(d, "out"),
-            "signer": dict(PARKER), "signatures": signatures, "forms": forms}
+            "master_root": root, "signer": dict(PARKER), "forms": forms}
+    if signatures is not None:
+        spec["signatures"] = signatures
     spec.update(kw)
     return spec
 
@@ -207,9 +221,7 @@ def test_old_ellipsis_and_relative_paths_stop():
 
 def test_main_resolves_master_paths_end_to_end():
     with tempfile.TemporaryDirectory() as d:
-        root = os.path.join(d, "Black Box Safety - MASTER")
-        _png(root, os.path.join("Customers", "p.png"))
-        spec = _spec(d, [_form()], {"parker": "MASTER/Customers/p.png"}, master_root=root)
+        spec = _spec(d, [_form()])
         code, err = _run_main(spec, d)
         assert code is None, (code, err)
         assert os.path.isfile(os.path.join(d, "out", "a-out.pdf"))
@@ -219,7 +231,8 @@ def test_main_resolves_master_paths_end_to_end():
 
 def test_zero_byte_image_stops_and_out_dir_untouched():
     with tempfile.TemporaryDirectory() as d:
-        spec = _spec(d, [_form()], {"parker": _png(d, data=b"")})
+        spec = _spec(d, [_form()])
+        _png(*os.path.split(_profile_png(spec["master_root"], "sales_manager")), data=b"")
         code, _ = _run_main(spec, d)
         assert "is empty (0 bytes)" in str(code), code
         assert not os.path.exists(spec["out_dir"])
@@ -227,7 +240,9 @@ def test_zero_byte_image_stops_and_out_dir_untouched():
 
 def test_non_png_image_stops_and_out_dir_untouched():
     with tempfile.TemporaryDirectory() as d:
-        spec = _spec(d, [_form()], {"parker": _png(d, "sig.jpg", b"\xff\xd8\xff\xe0JFIF..")})
+        spec = _spec(d, [_form()])
+        _png(*os.path.split(_profile_png(spec["master_root"], "sales_manager")),
+             data=b"\xff\xd8\xff\xe0JFIF..")
         code, _ = _run_main(spec, d)
         assert "is not a PNG" in str(code), code
         assert not os.path.exists(spec["out_dir"])
@@ -235,8 +250,8 @@ def test_non_png_image_stops_and_out_dir_untouched():
 
 def test_missing_blank_form_stops_before_anything_is_written():
     with tempfile.TemporaryDirectory() as d:
-        spec = _spec(d, [{"src": "a.pdf", "out": "a.pdf"}], {})
-        spec["forms"].append({"src": "never-downloaded.pdf", "out": "b.pdf"})
+        spec = _spec(d, [{"form": "other", "src": "a.pdf", "out": "a.pdf"}])
+        spec["forms"].append({"form": "other", "src": "never-downloaded.pdf", "out": "b.pdf"})
         msg = _raises(preflight, spec)
         assert "blank form not found" in msg and "never-downloaded.pdf" in msg, msg
         code, _ = _run_main(spec, d)
@@ -246,8 +261,8 @@ def test_missing_blank_form_stops_before_anything_is_written():
 
 def test_failure_on_a_later_form_leaves_out_dir_untouched():
     with tempfile.TemporaryDirectory() as d:
-        spec = _spec(d, [{"src": "a.pdf", "out": "a.pdf"}, _form(src="b.pdf")],
-                     {"parker": _png(d)})
+        spec = _spec(d, [{"form": "other", "src": "a.pdf", "out": "a.pdf"},
+                         _form(src="b.pdf")])
 
         class Boom(_FakeFitz):
             class Pixmap:
@@ -275,8 +290,8 @@ def test_failure_on_a_later_form_leaves_out_dir_untouched():
 
 def test_unmatched_sign_field_exits_non_zero_and_writes_nothing():
     with tempfile.TemporaryDirectory() as d:
-        spec = _spec(d, [{"src": "a.pdf", "out": "a.pdf"},
-                         _form(src="b.pdf", field="Signatur")], {"parker": _png(d)})
+        spec = _spec(d, [{"form": "other", "src": "a.pdf", "out": "a.pdf"},
+                         _form(src="b.pdf", field="Signatur")])
         code, err = _run_main(spec, d)
         assert code, "exited zero"
         assert "⚑ SIGNATURE NOT APPLIED — parker: b.pdf field 'Signatur' not found" in err, err
@@ -285,7 +300,7 @@ def test_unmatched_sign_field_exits_non_zero_and_writes_nothing():
 
 def test_matched_sign_field_is_written():
     with tempfile.TemporaryDirectory() as d:
-        spec = _spec(d, [_form()], {"parker": _png(d)})
+        spec = _spec(d, [_form()])
         code, err = _run_main(spec, d)
         assert code is None, (code, err)
         assert os.listdir(spec["out_dir"]) == ["a-out.pdf"]
@@ -316,7 +331,7 @@ def test_no_signer_is_missing_and_main_writes_nothing():
     msg = _raises(check_signer, _signer_spec(None))
     assert msg.startswith("[MISSING — NEEDS INPUT] `signer`"), msg
     with tempfile.TemporaryDirectory() as d:
-        spec = _spec(d, [_form()], {"parker": _png(d)})
+        spec = _spec(d, [_form()])
         del spec["signer"]
         code, _ = _run_main(spec, d)
         assert "MISSING" in str(code), code
@@ -336,8 +351,8 @@ def test_double_at_and_lookalike_domain_refused():
 
 def test_parker_via_recorded_alias_gets_his_image():
     alias = _BY_ROLE["sales_manager"]["aliases"][0]
-    got = check_signer(_signer_spec(dict(PARKER, email=alias)))
-    assert got is _BY_ROLE["sales_manager"] or got["role"] == "sales_manager", got
+    got, _ = check_signer(_signer_spec(dict(PARKER, email=alias)))
+    assert got["role"] == "sales_manager", got
 
 
 def test_parkers_name_with_another_email_refused_with_the_right_reason():
@@ -352,14 +367,13 @@ def test_non_delegate_signer_cannot_use_a_delegate_image_on_a_rep_line():
 
 
 def test_non_delegate_signer_with_no_rep_line_image_passes():
-    dv = {"src": "pd843.pdf", "out": "p.pdf",
-          "sign": {"Signature": {"who": "jackson", "line": "dv_owner"}}}
-    assert check_signer(_signer_spec(EMPLOYEE, [dv, {"src": "c.pdf", "out": "c.pdf"}])) is None
+    dv = _form("jackson", src="pd843.pdf", kind="PD843", line="dv_owner")
+    other = {"form": "CalRecycle74", "src": "c.pdf", "out": "c.pdf"}
+    assert check_signer(_signer_spec(EMPLOYEE, [dv, other]))[0] is None
 
 
 def test_dv_owner_line_is_the_dvbe_owners_only():
-    bad = {"src": "pd843.pdf", "out": "p.pdf",
-           "sign": {"Signature": {"who": "parker", "line": "dv_owner"}}}
+    bad = _form("parker", src="pd843.pdf", kind="PD843", line="dv_owner")
     msg = _raises(check_signer, _signer_spec(PARKER, [bad]))
     assert "only the dvbe_owner signs" in msg, msg
 
@@ -370,15 +384,110 @@ def test_who_that_is_not_a_delegate_refused():
 
 
 def test_jackson_as_named_signer_may_sign_a_rep_line():
-    assert check_signer(_signer_spec(JACKSON, [_form("jackson")]))["role"] == "dvbe_owner"
+    assert check_signer(_signer_spec(JACKSON, [_form("jackson")]))[0]["role"] == "dvbe_owner"
 
 
 def test_refused_signer_writes_nothing_through_main():
     with tempfile.TemporaryDirectory() as d:
-        spec = _spec(d, [_form()], {"parker": _png(d)}, signer=EMPLOYEE)
+        spec = _spec(d, [_form()], signer=EMPLOYEE)
         code, _ = _run_main(spec, d)
         assert "REFUSED" in str(code), code
         assert not os.path.exists(spec["out_dir"])
+
+
+# ---------- B1: a delegate's image comes from the profile, not the spec ----------
+
+def test_image_is_the_delegates_profile_image():
+    with tempfile.TemporaryDirectory() as d:
+        spec = _spec(d, [_form("parker"),
+                         _form("jackson", src="pd.pdf", out="pd-out.pdf", kind="PD843",
+                               line="dv_owner")])
+        sigs = preflight(spec)
+        root = spec["master_root"]
+        assert sigs == {"parker": _profile_png(root, "sales_manager"),
+                        "jackson": _profile_png(root, "dvbe_owner")}, sigs
+
+
+def test_swapped_signature_keys_refused_both_ways():
+    with tempfile.TemporaryDirectory() as d:
+        jack = _BY_ROLE["dvbe_owner"]["signature_image"]
+        park = _BY_ROLE["sales_manager"]["signature_image"]
+        # Jackson's PNG keyed as "parker" on Parker's CalRecycle 74
+        spec = _spec(d, [_form("parker")], {"parker": jack})
+        msg = _raises(preflight, spec)
+        assert "REFUSED" in msg and "not Parker" in msg and "signature_image" in msg, msg
+        code, _ = _run_main(spec, d)
+        assert "REFUSED" in str(code) and not os.path.exists(spec["out_dir"]), code
+        # Parker's PNG keyed as "jackson" on Jackson's PD 843
+        spec = _spec(d, [_form("jackson", kind="PD843", line="dv_owner")],
+                     {"jackson": park})
+        msg = _raises(preflight, spec)
+        assert "REFUSED" in msg and "not Jackson" in msg, msg
+
+
+def test_legacy_signatures_entry_naming_the_same_file_is_accepted():
+    with tempfile.TemporaryDirectory() as d:
+        park = _BY_ROLE["sales_manager"]["signature_image"]
+        spec = _spec(d, [_form("parker")], {"parker": park})
+        assert preflight(spec)["parker"] == _profile_png(spec["master_root"], "sales_manager")
+
+
+# ---------- B2: DV-owner lines follow the form, not the spec's label ----------
+
+def test_dv_owner_label_on_calrecycle74_refused():
+    griffin = {"name": "Griffin Forsyth", "title": "Vice President",
+               "email": "griffin@" + DOMAIN}
+    spec = _signer_spec(griffin, [_form("jackson", src="CalRecycle74.pdf",
+                                        kind="CalRecycle74", line="dv_owner")])
+    msg = _raises(check_signer, spec)
+    assert "marked `dv_owner`" in msg and "PD843" in msg, msg
+
+
+def test_dv_owner_on_pd843_accepted_whoever_signs():
+    for signer in (EMPLOYEE, PARKER):
+        spec = _signer_spec(signer, [_form("jackson", kind="PD843", line="dv_owner")])
+        check_signer(spec)
+
+
+def test_dv_owner_form_rejects_unmarked_or_other_delegate_stamps():
+    for kind in ("PD843", "CV012", "STD204", "STD205"):
+        msg = _raises(check_signer, _signer_spec(JACKSON, [_form("jackson", kind=kind)]))
+        assert "DV-owner declaration" in msg and "unmarked" in msg, (kind, msg)
+        msg = _raises(check_signer, _signer_spec(PARKER, [_form("parker", kind=kind)]))
+        assert "DV-owner declaration" in msg, (kind, msg)
+
+
+def test_obs1000_signer_not_ruled_so_never_stamped():
+    msg = _raises(check_signer, _signer_spec(PARKER, [_form("parker", kind="OBS1000")]))
+    assert "signer is not ruled" in msg, msg
+
+
+def test_missing_or_unknown_form_kind_refused():
+    for form in ({"src": "a.pdf", "out": "a.pdf"}, {"form": "PD 843", "src": "a.pdf",
+                                                      "out": "a.pdf"}):
+        msg = _raises(check_signer, _signer_spec(PARKER, [form]))
+        assert "must be one of" in msg, msg
+
+
+# ---------- print name / title come from the signer ----------
+
+def test_signer_fields_filled_from_signer_and_conflict_refused():
+    with tempfile.TemporaryDirectory() as d:
+        form = dict(_form(), signer_fields={"name": "Print Name", "title": "Title"})
+        spec = _spec(d, [form])
+        preflight(spec)
+        assert spec["forms"][0]["text"] == {"Print Name": PARKER["name"],
+                                            "Title": PARKER["title"]}
+        form = dict(_form(), signer_fields={"name": "Print Name"},
+                    text={"Print Name": "Somebody Else"})
+        msg = _raises(preflight, _spec(d, [form]))
+        assert "Somebody Else" in msg and "REFUSED" in msg, msg
+
+
+def test_non_ascii_lookalike_email_refused():
+    kelvin = dict(EMPLOYEE, email="\u212aim@" + DOMAIN)   # KELVIN SIGN, folds to "k"
+    msg = _raises(check_signer, _signer_spec(kelvin, forms=[]))
+    assert msg.startswith("REFUSED"), msg
 
 
 def main():

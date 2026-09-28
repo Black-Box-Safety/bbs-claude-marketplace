@@ -19,22 +19,30 @@ Spec shape (see references/form-field-maps.md for the field names per form):
   "master_root": "/path/to/Black Box Safety - MASTER",
   "signer": { "name": "Parker Marshall", "title": "Sales Manager",
               "email": "parker@blackboxsafety.com" },
-  "signatures": { "parker":  "MASTER/Customers/.../parker-signature.png",
-                  "jackson": "MASTER/Jackson Dalton Signature/Copy of JACKSON_SIG.png" },
   "forms": [
     {
+      "form": "CalRecycle74",
       "src": "CalRecycle- Form 74 (01-2023).pdf",
       "out": "BBS_CalRecycle74_AGENCY_20260827.pdf",
       "text":   { "State Agency": "CDCR - CMC" },
+      "signer_fields": { "name": "Print Name", "title": "Title" },
       "checks": { "Check Box3": true },
       "radios": { "YNagent": {"index": 0, "on": "1"} },
       "sign":   { "Signature": {"who": "parker", "dx": 2, "dy": 0} },
-      # on a DV-owner declaration (DGS PD 843, CV 012, STD 204):
-      #   "sign": { "Signature": {"who": "jackson", "line": "dv_owner"} }
       "fontsize": { "Descriptions L1": 6.5 }
+    },
+    {
+      "form": "PD843",
+      "src": "DGS PD 843.pdf", "out": "BBS_PD843_AGENCY_20260827.pdf",
+      "sign":   { "Signature": {"who": "jackson", "line": "dv_owner"} }
     }
   ]
 }
+
+`form` is required on every entry, one of PD843, CV012, STD204, STD205,
+CalRecycle74, Darfur, OBS1000, OBS4007B, other. There is no `signatures` map to
+fill in: each delegate's image is read from vendor_profile.json (a legacy
+`signatures` entry is refused unless it names the same file).
 
 Notes that save you a debugging cycle:
 
@@ -56,9 +64,10 @@ Notes that save you a debugging cycle:
   Where each signer's PNG lives is recorded once, as `signature_image` on that
   person in ${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json.
 
-* signature paths — copy `signature_image` from the vendor profile as-is. A
-  path starting `MASTER/` is joined onto `master_root` here, so nobody builds an
-  absolute path by hand. `master_root` is the synced `Black Box Safety - MASTER`
+* signature paths — taken from `signature_image` on the delegate in the vendor
+  profile, never from the spec, so one delegate's PNG can never be stamped
+  under another's name. A path starting `MASTER/` is joined onto `master_root`
+  here, so nobody builds an absolute path by hand. `master_root` is the synced `Black Box Safety - MASTER`
   library folder (on a Teams-site sync its name carries a "… - " prefix). A
   `MASTER/` path with no `master_root` stops the run. Absolute paths also work.
 
@@ -69,13 +78,17 @@ Notes that save you a debugging cycle:
   BBS's domain (from the vendor profile's `contact.email`) is REFUSED, checked
   before the name. Every `sign` entry's `who` must be a signature delegate
   (`signature_delegation` in the vendor profile: a role, or that person's email
-  local part — "parker", "jackson"). An entry marked `"line": "dv_owner"` must
-  be the dvbe_owner delegate and is allowed whoever the signer is — those
-  declarations are always Jackson's. Any other entry is a rep-signed line: its
-  delegate must BE the signer (email or recorded alias, and name). So a
-  non-delegate signer can have no `sign` entry on a rep-signed line — fill the
-  print name and title, leave signature and date blank, and flag
-  "⚑ SIGNATURE REQUIRED". Rule: ca-form-rules.md, "Rep-signed lines".
+  local part — "parker", "jackson"). On a DV-owner form (`form` PD843, CV012,
+  STD204, STD205) the only stamp allowed is the dvbe_owner's, marked
+  `"line": "dv_owner"`, whoever the signer is — those declarations are always
+  Jackson's. On every other form `dv_owner` is refused and a stamp is a
+  rep-signed line: its delegate must BE the signer (email or recorded alias,
+  and name). OBS1000's signer is not ruled, so no stamp is allowed on it at
+  all. So a non-delegate signer can have no `sign` entry on a rep-signed
+  line — the print name and title come from `signer_fields` (filled from the
+  signer; a `text` value that differs is refused), signature and date stay
+  blank, and the line is flagged "⚑ SIGNATURE REQUIRED". Rule: ca-form-rules.md,
+  "Rep-signed lines".
 
 * nothing is written unless everything worked (AGENTS.md invariant 4).
   `preflight()` runs before any PDF is opened: it checks every `sign` entry's
@@ -108,6 +121,15 @@ VENDOR_PROFILE = os.path.join(
     or os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."),
     "references", "vendor_profile.json")
 DV_OWNER_LINE = "dv_owner"
+# What each form entry must say it is. DV-owner declarations are the disabled-
+# veteran owner's (ca-form-rules.md): only these may carry a `dv_owner` stamp,
+# and on these only the dvbe_owner's stamp is allowed.
+FORM_KINDS = ("PD843", "CV012", "STD204", "STD205", "CalRecycle74", "Darfur",
+              "OBS1000", "OBS4007B", "other")
+DV_OWNER_FORMS = ("PD843", "CV012", "STD204", "STD205")
+# Forms whose signer is not ruled (canonical-facts.md, "Rulings on binding
+# documents", Open): no skill stamps them; the line is left and flagged.
+UNRULED_SIGNER_FORMS = ("OBS1000",)
 
 
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
@@ -230,7 +252,9 @@ def load_delegation(path=None):
     """(employee domain, [delegate]) from the vendor profile.
 
     signature_delegation lists roles; each resolves to its
-    authorized_representatives entry, so a delegate's identity is written once.
+    authorized_representatives entry, so a delegate's identity AND signature
+    image are written once, there. The image path returned here is the only one
+    a delegate's signature is ever stamped from.
     """
     with open(path or VENDOR_PROFILE, encoding="utf-8") as fh:
         vp = json.load(fh)
@@ -243,7 +267,8 @@ def load_delegation(path=None):
                                    f"profile. Nothing was written.")
         r = reps[role]
         delegates.append({"role": role, "name": r["name"], "email": r["email"].lower(),
-                          "aliases": [a.lower() for a in r.get("aliases") or []]})
+                          "aliases": [a.lower() for a in r.get("aliases") or []],
+                          "signature_image": r.get("signature_image")})
     return vp["contact"]["email"].rsplit("@", 1)[1].lower(), delegates
 
 
@@ -261,19 +286,36 @@ def _delegate_for(who, delegates):
     return None
 
 
+def check_form_kinds(forms):
+    """Every form entry names what it is, from FORM_KINDS. Raises otherwise."""
+    problems = []
+    for form in forms:
+        kind = form.get("form") if isinstance(form, dict) else None
+        if kind not in FORM_KINDS:
+            problems.append(f"REFUSED: {form.get('src', '?') if isinstance(form, dict) else form}"
+                            f" has `form` {kind!r}; it must be one of "
+                            f"{', '.join(FORM_KINDS)}. Which lines are DV-owner lines "
+                            f"depends on it")
+    _raise(problems)
+
+
 def check_signer(spec, profile_path=None):
     """Refuse a spec whose signer or signature use breaks the rep-signed-lines rule.
 
-    Returns the signer's delegate entry, or None for a non-delegate BBS signer.
-    Raises SignatureMissing (nothing written) on: no signer; a signer not on
-    BBS's domain (checked before the name); a `sign` entry whose `who` is not a
-    delegate; a `dv_owner` entry that is not the dvbe_owner; a rep-signed-line
-    entry whose delegate is not the named signer.
+    Returns (signer delegate or None, delegates). Raises SignatureMissing
+    (nothing written) on: no signer; a signer not on BBS's domain (checked
+    before the name; non-ASCII addresses refused so no look-alike character can
+    fold into a BBS address); a form with no valid `form`; a `sign` entry whose
+    `who` is not a delegate; on a DV-owner form (PD 843, CV 012, STD 204,
+    STD 205) any delegate stamp that is not the dvbe_owner marked `dv_owner`;
+    on any other form a `dv_owner` stamp, or a stamp whose delegate is not the
+    named signer.
     """
     domain, delegates = load_delegation(profile_path)
+    check_form_kinds(spec.get("forms", []))
     signer = spec.get("signer") or {}
     name = " ".join(str(signer.get("name", "")).split())
-    email = str(signer.get("email", "")).strip().lower()
+    email = str(signer.get("email", "")).strip()
     if not name and not email:
         raise SignatureMissing("[MISSING — NEEDS INPUT] `signer`: the rep names who signs "
                                "the rep-signed lines (CalRecycle 74, Darfur, OBS 4007(B) "
@@ -281,11 +323,13 @@ def check_signer(spec, profile_path=None):
     if not email:
         raise SignatureMissing(f"[MISSING — NEEDS INPUT] signer email for {name}: it is how "
                                f"the signer is confirmed as a BBS employee. Nothing was written.")
-    if email.count("@") != 1 or email.split("@")[1] != domain:
+    if (not email.isascii() or email.count("@") != 1
+            or email.lower().split("@")[1] != domain):
         raise SignatureMissing(f"REFUSED: the signer must be a BBS employee (an @{domain} "
                                f"address); {name or '(no name)'} <{email}> is not. "
                                f"Customers, agencies and third parties never sign BBS's "
                                f"lines. Nothing was written.")
+    email = email.lower()
     if not name:
         raise SignatureMissing(f"[MISSING — NEEDS INPUT] signer name for {email}. "
                                f"Nothing was written.")
@@ -305,16 +349,26 @@ def check_signer(spec, profile_path=None):
 
     problems = []
     for form in spec.get("forms", []):
+        dv_form = form["form"] in DV_OWNER_FORMS
         for field, who, sig in _sign_entries(form, []):
-            where = f"{form.get('src', '?')} field {field!r}"
+            where = f"{form.get('src', '?')} ({form['form']}) field {field!r}"
             d = _delegate_for(who, delegates)
+            marked = sig.get("line") == DV_OWNER_LINE
             if d is None:
-                problems.append(f"REFUSED: `who` {who!r} ({where}) is not a signature "
+                problems.append(f"REFUSED: `who` {who!r} on {where} is not a signature "
                                 f"delegate; only delegates' signatures are applied")
-            elif sig.get("line") == DV_OWNER_LINE:
-                if d["role"] != "dvbe_owner":
-                    problems.append(f"REFUSED: {where} is marked a DV-owner line, which only "
-                                    f"the dvbe_owner signs, not {d['name']}")
+            elif form["form"] in UNRULED_SIGNER_FORMS:
+                problems.append(f"REFUSED: {where} — its signer is not ruled, so no "
+                                f"signature is applied; leave it blank and flag "
+                                f"⚑ SIGNATURE REQUIRED")
+            elif dv_form:
+                if not marked or d["role"] != "dvbe_owner":
+                    problems.append(f"REFUSED: {where} is a DV-owner declaration; only the "
+                                    f"dvbe_owner signs it, as `\"line\": \"dv_owner\"` — "
+                                    f"not {d['name']}" + ("" if marked else " unmarked"))
+            elif marked:
+                problems.append(f"REFUSED: {where} is marked `dv_owner`, but only "
+                                f"{', '.join(DV_OWNER_FORMS)} carry DV-owner lines")
             elif d is not signer_delegate:
                 problems.append(f"REFUSED: {d['name']}'s signature on {where}, but the signer "
                                 f"the rep named is {name} <{email}>"
@@ -324,14 +378,78 @@ def check_signer(spec, profile_path=None):
                                   "⚑ SIGNATURE REQUIRED")
     if problems:
         raise SignatureMissing("\n".join(dict.fromkeys(problems)) + "\nNothing was written.")
-    return signer_delegate
+    return signer_delegate, delegates
+
+
+def delegate_signature_paths(spec, delegates):
+    """{who: signature path} for every `who` the forms stamp, from the PROFILE.
+
+    A delegate's image is the `signature_image` recorded on that delegate in
+    vendor_profile.json -- never a path typed into the spec. A spec
+    `signatures` entry is accepted only if it resolves to the same file as the
+    profile's; any other path (e.g. Jackson's PNG keyed as "parker") is refused.
+    """
+    root = spec.get("master_root")
+    given = spec.get("signatures") or {}
+    paths, problems = {}, []
+    for form in spec.get("forms", []):
+        for _field, who, _sig in _sign_entries(form, []):
+            d = _delegate_for(who, delegates)
+            if d is None or who in paths:
+                continue
+            recorded = d.get("signature_image")
+            if not recorded:
+                problems.append(f"signature image for {who}: {d['name']} has no "
+                                f"`signature_image` in vendor_profile.json")
+                continue
+            paths[who] = recorded
+            if who in given:
+                try:
+                    same = (os.path.normcase(os.path.abspath(resolve_sig_path(given[who], root)))
+                            == os.path.normcase(os.path.abspath(resolve_sig_path(recorded, root))))
+                except ValueError:
+                    same = False
+                if not same:
+                    problems.append(f"REFUSED: the spec's `signatures` path for {who} "
+                                    f"({given[who]}) is not {d['name']}'s signature_image "
+                                    f"in vendor_profile.json ({recorded}). A delegate's "
+                                    f"signature comes from the profile only")
+    _raise(problems)
+    return paths
+
+
+def apply_signer_fields(spec):
+    """Fill each form's `signer_fields` (print name / title) from the signer.
+
+    A form may name {"name": <field>, "title": <field>}; those fields are filled
+    from `signer`, never typed. The same field also set in `text` to anything
+    else is refused, so the printed name cannot differ from the signer.
+    """
+    signer = spec.get("signer") or {}
+    problems = []
+    for form in spec.get("forms", []):
+        sf = form.get("signer_fields") or {}
+        text = form.setdefault("text", {})
+        for key, field in sf.items():
+            if key not in ("name", "title"):
+                problems.append(f"REFUSED: `signer_fields` key {key!r} in {form.get('src')}; "
+                                f"only name and title")
+                continue
+            want = " ".join(str(signer.get(key, "")).split())
+            if field in text and " ".join(str(text[field]).split()) != want:
+                problems.append(f"REFUSED: {form.get('src')} field {field!r} is set to "
+                                f"{text[field]!r} but the signer's {key} is {want!r}")
+            text[field] = want
+    _raise(problems)
 
 
 def preflight(spec):
     """Everything that can be checked without opening a PDF. Returns resolved sig paths."""
     forms = spec["forms"]
-    check_signer(spec)
-    sigs = check_signatures(forms, spec.get("signatures", {}), spec.get("master_root"))
+    _signer_delegate, delegates = check_signer(spec)
+    apply_signer_fields(spec)
+    sig_paths = delegate_signature_paths(spec, delegates)
+    sigs = check_signatures(forms, sig_paths, spec.get("master_root"))
     check_sources(forms, spec["src_dir"])
     return sigs
 

@@ -98,10 +98,9 @@ do not paraphrase it weaker.
     Grainger pricing via open web search — under any circumstance." (Bechtel Sentinel
     tree). The MCP replaced the `b2b.blackboxsafety.com` punch-out. Price against the
     account that will actually buy: the discount is per-account, so the wrong account
-    returns a wrong price that still looks valid. On California state schedules and
-    cooperative contracts BBS sells Grainger at cost — the returned `unitPrice` is the
-    customer price, never marked up; on other channels see `canonical-facts.md`,
-    "Grainger sell rule, by channel".
+    returns a wrong price that still looks valid. Whether a Grainger line may carry
+    markup depends on the channel; the rule is `canonical-facts.md`, "Grainger sell
+    rule, by channel" — point at it, never restate it.
 20. **All-Grainger requests route to NASPO / Provision Connect.** "If all the items are on
     grainger.com, it's a NASPO request and goes through Provision Connect — not this
     skill." (`bbs-sourcing`). Two lanes, LPA/NASPO vs competitive; do not conflate.
