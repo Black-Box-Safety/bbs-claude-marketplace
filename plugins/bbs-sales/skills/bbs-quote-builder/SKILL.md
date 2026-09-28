@@ -107,7 +107,9 @@ getting them wrong is costly:
 1. **Pricing method and rate** — this is the single most error-prone part, so
    confirm it explicitly every time. See "Pricing" below. The rep chooses the
    method (margin, markup or at-cost) AND the rate for non-Grainger lines; there
-   is no house figure to fall back on, and the script fails without one.
+   is no house figure to fall back on, and the script fails without one. If
+   there are Grainger lines, also confirm whether they are at cost on this
+   channel (see "Pricing").
 2. **Tax** — ask whether to add sales tax and at what rate. Tax is based on the
    **ship-to jurisdiction**. Pre-tax quotes are common and fully supported. Check
    the rate against the BC quote's tax (step 2.5). The script accepts only a
@@ -119,15 +121,28 @@ it's the real delivery point before relying on it.
 
 ### 4. Pricing
 
-**Grainger lines are at cost, always.** The Grainger MCP `unitPrice` is the
-customer price and is never marked up — the rule and its reason live in
-`grainger-pricing` §2 and in canon
-(`bbs-foundations/skills/bbs-claude-md-forge/references/bbs-doctrine.md` #19).
-Mark every such line `"source": "grainger"` with the MCP `unitPrice` as its
-`unitCost`; the script then prints it unchanged whatever `pricing.method` says.
+**Grainger at cost is ruled for California state schedule / cooperative
+quotes, not for every channel.** Whether it applies to a prime or commercial
+PO (e.g. Bechtel) is an open question for Parker. The rule lives in canon —
+the Grainger row of `bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md` and
+`bbs-doctrine.md` #17 ("CA state schedules price at cost; competitive bids
+carry margin") — so read it there rather than recalling it.
 
-For every other line, the rep chooses the method and rate. California state
-schedule quotes are at cost (canon: `bbs-doctrine.md` #17). The three methods
+Mark every Grainger-priced line `"source": "grainger"` with the MCP `unitPrice`
+as its `unitCost`, and state the channel's rule in the spec:
+
+- `pricing.method: "at-cost"` — the whole quote is at cost (a CA state schedule
+  or NASPO order; `naspo-quote` sets this for you).
+- `pricing.graingerAtCost: true` — Grainger lines at cost, other lines by the
+  method. Only when the quote is on a CA state schedule / cooperative vehicle.
+- `pricing.graingerAtCost: false` — Grainger lines follow the method like any
+  other line. Only when the rep has said so for this channel.
+
+If a spec has Grainger lines and states none of these, the script exits 1:
+there is no default either way. If the channel is not a CA state schedule and
+the rep hasn't said, ask — do not pick one.
+
+For non-Grainger lines the rep chooses the method and rate. The three methods
 produce different numbers:
 
 - **Margin**: `sell = cost ÷ (1 − rate)`. A 20% margin on a $6.49
@@ -144,9 +159,9 @@ The script takes `pricing.method` = `"margin"`, `"markup"` or `"at-cost"` and
 catches a percent typed as `20` instead of `0.20`. Discount (negative) lines are
 not supported.
 
-The at-cost guarantee for Grainger depends on the tag: an untagged Grainger line
-in a margin quote **is** marked up. Tag every line priced through `grainger-pricing`,
-and check the count in step 9.
+The Grainger rule only reaches lines that carry the tag: an untagged Grainger
+line in a margin quote **is** marked up, even with `graingerAtCost: true`. Tag
+every line priced through `grainger-pricing`, and check the count in step 9.
 
 `unitCost` in the spec is always the **vendor cost**; the script derives the
 customer Unit Price. Never pre-apply the markup to the cost yourself.
@@ -219,12 +234,13 @@ the PDF unless the rep also asks for the editable Word file.
 Render the first page (e.g. `pdftoppm -png -r 100 output.pdf preview`) and
 eyeball it: the SQ number in the title is the one you read back, logo present,
 all line items, correct totals, tax line correct, estimate footnote present if
-flagged, Grainger lines unchanged from the MCP price. Confirm the math on at
+flagged, Grainger lines priced by the rule the spec states. Confirm the math on at
 least one line (cost → sell → amount) matches the chosen method.
 
-Check the script's `Pricing:` line: the "N Grainger line(s) at cost" count must
-equal the number of lines priced through `grainger-pricing`. If it is lower, a
-Grainger line is untagged and has been marked up — fix the spec and rebuild.
+Check the script's `Pricing:` line: the Grainger count it echoes ("N Grainger
+line(s) at cost", or "… (graingerAtCost false)") must equal the number of lines
+priced through `grainger-pricing`. If it is lower, a Grainger line is untagged
+and has been priced by the method — fix the spec and rebuild.
 
 ## Naming
 

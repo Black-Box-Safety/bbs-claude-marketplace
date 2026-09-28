@@ -23,7 +23,9 @@
  *   "solicitation": "SCTASK0021599",            // optional; omit to hide the row
  *   "billTo":  ["Customer Name", "Line 2"],
  *   "shipTo":  ["Customer Name", "Street", "City, ST ZIP", "US"],
- *   "pricing": { "method": "margin", "rate": 0.20 },  // "margin" | "markup" | "at-cost"
+ *   "pricing": { "method": "margin", "rate": 0.20,     // "margin" | "markup" | "at-cost"
+ *                "graingerAtCost": true },             // required with Grainger lines
+ *                                                      // unless method is "at-cost"
  *   "taxRate": 0.0875,                          // 0 for pre-tax; omit = pre-tax
  *   "estimatedPricing": false,                  // true adds the "*" estimate footnote
  *   "columns": { "leadTime": true },            // optional Lead Time column
@@ -38,8 +40,11 @@
  *   margin:   sell = cost / (1 - rate)
  *   markup:   sell = cost * (1 + rate)
  *   at-cost:  sell = cost
- * A line with source "grainger" is ALWAYS at cost, whatever the method: its
- * unitCost is the Grainger MCP unitPrice, which is the customer price.
+ * A line with source "grainger" carries the Grainger MCP unitPrice as its cost.
+ * Grainger at cost is ruled for CA state schedule / cooperative quotes only, so
+ * the spec must say which applies: method "at-cost", or pricing.graingerAtCost
+ * true (Grainger lines at cost) / false (Grainger lines follow the method).
+ * A spec with Grainger lines that says neither is rejected.
  */
 
 const fs = require('fs');
@@ -93,7 +98,18 @@ const METHODS = ['margin', 'markup', 'at-cost'];
 const method = spec.pricing && spec.pricing.method;
 const rate = spec.pricing && spec.pricing.rate;
 const isGrainger = it => String(it.source || '').toLowerCase() === 'grainger';
-const needsMethod = Array.isArray(spec.items) && spec.items.some(it => !isGrainger(it));
+const hasGrainger = Array.isArray(spec.items) && spec.items.some(isGrainger);
+const gac = spec.pricing && spec.pricing.graingerAtCost;
+if (spec.pricing && gac !== undefined && typeof gac !== 'boolean') {
+  errors.push('pricing.graingerAtCost must be true or false (got ' + JSON.stringify(gac) + ').');
+}
+if (hasGrainger && method !== 'at-cost' && typeof gac !== 'boolean') {
+  errors.push('Grainger at-cost is ruled for CA state schedules; for this quote\'s channel, state whether ' +
+    'Grainger lines are at cost (pricing.graingerAtCost true/false).');
+}
+const graingerAtCost = method === 'at-cost' || gac === true;
+const needsMethod = Array.isArray(spec.items) &&
+  spec.items.some(it => !isGrainger(it) || (gac === false));
 if (needsMethod) {
   if (!METHODS.includes(method)) {
     errors.push('pricing.method must be one of ' + METHODS.join(' | ') + ' (got ' + JSON.stringify(method) +
@@ -134,7 +150,7 @@ const r2 = x => Math.round(Number((x * 100).toFixed(6))) / 100;
 
 function sellPrice(it) {
   let s;
-  if (isGrainger(it) || method === 'at-cost') s = it.unitCost;
+  if (method === 'at-cost' || (isGrainger(it) && graingerAtCost)) s = it.unitCost;
   else if (method === 'markup') s = it.unitCost * (1 + rate);
   else s = it.unitCost / (1 - rate);
   return r2(s);
@@ -286,10 +302,14 @@ const doc = new Document({
 Packer.toBuffer(doc).then(buf => {
   fs.writeFileSync(outPath, buf);
   console.log('Created ' + outPath);
-  const nG = spec.items.filter(isGrainger).length;
+  const nG = graingerAtCost ? spec.items.filter(isGrainger).length : 0;
+  const nGm = spec.items.filter(isGrainger).length - nG;
   const basis = [];
+  const byMethod = method === 'at-cost' ? 'at cost' : method + ' @ ' + pct(rate) + '%';
   if (nG) basis.push(nG + ' Grainger line(s) at cost');
-  if (spec.items.length - nG) basis.push((spec.items.length - nG) + ' line(s) ' + (method === 'at-cost' ? 'at cost' : method + ' @ ' + pct(rate) + '%'));
+  if (nGm) basis.push(nGm + ' Grainger line(s) ' + byMethod + ' (graingerAtCost false)');
+  const nOther = spec.items.length - nG - nGm;
+  if (nOther) basis.push(nOther + ' other line(s) ' + byMethod);
   console.log('Quote ' + quoteNumber + '  |  BC customer ' + bc.customerNumber + ' ' + bc.customerName);
   console.log('Pricing: ' + basis.join(', ') + '  |  Subtotal ' + fmt(subtotal) + (taxRate > 0 ? '  Tax ' + fmt(tax) + '  Total ' + fmt(total) : '  (pre-tax)'));
 });

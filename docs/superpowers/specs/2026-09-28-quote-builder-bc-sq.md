@@ -115,6 +115,17 @@ PR body for him to choose.
 - `pricing.rate` stays below 1 for markup too (catches `20` typed for `0.20`); negative
   `unitCost` (discount lines) stays rejected and is documented.
 
+### Second review round (from the PR #36 review)
+
+Grainger at cost is ruled only for CA state schedule / cooperative quotes (doctrine #17);
+prime/commercial (e.g. Bechtel) is open for Parker. Forcing every Grainger line to cost
+would put a plausible wrong number on a commercial quote. So the builder no longer does:
+a spec with Grainger lines must state `pricing.graingerAtCost` true/false, or use the
+`at-cost` method, or the script exits 1. `naspo-quote` sets it for CA state quotes. The
+canon pointer is the Grainger row of `canonical-facts.md` (scoped by PR #36) and doctrine
+#17 — the earlier pointer to #19 named the wrong rule. This supersedes the "Grainger lines
+are at cost" bullets above.
+
 ## Knock-on changes
 
 - `naspo-quote` §3 — number comes from BC per `bbs-quote-builder`; its spec row moves to

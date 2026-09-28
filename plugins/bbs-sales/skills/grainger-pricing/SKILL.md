@@ -138,7 +138,8 @@ pack size, or the returned unit does not match it, flag the line rather than ass
 - **Eligibility** is a separate question → `dgs-bpo-item-check` tests the part numbers
   against the active DGS BPO. Being priceable and being on the BPO are not the same thing.
 - **The customer document** → `bbs-quote-builder`, with these prices passed through at
-  cost: mark every such line `"source": "grainger"` in its spec, or its margin math applies.
+  cost: mark every such line `"source": "grainger"` in its spec and state the channel's
+  rule there (`pricing.graingerAtCost`), or its margin math applies.
 - **A whole state RFQ response** → `naspo-quote` orchestrates pricing plus the compliance
   packet.
 

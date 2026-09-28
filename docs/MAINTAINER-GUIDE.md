@@ -162,12 +162,13 @@ Picked up by whoever works here next.
   `grainger_price` call was ever executed against a real account. Verify `account.sellRule`
   really comes back, and that the account-resolution step behaves as written, before a rep
   relies on it.
-- **`bbs-quote-builder` prints a line tagged `source: "grainger"` at cost whatever the
-  method** (since 2026-09-28). That guarantee depends on the model tagging the line: an
-  untagged Grainger line in a margin quote is still marked up. The mitigation is prose —
+- **`bbs-quote-builder` prices a line tagged `source: "grainger"` at cost only when the
+  spec says so** (`pricing.graingerAtCost: true`, or method `at-cost`); `false` sends it
+  through the method; saying neither is an error. At cost is ruled for CA state schedules
+  only — prime/commercial is open for Parker. The rule only reaches tagged lines: an
+  untagged Grainger line is priced by the method. The mitigation is prose —
   `grainger-pricing` names the tag, and the builder's step 9 checks the echoed Grainger
-  count against the lines priced through `grainger-pricing`. Margin on non-Grainger lines stays
-  the rep's call per quote.
+  count against the lines priced through `grainger-pricing`.
 - **`ca-form-filler` Path B claims the OBS inspector reads any CA form PDF.** Inherited
   from the pre-merge skill and never tested against a non-OBS packet.
 - **The OBS 4007(B) path has never been run against a real Rev. 08/2025 packet** —

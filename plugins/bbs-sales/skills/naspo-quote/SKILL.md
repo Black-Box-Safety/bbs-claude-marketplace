@@ -68,12 +68,12 @@ Use the **bbs-quote-builder** skill. NASPO-specific spec values:
 
 | Field | Value |
 |---|---|
-| `pricing` | `{"method": "at-cost"}` — no markup |
+| `pricing` | `{"method": "at-cost", "graingerAtCost": true}` — CA state schedule, no markup |
 | `taxRate` | `0` — the worksheet prints "Do not include sales tax" |
 | `solicitation` | the number off the worksheet header |
 | `shipmentMethod` | `FOB Destination` |
 | `unitCost` | the Grainger `unitPrice` |
-| `items[].source` | `"grainger"` on every Grainger-priced line — the builder then never marks it up |
+| `items[].source` | `"grainger"` on every Grainger-priced line |
 
 The quote number is the Business Central `SQ-######` number of the sales quote this
 response represents. The rep creates that quote in BC; `bbs-quote-builder` step 2 reads
