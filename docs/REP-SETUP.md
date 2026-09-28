@@ -54,9 +54,9 @@ ones you have. Without them the skills still load, they just have nothing to rea
 
 | Your plugin | Connectors it needs | What breaks without them |
 |---|---|---|
-| `bbs-foundations` | none | nothing — works standalone |
-| `bbs-sales` | BC MCP, SCPRS, Microsoft 365, Firecrawl | pricing and precedent lookups degrade; intake can't pull from Outlook |
-| `bbs-back-office` | **BC MCP** | all 4 skills have nothing to read at all |
+| `bbs-foundations` | Microsoft 365 (`bbs-voice-template` only) | the voice template can't sample your Sent Items; everything else works standalone |
+| `bbs-sales` | BC MCP, Grainger, Microsoft 365, SCPRS (CA book); Firecrawl optional | Grainger pricing, NASPO quotes and promo pages stop; precedent lookups degrade; intake can't pull from Outlook |
+| `bbs-back-office` | **BC MCP**, Grainger, Microsoft 365; CData Connect for `bbs-rebate-profitability` | without BC, nothing to read at all; order reconciliation also needs Grainger and Microsoft 365 |
 | `bbs-website` | Supabase, Shopify, Grainger MCP, Firecrawl | catalog and storefront skills can't act |
 
 Missing one? That is the `/bbs-checkup` line you send Parker — it is an admin assignment,

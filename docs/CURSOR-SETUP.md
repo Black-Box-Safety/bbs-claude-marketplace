@@ -74,16 +74,19 @@ Run these in the Claude Code panel:
 
 **Connectors are assigned by Parker in claude.ai, not installed by you.** In the Claude
 Code panel, `/mcp` lists them. Without them the skills still load, they just have nothing
-to read. The matrix in [`plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`](../plugins/bbs-foundations/docs/MANAGED-SETTINGS.md)
-is the source; short version:
+to read. Who is assigned which connector is ruled in
+[`plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`](../plugins/bbs-foundations/docs/MANAGED-SETTINGS.md);
+what each skill needs is `python3 scripts/check_marketplace.py --requirements`. Short version:
 
 | Your plugin | claude.ai connectors it needs |
 |---|---|
-| `bbs-foundations` | none |
+| `bbs-foundations` | M365 (`bbs-voice-template` only) |
 | `bbs-claude-coach` | none |
-| `bbs-sales` | BC, Grainger, M365, SCPRS (CA book), Sales CRM |
-| `bbs-back-office` | BC |
+| `bbs-sales` | BC, Grainger, M365, SCPRS (CA book); Firecrawl optional |
+| `bbs-back-office` | BC, Grainger, M365; CData Connect for `bbs-rebate-profitability` |
 | `bbs-website` | Supabase, Shopify, Grainger, Firecrawl — **Parker / Griffin only** |
+
+Everyone is also assigned the BBS Sales CRM MCP (pipeline of record); no skill requires it.
 
 ### Cursor plugins — role matrix
 

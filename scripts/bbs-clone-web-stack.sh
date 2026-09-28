@@ -7,6 +7,9 @@
 # Org repos clone for anyone with Black-Box-Safety access. Quote-bot and
 # customer-bots still live on a personal account; if clone fails, the script
 # says so and continues.
+#
+# Clones use https, so git asks for credentials the first time. Sign in once with
+# `gh auth login` (or let Git Credential Manager prompt) and it remembers.
 set -u
 
 DEST="${1:-$HOME/bbs}"
@@ -37,8 +40,11 @@ clone_one() {
     echo "error: could not clone $name from $url (need org access)." >&2
     return 1
   fi
-  echo "skipped: $name is not in the Black-Box-Safety org yet ($url/$name)."
-  echo "         Ask Parker to add you as a collaborator, or wait until it moves to the org."
+  if [[ "$url" == "$PERSONAL" ]]; then
+    echo "skipped: $name is still on pjm3wv ($url/$name); ask Parker for access."
+  else
+    echo "skipped: $name clone failed ($url/$name); check org access, credentials, or network."
+  fi
   return 0
 }
 

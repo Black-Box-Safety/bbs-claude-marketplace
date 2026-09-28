@@ -26,6 +26,16 @@ python3 "${CLAUDE_PLUGIN_ROOT}/../../scripts/bbs-workspaces.py" discover
 If neither path exists, say so and stop. A plugin install that has not been
 updated from `main` will not have this script yet.
 
+**Windows.** A rep bootstrapped by `scripts\bbs-setup.ps1` has `uv`, not `python3`.
+Every command below runs the same way with `python3` swapped for the uv form:
+
+```powershell
+uv run --no-project --python 3 python scripts\bbs-workspaces.py discover
+```
+
+For the default request (every ready workspace plus Desktop launchers),
+`scripts\install-desktop-launchers.ps1` finds uv, `py -3`, or a real `python` for you.
+
 ## 2. Discover (always first)
 
 Run `discover` (add `--json` if you want the machine-readable form). Show the
@@ -71,9 +81,12 @@ Tell them:
   and pick a workspace
 - Windows: `Desktop/BBS Workspaces/Open *.bat`
 - Re-run `/bbs-workspaces` when they clone another repo or want a new custom set
-- The primary sidebar is pinned **left** in every written workspace and in
-  Cursor / VS Code User settings on this machine. Reload the window if it is
-  still on the right.
+- The primary sidebar is pinned **left** in every written workspace. Reload the
+  window if it is still on the right.
+- Their own Cursor / VS Code **User** settings are left alone unless they ask.
+  If they want a folder opened without a workspace to match too, rerun `request`
+  with `--pin-user-settings`; it writes `settings.json.bak` beside the file before
+  changing it.
 
 If `discover` found nothing, they have not cloned the git repos and OneDrive is
 not in the usual place. Point at `workspace/README.md`. Do not fill

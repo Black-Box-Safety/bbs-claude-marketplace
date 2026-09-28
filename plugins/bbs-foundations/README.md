@@ -49,8 +49,9 @@ the BBS doctrine whenever this skill, any `claudeforge` skill, or Anthropic's
 `claude-md-improver` runs, and the grounding doctrine whenever a `bbs-foundations`,
 `bbs-sales`, `bbs-claude-coach` or quote-bot lane-tuning skill runs. The text lives in
 `hooks/doctrine/*.md` and the subscriptions in `hooks/doctrine/subscriptions.json`; nothing
-to wire — it is active the moment the plugin is installed. PowerShell: pwsh 7 if present,
-else Windows PowerShell 5.1 (a Mac needs `brew install powershell`).
+to wire — it is active the moment the plugin is installed. Interpreter: pwsh 7 if present,
+else Windows PowerShell 5.1, else python3 (`hooks/doctrine.py`, same logic). A Mac needs
+nothing beyond the Xcode command-line tools.
 
 ## Command
 

@@ -19,6 +19,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 HOME = Path.home()
@@ -188,8 +189,21 @@ def user_editor_settings_paths() -> list[Path]:
     ]
 
 
+def write_user_settings(path: Path, text: str) -> None:
+    """Back up the rep's User settings.json to settings.json.bak, then write it."""
+    backup = path.with_name(path.name + ".bak")
+    shutil.copy2(path, backup)
+    path.write_text(text, encoding="utf-8")
+    print(f"pinned left sidebar in {path} (previous copy: {backup})")
+
+
 def pin_user_editor_sidebar() -> None:
-    """Keep the primary sidebar on the left in Cursor / VS Code User settings."""
+    """Keep the primary sidebar on the left in Cursor / VS Code User settings.
+
+    Opt-in only (request --pin-user-settings): this edits the rep's own User
+    settings, not a BBS file, so it never runs by default and always leaves a
+    settings.json.bak beside the file before changing it.
+    """
     for path in user_editor_settings_paths():
         if not path.is_file():
             continue
@@ -214,8 +228,7 @@ def pin_user_editor_sidebar() -> None:
                         count=1,
                     )
             if updated != raw:
-                path.write_text(updated, encoding="utf-8")
-                print(f"pinned left sidebar in {path}")
+                write_user_settings(path, updated)
             continue
         if not isinstance(data, dict):
             continue
@@ -236,8 +249,7 @@ def pin_user_editor_sidebar() -> None:
             data["workbench.settings.applyToAllProfiles"] = apply
         if not changed:
             continue
-        path.write_text(json.dumps(data, indent=4) + "\n", encoding="utf-8")
-        print(f"pinned left sidebar in {path}")
+        write_user_settings(path, json.dumps(data, indent=4) + "\n")
 
 
 def write_recipe(root: Path, recipe: dict, found: dict[str, str], dest: Path) -> Path | None:
@@ -313,7 +325,11 @@ def write_windows_bat(name: str, target: Path, desktop: Path) -> None:
 
 
 def set_mac_icon(png: Path, target: Path) -> None:
-    dest_tmp_script = Path("/tmp/bbs-set-icon.applescript")
+    with tempfile.TemporaryDirectory(prefix="bbs-set-icon-") as tmp:
+        _set_mac_icon(png, target, Path(tmp) / "bbs-set-icon.applescript")
+
+
+def _set_mac_icon(png: Path, target: Path, dest_tmp_script: Path) -> None:
     dest_tmp_script.write_text(
         "use framework \"AppKit\"\n"
         "use scripting additions\n"
@@ -521,7 +537,8 @@ def cmd_request(args: argparse.Namespace) -> None:
 
     if not written:
         sys.exit("Nothing to write. Run discover, clone the missing repos, or pass --custom --folder.")
-    pin_user_editor_sidebar()
+    if args.pin_user_settings:
+        pin_user_editor_sidebar()
     if args.install_desktop:
         install_desktop(root, dest, written)
         print(f"Desktop launchers: {DESKTOP_DIR}")
@@ -546,6 +563,12 @@ def main() -> None:
     p_req.add_argument("--custom", help="Name of a custom workspace")
     p_req.add_argument("--folder", action="append", default=[], help="Folder to include (repeatable)")
     p_req.add_argument("--install-desktop", action="store_true")
+    p_req.add_argument(
+        "--pin-user-settings",
+        action="store_true",
+        help="Also pin the sidebar left in your own Cursor / VS Code User settings.json "
+        "(writes settings.json.bak first). Off by default.",
+    )
     p_req.set_defaults(func=cmd_request)
 
     args = parser.parse_args()

@@ -269,6 +269,19 @@ Write it up with evidence and move to the next slice. Do not idle.
   PR #30 (which fixed the same wording in the foundations hook only). Parker approved
   aligning them with canon: §1204 is never claimed on any California solicitation; §1202 is
   claimed on every California competitive solicitation, informal ones included.
+- **Outlook and Teams Cursor plugins for reps — OPEN, raised 2026-09-28 (PR #27 review).**
+  `docs/CURSOR-SETUP.md` (the Cursor plugins role matrix and the setup steps) tells every
+  rep who quotes to add the Outlook and Teams Cursor plugins. Both can send.
+  `.cursor/rules/bbs-invariants.mdc` says "Do not add send-capable MCP servers" and AGENTS.md
+  invariant 5 says humans send; Cursor does not inherit the managed deny list. Parker
+  decides: drop them from the rep setup, or grant the exception explicitly in AGENTS.md and
+  the rule. Steward recommendation: drop for reps, keep for Parker and Griffin. The text in
+  both files is unchanged until then.
+- **Body armor and CSU/UC territory line in the Cursor rule — OPEN, raised 2026-09-28
+  (PR #27 review).** `.cursor/rules/bbs-invariants.mdc` states that body armor codes
+  (`BA-CA`, `BODYARMOR`, `BA-SRCWL`) and CSU/UC are out of the Kim/Aanya CA state book.
+  That ruling has no home in `canonical-facts.md`. Parker decides whether it is canon; if
+  yes it moves there and the rule points at it. The rule text is unchanged until then.
 - **Who certifies the CalRecycle 74 — RULED 2026-09-18: the rep who quoted the job.**
   `naspo-quote` §5 no longer defaults to Griffin; `ca-form-rules.md` already said the rep.
 

@@ -10,10 +10,11 @@ A wrong number on a quote is worse than a crash. Follow these without being aske
 - Never invent a price, stock, lead time, certification, or contract fact.
   Unknown is `[FLAG: why]` or `[MISSING — NEEDS INPUT]`.
 - Systems of record win. Point at the record; never re-type it.
-  Business Central for money, Grainger MCP for Grainger cost (sell at cost on
-  NASPO/CA schedule — rebate is how BBS is paid), Sales CRM
-  (`blackboxsafety.crm.dynamics.com`) for pipeline, the SharePoint tree for
-  documents, Supabase for the catalog.
+  Business Central for money, Grainger MCP for Grainger cost (LPA/NASPO orders
+  pass through at cost — rebate is how BBS is paid), Dynamics 365 Sales (the BBS
+  Sales CRM MCP) for pipeline, the SharePoint tree for documents, Supabase for
+  the catalog. The full table is "Systems of record" in
+  `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`.
 - Draft only. A human sends. Do not send email, place orders, or write to BC.
   Cursor does not inherit Claude Code's managed deny list — this rule is the
   control. Do not add send-capable MCP servers.
