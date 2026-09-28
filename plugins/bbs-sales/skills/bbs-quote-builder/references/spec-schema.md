@@ -17,8 +17,8 @@ not in the spec at all: the script reads it from the plugin's
 | `bcQuote.number` | string | yes | **BC** `number` | The SQ number, e.g. `"SQ-104797"`. Must be `SQ-` plus six digits. Never generated, predicted, or taken from a local series. |
 | `bcQuote.customerNumber` | string | yes | **BC** `customerNumber` | The **sell-to** customer number (bill-to can differ). |
 | `bcQuote.customerName` | string | yes | **BC** `customerName` | Sell-to name. The script warns if it appears in neither `billTo` nor `shipTo`. |
-| `certChannel` | string | yes | rep / channel | `"california"` → `DVBE <osds_ref_number>`; `"federal"` (federal agencies and primes) → `SDVOSB`; `"none"` → no line. No default. |
-| `documentDate` | string | yes | **BC** `documentDate` | e.g. `"09/28/2026"`. |
+| `certChannel` | string | yes | rep / channel | `"california"` → `DVBE <osds_ref_number>`; `"federal"` (federal agencies and primes) → `SDVOSB`; `"none"` → no line. No default. For `california` the script checks the profile's `certifications.sb_dvbe.expiration` against `documentDate`: expired (or no expiration on file) → `ERROR:`; within 30 days → `WARNING:`. |
+| `documentDate` | string | yes | **BC** `documentDate` | `MM/DD/YYYY` or `YYYY-MM-DD`, e.g. `"09/28/2026"`. |
 | `validTo` | string | yes | **BC** `validUntilDate` | |
 | `paymentTerms` | string | yes | **BC** `paymentTermsId` → `paymentTerms.displayName` | e.g. `"Net 45"`. No default; if BC has none, ask. |
 | `shipmentMethod` | string | yes | **BC** `shipmentMethodId` → `shipmentMethods.displayName` | No default; if BC has none, ask. |
@@ -29,9 +29,9 @@ not in the spec at all: the script reads it from the plugin's
 | `pricing.rate` | number | yes for margin/markup | rep | Decimal from 0 to under 1, e.g. `0.20` — so markup is capped under 100%. Ignored for `at-cost`. |
 | `pricing.graingerAtCost` | boolean | yes if any line is `source: "grainger"`, unless method is `at-cost` | rep / channel | `true`: Grainger lines at cost (CA state schedule / cooperative quotes). `false`: Grainger lines follow the method. No default — at cost is ruled only for CA state schedules. |
 | `taxRate` | number | no | rep, checked against **BC** line `taxPercent` / `totalTaxAmount` | Decimal from 0 to under 0.2, e.g. `0.0725`. Omit or `0` for pre-tax. A string, a percent (`7.25`) or a negative is rejected. |
-| `taxBasis` | number | no | rep, checked against **BC** | Amount tax is calculated on, when less than the subtotal. 0 or more, never above the subtotal. Defaults to the subtotal. |
+| `taxBasis` | number | no | rep, checked against **BC** | Amount tax is calculated on, when less than the subtotal. 0 or more, never above the subtotal. Defaults to the subtotal. Given with no tax rate → `WARNING:`. |
 | `estimatedPricing` | boolean | no | rep | `true` appends `*` to prices + estimate footnote. |
-| `columns.uom` | boolean | no | rep | Adds a UOM column. |
+| `columns.uom` | boolean | no | rep | Adds a UOM column; every line must then carry `uom`. |
 | `columns.countryOfOrigin` | boolean | no | rep | Adds a Country of Origin column. Lines without a documented origin print blank and are flagged. |
 | `columns.leadTime` | boolean | no | rep | Adds a Lead Time column. |
 | `notes` | string[] | no | rep | Free-text lines under the metadata grid. |
@@ -40,7 +40,7 @@ not in the spec at all: the script reads it from the plugin's
 | `items[].partNumber` | string | no | source doc | SKU / manufacturer part / Amazon ASIN. Omit → em-dash. |
 | `items[].description` | string | yes | source doc | Full product description. |
 | `items[].qty` | number | yes | source doc | Positive quantity. |
-| `items[].uom` | string | no | source doc | Rendered only with `columns.uom`. Defaults to `"Each"`. |
+| `items[].uom` | string | **yes when `columns.uom` is on** | source doc | Unit of measure from the source (`"Pack"`, `"Box"`, `"Each"`). No default — a pack price printed as "Each" is a wrong number, so a missing unit is an `ERROR:`. Ignored when the column is off. |
 | `items[].countryOfOrigin` | string | no | documented source only | Rendered only with `columns.countryOfOrigin`. Requires `countryOfOriginSource`. Omit when undocumented — never inferred. |
 | `items[].countryOfOriginSource` | string | with `countryOfOrigin` | — | Where the origin is documented, e.g. `"Grainger MCP grainger_search, 09/28/2026"` or `"manufacturer spec sheet rev C"`. Not printed. |
 | `items[].leadTime` | string | no | tool result / vendor quote | Rendered only with `columns.leadTime`. Omit → em-dash. Never estimated. |

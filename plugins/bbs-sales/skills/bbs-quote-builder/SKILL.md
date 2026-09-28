@@ -125,7 +125,9 @@ getting them wrong is costly:
    prints SDVOSB (federal agencies and primes), `none` prints no line (local or
    commercial buyers, unless the rep says otherwise). The strings come from
    `vendor_profile.json`; the channel rule is canon — `AGENTS.md`,
-   "Certifications follow the channel".
+   "Certifications follow the channel". For `california` the script checks the
+   DVBE expiration in the profile against the document date: expired stops the
+   build, within 30 days warns — pass that warning to the rep.
 3. **Tax** — ask whether to add sales tax and at what rate. Tax is based on the
    **ship-to jurisdiction**. Pre-tax quotes are common and fully supported. Check
    the rate against the BC quote's tax (step 2.5). The script accepts only a
@@ -195,7 +197,9 @@ Turn columns on only when they earn their place — each one narrows the
 description.
 
 - `columns.uom` — a **UOM** column. Use when units vary (Pack, Box, Case); skip
-  it when everything is Each.
+  it when everything is Each. With it on, every line needs its `uom` from the
+  source — there is no default, because a pack price printed as "Each" is a
+  wrong number.
 - `columns.countryOfOrigin` — a **Country of Origin** column, for federal or
   Buy American-sensitive bids. **Print only a documented origin.** On a federal
   or prime document an origin is a certification, so a guessed one is a false
@@ -214,7 +218,8 @@ description.
   number on any resulting order." Rep-supplied.
 - `taxBasis` — only when tax applies to less than the full subtotal (e.g. a
   non-taxable line). It must not exceed the subtotal; check it against the BC
-  quote's tax the same way as the rate.
+  quote's tax the same way as the rate. A `taxBasis` with no tax rate prints a
+  `WARNING:` — usually one of the two is a mistake.
 
 ### 7. Build the spec and generate the docx
 

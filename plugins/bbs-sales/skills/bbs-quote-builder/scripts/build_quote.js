@@ -155,6 +155,8 @@ Object.keys(cols).forEach(k => {
   }
   if (it.leadTime !== undefined && !nonEmptyStr(it.leadTime)) errors.push('items[' + i + '].leadTime, when present, must be text.');
   if (it.uom !== undefined && !nonEmptyStr(it.uom)) errors.push('items[' + i + '].uom, when present, must be text.');
+  // No default unit: a pack price printed as "Each" is a plausible wrong number.
+  if (cols.uom === true && !nonEmptyStr(it.uom)) errors.push('items[' + i + '].uom is missing and columns.uom is on — give every line its unit from the source; there is no default.');
 });
 
 // ---- company identity from vendor_profile.json (never literals) ----
@@ -181,7 +183,28 @@ const co = {
   phone: need(['contact', 'phone']),
 };
 let certLine = null;
-if (spec.certChannel === 'california') certLine = 'DVBE ' + need(['certifications', 'sb_dvbe', 'osds_ref_number']);
+const warnings = [];
+// "MM/DD/YYYY" or "YYYY-MM-DD" -> Date (UTC midnight), or null.
+function parseDate(v) {
+  let m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(v || '').trim());
+  if (m) return new Date(Date.UTC(+m[3], +m[1] - 1, +m[2]));
+  m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v || '').trim());
+  if (m) return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  return null;
+}
+if (spec.certChannel === 'california') {
+  certLine = 'DVBE ' + need(['certifications', 'sb_dvbe', 'osds_ref_number']);
+  // Never print a certification that has lapsed on the quote's own date.
+  const expRaw = need(['certifications', 'sb_dvbe', 'expiration']);
+  const exp = parseDate(expRaw), docDate = parseDate(spec.documentDate);
+  if (expRaw && !exp) errors.push('vendor_profile.json certifications.sb_dvbe.expiration "' + expRaw + '" is not a date (MM/DD/YYYY).');
+  if (nonEmptyStr(spec.documentDate) && !docDate) errors.push('documentDate "' + spec.documentDate + '" is not MM/DD/YYYY or YYYY-MM-DD, so the DVBE expiry cannot be checked.');
+  if (exp && docDate) {
+    const days = Math.round((exp - docDate) / 86400000);
+    if (days < 0) errors.push('DVBE certification ' + certLine + ' expired ' + expRaw + ', before this quote\'s documentDate ' + spec.documentDate + '. Do not print it; renew or escalate to Parker.');
+    else if (days <= 30) warnings.push('DVBE certification expires ' + expRaw + ' — ' + days + ' day(s) after this quote\'s documentDate. Tell the rep.');
+  }
+}
 if (spec.certChannel === 'federal') certLine = need(['certifications', 'federal', 'designation']);
 
 if (errors.length) {
@@ -234,7 +257,7 @@ const rows = spec.items.map((it, i) => {
     itemNo: it.partNumber || '—',
     desc: it.description,
     qty: it.qty,
-    uom: it.uom || 'Each',
+    uom: it.uom || '',
     coo: it.countryOfOrigin || '',
     lead: it.leadTime || '—',
     sell, amt
@@ -248,6 +271,8 @@ if (taxBasis > subtotal) {
 }
 const tax = r2(taxBasis * taxRate);
 const total = r2(subtotal + tax);
+if (spec.taxBasis !== undefined && !(taxRate > 0)) warnings.push('taxBasis given but no tax rate — the basis prints but no tax is charged. Check with the rep.');
+warnings.forEach(w => console.error('WARNING: ' + w));
 flags.forEach(f => console.error('WARNING: ' + f));
 
 // ---- style ----
