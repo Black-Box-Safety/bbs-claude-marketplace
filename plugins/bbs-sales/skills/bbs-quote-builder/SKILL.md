@@ -139,12 +139,11 @@ it's the real delivery point before relying on it.
 
 ### 4. Pricing
 
-**Grainger at cost is ruled for California state schedule / cooperative
-quotes, not for every channel.** Whether it applies to a prime or commercial
-PO (e.g. Bechtel) is an open question for Parker. The rule lives in canon —
-the Grainger row of `bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md` and
-`bbs-doctrine.md` #17 ("CA state schedules price at cost; competitive bids
-carry margin") — so read it there rather than recalling it.
+**Whether Grainger lines are at cost depends on the channel.** The rule lives
+once, in "Grainger sell rule, by channel" in
+`bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md` —
+read it there rather than recalling it. On a channel canon lists as open, ask
+the rep; never infer.
 
 Mark every Grainger-priced line `"source": "grainger"` with the MCP `unitPrice`
 as its `unitCost`, and state the channel's rule in the spec:
@@ -152,13 +151,13 @@ as its `unitCost`, and state the channel's rule in the spec:
 - `pricing.method: "at-cost"` — the whole quote is at cost (a CA state schedule
   or NASPO order; `naspo-quote` sets this for you).
 - `pricing.graingerAtCost: true` — Grainger lines at cost, other lines by the
-  method. Only when the quote is on a CA state schedule / cooperative vehicle.
+  method. Only on a channel canon rules at cost.
 - `pricing.graingerAtCost: false` — Grainger lines follow the method like any
   other line. Only when the rep has said so for this channel.
 
 If a spec has Grainger lines and states none of these, the script exits 1:
-there is no default either way. If the channel is not a CA state schedule and
-the rep hasn't said, ask — do not pick one.
+there is no default either way. If canon does not settle the channel and the
+rep hasn't said, ask — do not pick one.
 
 For non-Grainger lines the rep chooses the method and rate. The three methods
 produce different numbers:

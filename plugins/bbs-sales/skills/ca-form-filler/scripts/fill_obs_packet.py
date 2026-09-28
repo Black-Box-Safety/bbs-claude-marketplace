@@ -15,8 +15,14 @@ The script:
      CalRecycle 74 Contractor/Company Name, STD 204 Section 1 NAME).
 
 Design notes (why it's built this way):
-  - The bidder/rep is a *variable* (a different sales rep may sign each time),
-    so rep name/title/email/signature come from inputs.json.
+  - The rep (contact person) and the SIGNER are separate inputs. The rep names
+    a signer on every run (`signer{name,title,email}`); there is no default.
+    The signer signs every rep-signed line this script fills -- OBS 4007(B)
+    Bidder Signature, Darfur OBS 1500, CalRecycle 74 -- and may be any BBS
+    employee (Parker, 2026-09-28). A signature is applied only for a signature
+    delegate, as that delegate's name of record, never free text from the
+    inputs; any other signer's lines are left blank to sign by hand and
+    flagged. A non-BBS signer stops the run. Rules: ca-form-rules.md.
   - Jackson Dalton is the DV owner and ALWAYS signs the DVBE owner lines
     (DGS PD 843) and is the STD 204 authorized payee representative, because
     those certifications are tied to ownership, not to whoever quoted the job.
@@ -87,8 +93,106 @@ def load_profile():
         "product_type": vp["product_type"],
         "dvbe_owner": {k: owner[k] for k in ("name", "title", "email")},
         "accounting_contact": {k: acct[k] for k in ("name", "title", "phone", "email")},
+        # Whose signature a skill may apply (counsel, 2026-09-16). Everyone else
+        # signs by hand. signature_delegation lists roles; each resolves to its
+        # authorized_representatives entry, so identity is written once.
+        "signature_delegates": [
+            {"role": d["role"], "name": d["name"], "email": d["email"],
+             "aliases": list(d.get("aliases") or [])}
+            for d in (_rep(vp, role) for role in vp["signature_delegation"]["delegates"])],
+        # A BBS employee has an address on this domain. Derived from the
+        # profile's own contact address so the domain is never re-keyed here.
+        "employee_domain": contact["email"].rsplit("@", 1)[1].lower(),
         "_notes": vp["_meta"]["notes"],
     }
+
+
+def _norm(s):
+    return " ".join(str(s or "").split()).lower()
+
+
+# The rep-signed lines this script fills. One signer covers all of them.
+SIGNER_LINES = ("CalRecycle 74", "OBS 4007(B) Bidder", "Darfur OBS 1500")
+
+
+def _missing(what):
+    sys.exit(f"[MISSING — NEEDS INPUT] {what}. No packet written.")
+
+
+def resolve_signer(profile, inp):
+    """Who signs the rep-signed lines, and whether a signature may be applied.
+
+    Rulings (Parker, 2026-09-28): any BBS employee may sign -- "anyone is
+    permitted to sign"; "whomever the rep says, they can sign it with anyone".
+    The rep names the signer on every run; nothing defaults. The lines are
+    sworn, so:
+
+      - The signer must be a BBS employee: exactly one "@" and a domain equal
+        to the vendor profile's own contact domain. Checked before anything
+        else; a non-BBS signer stops the run and no packet is written.
+      - A signature is applied only for a signature delegate (matched on the
+        recorded email or an alias, AND the recorded name), and what is written
+        is the delegate's name of record, never text from the inputs.
+      - Any other signer gets print name and title; signature and date are left
+        blank for a hand signature and flagged.
+
+    Returns {name, title, email, apply, flag}. Exits on missing or non-BBS.
+    """
+    signer = inp.get("signer") or {}
+    name = " ".join(str(signer.get("name", "")).split())
+    title = " ".join(str(signer.get("title", "")).split())
+    raw_email = str(signer.get("email", "")).strip()
+    # ASCII only, checked BEFORE lower-casing: str.lower() folds look-alikes
+    # such as the Kelvin sign (U+212A) into "k", which would pass the domain.
+    ascii_ok = raw_email.isascii()
+    email = raw_email.lower()
+    if not name and not email:
+        _missing("Signer: the rep names who signs CalRecycle 74, the OBS 4007(B) "
+                 "bidder line and Darfur OBS 1500 (`signer{name,title,email}`)")
+    if not email:
+        _missing(f"Signer email for {name or 'the signer'}: it is how the signer is "
+                 f"confirmed as a BBS employee.")
+    domain = profile["employee_domain"]
+    if not ascii_ok or email.count("@") != 1 or email.split("@")[1] != domain:
+        sys.exit(f"REFUSED: the signer must be a BBS employee (an @{domain} address). "
+                 f"{signer.get('name') or '(no name)'} <{signer.get('email')}> is not. "
+                 f"Customers, agencies and third parties never sign BBS's lines. "
+                 f"No packet written.")
+    if not name:
+        _missing(f"Signer name for {email}")
+
+    by_email = next((d for d in profile["signature_delegates"]
+                     if email in {_norm(d["email"]), *map(_norm, d["aliases"])}), None)
+    by_name = next((d for d in profile["signature_delegates"]
+                    if _norm(name) == _norm(d["name"])), None)
+    if by_email and by_email is by_name:
+        return {"name": by_email["name"], "title": title, "email": email,
+                "apply": True, "flag": None}
+    if by_name:
+        why = (f"email does not match the delegate's recorded address "
+               f"({by_name['email']})")
+    elif by_email:
+        why = (f"name does not match the delegate recorded for that address "
+               f"({by_email['name']})")
+    else:
+        why = "not a signature delegate in vendor_profile.json signature_delegation"
+    who = f"{name}, {title}" if title else name
+    return {"name": name, "title": title, "email": email, "apply": False,
+            "flag": (f"⚑ SIGNATURE REQUIRED — {who} — {', '.join(SIGNER_LINES)}: "
+                     f"sign and date by hand (sworn). Left blank: {why}.")}
+
+
+def signer_confirmation(profile, inp):
+    """The block printed on every run, so the rep checks it before sending."""
+    sg = resolve_signer(profile, inp)
+    how = "delegated signature applied" if sg["apply"] else "blank for hand signature"
+    lines = [f"Signer: {sg['name']} <{sg['email']}> — applied to: "
+             f"{', '.join(SIGNER_LINES)} ({how}). CalRecycle 74 PCRC/SABRC = "
+             f"{inp.get('calrecycle_pcrc', 'NA')}/{inp.get('calrecycle_sabrc', 'NA')}"
+             f" — confirm before sending."]
+    if sg["flag"]:
+        lines.append(sg["flag"])
+    return lines
 
 
 def build_field_values(profile, inp):
@@ -97,7 +201,10 @@ def build_field_values(profile, inp):
     rep_name = rep.get("name", "")
     rep_title = rep.get("title", "Sales Manager")
     rep_email = rep.get("email", "")
-    rep_sig = rep.get("signature", rep_name)  # signature text defaults to name
+    # The signer of the rep-signed lines. Signature text is the delegate's
+    # name of record or nothing -- never free text from the inputs.
+    signer = resolve_signer(profile, inp)
+    signer_sig = signer["name"] if signer["apply"] else ""
 
     owner = profile["dvbe_owner"]
     acct = profile["accounting_contact"]
@@ -106,6 +213,7 @@ def build_field_values(profile, inp):
     release = inp.get("release_date", "")
     due = inp.get("due_date", "")
     sig_date = inp.get("signature_date", "")  # may be "" to hand-date
+    signer_date = sig_date if signer["apply"] else ""  # hand-signed: hand-dated
     delivery_days = str(inp.get("delivery_days_aro", "30"))
 
     agency = inp.get("agency", {})
@@ -144,8 +252,8 @@ def build_field_values(profile, inp):
     add("OBS RFQ 4007(B) - Manufacturer No Checkbox", 2, "/Yes")
     add("OBS RFQ 4007(B) - SB Sub Preference Yes", 2, "/Off")
     add("OBS RFQ 4007(B) - SB Sub Preference No", 2, "/Yes")
-    add("OBS RFQ 4007(B) - Bidder Signature", 2, rep_sig)
-    add("OBS RFQ 4007(B) - Bidder Sig Date", 2, sig_date)
+    add("OBS RFQ 4007(B) - Bidder Signature", 2, signer_sig)
+    add("OBS RFQ 4007(B) - Bidder Sig Date", 2, signer_date)
 
     # ---------- OBS 4007(B) additional details (page 3) ----------
     add("OBS RFQ 4007(B) - Deliver Completion Requirement", 3, delivery_days)
@@ -228,9 +336,10 @@ def build_field_values(profile, inp):
     add("GSPD-05-105 Bidder Dec. Written - Pg 1 - #of pgs", 13, "1")
 
     # ---------- Darfur OBS 1500 (page 15) — Option 1, no activities outside US ----------
-    add("Darfur OBS 1500 - CompanyVendor Name Printed", 15, profile["short_name"])
-    add("Darfur OBS 1500 - Date", 15, sig_date)
-    add("Darfur OBS 1500 - By Authorized Signature", 15, rep_sig)
+    # Company name: legal name (Parker 2026-09-28, "they can match legal name").
+    add("Darfur OBS 1500 - CompanyVendor Name Printed", 15, profile["legal_name"])
+    add("Darfur OBS 1500 - Date", 15, signer_date)
+    add("Darfur OBS 1500 - By Authorized Signature", 15, signer_sig)
 
     # ---------- CalRecycle 74 (page 16) ----------
     add("DORRR CalRec 74 - Address", 16,
@@ -243,13 +352,14 @@ def build_field_values(profile, inp):
         inp.get("calrecycle_pcrc", "NA"))
     add("DORRR CalRec 74 - 2SABRC Product Category CodeRow1", 16,
         inp.get("calrecycle_sabrc", "NA"))
-    add("DORRR CalRec 74 - Print Name", 16, rep_name)
-    add("DORRR CalRec 74 - Signature", 16, rep_sig)
-    add("DORRR CalRec 74 - Title", 16, rep_title)
-    add("DORRR CalRec 74 - Date", 16, sig_date)
+    # Signed by the named signer -- see resolve_signer().
+    add("DORRR CalRec 74 - Print Name", 16, signer["name"])
+    add("DORRR CalRec 74 - Signature", 16, signer_sig)
+    add("DORRR CalRec 74 - Title", 16, signer["title"])
+    add("DORRR CalRec 74 - Date", 16, signer_date)
 
     # ---------- OBS 1000 GenAI (pages 18-19) ----------
-    add("OBS 1000 - Business Name", 18, profile["short_name"])
+    add("OBS 1000 - Business Name", 18, profile["legal_name"])
     add("OBS 1000 - Business Telephone Number", 18, profile["phone"])
     add("OBS 1000 - Business Address", 18, profile["address_line"])
     add("OBS 1000 - City", 18, profile["city"])
@@ -262,7 +372,9 @@ def build_field_values(profile, inp):
 
     # ---------- DGS PD 843 DVBE Declarations (page 21) ----------
     # Jackson Dalton ALWAYS signs as DV owner — certification is tied to ownership.
-    add("DVBE Dec. DGS PD 843 - Name of DVBE", 21, profile["legal_name"])  # ruled 2026-09-18: legal name, matches the filed corpus
+    # "Name of DVBE" is the legal name, never the short name: ruled 2026-09-18,
+    # confirmed by Parker 2026-09-28 ("do legal name"). ca-form-rules.md.
+    add("DVBE Dec. DGS PD 843 - Name of DVBE", 21, profile["legal_name"])
     add("DVBE Dec. DGS PD 843 - DVBE Ref #", 21, profile["dvbe_cert"])
     add("DVBE Dec. DGS PD 843 - Desc", 21, desc_short)
     add("DVBE Dec. DGS PD 843 - DVBE not Broker", 21, "/Yes")
@@ -439,9 +551,10 @@ ANNOTATIONS = [
     # OBS 4007(B) front page Business Name line
     {"page": 1, "x": 155, "y": 223, "key": "legal_name"},
     # Line-Item Worksheet "BUSINESS NAME:" header
+    # (short name: NOT covered by the 2026-09-28 legal-name ruling -- open)
     {"page": 11, "x": 105, "y": 101, "key": "short_name"},
-    # CalRecycle 74 "Contractor/Company Name"
-    {"page": 15, "x": 145, "y": 296, "key": "short_name"},
+    # CalRecycle 74 "Contractor/Company Name" -- legal name (Parker, 2026-09-28)
+    {"page": 15, "x": 145, "y": 296, "key": "legal_name"},
     # STD 204 Section 1 NAME line
     {"page": 23, "x": 22, "y": 97, "key": "legal_name"},
 ]
@@ -683,6 +796,7 @@ def main():
         inp = json.load(f)
 
     field_values = build_field_values(profile, inp)
+    confirmation = signer_confirmation(profile, inp)
 
     # Fill and annotate a scratch copy, then move it into place, so a failure
     # part-way through never leaves a half-filled packet looking finished.
@@ -697,6 +811,12 @@ def main():
 
     print(f"Filled packet written to: {output_pdf}")
     print(f"Fields written: {len(field_values)}")
+
+    # Who signs, how, and the CalRecycle values -- every run, loud. An unsigned
+    # CalRecycle 74 can disqualify the bid; repeat any flag in the cover summary.
+    print()
+    for line in confirmation:
+        print(line)
 
     # The certification rules are the expensive thing to get wrong on a bid, and
     # they change without the packet changing. Put them in front of the rep.

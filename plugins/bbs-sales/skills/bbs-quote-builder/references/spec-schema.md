@@ -27,7 +27,7 @@ not in the spec at all: the script reads it from the plugin's
 | `shipTo` | string[] | yes | **BC** `shipTo*` | Lines of the Ship to Address block. Drives tax jurisdiction. |
 | `pricing.method` | string | yes, unless every line is Grainger and `graingerAtCost` is true | rep | `"margin"`, `"markup"`, or `"at-cost"`. No default. |
 | `pricing.rate` | number | yes for margin/markup | rep | Decimal from 0 to under 1, e.g. `0.20` — so markup is capped under 100%. Ignored for `at-cost`. |
-| `pricing.graingerAtCost` | boolean | yes if any line is `source: "grainger"`, unless method is `at-cost` | rep / channel | `true`: Grainger lines at cost (CA state schedule / cooperative quotes). `false`: Grainger lines follow the method. No default — at cost is ruled only for CA state schedules. |
+| `pricing.graingerAtCost` | boolean | yes if any line is `source: "grainger"`, unless method is `at-cost` | rep / channel | `true`: Grainger lines at cost. `false`: Grainger lines follow the method. No default. Which applies depends on the channel — canon's "Grainger sell rule, by channel". |
 | `taxRate` | number | no | rep, checked against **BC** line `taxPercent` / `totalTaxAmount` | Decimal from 0 to under 0.2, e.g. `0.0725`. Omit or `0` for pre-tax. A string, a percent (`7.25`) or a negative is rejected. |
 | `taxBasis` | number | no | rep, checked against **BC** | Amount tax is calculated on, when less than the subtotal. 0 or more, never above the subtotal. Defaults to the subtotal. Given with no tax rate → `WARNING:`. |
 | `estimatedPricing` | boolean | no | rep | `true` appends `*` to prices + estimate footnote. |
@@ -54,10 +54,9 @@ required field is checked before anything is built; a missing or invalid one is 
 ## Pricing math
 
 - Grainger line (`source: "grainger"`): `sell = unitCost` when `graingerAtCost` is true
-  or the method is `at-cost`; otherwise priced by the method. At cost is ruled for CA
-  state schedules only — the Grainger row of
-  `bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md` and
-  `bbs-doctrine.md` #17.
+  or the method is `at-cost`; otherwise priced by the method. Which channel is at cost
+  is ruled in one place: "Grainger sell rule, by channel" in
+  `bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`.
 - `at-cost`: `sell = unitCost`
 - `margin`: `sell = unitCost / (1 - rate)`
 - `markup`: `sell = unitCost * (1 + rate)`
@@ -123,6 +122,7 @@ carries `DVBE 2009473` because `certChannel` is `california`.
 }
 ```
 
-Here the rep stated `graingerAtCost: false` for this prime — Grainger at cost is not
-ruled for primes, so it must be stated either way. The second line has no documented
+Here the rep stated `graingerAtCost: false` for this prime — per canon's "Grainger sell
+rule, by channel", prime Grainger lines may be marked up once the rep has asked BBS's
+Grainger account manager for a discount; `unitCost` is that discounted cost. The second line has no documented
 origin: its cell prints blank and the script prints a `[FLAG: …]`.

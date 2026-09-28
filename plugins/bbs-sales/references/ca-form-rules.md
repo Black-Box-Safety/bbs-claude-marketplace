@@ -28,21 +28,55 @@ false certification.
 
 | Signer | Lines | Why |
 |---|---|---|
-| **The rep** (variable) | Bidder signature, Darfur certification, CalRecycle 74 certification | Whoever quoted the job. Comes from the skill's inputs; `default_rep` in the profile is only a fallback. |
-| **Jackson Dalton** (fixed) | DGS PD 843 DVBE owner declaration, STD 204 authorized payee representative | Tied to who **owns** the certified business, not to who quoted. Never varies by rep. |
+| **The signer the rep names** (variable) | OBS 4007(B) bidder signature, Darfur certification (OBS 1500 / DGS PD 1), CalRecycle 74 certification | Any BBS employee — see *Rep-signed lines* below. Named by the rep on every run; never defaulted. |
+| **Jackson Dalton** (fixed) | DGS PD 843 DVBE owner declaration, CV 012, STD 204 authorized payee representative | Tied to who **owns** the certified business — these are the disabled-veteran owner's declarations. Never varies by rep, and the 2026-09-28 signer ruling (below) does not touch them. |
+
+### Rep-signed lines — who may sign, and when a skill may apply the signature
+
+Ruled by Parker, in session, 2026-09-28: **any BBS employee may sign** ("anyone is
+permitted to sign"; "whomever the rep says, they can sign it with anyone"); **the rep
+names the signer.** This covers every rep-signed line: the OBS 4007(B) bidder signature,
+Darfur (OBS 1500 or DGS PD 1) and CalRecycle 74. It supersedes "the rep who quoted the
+job" (2026-09-18).
+
+- **The rep names the signer on every run** — name, title and email. There is no default;
+  with no signer named the skill stops with `[MISSING — NEEDS INPUT]`.
+- **Never a customer, an agency or a third party.** The signer's email must be a single
+  address on BBS's domain (the domain of `vendor_profile.json` `contact.email`); anything
+  else stops the run with nothing written. The domain is checked first.
+- **These lines are sworn.** The signer confirms the certification content — on
+  CalRecycle 74, the PCRC and SABRC values — before sending.
+- **A skill applies a signature only for a signature delegate** listed in
+  `vendor_profile.json` `signature_delegation`, matched on the recorded email or a recorded
+  alias together with the recorded name — including when the rep names a delegate to sign
+  a bid someone else prepared. What is applied is the delegate's own signature of record,
+  never free text that could differ from the signer.
+- **Any other signer:** print name and title are filled; signature and date are left blank
+  for a hand signature and flagged `⚑ SIGNATURE REQUIRED`. A delegate's signature is never
+  applied to a line signed by someone else.
 
 ## The sub-forms
 
 | Form | Rule |
 |---|---|
 | **STD 204** Payee Data Record | Section 1 NAME is the legal name, not the short name. Section 6 is the paying agency's block — leave it entirely blank. Signed by the owner, not the rep. |
-| **DGS PD 843** DVBE declaration | Signed by the DVBE owner. "Name of DVBE" is the **legal name** exactly as `vendor_profile.json` `business_identity.legal_name` gives it (ruled 2026-09-18, matches the filed corpus); never the short name. SCPRS reference number is the State's to fill; leave it. |
-| **CalRecycle 74** (SABRC) | **Never leave blank — a missing CalRecycle 74 can disqualify the bid.** BBS resells finished goods and rarely certifies a postconsumer percentage, so PCRC and SABRC default to "NA". Only override with a real percentage the rep supplies. Certified by the rep. |
-| **OBS 1000** GenAI factsheet | Answer the "was GenAI used" question; it is about the *product* being sold, not about how the bid was prepared. |
+| **DGS PD 843** DVBE declaration | Signed by the DVBE owner. "Name of DVBE" is the **legal name** exactly as `vendor_profile.json` `business_identity.legal_name` gives it (ruled 2026-09-18, matches the filed corpus; confirmed by Parker 2026-09-28, "do legal name"); never the short name, and never typed as a literal. SCPRS reference number is the State's to fill; leave it. |
+| **CalRecycle 74** (SABRC) | **Never leave blank — a missing CalRecycle 74 can disqualify the bid.** BBS resells finished goods and rarely certifies a postconsumer percentage, so PCRC and SABRC default to "NA". Only override with a real percentage the rep supplies. Contractor/Company Name is the legal name (see *Company name*). Signed by the signer the rep names — *Rep-signed lines* above. |
+| **OBS 1000** GenAI factsheet | Answer the "was GenAI used" question; it is about the *product* being sold, not about how the bid was prepared. Business Name is the legal name (see *Company name*). |
 | **GSPD-05-105** Bidder Declaration | BBS bids as the certified business, not through subs or brokers, unless the rep says otherwise for this bid. The "distinct element of work" is the CUF statement, which is **not** in the vendor profile — ask the rep. |
 | **STD 205** Payee Data Record Supplement | Accompanies STD 204 when the agency asks for it. Same signer as the STD 204 — the owner, not the rep. Agency block stays blank, exactly as on the STD 204. |
-| **OBS 1500** Darfur Contracting Act (CDCR) | The CDCR packet's Darfur form; **DGS PD 1** is the standalone equivalent outside a CDCR packet. Same substance either way: BBS has no business operations in Sudan, so the no-foreign-operations paragraph is the one that applies. Certified by the rep. |
+| **OBS 1500** Darfur Contracting Act (CDCR) | The CDCR packet's Darfur form; **DGS PD 1** is the standalone equivalent outside a CDCR packet. Same substance either way: BBS has no business operations in Sudan, so the no-foreign-operations paragraph is the one that applies. Company name is the legal name (see *Company name*). Signed by the signer the rep names — *Rep-signed lines* above. |
 | **DGS PD 1** Darfur Contracting Act (standalone) | As OBS 1500, when the agency sends the DGS form rather than the CDCR one. Do not fill both for the same bid. |
+
+## Company name
+
+Every company-name line BBS fills takes `vendor_profile.json`
+`business_identity.legal_name`, read from the profile and never typed: STD 204 Section 1,
+STD 205, DGS PD 843 "Name of DVBE" (above), and — ruled by Parker, in session, 2026-09-28
+("Yes, they can match legal name") — CalRecycle 74 Contractor/Company Name, OBS 1000
+Business Name and Darfur (OBS 1500) company name. **Open:** the OBS Line-Item Cost
+Worksheet "BUSINESS NAME:" header was not covered by that ruling and still takes the short
+name.
 
 ## Fields the State fills — leave them blank
 
@@ -79,4 +113,4 @@ company-name line came out empty.
 
 ---
 
-Owner: bbs-sales. Last verified 2026-09-15.
+Owner: bbs-sales. Last verified 2026-09-28.

@@ -113,6 +113,8 @@ this against a third profile written at test time.
   for Parker, not a defect to fix in a refactor.
 - **DGS PD 843 "Name of DVBE".** Path A writes `short_name`; `references/field-maps.md`
   says `legal_name`. Recorded as an open conflict in both places and left that way.
+  *(Later: ruled by Parker 2026-09-18 and confirmed 2026-09-28, "do legal name". Both
+  paths now write `business_identity.legal_name`; `ca-form-rules.md` is the home.)*
 - `vendor_profile.json`, `ca-form-rules.md`, `scripts/check_marketplace.py`, skill
   `description:` fields.
 

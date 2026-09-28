@@ -26,7 +26,8 @@
  *   markup:   sell = cost * (1 + rate)
  *   at-cost:  sell = cost
  * A line with source "grainger" carries the Grainger MCP unitPrice as its cost.
- * Grainger at cost is ruled for CA state schedule / cooperative quotes only, so
+ * Whether Grainger is at cost depends on the channel (canonical-facts.md,
+ * "Grainger sell rule, by channel"), so
  * the spec must say which applies: method "at-cost", or pricing.graingerAtCost
  * true (Grainger lines at cost) / false (Grainger lines follow the method).
  * A spec with Grainger lines that says neither is rejected.
@@ -102,7 +103,7 @@ if (spec.pricing && gac !== undefined && typeof gac !== 'boolean') {
   errors.push('pricing.graingerAtCost must be true or false (got ' + JSON.stringify(gac) + ').');
 }
 if (hasGrainger && method !== 'at-cost' && typeof gac !== 'boolean') {
-  errors.push('Grainger at-cost is ruled for CA state schedules; for this quote\'s channel, state whether ' +
+  errors.push('Grainger at cost depends on the channel (canon: "Grainger sell rule, by channel"); state whether ' +
     'Grainger lines are at cost (pricing.graingerAtCost true/false).');
 }
 const graingerAtCost = method === 'at-cost' || gac === true;
