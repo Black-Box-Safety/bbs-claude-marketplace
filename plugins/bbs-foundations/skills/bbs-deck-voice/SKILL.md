@@ -1,6 +1,7 @@
 ---
 name: bbs-deck-voice
 description: Generate customer-facing PowerPoint slide copy in Parker Marshall's voice for Black Box Safety (BBS) federal pursuits (SDVOSB / GSA Schedule / set-asides). Use this skill whenever Parker needs slide headlines, sub-bullets, speaker notes, or full-deck copy for a federal customer or teaming presentation, or says "write the deck copy," "put this on slides," "slide headlines for the [agency] deck," "capability briefing," "make this slide-ready," or hands over raw content and asks for presentation-ready wording. This is the authorized voice standard for BBS federal decks. Always use it so certification discipline (SDVOSB, never DVBE in federal context), federal-traction honesty, and Parker's no-filler, no-em-dash style stay uniform. Do NOT use for CA state agency decks (that context uses DVBE), for email drafts (Parker's email voice lives elsewhere), or for building the .pptx file itself (use the pptx skill for assembly; this skill produces the words).
+requires: []
 ---
 
 # BBS Federal Deck Voice
@@ -21,7 +22,7 @@ Every slide answers the buyer's silent question: what's in this for my mission, 
 If a slide makes two arguments, it makes neither. Split it or cut one.
 
 **Numbers do the persuading. Adjectives don't.**
-"Largest small business seller to the State of California" beats "trusted, proven partner." Concrete figures, contract numbers, and SLAs carry weight. Marketing adjectives (world-class, premier, cutting-edge, best-in-class) get cut on sight. Parker is credentialed, not boastful.
+"Became the largest small business seller to the State of California" beats "trusted, proven partner." Concrete figures, contract numbers, and SLAs carry weight. Marketing adjectives (world-class, premier, cutting-edge, best-in-class) get cut on sight. Parker is credentialed, not boastful.
 
 **No em dashes. Anywhere.** Use periods, commas, or a colon. This is a hard rule from Parker's style.
 
@@ -36,7 +37,7 @@ Federal context is not state context. Getting this wrong is a credibility hit in
 - **Certification is SDVOSB, never DVBE.** DVBE is California-only. In a federal deck, DVBE does not appear. If the input mentions DVBE, silently convert the framing to SDVOSB (VA-verified).
 - **The GSA Schedule is #47QSWA23D000Y.** Cite it exactly when referencing the vehicle.
 - **Do not overstate federal traction.** BBS's federal volume is currently low and growing. Never imply a large federal install base. Position around SDVOSB set-aside eligibility, the GSA vehicle, and an early-mover opportunity for the agency. Honesty here is a strategic asset, not a weakness: the pitch is access and a veteran-owned alternative, not incumbency.
-- **CA track record is the proof, framed as capability transfer.** The $30M CA business and the largest-small-business-seller-to-California standing are legitimate proof points. Frame them as evidence BBS can execute at scale, then point that capability at the federal buyer. Do not present CA contracts as if they serve federal customers.
+- **CA track record is the proof, framed as capability transfer.** The $30M CA business and the standing BBS earned as the largest small-business seller to California (while a California small business) are legitimate proof points. Frame them as evidence BBS can execute at scale, then point that capability at the federal buyer. Do not present CA contracts as if they serve federal customers.
 - **Sourcewell #091924-BBS is national** and available to any public agency for body armor. Fair to cite in SLED-adjacent federal contexts.
 
 ## Slide-type playbook
@@ -53,7 +54,7 @@ Different slide types carry different jobs. Match the pattern.
 
 **Body armor slide (if applicable).** Point Blank / Paraclete distributor standing, Sourcewell access, 24-hour response SLA, in-person sizing, armor recycling program, FOB destination pricing. These are concrete differentiators. Use them.
 
-**Proof / track record slide.** Numbers only. INC 5000 ranking, $30M revenue, largest CA small-business seller, NaVOBA award. No adjectives around them.
+**Proof / track record slide.** Numbers only. INC 5000 ranking, $30M revenue, became the largest CA small-business seller, NaVOBA award. No adjectives around them.
 
 **Close / CTA slide.** One specific next step. Not "let's partner." Something like "Send your next SDVOSB set-aside requirement and get a quote in 24 hours." A single CTA, matching Parker's email discipline.
 

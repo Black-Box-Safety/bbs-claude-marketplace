@@ -46,7 +46,7 @@ One slice per session. A slice is scoped correctly when you can state, before it
   number with its conditions, a file that exists and parses. "Improved" is not a done
   condition.
 - **The blast radius** — which plugins, which skills, and whether any managed artifact
-  (`bbs-managed-settings.json`, `hooks/skill-bus.json`) is touched. Those two reach every
+  (`bbs-managed-settings.json`, `hooks/doctrine/`) is touched. Those two reach every
   machine and every skill run; a change to either raises the review bar.
 - **What it must not touch.** Name it explicitly. A brief without negative scope produces
   a PR that wandered.
@@ -91,17 +91,22 @@ Claude produces internally consistent, confident prose. That is the failure mode
 for, and it is not caught by reading the diff sympathetically. Ask:
 
 1. **Is every factual claim sourced, or inferred from a neighbouring file?** This repo
-   once inferred "BBS is NOT SB-certified" from a storefront doctrine file and nearly gave
-   away the 5% Small Business preference on every competitive solicitation.
+   has flipped its SB-certification claim twice, each time on a fact inferred from a
+   neighbouring file rather than sourced, and each time without naming the channel it
+   applied to. A certification claim with no channel and no source is the pattern to
+   catch — whichever way it points. The settled answer (Parker, in session, 2026-09-22):
+   small business **federally**, **DVBE only** in California. It lives in
+   `canonical-facts.md`, "Small-business status is channel-dependent"; do not re-derive
+   it from a file you happen to have open.
 2. **Does a measurement name its conditions?** "It routes correctly" is not a finding.
    Runs per query, named or anonymized, and the distribution are.
 3. **Did a fact and its checker move together?**
 4. **Did the fix reach its propagation sites?** Fixing the canonical file is the easy
-   half; the value also lives in the skill-bus insert and the managed CLAUDE.md.
+   half; the value also lives in the `hooks/doctrine/*.md` inserts and the managed CLAUDE.md.
 5. **Does it fail loudly on a binding document?**
 6. **Did a consolidation lose anything?** `git show <commit>^:<old-path>` and diff.
 
-A PR that changes `bbs-managed-settings.json` or `hooks/skill-bus.json` gets a second
+A PR that changes `bbs-managed-settings.json` or anything under `hooks/doctrine/` gets a second
 reviewer, because those reach every machine and every skill run without anyone installing
 anything.
 

@@ -56,9 +56,19 @@ constant, the dropped Grainger substitution and pack-size rules, the signature r
 that never reached `ca-form-filler`'s Path B, and two `STD 1000` survivors. The routing
 eval was re-run on the fixed harness: 24/24, artifact committed.
 
-Two of the review's findings are **open for Parker** and were deliberately not changed —
-the SB checkbox on CDCR Packet B, and whether Grainger at-cost is a reversal of the old
-margin practice. Both are certification or pricing rulings on binding documents.
+Two of the review's findings were **open for Parker** and deliberately not changed — the
+SB checkbox on CDCR Packet B, and whether Grainger at-cost is a reversal of the old margin
+practice. Both are certification or pricing rulings on binding documents.
+
+- **SB checkbox on CDCR Packet B — RULED 2026-09-22.** Parker ruled in session that OSDS
+  2009473 carries DVBE only and BBS is not a California small business, having exceeded the
+  state SB revenue threshold. The box is **`/Off`**, which is what `fill_obs_packet.py:138`
+  already writes and what `docs/superpowers/specs/2026-09-16-ca-form-filler-packet-profiles-design.md:111`
+  specifies. Closed — `/ca-rfq` Gate 1 no longer stops on it. Fact and reasoning:
+  `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`,
+  "Small-business status is channel-dependent".
+- **Grainger at-cost vs the old margin practice — RULED 2026-09-18.** Grainger at cost is
+  the standing pricing rule. Recorded in `docs/PRODUCT.md` §9.
 
 **Done:** findings cleared, `check_marketplace.py` exits 0, fresh review is clean, PR
 merged, the six verified-dead branches deleted (`v1.1` held back — it reads as a version
@@ -77,16 +87,27 @@ synthesize a list.
 **Done:** current list bundled, alternates-on-miss and restricted-item alerting present,
 coverage note accurate.
 
-### 2 — One trigger, end to end
+### 2 — One trigger, end to end *(built; PR #14 in review)*
 
-Today `/ca-rfq-log` and `/ca-rfq-quote` each restate their skill's body verbatim, so
-command and skill drift. Parker wants one trigger that completes documents and signs.
+The now-retired `/ca-rfq-log` and `/ca-rfq-quote` each **paraphrased** their skill's body —
+they did not restate it verbatim, as an earlier draft of this slice said. The difference
+made the case stronger: a verbatim copy is merely redundant and drift is visible in a diff,
+whereas a paraphrase can silently disagree with the skill it paraphrases, and those two
+already did. Parker wanted one trigger that completes documents and signs.
 
-Build `/ca-rfq` as an orchestration contract — **order and gates only, no restated
-steps** — running intake → recognize customer/packet → extract → price → quote → fill and
-sign → verify → deliver. Retire the two commands.
+`/ca-rfq` is that trigger, built as an orchestration contract — **order and gates only, no
+restated steps** — running intake → recognize customer/packet → extract → price → quote →
+fill and sign → verify → deliver. Both commands are gone and every live pointer is
+repointed, including the `claudeMd` block in `bbs-managed-settings.json`.
 
-**Done:** one command, no duplicated skill bodies, the routing eval still green.
+**Done:** one command, no duplicated skill bodies, the routing eval still green — not
+re-run, because no skill `description:` changed and commands never enter
+`docs/evals/skills.json`. `check_marketplace.py` now FAILs on a surviving pointer to a
+retired *command*, not only to a retired skill.
+
+**Not done here:** review and merge of PR #14. It edits a managed artifact, so it needs the
+second reviewer that rule already requires. The command's behaviour on a live RFQ is
+unverified — no session has run it against a real buyer folder.
 
 ### 3 — Packet profiles in `ca-form-filler`
 
@@ -165,16 +186,92 @@ Write it up with evidence and move to the next slice. Do not idle.
 ### Already open for Parker
 
 - **Re-paste managed settings** — the model-ID and Grainger changes reach no machine from
-  the repo alone.
+  the repo alone, and neither does the slice-2 command line. The repo copy's `claudeMd`
+  block is corrected to `/ca-rfq` (it named the two retired commands), but the correction
+  reaches a rep only when Parker re-pastes; until then every session still loads the dead
+  names into memory.
 - **Edit the saved preference** that still says "Never pre-fill signature lines on any
   compliance form." It re-injects the removed rule into every new session.
 - **The personal-copy cutover** is account-side, in claude.ai → Settings → Capabilities →
   Skills. Five orphans now contradict what replaced them; `bbs-b2b-pricing` still drives
   the retired punch-out.
-- **One routing ruling**: does a fresh "agency emailed asking us to quote" belong to
-  `ca-rfq-intake` or `naspo-quote`? Left untuned on purpose — fitting the test before the
-  ruling would just be fitting the test.
+- **The routing ruling — RULED 2026-09-24: file first.** A fresh "agency emailed asking us
+  to quote" runs `ca-rfq-intake` before anything is priced. `/ca-rfq` Gate 0 (c) no longer
+  asks. `docs/evals/queries-ambiguous.json` `naspo-1` is still `__unscored__`; re-score it
+  against `ca-rfq-intake` on the next eval run that has Claude auth.
+- **Both injected doctrine sets carried pre-2026-09-22 certification wording —
+  RESOLVED 2026-09-22 in PR #30.** Neither was changed by the SB correction (PR #29),
+  which was scoped out of them; this was a documented deferral, now closed. (At the time
+  the text lived in each plugin's `hooks/skill-bus.json`, a file retired 2026-09-28; since
+  then the same text, byte for byte, is in `hooks/doctrine/*.md` — see the next entry. The old file names
+  below are kept as the historical record.)
+  - `plugins/bbs-foundations/hooks/skill-bus.json` (retired path; now `hooks/doctrine/bbs-claude-md-doctrine.md`)
+    — **RESOLVED 2026-09-22, PR #30.** It injected the *affirmative false claim* that the
+    5% SB preference (SCM §1204) applies on California competitive solicitations, into
+    **every CLAUDE.md-writing skill run**. Now carries the channel split: California DVBE
+    only, §1204 never, §1202 still claimed; federal SDVOSB and small business.
+  - `plugins/bbs-website/hooks/skill-bus.json` (retired path; now `hooks/doctrine/bbs-storefront-doctrine.md`)
+    — **RESOLVED 2026-09-22, PR #30.** Its channel-neutral "BBS is NOT SB-certified" is
+    replaced by the reword recorded in canonical facts, which names California. The
+    matching `bbs-shopify` canonical-facts line lives in another repo and is still open
+    there.
+
+  A PR touching either gets a second reviewer: they reach every skill run without anyone
+  installing anything.
+- **The third-party injection plugin (`joeymnguyen/skill-bus`) — RULED 2026-09-28: retired.**
+  Parker, in session: it "causes issues and has permeated throughout the entire set up."
+  It is removed from managed settings, from the checker and from every live doc; the
+  doctrine text it injected is **kept**, moved byte for byte into
+  `plugins/{bbs-foundations,bbs-website}/hooks/doctrine/*.md`, and re-homed on each
+  plugin's own `hooks/hooks.json`: `PreToolUse` on the Skill tool for a tool call and
+  `UserPromptExpansion` for a typed slash command (the path `monitorSlashCommands` covered);
+  PowerShell, or python3 where there is none; fails open. Same subscriptions, plus
+  `bbs-claude-coach:*` on the grounding doctrine (owed from the PR #25 review).
+  `check_marketplace.py` FAILs if the name creeps back into a live file. The rest of its
+  settings block (telemetry, `maxMatchesPerSkill`, `observeUnmatched`, `showConditionSkips`)
+  has no native equivalent and is dropped. Spec and plan for the retired plugin's removal:
+  `docs/superpowers/{specs,plans}/2026-09-28-remove-skill-bus.md`.
+- **Parker: after the skill-bus removal merges, re-paste managed settings and, on each
+  existing machine, `/plugin uninstall skill-bus@skill-bus-marketplace` and remove the
+  `skill-bus-marketplace` entry** (`/plugin marketplace remove skill-bus-marketplace`) —
+  a repo change cannot do that. Until both are done a machine still runs the retired
+  plugin alongside the native hooks and injects the doctrine twice. Steps:
+  `docs/ADMIN-RUNBOOK.md` §1a. The Windows PowerShell 5.1 path of the new hook was not
+  executable in the build environment (pwsh 7 and python3 were, and agree byte for byte);
+  the first Windows rep run of any `bbs-sales:*` skill should be watched for the doctrine
+  appearing once.
+- **`bbs-deck-voice` claims "Largest small business seller to the State of California"** —
+  **RESOLVED 2026-09-23, PR #31.** Parker ruled BBS was a California small business when
+  it earned that ranking: keep the claim, make it historical. The four present-tense lines
+  are now past tense ("Became the largest…"), following `:28`; nothing else in the claim
+  changed and no `description:` was touched. Original entry, kept for history: it said so in
+  the present tense — `SKILL.md:25`, `SKILL.md:57`, `references/federal-positioning.md:34`,
+  `:57` (`:28` is past tense and reads fine). Since 2026-09-22 BBS is **not** a California
+  small business, so this is the same channel-crossing sentence class PR #29 removed,
+  pointing the other way. Deliberately **not** changed: it may be a ranking BBS legitimately
+  earned while certified, it is deck marketing rather than a sworn certification, and
+  rewriting it from this ruling alone would be the "infer a certification from a
+  neighbouring file" error the cautionary tale warns against. Parker's call — keep as is,
+  qualify with a date, or drop.
+- **Past California bids in the filed-form corpus that carried an SB claim — RESOLVED
+  2026-09-23, PR #31.** Raised in review of PR #30 and not previously recorded here.
+  Parker ruled they were filed while BBS was a California small business and were correct
+  when filed: no compliance problem, and the record of what was filed stays as filed. The
+  fix is downstream — nothing that learns from the corpus may carry an SB claim into a bid
+  made today. `naspo-quote/scripts/mine_precedents.py` now routes values carrying an SB,
+  MB or small-business token to `historical_only` instead of the `filled_values`
+  precedent table; a generically named checkbox still needs a human check (test:
+  `test_mine_precedents.py`); `filled-form-precedents.md`, `naspo-quote` SKILL.md and the
+  `bbs-sales` README say certification values come from `vendor_profile.json`, never from
+  a past packet. Canon records the pre-threshold validity.
+- **`ca-form-rules.md` / `vendor_profile.json` read as excluding informal solicitations
+  from the DVBE incentive — RESOLVED 2026-09-23, PR #31.** Raised by both reviewers of
+  PR #30 (which fixed the same wording in the foundations hook only). Parker approved
+  aligning them with canon: §1204 is never claimed on any California solicitation; §1202 is
+  claimed on every California competitive solicitation, informal ones included.
+- **Who certifies the CalRecycle 74 — RULED 2026-09-18: the rep who quoted the job.**
+  `naspo-quote` §5 no longer defaults to Griffin; `ca-form-rules.md` already said the rep.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-09-16.
+Owner: Parker Marshall. Last verified 2026-09-18.

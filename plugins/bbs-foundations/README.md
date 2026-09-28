@@ -44,9 +44,13 @@ explains every block. Optional, and worth it:
 /plugin install claudeforge@bbs-claude-marketplace   # cap enforcement, chain repair, /sync-claude-md
 ```
 
-The skill-bus subscriptions in `hooks/skill-bus.json` inject the BBS doctrine whenever
-this skill, any `claudeforge` skill, or Anthropic's `claude-md-improver` runs. Wire them
-once with `/skill-bus:onboard`, or let `/bbs-onboard` do it.
+The plugin's own hook (`hooks/hooks.json`, a `PreToolUse` hook on the Skill tool) injects
+the BBS doctrine whenever this skill, any `claudeforge` skill, or Anthropic's
+`claude-md-improver` runs, and the grounding doctrine whenever a `bbs-foundations`,
+`bbs-sales`, `bbs-claude-coach` or quote-bot lane-tuning skill runs. The text lives in
+`hooks/doctrine/*.md` and the subscriptions in `hooks/doctrine/subscriptions.json`; nothing
+to wire — it is active the moment the plugin is installed. PowerShell: pwsh 7 if present,
+else Windows PowerShell 5.1 (a Mac needs `brew install powershell`).
 
 ## Command
 
@@ -66,10 +70,12 @@ nothing. The Bechtel Sentinel tree shipped that way and the link checker reporte
 references" — which is the tell. Root imports children; children import `@../CLAUDE.md`
 so a session started in a subdirectory still gets the universal rules.
 
-**Cert language follows the channel.** SDVOSB for federal and primes; OSDS SB/DVBE
-`2009473` for California state, where the 5% SB preference and the DVBE incentive apply on
-competitive solicitations and never on LPA orders or storefront copy. The checker fails a
-federal-context file that makes a DVBE claim.
+**Cert language follows the channel, and so does small-business status.** SDVOSB for
+federal and primes, where BBS **is** a small business under SBA size standards; OSDS
+**DVBE** `2009473` for California state, where BBS is **not** a small business (state SB
+revenue threshold exceeded) and the 5% SB preference is never claimed. The DVBE incentive
+applies on competitive solicitations and never on LPA orders or storefront copy. The
+checker fails a federal-context file that makes a DVBE claim. Reasoning: `canonical-facts.md`, "Small-business status is channel-dependent".
 
 **Point, never copy.** Money is in Business Central, catalog in Supabase, documents in
 SharePoint, BBS form values in `plugins/bbs-sales/references/vendor_profile.json`. A fact stated twice drifts;

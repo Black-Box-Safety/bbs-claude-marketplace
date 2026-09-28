@@ -13,6 +13,7 @@ description: >-
   fill anything. Do NOT use for a competitive SB/DVBE bid needing vendor sourcing
   (use bbs-sourcing), or when the rep wants the forms alone with no pricing
   (use ca-form-filler).
+requires: [grainger, python3, pypdf, pymupdf]
 ---
 
 # NASPO quote — CA state agency RFQ
@@ -137,16 +138,17 @@ and Jackson each approve their signature being applied to state requests, on the
 understanding that the rep has reviewed the items with the buyer. Confirm that
 review has happened for this RFQ, then apply:
 
-- **Griffin Forsyth, VP** — CalRecycle 74 on most routine packets (53 of ~65 in
-  the corpus). This is the default signer for that form, not Parker.
-- **Parker Marshall, Sales Manager** — CalRecycle 74 on RFQs he owns, Darfur
-  OBS 1500, OBS 1000.
+- **The rep who quoted the job** — CalRecycle 74. Ruled by Parker 2026-09-18, matching
+  `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md`. The corpus shows Griffin on most
+  historical packets; that is history, not the rule. Never default it to last time's signer.
+- **Parker Marshall, Sales Manager** — Darfur OBS 1500, OBS 1000, and CalRecycle 74 on
+  RFQs he quoted himself.
 - **Jackson Dalton, President (DV Owner)** — DGS PD 843 and CV 012, the
   disabled-veteran declarations, and STD 204 as payee representative
   (`jackson@blackboxsafety.com`). These are his to sign, not Parker's.
 - GSPD-05-105 has no signature block; the signed quote covers its certification.
 
-Ask which of the three is signing rather than defaulting to last time's answer.
+Ask who quoted the job rather than defaulting to last time's answer.
 `references/filled-form-precedents.md` has the split with counts.
 
 Signature images:
@@ -214,7 +216,10 @@ can answer (which revision this agency uses, what BBS wrote in this field last
 time, whether this buyer accepted 0% on a similar item), read the corpus rather
 than guessing or asking. Non-NASPO RFQs in there count: the pricing differs, the
 certs are identical, so they are precedent for the forms even when they are not
-precedent for the price.
+precedent for the price. One exception: certification and preference fields. Never
+copy a certification value from the corpus; take it from
+`${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json`. Why some past packets differ:
+`bbs-foundations` `canonical-facts.md`, "Small-business status is channel-dependent".
 
 To refresh the precedent tables after a batch of new RFQs:
 
@@ -224,7 +229,9 @@ python scripts/mine_precedents.py "<path to State of CA Agencies>" --out /tmp/mi
 
 It classifies every PDF, pulls the filled AcroForm values, and reports
 solicitation numbers, account numbers, and anything it couldn't classify — that
-last list is where new form types show up.
+last list is where new form types show up. Filed values whose field name or value
+carries an SB, MB or small-business token go to `historical_only`, not the precedent
+table; a generically named checkbox cannot be detected and needs a human check.
 
 ## Reference files
 

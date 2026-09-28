@@ -1,0 +1,60 @@
+{
+  "inserts": {
+    "bbs-storefront-doctrine": {
+      "file": "bbs-storefront-doctrine.md"
+    },
+    "bbs-catalog-doctrine": {
+      "file": "bbs-catalog-doctrine.md"
+    }
+  },
+  "subscriptions": [
+    {
+      "insert": "bbs-storefront-doctrine",
+      "on": "shopify"
+    },
+    {
+      "insert": "bbs-storefront-doctrine",
+      "on": "shopify-plugin:*"
+    },
+    {
+      "insert": "bbs-storefront-doctrine",
+      "on": "liquid-skills:*"
+    },
+    {
+      "insert": "bbs-storefront-doctrine",
+      "on": "frontend-design:*"
+    },
+    {
+      "insert": "bbs-storefront-doctrine",
+      "on": "impeccable:*"
+    },
+    {
+      "insert": "bbs-storefront-doctrine",
+      "on": "bbs-website:product-page"
+    },
+    {
+      "insert": "bbs-storefront-doctrine",
+      "on": "bbs-website:brand-page-builder"
+    },
+    {
+      "insert": "bbs-catalog-doctrine",
+      "on": "bbs-website:price-list-cleaner"
+    },
+    {
+      "insert": "bbs-catalog-doctrine",
+      "on": "bbs-website:contract-discount-loader"
+    },
+    {
+      "insert": "bbs-catalog-doctrine",
+      "on": "bbs-website:family-rollup"
+    },
+    {
+      "insert": "bbs-catalog-doctrine",
+      "on": "bbs-website:image-pipeline"
+    },
+    {
+      "insert": "bbs-catalog-doctrine",
+      "on": "bbs-website:bbs-pricelist-import"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "inserts": {
+    "bbs-claude-md-doctrine": {
+      "file": "bbs-claude-md-doctrine.md"
+    },
+    "bbs-grounding-doctrine": {
+      "file": "bbs-grounding-doctrine.md"
+    }
+  },
+  "subscriptions": [
+    {
+      "insert": "bbs-claude-md-doctrine",
+      "on": "bbs-foundations:bbs-claude-md-forge"
+    },
+    {
+      "insert": "bbs-claude-md-doctrine",
+      "on": "bbs-claude-md-forge"
+    },
+    {
+      "insert": "bbs-claude-md-doctrine",
+      "on": "bbs-foundations:bbs-claude-md"
+    },
+    {
+      "insert": "bbs-claude-md-doctrine",
+      "on": "claudeforge*"
+    },
+    {
+      "insert": "bbs-claude-md-doctrine",
+      "on": "claudeforge:*"
+    },
+    {
+      "insert": "bbs-claude-md-doctrine",
+      "on": "claude-md-*"
+    },
+    {
+      "insert": "bbs-claude-md-doctrine",
+      "on": "enhance-claude-md"
+    },
+    {
+      "insert": "bbs-claude-md-doctrine",
+      "on": "sync-claude-md"
+    },
+    {
+      "insert": "bbs-claude-md-doctrine",
+      "on": "claude-md-management:claude-md-improver"
+    },
+    {
+      "insert": "bbs-claude-md-doctrine",
+      "on": "claude-md-management:*"
+    },
+    {
+      "insert": "bbs-claude-md-doctrine",
+      "on": "revise-claude-md"
+    },
+    {
+      "insert": "bbs-grounding-doctrine",
+      "on": "bbs-foundations:*"
+    },
+    {
+      "insert": "bbs-grounding-doctrine",
+      "on": "bbs-website:le-lane-tuning"
+    },
+    {
+      "insert": "bbs-grounding-doctrine",
+      "on": "bbs-website:supply-lane-tuning"
+    },
+    {
+      "insert": "bbs-grounding-doctrine",
+      "on": "bbs-sales:*"
+    },
+    {
+      "insert": "bbs-grounding-doctrine",
+      "on": "bbs-claude-coach:*"
+    }
+  ]
+}

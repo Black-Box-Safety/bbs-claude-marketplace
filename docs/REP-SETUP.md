@@ -25,24 +25,26 @@ On a Mac, or if you use Cursor instead of VS Code, start at
    Accept the 4 recommended extensions. The file explorer / primary sidebar stays
    on the **left**. If yours is on the right: View → Appearance → Move Primary
    Side Bar Left. Site maintainers open `bbs-web` instead; see
-   `workspace/README.md`.
-5. **Run `/bbs-onboard`** once — wires the skill-bus doctrine injection so BBS grounding rules
-   fire inside the quoting skills. Without it the skills run with no guardrail text.
-6. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
+   `workspace/README.md`. Nothing to wire for the BBS doctrine — the plugins' own
+   hooks inject it whenever a BBS skill runs.
+5. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
    exact sentence to send Parker — send it, use the Desktop app meanwhile.
-7. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
+6. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
 
 ## What you just installed, and what each plugin needs
 
-Install only the plugin for your desk. Everyone gets `bbs-foundations`.
+Install the plugins you need. Everyone gets `bbs-foundations` and `bbs-claude-coach`.
 
 ```bash
 /plugin marketplace add Black-Box-Safety/bbs-claude-marketplace   # once
 /plugin install bbs-foundations@bbs-claude-marketplace            # everyone
-/plugin install bbs-sales@bbs-claude-marketplace                  # sales reps
+/plugin install bbs-claude-coach@bbs-claude-marketplace           # everyone — understand / start / extend
+/plugin install bbs-sales@bbs-claude-marketplace                  # sales / quoting work
 /plugin install bbs-back-office@bbs-claude-marketplace            # purchasing / accounting
 /plugin install bbs-website@bbs-claude-marketplace                # whoever maintains the site
 ```
+
+New to the toolkit? Run `/bbs-explain-claude` or `/bbs-what-can-i-do` after checkup.
 
 **An install gives you the skills, commands and hooks — and nothing else.** Two things it
 does not give you, and they are the two reasons a skill fails on a fresh machine.
@@ -77,9 +79,8 @@ command, so a missing library is a clear message, never a half-written bid docum
 ## Daily use
 
 - New RFQ lands in your mailbox (an `_inbox/` folder arrives once Parker's intake flow is
-  live): open the workspace, tell Claude what arrived — `ca-rfq-intake` files it and starts
-  the record. Then `/ca-rfq-quote` when you're ready to price. You review every number.
-  You send.
+  live): open the workspace, tell Claude what arrived — `/ca-rfq` runs it end to end, asking
+  first whether to file it before pricing. You review every number. You send.
 - Where you'd have asked "what did we quote them last time?" — ask Claude. It reads the
   quote-log and Business Central and cites what it finds.
 - Need to find a product or a supplier? Ask Claude to open Chrome and look. It drives your own
@@ -95,7 +96,15 @@ command, so a missing library is a clear message, never a half-written bid docum
 ## When to use which window
 
 - **VS Code**: quote work — you want the RFQ, the worksheet, and Claude on one screen.
-- **Cursor**: the same workspace, if that is the app on your machine. [`CURSOR-SETUP.md`](CURSOR-SETUP.md).
+  Tip: the Claude side panel shows a subset of commands and skills. If a `/command` you
+  expect is not offered there, typing `claude` in the integrated terminal gives you all of
+  them. Either window works; use whichever you prefer.
+- **Using Cursor instead of VS Code?** Fine. Same workspace file, same extension, same
+  Claude, same skills — [`CURSOR-SETUP.md`](CURSOR-SETUP.md) walks it through (Mac
+  included). One caution: use the Claude panel or `claude` in the terminal for desk work,
+  not Cursor's own Agent or Composer. Cursor's Agent does not read the desk `CLAUDE.md`, so
+  it does not know the folder rules (never rename a folder; account numbers ride on the
+  names).
 - **Desktop app**: everything else, or if VS Code is ever broken. Same Claude.
 
 ## Want an agency storefront?

@@ -83,12 +83,22 @@ external plugin so it is one install away and there is one marketplace for the t
 4. **`github-standards` stays where it is** (Grace's standard, Parker's machine).
    **`parker-voice` becomes the exemplar inside a template**, `bbs-voice-template`, so each
    teammate builds their own `<first>-voice` from their own sent mail (Parker, 2026-09-02).
-5. **SB preference ruling reversed, 2026-09-02.** The first release's checker failed on
-   "5% SB preference" on the strength of one `bbs-shopify` line. Parker confirms BBS holds
-   OSDS SB/DVBE 2009473 and the 5% preference applies on competitive solicitations incl.
-   informal (SCM §1204), alongside the DVBE incentive (§1202). The check is removed; the
-   canonical-facts row now says where a preference does and does not belong. The
-   `ca-quote-hub` PR that removed the claim was closed unmerged.
+5. **SB preference ruling reversed, 2026-09-02 — since re-reversed, see below.** The
+   first release's checker failed on "5% SB preference" on the strength of one
+   `bbs-shopify` line. Parker confirms BBS holds OSDS SB/DVBE 2009473 and the 5%
+   preference applies on competitive solicitations incl. informal (SCM §1204), alongside
+   the DVBE incentive (§1202). The check is removed; the canonical-facts row now says
+   where a preference does and does not belong. The `ca-quote-hub` PR that removed the
+   claim was closed unmerged.
+
+   > **SUPERSEDED 2026-09-22.** Parker ruled in session that OSDS 2009473 carries **DVBE
+   > only** and BBS is **not** a California small business, having passed the state SB
+   > revenue threshold; BBS remains a small business federally under SBA size standards.
+   > The §1204 preference is never claimed on a California bid; the §1202 DVBE incentive
+   > is unaffected. Current fact and reasoning:
+   > `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`,
+   > "Small-business status is channel-dependent". This item is kept as the record of the
+   > ruling it replaced.
 
 ## Success criteria
 

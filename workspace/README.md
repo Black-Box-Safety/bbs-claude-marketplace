@@ -23,10 +23,14 @@ files are tokens, not paths:
 
 Usual OneDrive shapes (the middle folder name varies by how OneDrive was installed):
 
-- **Windows:** `C:/Users/<you>/Black Box Safety - MASTER`
+- **Windows:** `C:/Users/<you>/Black Box Safety - MASTER`, or for a Teams-site sync
+  `C:/Users/<you>/OneDrive - Black Box Safety, Inc/Blackbox Safety Team Site - Black Box Safety - MASTER`
+  (check File Explorer for the exact synced name on your machine)
 - **Mac:** `/Users/<you>/Library/CloudStorage/OneDrive-BlackBoxSafety,Inc/Black Box Safety - MASTER`
 
-Then File → Open Workspace from File. Accept the recommended extensions.
+Then File → Open Workspace from File. Accept the recommended extensions. Full walk-through:
+`docs/REP-SETUP.md` / `docs/CURSOR-SETUP.md` (screenshots will be pinned in the Teams sales
+channel).
 
 Every BBS workspace pins the primary sidebar on the **left**
 (`workbench.sideBar.location: left`). Put the same two keys in Cursor / VS Code

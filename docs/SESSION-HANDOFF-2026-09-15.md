@@ -34,12 +34,16 @@ seven failed *silently*: `bbs-pricelist-import`'s frontmatter had an unquoted co
 would never have loaded at all, and `grainger-promo-page`'s `name` disagreed with its
 folder, which stops skill-bus subscriptions matching.
 
-**One correction worth carrying forward.** A vendor-profile note asserting "BBS is NOT
-SB-certified" was wrong and would have cost money: `ca-form-filler` surfaces those notes as
-pre-fill warnings, so it would have talked reps out of the 5% Small Business preference on
-every competitive state solicitation. OSDS 2009473 carries **both** SB and DVBE. The
-lesson: canonical facts come from `bbs-foundations`, never inferred from a neighbouring
-doctrine file whose scope you have not checked.
+**One correction worth carrying forward.** ~~A vendor-profile note asserting "BBS is NOT
+SB-certified" was wrong and would have cost money … OSDS 2009473 carries **both** SB and
+DVBE.~~ **Superseded 2026-09-22.** Parker ruled in session that OSDS 2009473 carries
+**DVBE only** and BBS is **not** a California small business, having passed the state SB
+revenue threshold; BBS remains a small business federally. So the conclusion recorded here
+on 2026-09-15 was wrong and has been reversed — see `canonical-facts.md`,
+"Small-business status is channel-dependent". The lesson survives intact and is the reason
+this entry is kept rather than deleted: canonical facts come from `bbs-foundations`, never
+inferred from a neighbouring doctrine file whose scope you have not checked, and a
+certification claim is not a fact until it names its channel.
 
 ---
 

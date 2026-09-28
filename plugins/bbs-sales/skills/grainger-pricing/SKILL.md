@@ -12,6 +12,7 @@ description: >-
   produces the list this prices), to check DGS BPO eligibility (dgs-bpo-item-check), or to
   build the quote document (bbs-quote-builder). If a rep says only "check these items", ask
   whether they mean price or BPO eligibility.
+requires: [grainger]
 ---
 
 # Grainger pricing — via the Grainger MCP

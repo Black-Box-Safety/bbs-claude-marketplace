@@ -8,7 +8,7 @@
 
 ## Version policy
 
-The three BBS plugins carry **no version field** in marketplace.json: every push to main
+The five BBS plugins carry **no version field** in marketplace.json: every push to main
 auto-updates every machine (version = commit SHA). This is deliberate — the drift-killer.
 Pin a version string only for a deliberate freeze (e.g., during the acceptance pilot), and
 remove the pin when the freeze ends. External plugins (claudeforge, impeccable) track branch refs

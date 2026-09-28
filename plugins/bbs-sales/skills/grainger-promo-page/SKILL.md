@@ -1,6 +1,8 @@
 ---
 name: grainger-promo-page
 description: Build a Black Box Safety product promotion landing page for a California public agency from a Grainger negotiated hot list or price sheet, with live pricing, product photography, a quote builder, SCPRS-sized buyer segments, and the brand compliance gate. Use this skill whenever a Grainger rep sends a priced sheet or hot list for an agency, whenever someone asks for a promo page, contract sheet, product landing page, punchout promo, or campaign page for CAL FIRE, CDCR, DWR, CHP, Caltrans, CalVet, a CSU or UC campus, or any other California agency, and whenever someone says they want to promote Grainger items or a hot list to an agency by email or web. Also use it when asked to price a list of Grainger item numbers for an agency account, or to segment an agency's buyers for a campaign.
+requires: [grainger, business-central, ca-procurement-intel, python3, poppler]
+degrades-without: [firecrawl, vercel-cli]
 ---
 
 # Grainger promotion landing page

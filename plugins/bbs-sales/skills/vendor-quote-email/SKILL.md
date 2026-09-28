@@ -9,6 +9,7 @@ description: >
   quote email", or any request to contact a vendor/supplier for item pricing
   on behalf of a customer agency. Always render the interactive form widget
   — never draft this email as free-form text without showing the form first.
+requires: []
 ---
 
 # Vendor Quote Email
