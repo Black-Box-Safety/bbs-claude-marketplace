@@ -16,8 +16,9 @@ Spec shape (see references/form-field-maps.md for the field names per form):
 {
   "src_dir":  "/path/to/folder/with/blank/forms",
   "out_dir":  "/path/to/output",
-  "signatures": { "parker": "/abs/path/parker-signature.png",
-                  "jackson": "/abs/path/JACKSON_SIG.png" },
+  "master_root": "/path/to/Black Box Safety - MASTER",
+  "signatures": { "parker":  "MASTER/Customers/.../parker-signature.png",
+                  "jackson": "MASTER/Jackson Dalton Signature/Copy of JACKSON_SIG.png" },
   "forms": [
     {
       "src": "CalRecycle- Form 74 (01-2023).pdf",
@@ -51,18 +52,30 @@ Notes that save you a debugging cycle:
   Where each signer's PNG lives is recorded once, as `signature_image` on that
   person in ${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json.
 
-* missing signature images stop the run — every `sign` entry in every form is
-  checked by `check_signatures()` before any PDF is opened. A signer with no
-  path in `signatures`, or a path with no file behind it, exits naming the
-  signer and the path. Nothing is written, so no half-signed packet exists
-  (AGENTS.md invariant 4). The fix is the path, or dropping that `sign` entry
-  so the line is left unsigned for the rep.
+* signature paths — copy `signature_image` from the vendor profile as-is. A
+  path starting `MASTER/` is joined onto `master_root` here, so nobody builds an
+  absolute path by hand. `master_root` is the synced `Black Box Safety - MASTER`
+  library folder (on a Teams-site sync its name carries a "… - " prefix). A
+  `MASTER/` path with no `master_root` stops the run. Absolute paths also work.
+
+* nothing is written unless everything worked (AGENTS.md invariant 4).
+  `preflight()` runs before any PDF is opened: it checks every `sign` entry's
+  shape, that each signer's path resolves to a file whose first bytes are a PNG
+  signature (reading them also forces an online-only OneDrive placeholder to
+  download, or fails if it can't), and that every form's `src` exists. Forms
+  are then filled into a temporary folder and moved into `out_dir` only after
+  every one succeeded and every `sign` entry stamped at least one field. A
+  `sign` field that matches nothing prints "⚑ SIGNATURE NOT APPLIED" and the run
+  exits non-zero with `out_dir` untouched. The fix is the path or field name,
+  or dropping that `sign` entry so the line is left unsigned for the rep.
 
 Requires: pymupdf
 """
 import json
 import os
+import shutil
 import sys
+import tempfile
 
 try:
     import fitz  # PyMuPDF
@@ -72,34 +85,128 @@ except ImportError:  # checked in main(); check_signatures() needs no fitz
 TRUTHY = {True, "true", "yes", "on", "x", "1", "checked"}
 
 
+PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+MASTER_PREFIX = "MASTER/"
+FIX_HINT = ("Fix the path, or leave the line unsigned for the rep (drop that "
+            "`sign` entry). Nothing was written.")
+
+
 class SignatureMissing(Exception):
-    """A form asks for a signature whose image cannot be found."""
+    """A form asks for a signature that cannot be applied, or a form is missing."""
 
 
-def check_signatures(forms, sig_paths):
-    """Raise SignatureMissing unless every signer any form asks for has a real file.
+def _raise(problems):
+    if problems:
+        lines = "\n".join(f"⚑ SIGNATURE REQUIRED — {p}" if p.startswith("signature image")
+                          else p for p in dict.fromkeys(problems))
+        raise SignatureMissing(lines + "\n" + FIX_HINT)
 
-    Runs before any PDF is opened. Before this check, a signer absent from
-    `signatures` died with a bare KeyError, and a path with no file died inside
-    fitz.Pixmap after the widget was already deleted — in both cases after the
-    earlier forms of the packet had already been written, signed.
+
+def _sign_entries(form, problems):
+    """Yield (field, who, sig) for each well-formed `sign` entry; record bad ones."""
+    where = form.get("src", "?") if isinstance(form, dict) else "?"
+    sign = form.get("sign") if isinstance(form, dict) else None
+    if sign is None:
+        return
+    if not isinstance(sign, dict):
+        problems.append(f"`sign` in {where} must be an object of field -> "
+                        f"{{\"who\": ...}}, got {type(sign).__name__}")
+        return
+    for field, sig in sign.items():
+        if not isinstance(sig, dict):
+            problems.append(f"`sign` entry {field!r} in {where} must be an object "
+                            f"with a `who`, got {type(sig).__name__}")
+            continue
+        who = sig.get("who")
+        if not isinstance(who, str) or not who:
+            problems.append(f"`sign` entry {field!r} in {where} names no signer "
+                            f"(`who` missing or empty)")
+            continue
+        yield field, who, sig
+
+
+def resolve_sig_path(path, master_root):
+    """Return an absolute path, or raise ValueError saying why it can't be built."""
+    p = path.replace("\\", "/")
+    if p.startswith(MASTER_PREFIX):
+        if not master_root:
+            raise ValueError(f"{path} is relative to the MASTER library, but the spec "
+                             f"has no `master_root`")
+        return os.path.join(master_root, *p[len(MASTER_PREFIX):].split("/"))
+    if p.startswith("..."):
+        raise ValueError(f"{path} uses the old '...' prefix; use the `MASTER/` path "
+                         f"from vendor_profile.json")
+    if not os.path.isabs(path):
+        raise ValueError(f"{path} is neither absolute nor `MASTER/`-relative")
+    return path
+
+
+def _png_problem(path):
+    try:
+        with open(path, "rb") as fh:
+            head = fh.read(8)
+    except OSError as e:
+        return f"could not be read ({e.strerror or e})"
+    if not head:
+        return "is empty (0 bytes)"
+    if head != PNG_MAGIC:
+        return "is not a PNG"
+    return None
+
+
+def check_signatures(forms, sig_paths, master_root=None):
+    """Return {signer: absolute path} for every signer any form asks for.
+
+    Raises SignatureMissing naming each signer and path that can't be used:
+    a malformed `sign` entry, a signer absent from `signatures`, a path that
+    can't be resolved, a file that is missing, unreadable, empty or not a PNG.
+    Before this existed, a missing signer died with a bare KeyError and a
+    missing file died inside fitz.Pixmap — after earlier forms were saved signed.
     """
-    problems = []
+    problems, resolved = [], {}
     for form in forms:
-        for field, sig in (form.get("sign") or {}).items():
-            who = sig.get("who")
-            path = (sig_paths or {}).get(who)
+        for field, who, _sig in _sign_entries(form, problems):
             where = f"{form.get('src', '?')} field {field!r}"
-            if not path:
+            raw = (sig_paths or {}).get(who)
+            if not raw:
                 problems.append(f"signature image for {who} not given in the spec's "
                                 f"`signatures` ({where})")
-            elif not os.path.isfile(path):
+                continue
+            try:
+                path = resolve_sig_path(raw, master_root)
+            except ValueError as e:
+                problems.append(f"signature image for {who}: {e} ({where})")
+                continue
+            if not os.path.isfile(path):
                 problems.append(f"signature image for {who} not found at {path} ({where})")
-    if problems:
-        raise SignatureMissing(
-            "\n".join(dict.fromkeys(problems))
-            + "\nFix the path or leave the line unsigned for the rep "
-              "(drop that `sign` entry). Nothing was written.")
+                continue
+            bad = _png_problem(path)
+            if bad:
+                problems.append(f"signature image for {who} at {path} {bad} ({where})")
+                continue
+            resolved[who] = path
+    _raise(problems)
+    return resolved
+
+
+def check_sources(forms, src_dir):
+    """Raise SignatureMissing if any form's blank `src` PDF is not there."""
+    problems = []
+    for form in forms:
+        src = form.get("src")
+        if not src:
+            problems.append(f"a form has no `src` (out: {form.get('out', '?')})")
+        elif not os.path.isfile(os.path.join(src_dir, src)):
+            problems.append(f"blank form not found: {os.path.join(src_dir, src)}")
+    _raise(problems)
+
+
+def preflight(spec):
+    """Everything that can be checked without opening a PDF. Returns resolved sig paths."""
+    forms = spec["forms"]
+    sigs = check_signatures(forms, spec.get("signatures", {}), spec.get("master_root"))
+    check_sources(forms, spec["src_dir"])
+    return sigs
 
 
 def _stamp(page, rect, img_path, dx, dy, max_h=22):
@@ -111,8 +218,9 @@ def _stamp(page, rect, img_path, dx, dy, max_h=22):
     page.insert_image(box, filename=img_path, overlay=True)
 
 
-def fill_form(spec, sig_paths, src_dir, out_dir):
-    check_signatures([spec], sig_paths)
+def fill_form(spec, sig_paths, src_dir, out_dir, master_root=None):
+    """Fill one form into out_dir. Returns (out_path, [unapplied sign messages])."""
+    sig_paths = check_signatures([spec], sig_paths, master_root)
     doc = fitz.open(os.path.join(src_dir, spec["src"]))
     text = spec.get("text", {})
     checks = spec.get("checks", {})
@@ -150,10 +258,12 @@ def fill_form(spec, sig_paths, src_dir, out_dir):
                 w.update()
                 doc.xref_set_key(w.xref, "AS", "/Off")
 
-    for name, sig in (spec.get("sign") or {}).items():
-        img = sig_paths[sig["who"]]
+    unapplied = []
+    for name, who, sig in _sign_entries(spec, []):
+        img = sig_paths[who]
+        stamped = 0
         for page in doc:
-            for w in (page.widgets() or []):
+            for w in list(page.widgets() or []):
                 if w.field_name == name:
                     rect = w.rect
                     try:
@@ -161,11 +271,16 @@ def fill_form(spec, sig_paths, src_dir, out_dir):
                     except Exception:
                         pass
                     _stamp(page, rect, img, sig.get("dx", 2), sig.get("dy", 0))
+                    stamped += 1
+        if not stamped:
+            unapplied.append(f"⚑ SIGNATURE NOT APPLIED — {who}: {spec['src']} "
+                             f"field {name!r} not found")
 
     out = os.path.join(out_dir, spec["out"])
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     doc.save(out)
     doc.close()
-    return out
+    return out, unapplied
 
 
 def main():
@@ -174,16 +289,31 @@ def main():
     with open(sys.argv[1]) as f:
         spec = json.load(f)
     src_dir, out_dir = spec["src_dir"], spec["out_dir"]
-    sigs = spec.get("signatures", {})
     try:
-        check_signatures(spec["forms"], sigs)
+        sigs = preflight(spec)
     except SignatureMissing as e:
         sys.exit(f"STOP: {e}")
     if fitz is None:
-        sys.exit("pymupdf required: pip install pymupdf --break-system-packages -q")
-    os.makedirs(out_dir, exist_ok=True)
-    for form in spec["forms"]:
-        print("wrote", fill_form(form, sigs, src_dir, out_dir))
+        sys.exit("pymupdf required: python -m pip install pymupdf "
+                 "(Mac: python3 -m pip install --user pymupdf, or use a venv)")
+
+    staging = tempfile.mkdtemp(prefix="fill_ca_forms-")
+    try:
+        unapplied = []
+        for form in spec["forms"]:
+            _out, missed = fill_form(form, sigs, src_dir, staging)
+            unapplied += missed
+        if unapplied:
+            print("\n".join(unapplied), file=sys.stderr)
+            sys.exit("STOP: a signature line was not signed. " + FIX_HINT)
+        os.makedirs(out_dir, exist_ok=True)
+        for form in spec["forms"]:
+            dest = os.path.join(out_dir, form["out"])
+            os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
+            shutil.move(os.path.join(staging, form["out"]), dest)
+            print("wrote", dest)
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
     print("\nNow render every page and look at it — these fields clip silently.")
 
 

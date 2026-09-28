@@ -38,8 +38,8 @@ of one bid's sourcing detail should not load into every session about the accoun
 ## The two mistakes, and how the checker catches each
 
 **Inline imports.** The first root file read `**Chain:** @utah-sentinel/CLAUDE.md ·
-@vandenburg-sentinel-rfps/CLAUDE.md`. It looked chained. Claude Code resolves `@` imports
-only at column one, so nothing loaded; a session in the root never saw either site file.
+@vandenburg-sentinel-rfps/CLAUDE.md` (the folder's old name). It looked chained. Claude
+Code resolves `@` imports only at column one, so nothing loaded; a session in the root never saw either site file.
 `claude-md-link-check` reported "0 references checked," which is the tell. Now a FAIL:
 "inline `@path` (not at column one)."
 
