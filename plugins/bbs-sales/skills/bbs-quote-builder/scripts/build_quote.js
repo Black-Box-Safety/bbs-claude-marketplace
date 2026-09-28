@@ -49,11 +49,23 @@
 
 const fs = require('fs');
 const path = require('path');
+let docx;
+try {
+  docx = require('docx');
+} catch (err) {
+  // Only a missing package gets the install advice; a broken install is a
+  // different fault and must surface as itself.
+  if (err.code !== 'MODULE_NOT_FOUND' || !/'docx'/.test(err.message)) throw err;
+  console.error("The 'docx' package is missing. Windows: run bbs-setup.ps1, then open a new " +
+    "window / reopen VS Code. Any OS: run `npm install docx` inside " +
+    path.dirname(__dirname) + " once per plugin update.");
+  process.exit(1);
+}
 const {
   Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
   AlignmentType, WidthType, ShadingType, BorderStyle, VerticalAlign,
   ImageRun, Footer
-} = require('docx');
+} = docx;
 
 const specPath = process.argv[2];
 const outPath = process.argv[3];
