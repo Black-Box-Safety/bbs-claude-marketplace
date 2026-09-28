@@ -2,10 +2,10 @@
   "_meta": {
     "source": "THE source of truth for BBS vendor facts on California bid forms. Every form skill in this plugin reads this file and nothing else. Resolve it as ${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json; fill_obs_packet.py derives its flat view from here rather than keeping a second copy.",
     "do_not_duplicate": "If you are about to write a BBS address, cert number, FEIN or signer into a skill, stop and read it from here instead. This file exists because those facts were previously written down twice, in two shapes, and a cert expiry could go stale in one of them while a rep submitted binding bids from the other.",
-    "last_reviewed": "2026-09-15",
+    "last_reviewed": "2026-09-23",
     "notes": [
       "CERT DISCIPLINE — statewide credit comes ONLY from OSDS 2009473. San Diego SLBE 17BB1659 and LA County DVBE 10086 are LOCAL certifications and earn no state credit; never cite them for a statewide bid.",
-      "SB PREFERENCE APPLIES — claim it. The OSDS certification 2009473 carries BOTH SB and DVBE, so on California competitive solicitations, informal included, BBS is entitled to the 5% Small Business preference (SCM §1204) AND the DVBE incentive (SCM §1202). Neither applies to an LPA/NASPO order, a federal bid (SDVOSB only), or storefront copy. The storefront doctrine's 'never claim SB credit' is about storefront copy alone — it is not a statement that BBS lacks SB certification. Ruling reversed by Parker 2026-09-02; bbs-foundations canonical-facts is the source.",
+      "NO SB PREFERENCE IN CALIFORNIA — do not claim it. OSDS 2009473 carries DVBE ONLY. BBS exceeded California's SB revenue threshold and is NOT a California small business, so the 5% Small Business preference (SCM §1204) is NEVER claimed on any California solicitation. Claiming it on a bid signed under penalty of perjury is a false certification. The DVBE incentive (SCM §1202) is unaffected and IS claimed on every California competitive solicitation, informal ones included — never on an LPA/NASPO order, a federal bid, or storefront copy. SEPARATELY AND STILL TRUE: federally BBS IS a small business (SBA size standards are far higher than California's) as well as SDVOSB — never strip a federal small-business claim on the strength of this note. Ruling: Parker, in session, 2026-09-22; supersedes the 2026-09-02 reversal. Reasoning and provenance live in bbs-foundations canonical-facts.md, \"Small-business status is channel-dependent\" — this note cites it, it does not restate it.",
       "In FEDERAL context BBS is SDVOSB, not DVBE. DVBE is the California term. Do not mix them on one form.",
       "A manufacturer's own GSA or contract vehicle does not authorize BBS to fulfill unless BBS is a named reseller.",
       "FEIN and seller's permit live here deliberately. This repo is BBS-specific and private; the canonical-facts rule against committing them guards work that might be reused elsewhere."
@@ -34,8 +34,9 @@
     "sb_dvbe": {
       "osds_ref_number": "2009473",
       "expiration": "12/31/2027",
-      "scope": "California statewide — ONE OSDS certification carrying both SB and DVBE",
-      "carries": ["Small Business", "Disabled Veteran Business Enterprise"]
+      "scope": "California statewide — DVBE only. BBS is not a California small business (state SB revenue threshold exceeded); see _meta.notes.",
+      "carries": ["Disabled Veteran Business Enterprise"],
+      "key_name_note": "The key is still `sb_dvbe` because skills and fill_obs_packet.py resolve it by that name; the name is historical and does NOT mean the cert carries SB. Read `carries`."
     },
     "local_only": [
       { "name": "San Diego SLBE", "number": "17BB1659", "scope": "San Diego local only" },

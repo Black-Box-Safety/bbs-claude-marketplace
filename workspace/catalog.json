@@ -1,0 +1,36 @@
+{
+  "named": [
+    { "id": "bbs-shopify", "names": ["bbs-shopify"] },
+    { "id": "bbs-database", "names": ["bbs-database"] },
+    { "id": "bbs-quote-bot", "names": ["bbs-quote-bot"] },
+    { "id": "bbs-customer-bots", "names": ["bbs-customer-bots"] },
+    { "id": "bbs-sales-vault", "names": ["bbs-sales-vault"] },
+    { "id": "bbs-suppliers", "names": ["bbs-suppliers"] },
+    { "id": "bbs-claude-marketplace", "names": ["bbs-claude-marketplace", "bbs-claude-marketplace-cursor-env"] }
+  ],
+  "recipes": [
+    {
+      "id": "rep",
+      "name": "BBS Quote Desk",
+      "template": "bbs-rep.code-workspace",
+      "use": "California state agency folders",
+      "required": ["quote_desk"]
+    },
+    {
+      "id": "web",
+      "name": "BBS Web",
+      "template": "bbs-web.code-workspace",
+      "use": "Storefront, catalog, quote bot, agency tenants",
+      "required": ["bbs-shopify", "bbs-database"],
+      "optional": ["bbs-quote-bot", "bbs-customer-bots"]
+    },
+    {
+      "id": "admin",
+      "name": "BBS Admin",
+      "template": "bbs-admin.code-workspace",
+      "use": "Document store, marketplace, vault, suppliers",
+      "required": ["onedrive_master"],
+      "optional": ["bbs-sales-vault", "bbs-suppliers", "bbs-claude-marketplace"]
+    }
+  ]
+}

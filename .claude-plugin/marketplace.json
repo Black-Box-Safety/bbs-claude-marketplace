@@ -4,14 +4,14 @@
     "name": "Black Box Safety, Inc."
   },
   "metadata": {
-    "description": "Black Box Safety internal Claude plugins \u2014 site operations, state sales, and AI foundations.",
+    "description": "Black Box Safety internal Claude plugins — site operations, state sales, and AI foundations.",
     "version": "0.5.0"
   },
   "plugins": [
     {
       "name": "bbs-website",
       "source": "./plugins/bbs-website",
-      "description": "Maintain the BBS website end to end \u2014 price list to live product page. Catalog intake and import, contract pricing, variant families, enrichment, storefront pages, quote-bot lane tuning, QA and cross-sell.",
+      "description": "Maintain the BBS website end to end — price list to live product page. Catalog intake and import, contract pricing, variant families, enrichment, storefront pages, quote-bot lane tuning, QA and cross-sell.",
       "author": {
         "name": "Black Box Safety, Inc."
       },
@@ -29,13 +29,17 @@
     {
       "name": "bbs-sales",
       "source": "./plugins/bbs-sales",
-      "description": "The California state quote desk, end to end: log an inbound RFQ, pull items out of whatever the agency sent (DWR RFQ PDF, Grainger cart, or a screenshot), check DGS BPO eligibility, price it through the Grainger MCP or vendor sourcing, build the customer quote on BBS letterhead, and fill the CDCR and CA compliance packets. Plus Grainger promo pages.",
+      "description": "The California state book, end to end: work the territory that creates the demand, then run the quote desk it feeds. Territory: segment a book into a dated call list, time it to the state budget calendar, brief an agency and a site visit, pressure-test the brief, and write the weekly sales report; Sal plans territory launches and Brenda runs DGS blanket purchase orders. Quote desk: log an inbound RFQ, pull items out of whatever the agency sent (DWR RFQ PDF, Grainger cart, or a screenshot), check DGS BPO eligibility, price it through the Grainger MCP or vendor sourcing, build the customer quote on BBS letterhead, and fill the CDCR and CA compliance packets. Plus Grainger promo pages.",
       "author": {
         "name": "Black Box Safety, Inc."
       },
       "keywords": [
+        "account-planning",
         "bbs",
         "bid-forms",
+        "bpo",
+        "budget-calendar",
+        "call-plan",
         "cdcr",
         "compliance-forms",
         "dvbe",
@@ -45,8 +49,11 @@
         "rfq",
         "sales",
         "sb-dvbe",
+        "site-visit",
         "sourcing",
-        "state-of-california"
+        "state-of-california",
+        "territory",
+        "weekly-report"
       ],
       "category": "sales"
     },
@@ -72,7 +79,7 @@
     {
       "name": "bbs-foundations",
       "source": "./plugins/bbs-foundations",
-      "description": "Company-wide AI foundations: the BBS way to write CLAUDE.md files (BBSClaudeMDForge), the doctrine every skill inherits, the shared company facts, systems of record, and certification rules that keep every repo and customer folder consistent, and order reconciliation \u2014 diagnosing and resolving problems on orders already placed.",
+      "description": "Company-wide AI foundations: the BBS way to write CLAUDE.md files (BBSClaudeMDForge), the doctrine every skill inherits, the shared company facts, systems of record, and certification rules that keep every repo and customer folder consistent, and order reconciliation — diagnosing and resolving problems on orders already placed.",
       "author": {
         "name": "Black Box Safety, Inc."
       },
@@ -88,6 +95,24 @@
         "post-award",
         "purchasing",
         "standards"
+      ],
+      "category": "foundations"
+    },
+    {
+      "name": "bbs-claude-coach",
+      "source": "./plugins/bbs-claude-coach",
+      "description": "Teaches BBS teammates how Claude works here and helps them start any overlapping job confidently \u2014 what skills, commands, plugins, and connectors are; how to extend the toolkit; the two safety rails without control culture. Commands: /bbs-what-can-i-do, /bbs-start, /bbs-explain-claude.",
+      "author": {
+        "name": "Black Box Safety, Inc."
+      },
+      "keywords": [
+        "bbs",
+        "coach",
+        "empowerment",
+        "foundations",
+        "literacy",
+        "onboarding",
+        "toolkit"
       ],
       "category": "foundations"
     },
@@ -168,7 +193,7 @@
         "./skills/caveman",
         "./skills/caveman-help"
       ],
-      "description": "Commons: terse output mode (/caveman lite|full|ultra) that cuts roughly two-thirds of output tokens while keeping technical content exact. Opt-in per session; ruled 2026-09-13. The skills: list records which skills BBS intends reps to receive \u2014 on Claude Code 2.1.273 the loader treats it as additive rather than restrictive, so the whole tree still registers. v2.7.0 is taken for a Windows path fix in the session hooks. Release model, cadence, provenance, the license split and the open items: docs/COMMONS.md.",
+      "description": "Commons: terse output mode (/caveman lite|full|ultra) that cuts roughly two-thirds of output tokens while keeping technical content exact. Opt-in per session; ruled 2026-09-13. The skills: list records which skills BBS intends reps to receive — on Claude Code 2.1.273 the loader treats it as additive rather than restrictive, so the whole tree still registers. v2.7.0 is taken for a Windows path fix in the session hooks. Release model, cadence, provenance, the license split and the open items: docs/COMMONS.md.",
       "version": "2.7.0",
       "author": {
         "name": "Julius Brussee"
@@ -186,7 +211,8 @@
       "source": {
         "source": "url",
         "url": "https://github.com/anthropics/skills.git",
-        "ref": "34040c9c568585f6929bedeaad110ad08f079624"
+        "ref": "main",
+        "sha": "34040c9c568585f6929bedeaad110ad08f079624"
       },
       "strict": false,
       "skills": [
@@ -195,7 +221,7 @@
         "./skills/pptx",
         "./skills/xlsx"
       ],
-      "description": "Commons: Anthropic's official document skills \u2014 Word (tracked changes, comments), PDF (extract, merge, fill, annotate), Excel (formulas, charts), PowerPoint (build with pptxgenjs, read with markitdown). RFQ worksheets, bid PDFs, price lists, and the deck assembly step bbs-deck-voice hands off to. The skills: list records intent only; on Claude Code 2.1.273 the loader treats it as additive rather than restrictive, so the whole anthropics/skills tree registers. Pin, release model and the LibreOffice caveat: docs/COMMONS.md.",
+      "description": "Commons: Anthropic's official document skills — Word (tracked changes, comments), PDF (extract, merge, fill, annotate), Excel (formulas, charts), PowerPoint (build with pptxgenjs, read with markitdown). RFQ worksheets, bid PDFs, price lists, and the deck assembly step bbs-deck-voice hands off to. The skills: list records intent only; on Claude Code 2.1.273 the loader treats it as additive rather than restrictive, so the whole anthropics/skills tree registers. Pin, release model and the LibreOffice caveat: docs/COMMONS.md.",
       "author": {
         "name": "Anthropic"
       },

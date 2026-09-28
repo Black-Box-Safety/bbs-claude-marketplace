@@ -262,7 +262,7 @@ def build_field_values(profile, inp):
 
     # ---------- DGS PD 843 DVBE Declarations (page 21) ----------
     # Jackson Dalton ALWAYS signs as DV owner — certification is tied to ownership.
-    add("DVBE Dec. DGS PD 843 - Name of DVBE", 21, profile["short_name"])
+    add("DVBE Dec. DGS PD 843 - Name of DVBE", 21, profile["legal_name"])  # ruled 2026-09-18: legal name, matches the filed corpus
     add("DVBE Dec. DGS PD 843 - DVBE Ref #", 21, profile["dvbe_cert"])
     add("DVBE Dec. DGS PD 843 - Desc", 21, desc_short)
     add("DVBE Dec. DGS PD 843 - DVBE not Broker", 21, "/Yes")
@@ -604,7 +604,7 @@ def fill_acroform(blank_pdf, field_values, output_pdf):
         print("\n".join(errors))
         print(f"\n{len(errors)} field(s) could not be filled. The packet revision has "
               f"probably changed — run `--inspect` on the blank packet and reconcile "
-              f"LINE_FIELD_IDS / the add() calls. See references/field_map.md.")
+              f"LINE_FIELD_IDS / the add() calls. See references/packets/obs-4007b.md.")
         sys.exit(1)
     if notes:
         print("\n".join(notes))

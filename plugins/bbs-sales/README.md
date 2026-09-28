@@ -1,13 +1,13 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-10-b19800" alt="10 skills">
+  <img src="https://img.shields.io/badge/skills-16-b19800" alt="16 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
 # bbs-sales
 
-The plugin for California state business, both directions: the request that comes in, and the
-campaign that goes out. A buyer emails an RFQ and this plugin takes it from the inbox to a signed
+The plugin for California state business, end to end: the territory work that creates the
+demand, the request that comes in, and the campaign that goes out. A buyer emails an RFQ and this plugin takes it from the inbox to a signed
 packet in the buyer's folder. A Grainger rep sends a negotiated price sheet and this plugin turns
 it into a landing page an agency buyer can order from, sent to the segment of buyers most likely
 to act on it.
@@ -19,7 +19,7 @@ automatic so the rep spends their time on the buyer. The same discipline applies
 promo page that overstates a discount or implies an agency's endorsement is a compliance problem,
 not a marketing win, so every page runs through the same brand gate as any printed piece.
 
-**Jump to:** [The desk, end to end](#the-desk-end-to-end) · [Setup](#one-time-setup) · [Commands](#commands) · [The rules that don't bend](#the-rules-that-dont-bend) · [Rollout guide](#rollout-guide)
+**Jump to:** [The desk, end to end](#the-desk-end-to-end) · [The territory, before the RFQ](#the-territory-before-the-rfq) · [Setup](#one-time-setup) · [Commands](#commands) · [The rules that don't bend](#the-rules-that-dont-bend) · [Rollout guide](#rollout-guide)
 
 ## The desk, end to end
 
@@ -42,10 +42,12 @@ pricing at BBS — prefer it over anything found on the open web, because the op
 price is not the price BBS's account actually pays.
 
 `bbs-deck-voice` is the exception to this plugin's California framing: it writes
-**federal** pursuit copy, where BBS is SDVOSB and never DVBE. Do not use it for a CA
-agency deck, and do not let its certification language leak into a state bid. On
-California competitive solicitations the opposite discipline applies — OSDS 2009473
-carries both SB and DVBE, so claim the 5% SB preference and the DVBE incentive.
+**federal** pursuit copy, where BBS is SDVOSB and never DVBE, and where BBS **is** a small
+business under SBA size standards. Do not use it for a CA agency deck, and do not let its
+certification language leak into a state bid. On California competitive solicitations the
+discipline is different in both halves — OSDS 2009473 carries **DVBE only**, so claim the
+DVBE incentive (SCM §1202) and **never** the 5% SB preference (SCM §1204): BBS passed
+California's SB revenue threshold and is not a California small business.
 
 An order that has already been taken is not this plugin's work. A wrong item, a short
 shipment, a price discrepancy on the PO — those go to `bbs-back-office`.
@@ -69,6 +71,39 @@ Creating a second folder for a buyer who already has one is the expensive mistak
 **`grainger-promo-page`** runs the other direction. An agency already buys a given list of items, usually direct or from a competitor. Routing the same items at the same contract price through Black Box Safety turns that spend into reportable DVBE participation, and the skill's job is to make that concrete: real prices, real photos, real availability, and a quote builder a buyer can use without typing an email. The pricing-verification step matters because the sheet a rep sends is not always actually the lowest price: the skill checks every line against the agency's own Grainger account and prints whichever number is lower, because "lowest when you quote" is usually what the rep promised the buyer. SCPRS segmentation is what makes this more than a mailshot: instead of one blast, the skill sizes three buyer segments from the SCPRS warehouse (buys the prime direct, buys the category elsewhere, has BBS history but drifted) so the page goes to the people it can actually move, each with the wedge that fits their situation. And nothing ships before the brand compliance gate runs on the rendered page, same as any other piece, because an implied endorsement or an unregistered discount claim is a compliance problem the gate can catch just as easily on a webpage as on a PDF. The CAL FIRE H2 2026 build is the reference example: it was built once against a real agency hot list, and the errors it turned up (unpriced lines, a sheet that lost to the account price on more than a dozen lines, mismatched item descriptions) are written up in the skill's own worked example rather than repeated here.
 
 Both `ca-rfq-intake` and `naspo-quote` fire on their own when the conversation matches an inbound request; `grainger-promo-page` fires the same way when the conversation matches an outbound campaign build. You do not have to name any of them.
+
+## The territory, before the RFQ
+
+Sales drives requests. A rep works a book, a buyer at a facility gets a call, and the call
+produces an RFQ or a NASPO order — which is what the desk above exists to process. These six
+skills are the front of that pipeline. None of them writes outreach, prices anything or sends
+anything; each stops at a document a rep works from.
+
+| Skill | Job | Stops at |
+|---|---|---|
+| `ca-territory-handoff` | Band a book by relationship state (recover, defend, watch, provisioned whitespace, cold start), rank by dollars at risk, size the pond, and write the dated call list with the opening words per band | The call list. A request it produces goes to `/ca-rfq` |
+| `ca-budget-timing` | When an agency has money, by when it must encumber it, and which deadline governs a deal | The dated answer, with its source. The other territory skills call it for every date they print |
+| `ca-agency-primer` | A multi-site department as a system: what each site does, how each buys, where BBS stands, public and internal figures kept visibly apart | The internal primer |
+| `ca-site-visit-brief` | One booked meeting: the long call plan for the night before and the one-screen pocket card for the parking lot | The two documents |
+| `ca-visit-readiness-review` | Pressure-test a finished brief from the side of the person who has to say it in the room | An ordered list of changes, applied back to the brief |
+| `bbs-weekly-sales-report` | Parker's weekly summary of his, Kim's and Aanya's week — pipeline from the Sales CRM, bookings from Business Central | The markdown report he writes the weekly form from. A human submits the form |
+
+What each one needs installed is in its own `requires:` and `degrades-without:`; run
+`python3 scripts/check_marketplace.py --requirements` for the table. Several of them lean on
+account-synced skills and agents that are not in this marketplace (`ca-state-sales-grounding`,
+the `sales-*` craft skills, and personal agents such as Callie and Nell) and on the synced
+`Customers/State of CA Agencies/.sales-team/` folder. Each says so when one is missing rather
+than working around it.
+
+On certifications the territory skills follow the same channel rule as the desk: in
+California BBS is **DVBE only** and not a California small business; federally it is SDVOSB
+and a small business. They point at `bbs-foundations` `canonical-facts.md` rather than
+restating the ruling.
+
+`docs/TRIGGER-CHECK.md` is a desk read of these descriptions against the desk's existing
+skills — one reader's judgement of which skill each phrasing should reach, aimed at a
+territory question not stealing an RFQ intake. It is not a measurement of triggering; that
+needs `docs/evals/` with Claude auth, and has not been run for these skills.
 
 ## One-time setup
 
@@ -99,7 +134,7 @@ TODO: the CUF statement (the "distinct element of work" on GSPD-05-105) is **not
 - Parker: `.../Customers/Bechtel/sentinel/vandenburg-sentinel-rfps/RFP-741986-vlc-tempest-filters/signature/parker-signature.png`
 - Jackson: `.../Black Box Safety - MASTER/Jackson Dalton Signature/Copy of JACKSON_SIG.png`
 
-TODO: Griffin Forsyth signs most CalRecycle 74s, but no signature PNG path is recorded. Add his file and its path here.
+The CalRecycle 74 is certified by the rep who quoted the job (ruled 2026-09-18; `references/ca-form-rules.md`). TODO: record a signature PNG path for each rep who quotes, not only Parker.
 
 **4. Make sure OneDrive is actually synced.** This skill reads and writes the `Customers/State of CA Agencies/` tree on disk. A folder that is online-only looks empty to Claude, so a precedent search comes back with nothing and the answer is a guess instead of a lookup. Right-click the `State of CA Agencies` folder and choose "Always keep on this device."
 
@@ -117,12 +152,18 @@ This skill does not touch the PDF stack or `vendor_profile.json` above: it has i
 
 | Command | Does |
 |---|---|
-| `/ca-rfq-log` | Log a request you just received: find or create the folder, save the attachments, open `RFQ.md`, update the buyer's quote log. Stops before pricing. |
-| `/ca-rfq-quote` | Take a logged RFQ folder through pricing, quote, cert packet, visual verification, and delivery. |
+| `/ca-rfq` | The whole desk order under one contract: intake gate, recognition, extraction, eligibility, pricing, quote, packet and signature, visual verification, delivery. It carries order and gates only — every step runs the skill that owns it, so the command cannot drift away from the skills it invokes. |
+| `/ca-territory-handoff` | Segment a book and turn it into a dated, prioritized call list. Runs `ca-territory-handoff`; stops before any outreach is written. |
 
-Agent: `supplier-scout` — supplier options for an item BBS has never sourced; dispatched by `bbs-sourcing` step 5c or directly ("find supplier options for MSA 10082709").
+Agents:
 
-Run them in that order. `/ca-rfq-quote` on an unlogged request works, but you lose the deadline record and the buyer history that makes the next quote faster.
+- `supplier-scout` — supplier options for an item BBS has never sourced; dispatched by `bbs-sourcing` step 5c or directly ("find supplier options for MSA 10082709").
+- `sal` — territory launch and account expansion: tiered launches, displacement and win-back campaigns, multi-threading, and reviewing rep-facing playbooks for whether a rep could execute them.
+- `brenda` — DGS blanket purchase orders end to end: intake, the consolidated BPO tracker, pace against expiry, and the follow-ups that get a facility to spend before its BPO lapses.
+
+Agents shipped in a plugin ignore `hooks`, `mcpServers` and `permissionMode`; none of these three sets them.
+
+Intake is an **explicit first gate**, not an unconditional first step: an already-logged RFQ enters at recognition, and an unlogged one that arrives as a request to price puts the order to the rep rather than assuming it. Whether a fresh "the agency emailed asking us to quote these" is filed first or priced first is an open ruling for Parker, and the command is built so either answer lands without a rebuild.
 
 `grainger-promo-page` has no slash command yet. Describe the ask ("build a promo page for CAL FIRE from this hot list") and it fires on its own.
 
@@ -138,7 +179,7 @@ These four come up on every state quote, and each one exists for a reason worth 
 
 **DVBE cert 2009473 expires 12/31/2027.** The DVBE certification is what makes BBS worth quoting to a state buyer with a participation goal, and a packet signed against an expired cert is worse than no packet. Check the expiration against the quote due date before signing anything. Expired, or inside 30 days, means stop and tell the rep.
 
-One more that is not a rule but behaves like one: the `Customers/State of CA Agencies/` tree is the training data. Every blank the agency sent and every filled version BBS returned is in there. When history can answer a question (which form revision this agency uses, what BBS wrote in that field last time, whether this buyer accepted a 0% recycled-content answer), read the corpus instead of guessing or asking the rep.
+One more that is not a rule but behaves like one: the `Customers/State of CA Agencies/` tree is the training data. Every blank the agency sent and every filled version BBS returned is in there. When history can answer a question (which form revision this agency uses, what BBS wrote in that field last time, whether this buyer accepted a 0% recycled-content answer), read the corpus instead of guessing or asking the rep. Certification fields are the exception: take them from `vendor_profile.json`, never from a past packet (why: `bbs-foundations` `canonical-facts.md`, "Small-business status is channel-dependent").
 
 ## Hooks (v1.1)
 

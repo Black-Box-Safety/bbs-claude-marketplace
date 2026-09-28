@@ -9,9 +9,13 @@ report format at the end. Read-only: create/modify nothing, send nothing.
 
 ## Checks
 
-1. **Plugins.** Confirm the bbs-foundations, bbs-sales, bbs-website, skill-bus, claudeforge,
-   impeccable, superpowers-chrome, caveman, and document-skills plugins are loaded (their
-   skills appear in your available skills). Report each present/absent.
+1. **Plugins.** Confirm the bbs-foundations, bbs-sales, bbs-back-office, bbs-website,
+   bbs-claude-coach, claudeforge, impeccable, superpowers-chrome, caveman, and
+   document-skills plugins are loaded (their skills appear in your available skills).
+   Report each present/absent. Then always add one more line for the retired injection
+   plugin, whichever way it goes: "✅ retired plugin absent" when nothing named `skill-bus`
+   is loaded, or "⚠️ skill-bus still loaded — retired 2026-09-28, see ADMIN-RUNBOOK §1a"
+   when it is. That is a WARN, not a FAIL, and you do not uninstall it yourself.
 2. **Marketplace freshness.** Run `claude plugin marketplace list` via Bash if available;
    note whether bbs-claude-marketplace is registered. If the command is unavailable, say so.
 3. **Business Central connector** (BC MCP Custom API, interim — tool names change at the
@@ -32,13 +36,27 @@ report format at the end. Read-only: create/modify nothing, send nothing.
 8. **OneDrive sync health.** Note the desk folder's most recently modified file and its
    timestamp; if nothing changed in 7+ days on a weekday-active desk, flag possible sync
    stall (informational, not FAIL).
-9. **Skill-bus wiring.** Look for `~/.claude/skill-bus.json` (or `.claude/skill-bus.json` at the
-   desk root) containing `bbs-grounding-doctrine`. PASS = present. FAIL = absent → the fix is
-   `/bbs-onboard`. If `.claude/skill-bus-telemetry.jsonl` exists at the desk, note whether it
-   shows a `match` for a `bbs-sales:` skill (informational).
-10. **Bootstrap tools.** Run `where.exe node pdftotext pandoc uv` via Bash (or PowerShell
-    `Get-Command`). PASS = all four resolve. WARN (not FAIL) for any missing one, naming it and
-    pointing at `scripts/bbs-setup.ps1` (REP-SETUP step 1).
+9. **Doctrine hooks.** For each of the bbs-foundations and bbs-website plugins, locate its
+   installed root (`claude plugin list` via Bash, or the plugin's path in `/plugin`), then
+   confirm: `hooks/hooks.json` parses as JSON (read it; a Python or PowerShell parse if
+   available), and every file named in `hooks/doctrine/subscriptions.json` under `inserts`
+   exists beside it and is non-empty. PASS = both parse and every named file exists. FAIL =
+   a file missing or a parse error → the fix is `/plugin marketplace update` then restart;
+   if it persists, report it. Also check an interpreter resolves — PowerShell
+   `Get-Command pwsh, powershell, python3 -ErrorAction SilentlyContinue`, or
+   `command -v pwsh powershell python3` — WARN, not FAIL, if none does: the hook fails open
+   and the skills run without their guardrail text until one is installed (macOS:
+   `brew install powershell`, or the Xcode command-line tools for `python3`). Windows
+   only: `where.exe bash` must resolve too (Git Bash, from `scripts/bbs-setup.ps1`);
+   without it Claude Code hands the hook command to PowerShell, which cannot parse it, and
+   every skill call shows a hook error — WARN, fix is the bootstrap (REP-SETUP step 1).
+   Nothing to wire and nothing to run: the hook is active whenever the plugin is loaded.
+10. **Bootstrap tools.** Resolve `node`, `pdftotext`, `pandoc`, and `uv` on PATH
+    (`command -v` on macOS; `where.exe` / `Get-Command` on Windows). PASS = all four
+    resolve. WARN (not FAIL) for any missing one, naming it and pointing at
+    `scripts/bbs-setup.ps1` (Windows, REP-SETUP step 1) or `scripts/bbs-setup.sh` (macOS,
+    REP-SETUP step 1). Also resolve `soffice` (LibreOffice): WARN if missing —
+    quote-builder PDF export and document-skills conversion need it.
 
 ## Report format
 

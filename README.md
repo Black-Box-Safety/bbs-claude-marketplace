@@ -1,8 +1,8 @@
 <p align="center">
   <img src="https://img.shields.io/badge/company-Black%20Box%20Safety%2C%20Inc.-051c2c" alt="Black Box Safety, Inc.">
-  <img src="https://img.shields.io/badge/certified-SDVOSB%20%C2%B7%20CA%20SB%2FDVBE%202009473-b19800" alt="SDVOSB and California SB/DVBE 2009473">
-  <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, VS Code, and Desktop">
-  <img src="https://img.shields.io/badge/plugins-3%20BBS%20%2B%205%20pinned-2dd4bf" alt="Three BBS plugins plus five pinned external">
+  <img src="https://img.shields.io/badge/certified-SDVOSB%20%C2%B7%20CA%20DVBE%202009473-b19800" alt="SDVOSB federal and California DVBE 2009473">
+  <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20Cursor%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, Cursor, VS Code, and Desktop">
+  <img src="https://img.shields.io/badge/plugins-5%20BBS%20%2B%205%20pinned-2dd4bf" alt="Five BBS plugins plus five pinned external">
 </p>
 
 # Black Box Safety — Claude Marketplace
@@ -29,7 +29,9 @@ The canon. One place holds everything a BBS machine needs to do the job the BBS 
   company-wide doctrine every skill inherits.
 - **Managed settings** the admin pushes from the Claude console: permissions, guardrails, the
   company memory every session starts with.
-- **The rep workspace**: a VS Code workspace pointed at the shared quote-desk folder tree.
+- **Workspaces**: VS Code entry points for the quote desk, the website stack, and admin —
+  Desktop launchers optional, same files on Mac and Windows. (Cursor opens the same files;
+  that is a maintainer guide for later, not rep onboarding.)
 - **Operating docs**: setup guides, runbook, metrics, registry of what is canon and what is
   archived.
 
@@ -40,9 +42,12 @@ Nothing drifts.
 
 | You are | Start here | Time |
 |---|---|---|
+| New to any of this | [`plugins/bbs-claude-coach/docs/TOOLKIT.md`](plugins/bbs-claude-coach/docs/TOOLKIT.md) — what the tools are, in plain words, and how to extend them; or run `/bbs-what-can-i-do` | ~10 min read |
+| Deciding what we build next | [`docs/PRODUCT.md`](docs/PRODUCT.md) — the living product plan: principles, the rep experience, merge order, roadmap | ~10 min read |
 | A sales rep | [`docs/REP-SETUP.md`](docs/REP-SETUP.md), then `/bbs-checkup` | ~20 min, once |
 | The admin | [`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §0 → §3a | One morning |
-| Maintaining the website | [`plugins/bbs-website/README.md`](plugins/bbs-website/README.md), then `/bbs-onboard` | ~15 min |
+| Parker, trying Cursor (future; not rep onboarding) | [`docs/CURSOR-SETUP.md`](docs/CURSOR-SETUP.md) — maintainer guide | As needed |
+| Maintaining the website | [`workspace/README.md`](workspace/README.md) (open `bbs-web`), then [`plugins/bbs-website/README.md`](plugins/bbs-website/README.md) and `/bbs-onboard` | ~15 min |
 | Changing a skill | [`plugins/bbs-website/docs/CONTRIBUTING.md`](plugins/bbs-website/docs/CONTRIBUTING.md) and the [design spec](docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md) | As needed |
 
 ## Sixty-second install
@@ -50,11 +55,12 @@ Nothing drifts.
 ```text
 /plugin marketplace add Black-Box-Safety/bbs-claude-marketplace
 /plugin install bbs-foundations@bbs-claude-marketplace
+/plugin install bbs-claude-coach@bbs-claude-marketplace
 /plugin install bbs-sales@bbs-claude-marketplace
 /plugin install bbs-back-office@bbs-claude-marketplace
 /plugin install bbs-website@bbs-claude-marketplace
-/bbs-onboard
 /bbs-checkup
+/bbs-what-can-i-do
 ```
 
 On a managed machine the plugins are already enabled; run the last two lines and read the
@@ -68,7 +74,8 @@ report. Anything red prints the exact sentence to send the admin.
 > **Claude:** Filed under `CDCR (ALL)/Mule Creek State Prison/` — no duplicate buyer folder, checked
 > by name and by item. Last quoted this buyer gloves in March at $Y (won). Gloves are NASPO: Grainger
 > price against Mule Creek's own account. Blowers are not on any schedule, so this is a competitive
-> lane with the 5% SB preference; drafting vendor outreach for two suppliers. Packet B forms filled,
+> lane with the DVBE incentive (no SB preference — BBS is not a California small business); drafting
+> vendor outreach for two suppliers. Packet B forms filled,
 > signed on the lines Parker owns. Every number is in the cover summary with its source. Ready for your review.
 
 The rep reviews every number. The rep sends. Claude cannot.
@@ -86,7 +93,8 @@ flowchart LR
 
 | Plugin | What it covers | Detail |
 |---|---|---|
-| `bbs-sales` | The California quote desk end to end: RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled — plus promo pages and federal deck copy; `/ca-rfq-log`, `/ca-rfq-quote` | [README](plugins/bbs-sales/README.md) |
+| `bbs-claude-coach` | Empowerment / literacy: understand the toolkit, start any overlapping job, extend it; `/bbs-what-can-i-do`, `/bbs-start`, `/bbs-explain-claude` | [README](plugins/bbs-claude-coach/README.md) |
+| `bbs-sales` | The California quote desk end to end — RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled — plus the territory work in front of it: book handoff, budget timing, agency primers, site-visit prep and the weekly sales report; promo pages and federal deck copy; `/ca-rfq`, `/ca-territory-handoff` | [README](plugins/bbs-sales/README.md) |
 | `bbs-back-office` | After the bid is won, out of Business Central: order status, vendor PO receipts, problem-order reconciliation, true margin after Grainger rebates | [README](plugins/bbs-back-office/README.md) |
 | `bbs-foundations` | Company memory, doctrine every skill inherits, the BBS way to write a CLAUDE.md, personal voice skills, `/bbs-checkup`, managed settings, the one-page AUP | [README](plugins/bbs-foundations/README.md) |
 | `bbs-website` | The storefront: price list to product page across the database, Shopify, and the quote bot | [README](plugins/bbs-website/README.md) |
@@ -99,11 +107,14 @@ flowchart LR
 These are enforced in settings and doctrine, not left to memory.
 
 - **Claude drafts; a human sends.** Send-class email and e-signature tools are denied by managed
-  policy. Every quote, price, and form is a draft until a rep reviews it.
+  policy in Claude Code. Cursor does not inherit that list — the invariants rule is the control
+  there. Every quote, price, and form is a draft until a rep reviews it.
 - **Never an invented number.** No price, stock, lead time, or certification fact from memory or the
   open web. Unknown becomes `[FLAG: why]`, never a guess.
-- **Certification language follows the channel.** SDVOSB for federal and primes; OSDS SB/DVBE
-  2009473 for California state. Never mixed.
+- **Certification language follows the channel, and so does small-business status.** Federal and
+  primes: SDVOSB, and BBS *is* a small business under SBA size standards. California state: OSDS
+  DVBE 2009473 only — BBS passed California's SB revenue threshold, so no SB preference on a state
+  bid. Never mixed, and never said without naming the channel.
 - **Systems of record win.** Business Central for money, Supabase for the catalog, SharePoint for
   documents. Point at the record; never re-type it.
 - **When it goes wrong, log it.** One line in the folder's `FLAGS.md`. A caught error means the
@@ -119,16 +130,20 @@ forms, and tells you where every number came from. The judgment stays with the p
 
 ```text
 bbs-claude-marketplace/
-├── .claude-plugin/marketplace.json     # manifest: 3 BBS plugins (unpinned) + 5 external (pinned)
+├── .claude-plugin/marketplace.json     # manifest: 5 BBS plugins (unpinned) + 5 external (pinned)
+├── .cursor/rules/bbs-invariants.mdc    # always-on Cursor doctrine; stamp onto the desk too
 ├── README.md                           # this file
 ├── REGISTRY.md                         # every BBS repo and asset: canon, harvest, parked, archived
-├── workspace/                          # bbs-rep.code-workspace + desk CLAUDE.md template
+├── workspace/                          # bbs-rep · bbs-web · bbs-admin + desk CLAUDE.md template
+├── scripts/bbs-setup.ps1 · bbs-setup.sh · bbs-clone-web-stack.sh
+├── scripts/install-desktop-launchers.sh · install-desktop-launchers.ps1
 ├── docs/
-│   ├── REP-SETUP.md · ADMIN-RUNBOOK.md · ADMIN-CLEANUP.md · MEASUREMENT.md
+│   ├── PRODUCT.md · REP-SETUP.md · CURSOR-SETUP.md · ADMIN-RUNBOOK.md · ADMIN-CLEANUP.md · MEASUREMENT.md
 │   ├── acceptance/                     # one file per pilot gate run
 │   ├── assessments/                    # what we found, dated
 │   └── superpowers/                    # design specs and implementation plans
 └── plugins/
+    ├── bbs-claude-coach/               # literacy coach: understand, start, extend; docs/TOOLKIT.md
     ├── bbs-foundations/                # commands, docs (managed settings, AUP), hooks, skills
     ├── bbs-sales/                      # commands, skills
     ├── bbs-back-office/                # skills
@@ -137,7 +152,7 @@ bbs-claude-marketplace/
 
 ## How we keep it honest
 
-- **Version policy:** the three BBS plugins carry no version pin. Every push updates every machine.
+- **Version policy:** the five BBS plugins carry no version pin. Every push updates every machine.
   Freeze only for a pilot, then unfreeze.
 - **Registry:** [`REGISTRY.md`](REGISTRY.md) gives every repo and asset exactly one status. Change
   the status in the same commit as the change.
@@ -148,6 +163,12 @@ bbs-claude-marketplace/
 - **Models:** `claude-opus-5` · `claude-sonnet-5` · `claude-haiku-4-5` only, generated from
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/models.json`. Anything else is
   stale.
+- **Invariants:** `python3 scripts/check_marketplace.py` catches the defects that fail silently,
+  and runs on every pull request (`.github/workflows/check-marketplace.yml`). A FAIL fails the PR
+  check (ruled 2026-09-18).
+- **Dependencies:** every skill declares the connectors, MCPs and command-line tools it needs in
+  its own frontmatter. `python3 scripts/check_marketplace.py --requirements` prints the table, so
+  you can tell before installing whether a job will run on your machine.
 
 ## Contributing
 

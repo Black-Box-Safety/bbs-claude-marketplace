@@ -1,6 +1,7 @@
 ---
 name: site-wiring-map
 description: The single "how the BBS website is wired" reference — which repo holds what, where product data lives, how it flows from the Supabase database through Shopify to the quote bot, and for each common task which skill and which agent to use. Use when onboarding, when unsure which repo or skill a change belongs in, or when a change must cross repos (a DB field that must reach both the storefront and the bot).
+requires: []
 ---
 
 # BBS Site Wiring Map
@@ -51,4 +52,4 @@ The bot and these skills **reference** MCP connectors by name; they are provided
 
 ## The rules that always hold
 
-The skill-bus injects three doctrine sets automatically when a relevant skill runs — see the plugin README. Storefront and catalog doctrine ship with this plugin. **Grounding doctrine ships with `bbs-foundations`** and fires on the two lane-tuning skills here; install that plugin too, or the quote-bot skills run without it. You do not have to memorize them; you do have to not fight them.
+The plugins' own hooks inject three doctrine sets automatically when a relevant skill runs — see the plugin README. Storefront and catalog doctrine ship with this plugin. **Grounding doctrine ships with `bbs-foundations`** and fires on the two lane-tuning skills here; install that plugin too, or the quote-bot skills run without it. You do not have to memorize them; you do have to not fight them.

@@ -8,7 +8,7 @@ Built from his Outlook Sent Items on 2026-09-01. Every quoted phrase below is
 verbatim from a real email he sent. When in doubt, go pull fresh samples —
 `outlook_email_search folderName="Sent Items"`.
 
-Parker Marshall, Sales Manager, Black Box Safety, Inc. (SDVOSB / CA SB/DVBE
+Parker Marshall, Sales Manager, Black Box Safety, Inc. (SDVOSB federal / CA DVBE
 distributor of safety and tactical equipment). He sells to federal primes
 (Bechtel), federal agencies, California state agencies, utilities (SDG&E), and
 municipal fire/LE. He works daily with his Grainger reps and with vendor inside
@@ -108,7 +108,7 @@ linktree: linktr.ee/black_box_safety_inc
 web: blackboxsafety.com
 LinkedIn
 
-VA CVE SDVOSB UEI FRK5MJD35GN5 • CA SB/DVBE 2009473
+VA CVE SDVOSB UEI FRK5MJD35GN5 • CA DVBE 2009473
 California MRO Statewide Contract: LPA # 7-25-51-02.03
 California Body Armor Contract: LPA # 1-23-84-07
 Sourcewell Body Armor Contract: 091924-BBS
@@ -116,10 +116,17 @@ Sourcewell Body Armor Contract: 091924-BBS
 
 Internal notes to teammates get no block, or just "Parker".
 
+**Corrected 2026-09-22, deliberately diverging from the corpus.** Emails sampled on
+2026-09-01 carry `CA SB/DVBE 2009473` in this block. That is no longer accurate — OSDS
+2009473 carries DVBE only and BBS is not a California small business — so the block above
+is the corrected form, not the verbatim one. Emit `CA DVBE 2009473`.
+
 ## Certification discipline
 
-- **Federal** context: SDVOSB, VA CVE UEI FRK5MJD35GN5. Never lead with DVBE.
-- **California state** context: CA SB/DVBE 2009473.
+- **Federal** context: SDVOSB, VA CVE UEI FRK5MJD35GN5. Never lead with DVBE. BBS is
+  also a small business federally (SBA size standards) — that claim is fine here.
+- **California state** context: CA DVBE 2009473. Never "SB" or "SB/DVBE" — BBS passed
+  California's SB revenue threshold and is not a California small business.
 - Both appear in the standard signature block, which is fine — the discipline
   applies to body copy.
 

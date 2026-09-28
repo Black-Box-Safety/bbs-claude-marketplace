@@ -32,10 +32,12 @@ file; the "found in" column says where.
 | "San Diego, CA" as headquarters | El Cajon is locked | live site copy |
 | File under 20 lines | Probably a stub; either fill it or delete it | `ca-quote-hub` intake skill at 25 |
 
-Not checked: SB-preference claims. An earlier version failed on "5% SB preference"; that was
-wrong — BBS holds OSDS SB/DVBE 2009473 and the preference applies on competitive
-solicitations (SCM §1204). Whether a preference *belongs* in a given file (never on an LPA
-order, a federal bid, or storefront copy) is a judgment the reviewer makes, not a regex.
+Not checked: SB-preference claims. This one has flipped twice and is not a regex problem.
+The settled fact (Parker, in session, 2026-09-22) is that BBS is a small business
+**federally** and **not** in California, so "5% SB preference" is wrong on a California
+file and "small business" is right on a federal one — a checker keyed on the words alone
+would fail correct content in one channel or the other. Whether a claim belongs in a given
+file is a judgment the reviewer makes against `canonical-facts.md`, "Small-business status is channel-dependent".
 
 Not checked: em-dash density. The house README standard limits them to genuine asides, but
 every strong CLAUDE.md in the fleet uses them freely; a check that warns on `bbs-database`

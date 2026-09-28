@@ -1,6 +1,7 @@
 ---
 name: bbs-voice-template
 description: Build a personal "voice" skill so Claude drafts email, quotes, and follow-ups that sound like a specific Black Box Safety teammate instead of a chatbot. Use when someone says "make my own voice skill", "build a <name>-voice like parker-voice", "why does this draft sound like AI", or asks to strip AI tells from an email; use it once per person, and again when their writing has changed. It samples the person's real Sent Items, strips the 35 known AI-writing patterns, and writes a profile the same shape as the parker-voice exemplar into their own ~/.claude/skills/<first>-voice/ — never into a shared repo, because a voice profile carries a person's phone numbers and signature block. Do NOT use it to write the email itself; that is the resulting <first>-voice skill's job.
+requires: [microsoft-365]
 ---
 
 # BBS voice template
@@ -39,9 +40,11 @@ register paragraph, the greetings table by situation, real openers and closers, 
 "things they never do" list, and a before/after pair. Match the shape; do not copy the
 content. Two BBS-wide rules go in every profile regardless of the person:
 
-- **Certification discipline.** SDVOSB for federal and primes (Bechtel, USACE); OSDS
-  SB/DVBE 2009473 for California state. The signature block carries both; body copy
-  follows the channel.
+- **Certification discipline.** SDVOSB for federal and primes (Bechtel, USACE), where
+  BBS is also a small business under SBA size standards; OSDS **DVBE** 2009473 for
+  California state, where BBS is **not** a small business. The signature block carries
+  both certifications; body copy follows the channel. Never write "SB" or "SB/DVBE" in a
+  California context — see `canonical-facts.md`, "Small-business status is channel-dependent".
 - **Never invent facts.** Dates, part numbers, prices, names, lead times come from source
   material or the person. A gap gets a bracketed placeholder and a flag.
 
