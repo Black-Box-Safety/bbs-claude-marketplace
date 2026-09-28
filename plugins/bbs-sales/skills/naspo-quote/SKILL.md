@@ -151,9 +151,14 @@ review has happened for this RFQ, then apply:
 Ask who quoted the job rather than defaulting to last time's answer.
 `references/filled-form-precedents.md` has the split with counts.
 
-Signature images:
-- Parker — `.../Customers/Bechtel/sentinel/vandenburg-sentinel-rfps/RFP-741986-vlc-tempest-filters/signature/parker-signature.png`
-- Jackson — `.../Black Box Safety - MASTER/Jackson Dalton Signature/Copy of JACKSON_SIG.png`
+Signature images: each signer's PNG location is `signature_image` on that person in
+`${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` — Parker under
+`default_rep.signature_image`, Jackson under `authorized_representatives.signature_image`
+(the `dvbe_owner` entry). Read it from there; never copy a path into this file. Resolve
+it against the synced OneDrive root and pass it in the spec's `signatures` map.
+`fill_ca_forms.py` checks every signer's file before it opens a PDF and stops, naming
+the signer and path, if one is missing — fix the path, or drop that `sign` entry and
+leave the line unsigned for the rep. Never work around the stop.
 
 If the rep hasn't reviewed the items, fill everything and leave the signature
 lines blank with a note — an unsigned packet is fixable in a minute; a wrongly

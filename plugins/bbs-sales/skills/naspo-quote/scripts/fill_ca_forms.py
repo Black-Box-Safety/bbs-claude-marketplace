@@ -48,6 +48,15 @@ Notes that save you a debugging cycle:
 * signatures — a /Sig field can't hold text, so the widget is deleted and the
   PNG drawn in its place. Text fields labeled "Signature" get the same treatment.
   `dx`/`dy` nudge the image when the box's printed caption is in the way.
+  Where each signer's PNG lives is recorded once, as `signature_image` on that
+  person in ${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json.
+
+* missing signature images stop the run — every `sign` entry in every form is
+  checked by `check_signatures()` before any PDF is opened. A signer with no
+  path in `signatures`, or a path with no file behind it, exits naming the
+  signer and the path. Nothing is written, so no half-signed packet exists
+  (AGENTS.md invariant 4). The fix is the path, or dropping that `sign` entry
+  so the line is left unsigned for the rep.
 
 Requires: pymupdf
 """
@@ -57,10 +66,40 @@ import sys
 
 try:
     import fitz  # PyMuPDF
-except ImportError:
-    sys.exit("pymupdf required: pip install pymupdf --break-system-packages -q")
+except ImportError:  # checked in main(); check_signatures() needs no fitz
+    fitz = None
 
 TRUTHY = {True, "true", "yes", "on", "x", "1", "checked"}
+
+
+class SignatureMissing(Exception):
+    """A form asks for a signature whose image cannot be found."""
+
+
+def check_signatures(forms, sig_paths):
+    """Raise SignatureMissing unless every signer any form asks for has a real file.
+
+    Runs before any PDF is opened. Before this check, a signer absent from
+    `signatures` died with a bare KeyError, and a path with no file died inside
+    fitz.Pixmap after the widget was already deleted — in both cases after the
+    earlier forms of the packet had already been written, signed.
+    """
+    problems = []
+    for form in forms:
+        for field, sig in (form.get("sign") or {}).items():
+            who = sig.get("who")
+            path = (sig_paths or {}).get(who)
+            where = f"{form.get('src', '?')} field {field!r}"
+            if not path:
+                problems.append(f"signature image for {who} not given in the spec's "
+                                f"`signatures` ({where})")
+            elif not os.path.isfile(path):
+                problems.append(f"signature image for {who} not found at {path} ({where})")
+    if problems:
+        raise SignatureMissing(
+            "\n".join(dict.fromkeys(problems))
+            + "\nFix the path or leave the line unsigned for the rep "
+              "(drop that `sign` entry). Nothing was written.")
 
 
 def _stamp(page, rect, img_path, dx, dy, max_h=22):
@@ -73,6 +112,7 @@ def _stamp(page, rect, img_path, dx, dy, max_h=22):
 
 
 def fill_form(spec, sig_paths, src_dir, out_dir):
+    check_signatures([spec], sig_paths)
     doc = fitz.open(os.path.join(src_dir, spec["src"]))
     text = spec.get("text", {})
     checks = spec.get("checks", {})
@@ -134,8 +174,14 @@ def main():
     with open(sys.argv[1]) as f:
         spec = json.load(f)
     src_dir, out_dir = spec["src_dir"], spec["out_dir"]
-    os.makedirs(out_dir, exist_ok=True)
     sigs = spec.get("signatures", {})
+    try:
+        check_signatures(spec["forms"], sigs)
+    except SignatureMissing as e:
+        sys.exit(f"STOP: {e}")
+    if fitz is None:
+        sys.exit("pymupdf required: pip install pymupdf --break-system-packages -q")
+    os.makedirs(out_dir, exist_ok=True)
     for form in spec["forms"]:
         print("wrote", fill_form(form, sigs, src_dir, out_dir))
     print("\nNow render every page and look at it — these fields clip silently.")

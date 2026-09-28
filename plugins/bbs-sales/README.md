@@ -127,12 +127,9 @@ Earlier revisions told you to copy it to `~/.bbs/vendor_profile.json` first. Do 
 
 If an RFQ arrives pre-filled with a BBS field that disagrees with this file, the RFQ is wrong: flag it, don't adopt it.
 
-TODO: the CUF statement (the "distinct element of work" on GSPD-05-105) is **not** in the profile — `ca-form-filler` currently asks the rep for it. Decide whether it belongs in the profile, and whether signature paths should too rather than being passed per-run.
+TODO: the CUF statement (the "distinct element of work" on GSPD-05-105) is **not** in the profile — `ca-form-filler` currently asks the rep for it. Decide whether it belongs in the profile.
 
-**3. Point at the signature images.** Both PNGs live in OneDrive, not in this repo:
-
-- Parker: `.../Customers/Bechtel/sentinel/vandenburg-sentinel-rfps/RFP-741986-vlc-tempest-filters/signature/parker-signature.png`
-- Jackson: `.../Black Box Safety - MASTER/Jackson Dalton Signature/Copy of JACKSON_SIG.png`
+**3. Check the signature images are synced.** Both PNGs live in OneDrive, not in this repo. Where each one lives is recorded once, as `signature_image` on that person in `references/vendor_profile.json` — look there, not here. Make sure both files are on this device ("Always keep on this device"); `fill_ca_forms.py` stops with the signer's name and the path if a signature file is missing, rather than producing a packet that looks signed.
 
 The CalRecycle 74 is certified by the rep who quoted the job (ruled 2026-09-18; `references/ca-form-rules.md`). TODO: record a signature PNG path for each rep who quotes, not only Parker.
 

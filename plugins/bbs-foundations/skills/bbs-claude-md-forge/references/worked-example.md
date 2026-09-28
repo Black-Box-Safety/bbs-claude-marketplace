@@ -10,8 +10,8 @@ Two sites (Utah and Vandenberg), one closed-bid playbook that predated the work.
 sentinel/
 ├── CLAUDE.md                                   143 lines   root: contract, certs, forms, Grainger rule, systems, gotchas
 ├── utah-sentinel/CLAUDE.md                      87 lines   Ogden office, two ship-to modes, buyers, folder index
-├── vandenburg-sentinel-rfps/CLAUDE.md          100 lines   VLC, DFARS stack, gate passes, buyers, live RFP
-└── vandenburg-sentinel-rfps/RFP-747947-…/CLAUDE.md  150 lines   closed bid, kept as a playbook
+├── vandenberg-sentinel-rfps/CLAUDE.md          100 lines   VLC, DFARS stack, gate passes, buyers, live RFP
+└── vandenberg-sentinel-rfps/RFP-747947-…/CLAUDE.md  150 lines   closed bid, kept as a playbook
 ```
 
 Root imports both site files at column one. Both site files import `@../CLAUDE.md`. The
@@ -31,9 +31,9 @@ of one bid's sourcing detail should not load into every session about the accoun
 - **Business Central customer numbers** (`C11312` Sentinel, `C10475` WTP), and the rule
   that BC's document linkage beats an email thread when they disagree about which PO maps
   to which RFQ — a subagent had guessed wrong from email and BC settled it.
-- **Folder naming gotchas**: `rfq-76666-PPE` is a typo for 766666; `vandenburg` is
-  misspelled; the same RFQ number appears in both site folders and was reassigned to a
-  second buyer mid-life. An agent that does not know these will file things twice.
+- **Folder naming gotchas**: `rfq-76666-PPE` is a typo for 766666; `vandenburg` was
+  misspelled (renamed to vandenberg in Sep 2026); the same RFQ number appears in both
+  site folders and was reassigned to a second buyer mid-life. An agent that does not know these will file things twice.
 
 ## The two mistakes, and how the checker catches each
 
