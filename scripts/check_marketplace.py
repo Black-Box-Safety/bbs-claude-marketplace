@@ -581,6 +581,19 @@ EXTERNAL_SYSTEMS = {
         "signals": [r"\b(?:outlook|sharepoint|teams)_[a-z_]+\b",
                     r"\bchat_message_search\b", r"\bM365 tools\b"],
     },
+    # The BBS Sales CRM MCP connector — Dataverse `bbs_rfqs`, the pipeline of record
+    # (REGISTRY.md, ruled 2026-09-13). The five tool names, written out, exactly as the
+    # Business Central entry does: a `crm_*` prefix would do, today, but an enumerated
+    # list is the doctrine and it cannot be tripped by a column or file named crm_x.
+    # Not the words "Sales CRM" or "Dataverse": skills name both as the place a number
+    # comes from far more often than they open it. canon is None because canon's
+    # Systems-of-record row says "Dynamics 365 Sales", and whether that row names this
+    # connector is Parker's call, not a checker's — system_not_in_canon says so.
+    "sales-crm": {
+        "kind": "connector", "canon": None,
+        "signals": [r"\bcrm_(?:get_record|list_attributes|list_records|update_record|"
+                    r"whoami)\b"],
+    },
     "ca-procurement-intel": {
         "kind": "mcp", "canon": "ca-procurement-intel",
         "signals": [r"\b(?:explore_sql|market_spend_summary|market_purchase_lines|"

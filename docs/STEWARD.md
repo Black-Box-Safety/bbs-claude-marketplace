@@ -271,6 +271,33 @@ Write it up with evidence and move to the next slice. Do not idle.
   claimed on every California competitive solicitation, informal ones included.
 - **Who certifies the CalRecycle 74 — RULED 2026-09-18: the rep who quoted the job.**
   `naspo-quote` §5 no longer defaults to Griffin; `ca-form-rules.md` already said the rep.
+- **Sequencing the territory work — RULED 2026-09-28 (Parker, in session): land the
+  sales-territory work before the weekly rep review build.** Landed by the PR that records
+  this entry (`claude/sales-territory-land`), which brings the genuinely new work from
+  Parker's branch `sales-territory-0.3.0` onto main — `ca-territory-handoff`,
+  `ca-budget-timing`, `ca-agency-primer`, `ca-site-visit-brief`,
+  `ca-visit-readiness-review`, `bbs-weekly-sales-report`, `/ca-territory-handoff`, and the
+  `sal` and `brenda` agents — and leaves that branch untouched. The weekly rep review is
+  built after it, on top of it.
+- **What the weekly rep review may read — RULED 2026-09-28 (Parker, in session).** It may
+  read a rep's own Sent Items **only when the rep runs it on themselves**. Business facts
+  only: counterparty, agency domain, date, subject, attachment names and quote
+  attachments. No personal mail, no sentiment, and no timing or volume surveillance
+  metrics. Parker's team view covers **his own mailbox only**, and the output says so in
+  words — it never implies coverage of anyone else's mail. Applies to the review when it is
+  built; `bbs-weekly-sales-report` already reads only Parker's own mailbox.
+- **Reactive/proactive and new/repeat tags — RULED 2026-09-28 (Parker, in session):
+  workbook-only.** They live in the rep review's workbook and nowhere else; **no new Sales
+  CRM fields** are created for them.
+- **`docs/PRODUCT.md` is empty on main, and Parker has no content for it — noted
+  2026-09-28 (Parker, in session). OPEN: repoint `lead-reviewer`.**
+  `.claude/agents/lead-reviewer.md` still tells the reviewer to check PRs against
+  `docs/PRODUCT.md` §2 (what a rep should understand), §5 (merge order) and §9 (recorded
+  rulings), none of which exist. A reviewer following it either skips those checks or
+  holds a PR for a ruling it cannot find. **Recommendation:** repoint lead-reviewer's §9
+  and §5 checks at this register (*Already open for Parker*, and *Tonight's slices* for
+  merge order) and drop §2 or give it a real home, in its own PR — agent config is outside
+  the territory PR's scope, so `lead-reviewer.md` is deliberately unchanged there.
 
 ---
 
