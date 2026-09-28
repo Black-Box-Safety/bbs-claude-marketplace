@@ -162,10 +162,10 @@ Picked up by whoever works here next.
   `grainger_price` call was ever executed against a real account. Verify `account.sellRule`
   really comes back, and that the account-resolution step behaves as written, before a rep
   relies on it.
-- **`bbs-quote-builder` still documents markup math**, while `grainger-pricing` says BBS
-  sells Grainger at cost. The guard is written into `grainger-pricing`; the quote builder
-  was deliberately not changed, because whether markup applies to non-Grainger lines is
-  Parker's call, not an inference to make silently.
+- **`bbs-quote-builder` keeps margin/markup math for non-Grainger lines only.** Since
+  2026-09-28 a line marked `source: "grainger"` is printed at cost whatever the method,
+  so the builder itself now enforces what `grainger-pricing` says. Whether margin applies
+  to non-Grainger lines stays the rep's call per quote.
 - **`ca-form-filler` Path B claims the OBS inspector reads any CA form PDF.** Inherited
   from the pre-merge skill and never tested against a non-OBS packet.
 - **The OBS 4007(B) path has never been run against a real Rev. 08/2025 packet** —

@@ -13,7 +13,7 @@ description: >-
   fill anything. Do NOT use for a competitive SB/DVBE bid needing vendor sourcing
   (use bbs-sourcing), or when the rep wants the forms alone with no pricing
   (use ca-form-filler).
-requires: [grainger, python3, pypdf, pymupdf]
+requires: [grainger, business-central, python3, pypdf, pymupdf]
 ---
 
 # NASPO quote — CA state agency RFQ
@@ -68,15 +68,19 @@ Use the **bbs-quote-builder** skill. NASPO-specific spec values:
 
 | Field | Value |
 |---|---|
-| `pricing` | `{"method": "markup", "rate": 0}` — at-cost, no markup |
+| `pricing` | `{"method": "at-cost"}` — no markup |
 | `taxRate` | `0` — the worksheet prints "Do not include sales tax" |
 | `solicitation` | the number off the worksheet header |
 | `shipmentMethod` | `FOB Destination` |
 | `unitCost` | the Grainger `unitPrice` |
+| `items[].source` | `"grainger"` on every Grainger-priced line — the builder then never marks it up |
 
-Quote number comes from the rep — the 900001 series. Check what's already used
-(`find "Customers" -iname "*Quote_9000*"`) and propose the next one rather than
-assigning silently.
+The quote number is the Business Central `SQ-######` number of the sales quote this
+response represents. The rep creates that quote in BC; `bbs-quote-builder` step 2 reads
+it back (`bc_get_sales_document`) and fills `bcQuote`. Follow that step — do not propose
+a number, and do not look for one in the Customers folder. The local 900001 series is
+retired (ruling 2026-09-28). No SQ number to read back means `[MISSING — NEEDS INPUT]`
+and the quote waits.
 
 ## 4. Fill the compliance packet
 

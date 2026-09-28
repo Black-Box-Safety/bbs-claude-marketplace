@@ -7,28 +7,39 @@
  *
  * Reads a JSON spec describing the quote and emits a .docx on BBS letterhead
  * matching the SQ-104032 template. Convert to PDF separately (see SKILL.md).
+ * Runs offline: it never calls Business Central and never writes anywhere but
+ * <output.docx>.
  *
  * SPEC SCHEMA (see references/spec-schema.md for full detail):
  * {
- *   "quoteNumber": "900003",
- *   "documentDate": "06/04/2026",
- *   "validTo": "07/31/2026",
+ *   "bcQuote": {                                 // what the BC read-back returned
+ *     "number": "SQ-104797",                     // the BC sales quote this document is
+ *     "customerNumber": "C10171",
+ *     "customerName": "U.S. Air Force"
+ *   },
+ *   "documentDate": "09/28/2026",
+ *   "validTo": "10/28/2026",
  *   "shipmentMethod": "FOB Destination",        // optional, default "FOB Destination"
  *   "solicitation": "SCTASK0021599",            // optional; omit to hide the row
  *   "billTo":  ["Customer Name", "Line 2"],
  *   "shipTo":  ["Customer Name", "Street", "City, ST ZIP", "US"],
- *   "pricing": { "method": "margin", "rate": 0.20 },  // method: "margin" | "markup"
+ *   "pricing": { "method": "margin", "rate": 0.20 },  // "margin" | "markup" | "at-cost"
  *   "taxRate": 0.0875,                          // 0 for pre-tax; omit = pre-tax
  *   "estimatedPricing": false,                  // true adds the "*" estimate footnote
+ *   "columns": { "leadTime": true },            // optional Lead Time column
  *   "items": [
- *     { "partNumber": "9828588", "description": "...", "qty": 8, "uom": "Pack", "unitCost": 16.99 }
+ *     { "partNumber": "9828588", "description": "...", "qty": 8, "uom": "Pack", "unitCost": 16.99 },
+ *     { "partNumber": "1ZRZ8", "description": "...", "qty": 1, "unitCost": 175.36,
+ *       "source": "grainger", "leadTime": "1-3 business days" }
  *   ]
  * }
  *
- * unitCost is the VENDOR COST. The script applies the markup/margin to derive
- * the customer Unit Price:
- *   margin:  sell = cost / (1 - rate)
- *   markup:  sell = cost * (1 + rate)
+ * unitCost is the VENDOR COST. The script derives the customer Unit Price:
+ *   margin:   sell = cost / (1 - rate)
+ *   markup:   sell = cost * (1 + rate)
+ *   at-cost:  sell = cost
+ * A line with source "grainger" is ALWAYS at cost, whatever the method: its
+ * unitCost is the Grainger MCP unitPrice, which is the customer price.
  */
 
 const fs = require('fs');
@@ -47,23 +58,72 @@ if (!specPath || !outPath) {
 }
 const spec = JSON.parse(fs.readFileSync(specPath, 'utf8'));
 
+// ---- validation: fail loudly, never guess ----
+const errors = [];
+if (spec.quoteNumber !== undefined) {
+  errors.push('spec has a top-level "quoteNumber". The local 900001 series is retired; the quote number is ' +
+    'the Business Central SQ number, carried in "bcQuote" after reading the quote back from BC (SKILL.md step 2).');
+}
+const bc = spec.bcQuote || {};
+if (!spec.bcQuote) {
+  errors.push('"bcQuote" is missing. Read the sales quote back from Business Central and copy number, ' +
+    'customerNumber and customerName from the result. No SQ number means [MISSING — NEEDS INPUT], not a guess.');
+} else {
+  if (!/^SQ-\d{6}$/.test(bc.number || '')) {
+    errors.push('bcQuote.number "' + (bc.number || '') + '" is not a Business Central SQ number (SQ- plus six digits).');
+  }
+  if (!bc.customerNumber) errors.push('bcQuote.customerNumber is missing — copy it from the BC read-back.');
+  if (!bc.customerName) errors.push('bcQuote.customerName is missing — copy it from the BC read-back.');
+}
+if (!Array.isArray(spec.items) || spec.items.length === 0) errors.push('"items" is empty or missing.');
+
+const METHODS = ['margin', 'markup', 'at-cost'];
+const method = spec.pricing && spec.pricing.method;
+const rate = spec.pricing && spec.pricing.rate;
+const isGrainger = it => String(it.source || '').toLowerCase() === 'grainger';
+const needsMethod = Array.isArray(spec.items) && spec.items.some(it => !isGrainger(it));
+if (needsMethod) {
+  if (!METHODS.includes(method)) {
+    errors.push('pricing.method must be one of ' + METHODS.join(' | ') + ' (got ' + JSON.stringify(method) +
+      '). Confirm it with the rep; there is no default.');
+  } else if (method !== 'at-cost' && !(typeof rate === 'number' && rate >= 0 && rate < 1)) {
+    errors.push('pricing.rate must be a decimal between 0 and 1 for ' + method + ' (got ' + JSON.stringify(rate) + ').');
+  }
+}
+(spec.items || []).forEach((it, i) => {
+  if (typeof it.unitCost !== 'number' || !(it.unitCost >= 0)) errors.push('items[' + i + '].unitCost is not a number.');
+  if (typeof it.qty !== 'number' || !(it.qty > 0)) errors.push('items[' + i + '].qty is not a positive number.');
+  if (it.source !== undefined && !isGrainger(it)) errors.push('items[' + i + '].source "' + it.source + '" is unknown; the only value is "grainger".');
+});
+if (errors.length) {
+  errors.forEach(e => console.error('ERROR: ' + e));
+  process.exit(1);
+}
+const quoteNumber = bc.number;
+
 // ---- pricing ----
-const method = (spec.pricing && spec.pricing.method) || 'margin';
-const rate = (spec.pricing && typeof spec.pricing.rate === 'number') ? spec.pricing.rate : 0.20;
 const taxRate = typeof spec.taxRate === 'number' ? spec.taxRate : 0;
 const estimated = !!spec.estimatedPricing;
 const star = estimated ? '*' : '';
+const showLead = !!(spec.columns && spec.columns.leadTime);
 
-function sellPrice(cost) {
-  const s = method === 'markup' ? cost * (1 + rate) : cost / (1 - rate);
-  return Math.round(s * 100) / 100;
+// Round to the cent, half up. Plain Math.round(x * 100) rounds 12.42 / 0.80 = 15.525
+// down to 15.52, because 15.525 * 100 is 1552.4999999999998 in floating point.
+const r2 = x => Math.round(Number((x * 100).toFixed(6))) / 100;
+
+function sellPrice(it) {
+  let s;
+  if (isGrainger(it) || method === 'at-cost') s = it.unitCost;
+  else if (method === 'markup') s = it.unitCost * (1 + rate);
+  else s = it.unitCost / (1 - rate);
+  return r2(s);
 }
 const fmt = n => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 let subtotal = 0;
 const rows = spec.items.map((it, i) => {
-  const sell = sellPrice(it.unitCost);
-  const amt = Math.round(sell * it.qty * 100) / 100;
+  const sell = sellPrice(it);
+  const amt = r2(sell * it.qty);
   subtotal += amt;
   return {
     ln: i + 1,
@@ -71,12 +131,13 @@ const rows = spec.items.map((it, i) => {
     desc: it.description,
     qty: it.qty,
     uom: it.uom || 'Each',
+    lead: it.leadTime || '—',
     sell, amt
   };
 });
-subtotal = Math.round(subtotal * 100) / 100;
-const tax = Math.round(subtotal * taxRate * 100) / 100;
-const total = Math.round((subtotal + tax) * 100) / 100;
+subtotal = r2(subtotal);
+const tax = r2(subtotal * taxRate);
+const total = r2(subtotal + tax);
 
 // ---- style constants ----
 const BLACK = "000000";
@@ -94,7 +155,7 @@ const headerTable = new Table({
   width: { size: 9360, type: WidthType.DXA }, columnWidths: [6360, 3000], borders: noBorders,
   rows: [new TableRow({ children: [
     new TableCell({ borders: noBorders, width: { size: 6360, type: WidthType.DXA }, margins: { top: 0, bottom: 0, left: 0, right: 0 }, children: [
-      new Paragraph({ spacing: { after: 40 }, children: [new TextRun({ text: "Sales Quote - " + spec.quoteNumber, bold: true, size: 30, color: BLACK })] }),
+      new Paragraph({ spacing: { after: 40 }, children: [new TextRun({ text: "Sales Quote - " + quoteNumber, bold: true, size: 30, color: BLACK })] }),
       plain("Black Box Safety, Inc.", { bold: true, size: 18, after: 20 }),
       plain("1950 Cordell Ct, Suite 103", { size: 16 }),
       plain("El Cajon, CA 92020-0923", { size: 16 }),
@@ -136,7 +197,11 @@ metaRows.push(lblVal("Valid to", spec.validTo));
 const shipBlock = new Table({ width: { size: 9360, type: WidthType.DXA }, columnWidths: [2600, 6760], borders: noBorders, rows: metaRows });
 
 // ---- line items ----
-const COL = [450, 1500, 3160, 650, 950, 1150, 1300]; // = 9160
+// Widths sum to 9160. The optional Lead Time column takes its width from Description.
+const LEAD_W = 1100;
+const COL = showLead
+  ? [450, 1500, 3160 - LEAD_W, 650, 950, LEAD_W, 1150, 1300]
+  : [450, 1500, 3160, 650, 950, 1150, 1300];
 function headCell(text, w, align) {
   return new TableCell({ borders: { top: noBorder, left: noBorder, right: noBorder, bottom: botRule }, width: { size: w, type: WidthType.DXA }, margins: { top: 40, bottom: 60, left: 60, right: 60 }, verticalAlign: VerticalAlign.BOTTOM, children: [new Paragraph({ alignment: align, children: [new TextRun({ text, bold: true, size: 16, color: BLACK })] })] });
 }
@@ -144,15 +209,16 @@ function bodyCell(text, w, align) {
   return new TableCell({ borders: noBorders, width: { size: w, type: WidthType.DXA }, margins: { top: 50, bottom: 50, left: 60, right: 60 }, verticalAlign: VerticalAlign.TOP, children: [new Paragraph({ alignment: align, children: [new TextRun({ text, size: 15, color: BLACK })] })] });
 }
 const L = AlignmentType.LEFT, C = AlignmentType.CENTER, R = AlignmentType.RIGHT;
-const liHeader = new TableRow({ tableHeader: true, children: [
-  headCell("#", COL[0], L), headCell("Part #", COL[1], L), headCell("Description", COL[2], L),
-  headCell("Qty", COL[3], C), headCell("UOM", COL[4], C), headCell("Unit Price", COL[5], R), headCell("Amount", COL[6], R),
-]});
-const liRows = rows.map(r => new TableRow({ children: [
-  bodyCell(String(r.ln), COL[0], L), bodyCell(r.partNumber, COL[1], L), bodyCell(r.desc, COL[2], L),
-  bodyCell(String(r.qty), COL[3], C), bodyCell(r.uom, COL[4], C),
-  bodyCell(fmt(r.sell) + star, COL[5], R), bodyCell(fmt(r.amt) + star, COL[6], R),
-]}));
+const heads = [["#", L], ["Part #", L], ["Description", L], ["Qty", C], ["UOM", C]];
+if (showLead) heads.push(["Lead Time", C]);
+heads.push(["Unit Price", R], ["Amount", R]);
+const liHeader = new TableRow({ tableHeader: true, children: heads.map(([t, a], k) => headCell(t, COL[k], a)) });
+const liRows = rows.map(r => {
+  const vals = [[String(r.ln), L], [r.partNumber, L], [r.desc, L], [String(r.qty), C], [r.uom, C]];
+  if (showLead) vals.push([r.lead, C]);
+  vals.push([fmt(r.sell) + star, R], [fmt(r.amt) + star, R]);
+  return new TableRow({ children: vals.map(([t, a], k) => bodyCell(t, COL[k], a)) });
+});
 const liTable = new Table({ width: { size: 9160, type: WidthType.DXA }, columnWidths: COL, borders: noBorders, rows: [liHeader, ...liRows] });
 
 // ---- totals ----
@@ -199,5 +265,10 @@ const doc = new Document({
 Packer.toBuffer(doc).then(buf => {
   fs.writeFileSync(outPath, buf);
   console.log('Created ' + outPath);
-  console.log('Pricing: ' + method + ' @ ' + (rate * 100) + '%  |  Subtotal ' + fmt(subtotal) + (taxRate > 0 ? '  Tax ' + fmt(tax) + '  Total ' + fmt(total) : '  (pre-tax)'));
+  const nG = spec.items.filter(isGrainger).length;
+  const basis = [];
+  if (nG) basis.push(nG + ' Grainger line(s) at cost');
+  if (spec.items.length - nG) basis.push((spec.items.length - nG) + ' line(s) ' + (method === 'at-cost' ? 'at cost' : method + ' @ ' + (rate * 100) + '%'));
+  console.log('Quote ' + quoteNumber + '  |  BC customer ' + bc.customerNumber + ' ' + bc.customerName);
+  console.log('Pricing: ' + basis.join(', ') + '  |  Subtotal ' + fmt(subtotal) + (taxRate > 0 ? '  Tax ' + fmt(tax) + '  Total ' + fmt(total) : '  (pre-tax)'));
 });

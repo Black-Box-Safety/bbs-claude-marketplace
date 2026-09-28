@@ -150,9 +150,11 @@ tax treatment, the wrong margin, or an empty solicitation line.
 
 Off the state path, run `bbs-quote-builder` directly and confirm its inputs with the rep.
 
-**Gate.** The rep confirms the quote number before it reaches a document. Nothing is
-assigned silently, and nothing is confirmed twice — if Gate 4 entered `naspo-quote`, the
-number it proposed and the rep confirmed is the number.
+**Gate.** The quote number is the Business Central SQ number of a sales quote the rep
+created, read back from BC before it reaches a document (`bbs-quote-builder` step 2).
+Nothing is generated or predicted, and nothing is confirmed twice — if Gate 4 entered
+`naspo-quote`, the SQ number that run read back is the number. No SQ number is
+`[MISSING — NEEDS INPUT]`.
 
 ## Gate 6 — Fill and sign the packet
 
