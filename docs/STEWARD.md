@@ -452,7 +452,7 @@ Write it up with evidence and move to the next slice. Do not idle.
   Bechtel's desk context and those scripts are maintained. #35 depends on the answer.
 - **The macOS bootstrap installs no pip or npm libraries — OPEN, repo fix (2026-09-28).**
   `scripts/bbs-setup.ps1` installs `docx` (npm; `bbs-quote-builder` needs it) and the
-  Python libraries the form-fill scripts import; `scripts/bbs-setup.sh` installs only `uv`.
+  Python libraries the form-fill scripts import; `scripts/bbs-setup.sh` installs no npm or pip libraries; its only Python piece is `uv`.
   A Mac rep's first quote or packet run fails on a missing module. **Fix:** mirror the
   Windows npm and pip steps in `bbs-setup.sh`, in its own PR.
 - **Carried from the 2026-09-16 session task list, evidence not re-verified — OPEN.**
