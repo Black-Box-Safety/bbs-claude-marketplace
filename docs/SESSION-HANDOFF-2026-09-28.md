@@ -58,40 +58,32 @@ Closed: #24 (superseded by #25).
 
 ## 4. Open rulings for Parker
 
-Recorded in `canonical-facts.md` ("Open — awaiting Parker") and `docs/STEWARD.md`:
+Not restated here. The open lists are:
 
-- Grainger sell rule for national and local co-ops (Sourcewell, NPPGov, UC/OMNIA),
-  direct federal and private buyers.
-- Who signs OBS 1000. Until ruled, the date is filled and the signature is left blank and
-  flagged.
-- The Worksheet "BUSINESS NAME:" header value.
-- FY26–27 DGS BPO list — Aanya provides it; STEWARD slice 1 is blocked on it.
-- Address spelling in `vendor_profile.json`.
-- Bechtel's canonical home in this repo, and the BC write-API scripts.
-- The Mac bootstrap installs no pip or npm libraries.
-- The managed `claudeMd` Grainger line: its own PR with two reviewers, then a re-paste.
-- #35's open questions.
-
-Older escalations still on the register (verify status there before acting): the saved
-preference that re-injects "never pre-fill signature lines"; marketplace `skills:`
-filters that do not filter; a commons command that installs from upstream `main`
-instead of the pin; account-synced office skills that may shadow the pinned commons
-copies; slice 3 has no real second packet profile.
+- `canonical-facts.md`, "Rulings on binding documents" → *Open — awaiting Parker*
+  (Grainger for co-ops, direct federal and private; OBS 1000 signer; Worksheet business
+  name). `/ca-rfq` stops on these.
+- `docs/STEWARD.md`, *Already open for Parker* — every entry marked OPEN, including the
+  ones added today: Grainger on a prime with no discount, address spelling, Bechtel's home
+  and the BC write-API scripts, the macOS bootstrap, Dynamics 365 Sales vs the Sales CRM
+  connector, and two items carried from the 2026-09-16 task list. Slice 1 (FY26–27 BPO
+  list, from Aanya) and the managed `claudeMd` Grainger line are in the same file.
+- `docs/COMMONS.md` — the `skills:` filter limitation and the `caveman-init` pin bypass.
+- #35's open questions, in the PR.
 
 ## 5. Where the next session starts
 
-1. **Grainger wording follow-up** (small, doc-only):
-   - `plugins/bbs-sales/skills/grainger-pricing/SKILL.md` ~l.148 hands off prices as
-     "passed through at cost" with no channel. Reword the whole sentence to point at
-     canon's "Grainger sell rule, by channel".
-   - `plugins/bbs-sales/skills/bbs-quote-builder/SKILL.md` §4 ~l.148–150: say that when
-     the account manager grants no discount, the Grainger MCP `unitPrice` stays the cost.
-2. **Weekly rep review** (`wip/ca-weekly-rep-review`): scrub the fixture to synthetic
+1. **Grainger hand-off wording** (small, doc-only): `plugins/bbs-sales/skills/grainger-pricing/SKILL.md`
+   ~l.148 hands off prices as "passed through at cost" with no channel. Reword the whole
+   sentence to point at canon's "Grainger sell rule, by channel". (The no-discount case on
+   a prime waits on Parker — STEWARD register.)
+2. **macOS bootstrap**: mirror the Windows npm and pip steps — STEWARD register.
+3. **Weekly rep review** (`wip/ca-weekly-rep-review`): scrub the fixture to synthetic
    identities (keep dollar values and dates — they are the test expectations), apply the
-   fit-check brief edits, then build in two stages. Parker's rulings for it: land
-   sales-territory first (done, #33); reps' own Sent Items, business facts only; tags
-   workbook-only; no `PRODUCT.md`.
-3. Re-score `docs/evals/queries-ambiguous.json` `naspo-1` against `ca-rfq-intake` on the
+   fit-check brief edits, then build in two stages. Its limits are three STEWARD entries,
+   read before building: "Sequencing the territory work", "What the weekly rep review may
+   read", and "Reactive/proactive and new/repeat tags".
+4. Re-score `docs/evals/queries-ambiguous.json` `naspo-1` against `ca-rfq-intake` on the
    next eval run that has Claude auth.
 
 ## 6. Lessons worth carrying
@@ -112,10 +104,13 @@ copies; slice 3 has no real second packet profile.
 ## Appendix A — delete merged remote branches
 
 Run from a local clone with push rights. Each delete is leased on the SHA the branch
-had when its PR closed, so a branch that has moved since is skipped, not lost. Kept on
-purpose: `main`, the two open drafts, `claude/festive-einstein-249j3j` (moved after its
-PR merged — check before deleting), `feat/bbs-sales-plugin`, `sales-territory-0.3.0`,
-`v1.1`, `wip/ca-weekly-rep-review`.
+had when its PR closed, so a branch that has moved since is refused, not lost. A
+"skipped" line means the push failed for any reason, a moved branch or an auth error —
+read git's message above it. Kept on purpose: `main`, the open PRs' branches (#35, #20,
+and this handoff's `claude/session-handoff-2026-09-28` until it merges),
+`feat/bbs-sales-plugin`, `sales-territory-0.3.0`, `v1.1`, `wip/ca-weekly-rep-review`.
+`claude/festive-einstein-249j3j` moved after #28 closed, to #28's squash commit on
+`main`, so deleting it loses nothing; it is left out only because its lease SHA changed.
 
 ```bash
 set -u

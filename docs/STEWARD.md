@@ -436,6 +436,32 @@ Write it up with evidence and move to the next slice. Do not idle.
   merge order) and drop §2 or give it a real home, in its own PR — agent config is outside
   the territory PR's scope, so `lead-reviewer.md` is deliberately unchanged there.
 
+- **Grainger on a prime when the account manager grants no discount — OPEN (raised in the
+  PR #34 review, 2026-09-28).** Canon's prime row says the rep prices "from that
+  discounted cost" and "never invent a discount"; it does not say what the cost is when
+  none is granted. The natural reading is the Grainger MCP `unitPrice`, but that is a
+  price rule, so no skill writes it until Parker confirms. **Ask:** confirm, and the
+  answer goes into canon's "Grainger sell rule, by channel" prime row, not into a skill.
+- **Address spelling in `vendor_profile.json` — OPEN (2026-09-28).** The profile holds
+  `1950 Cordell CT Ste 103`, which every filled form prints. **Ask:** confirm the spelling
+  and case as registered (e.g. with OSDS), so binding forms match the certification record.
+- **Bechtel's home in this repo, and the BC write-API scripts — OPEN (2026-09-28).**
+  Bechtel is the only customer outside State of CA agencies with the same folder
+  structure (Parker, in session); its desk `CLAUDE.md` lives on SharePoint, not here, and
+  the scripts that write to Business Central have no declared home. **Ask:** where
+  Bechtel's desk context and those scripts are maintained. #35 depends on the answer.
+- **The macOS bootstrap installs no pip or npm libraries — OPEN, repo fix (2026-09-28).**
+  `scripts/bbs-setup.ps1` installs `docx` (npm; `bbs-quote-builder` needs it) and the
+  Python libraries the form-fill scripts import; `scripts/bbs-setup.sh` installs only `uv`.
+  A Mac rep's first quote or packet run fails on a missing module. **Fix:** mirror the
+  Windows npm and pip steps in `bbs-setup.sh`, in its own PR.
+- **Carried from the 2026-09-16 session task list, evidence not re-verified — OPEN.**
+  (a) Account-synced office skills (`docx`, `pdf`, `xlsx`, `pptx`) in Parker's claude.ai
+  account may shadow the pinned `document-skills` copies. (b) Slice 3 closed with a
+  second packet profile, but no real second customer packet has been run through it.
+  Verify each before acting; the `skills:` filter and `caveman-init` findings are
+  recorded in `docs/COMMONS.md`.
+
 ---
 
 Owner: Parker Marshall. Last verified 2026-09-28.
