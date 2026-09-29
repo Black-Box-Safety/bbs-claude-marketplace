@@ -66,8 +66,10 @@ the start. When in doubt, it is customer-facing.
 
 ## 2. Certification claims
 
-1. Registered wording only, reproduced exactly: `CA DVBE Cert. 2009473` · `SDVOSB` · long form `SBA-certified
-   Service-Disabled Veteran-Owned Small Business` · `SBA-certified Veteran-Owned Small Business` · UEI `FRK5MJD35GN5`.
+1. Registered wording only, reproduced exactly, and one channel on the piece. A California piece
+   prints `dvbe-cert`. A federal or prime piece prints `sdvosb` or `sdvosb-full`. `vosb` is federal
+   and unclaimed unless the audience is a VOSB set-aside. UEI `FRK5MJD35GN5` is a federal identifier.
+   Do not print a California credential and a federal credential on the same piece.
 2. **DVBE is a California state certification** issued by CA DGS. **SDVOSB and VOSB are federal certifications** issued
    by the SBA. Different programs, different governments; neither confers anything on the other.
 3. Conflating them is a live error already in the field. Never write "nationally certified DVBE," "federally certified

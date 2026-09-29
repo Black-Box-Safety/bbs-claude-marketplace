@@ -75,8 +75,8 @@ adding it here.
 
 ## Layout principles
 
-- Every published piece carries, in a consistent place across a family: the wordmark, the credential line,
-  and a contact block with a person, an address, and an email.
+- Every published piece carries, in a consistent place across a family: the wordmark, the credential line
+  for that piece's one channel, and a contact block with a person, an address, and an email.
 - One idea per block — the headline states the claim, the body supports it.
 - Iconography is line art at a single stroke weight in `--navy`, `--black`, or the track's accent. Never
   mixed weights, filled clip art, or emoji.
@@ -105,8 +105,11 @@ NEEDS CLAIM: whether "Keeping you safe on the job" is still the current tagline.
 
 Reproduce exactly. Do not paraphrase, expand, abbreviate, or reformat.
 
-- **CA DVBE Cert. 2009473** · **SDVOSB** (long form: SBA-certified Service-Disabled Veteran-Owned Small
-  Business) · **SBA-certified Veteran-Owned Small Business** · UEI **FRK5MJD35GN5**
+- California piece: **CA DVBE Cert. 2009473**. That is the only certification line on the piece.
+- Federal or prime piece: **SDVOSB** (long form: SBA-certified Service-Disabled Veteran-Owned Small
+  Business). **SBA-certified Veteran-Owned Small Business** only where a VOSB audience makes it
+  relevant. UEI **FRK5MJD35GN5** belongs on that federal piece.
+- A piece prints one of those two credential lines. The gate fails a piece that prints both.
 - **1950 Cordell Ct., Ste 103, El Cajon, CA 92020**. The city is **El Cajon**; San Diego is the county.
   Naming the county as the home city is a registered error and fails the build.
 - **joey@blackboxsafety.com** — no other address appears on a published piece.

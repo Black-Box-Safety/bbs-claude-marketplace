@@ -103,7 +103,7 @@ Pull vehicle numbers from `CLAIMS.md`, not from any brochure. Approved for MRO s
 - Sourcewell Grainger Facility MRO `091422-WWG`
 - NASPO ValuePoint LPA `7-25-51-02.03`
 - OMNIA Partners `2018-000207`
-- `CA DVBE Cert. 2009473` · `SDVOSB` · `Grainger Authorized Tier 1 Diverse Reseller`
+- `CA DVBE Cert. 2009473` · `Grainger Authorized Tier 1 Diverse Reseller`. This is a California track, so `SDVOSB` does not print here
 - UEI `FRK5MJD35GN5` on federal-facing pieces
 - Contact `joey@blackboxsafety.com`, `1950 Cordell Ct., Ste 103, El Cajon, CA 92020`
 

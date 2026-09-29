@@ -188,7 +188,7 @@ def audit(
                     kind="superseded",
                     detail=(
                         f"found {bad!r}; approved wording is "
-                        f"{claim.approved!r}"
+                        f"{claim.approved or 'NEEDS CLAIM'}"
                     ),
                 )
             )
@@ -229,6 +229,33 @@ def audit(
                     ),
                 )
             )
+
+    # Channel is not a scope tag. Scope stays "all" so a superseded rendering
+    # still fails on every piece. What scope cannot express is co-occurrence:
+    # the California credential and a federal credential on the same piece.
+    california = next(
+        (c for c in claims if c.id == "dvbe-cert" and present(c.approved)),
+        None,
+    )
+    federal = next(
+        (
+            c
+            for c in claims
+            if c.id in {"sdvosb", "sdvosb-full", "vosb"} and present(c.approved)
+            ),
+        None,
+    )
+    if california and federal:
+        findings.append(
+            Finding(
+                claim_id="channel",
+                kind="mixed-channel",
+                detail=(
+                    f"piece carries {california.approved!r} and "
+                    f"{federal.approved!r}; a piece carries one channel"
+                ),
+            )
+        )
 
     return findings
 

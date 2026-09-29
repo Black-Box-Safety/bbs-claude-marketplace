@@ -50,7 +50,7 @@ which belongs to the MRO track and makes BBS read as a broker.
 
 | Pillar | The claim | Proof it may cite |
 |---|---|---|
-| It counts | The spend becomes reportable diversity participation | `CA DVBE Cert. 2009473` · `SDVOSB` · state the mechanism only, never an award or a preference |
+| It counts | The spend becomes reportable diversity participation | `CA DVBE Cert. 2009473` on a California piece. State the mechanism only, never an award or a preference. SDVOSB does not print on this line |
 | Nothing changes | Same catalog, same contract price, same fulfillment, same workflow | `C-CSUCO-00001768` · `091422-WWG` · `7-25-51-02.03` · `2018-000207` · the four green-check panel against one navy change panel |
 | Real supplier | BBS takes the order, owns the account, and delivers | `Grainger Authorized Tier 1 Diverse Reseller` · supply chain backed by Grainger's national distribution network · `UEI FRK5MJD35GN5` on federal-facing pieces |
 
@@ -70,7 +70,7 @@ solicited, evaluated, and awarded. It supports the "nothing changes" pillar and 
 | We supply this category | Armor, plates, carriers, duty gear, specifically, not as a catalog line | Category line card in `tracks/public-safety.md` order · model, level, fit, and lead time stated on the page |
 | Named specialist brands | Point Blank, Paraclete, Aimpoint, SureFire, Pelican and the rest of the roster, never "leading manufacturers" | The roster table in `tracks/public-safety.md`, rendered as each owner styles it |
 | Contract-ready access | The vehicle exists and the pricing is already competed | `1-23-84-07` · `091924-BBS` · `PS25650` |
-| Credentials (closing note only) | Who we are, after the equipment argument has landed | `CA DVBE Cert. 2009473` · `SDVOSB` · `SBA-certified Service-Disabled Veteran-Owned Small Business` on formal reference |
+| Credentials (closing note only) | Who we are, after the equipment argument has landed | `CA DVBE Cert. 2009473` on a California piece. A federal piece uses `SDVOSB` or the long form, and does not also print the California credential |
 
 `agency-disclaimer` is `presence: required` on every agency-targeted piece and every officer-facing
 piece that names an agency. Print its approved wording verbatim.
@@ -149,22 +149,23 @@ Track-neutral by design: each is built from `core.md` identity wording and `CLAI
 scoped `all`. Contract numbers are track-scoped, so add them beneath the boilerplate at the piece's
 scope, never inside it. Cross-scope numbers in one block fail `brand-check`.
 
+These three are California pieces. They print `dvbe-cert` and do not print `sdvosb`. Federal
+boilerplate is `bbs-deck-voice`.
+
 **25 words.** Black Box Safety, Inc. supplies MRO, safety, and public safety equipment to California
-public agencies. CA DVBE Cert. 2009473. SDVOSB. Based in El Cajon, California.
+public agencies. CA DVBE Cert. 2009473. Based in El Cajon, California.
 
 **50 words.** Black Box Safety, Inc. supplies MRO, safety, and public safety equipment to California
 public agencies, on contract vehicles that have already been publicly solicited, evaluated, and
-awarded. The company is an SBA-certified Service-Disabled Veteran-Owned Small Business and holds CA
-DVBE Cert. 2009473. Black Box Safety operates from El Cajon, California.
+awarded. The company holds CA DVBE Cert. 2009473. Black Box Safety operates from El Cajon, California.
 
 **100 words.** Black Box Safety, Inc. supplies MRO, safety, and public safety equipment to California
 public agencies: campuses, cities, counties, special districts, and state departments. Agencies buy
 through contract vehicles already publicly solicited, evaluated, and awarded, so there is no new
 solicitation to run and no price premium to absorb. Black Box Safety takes the order, owns the account,
-and delivers. The company is an SBA-certified Service-Disabled Veteran-Owned Small Business and
-holds CA DVBE Cert. 2009473, so agency spend routed through it becomes reportable diversity
-participation. Black Box Safety operates from 1950 Cordell Ct., Ste 103, El Cajon, CA 92020.
-Contact joey@blackboxsafety.com.
+and delivers. The company holds CA DVBE Cert. 2009473, so agency spend routed through it becomes
+reportable diversity participation. Black Box Safety operates from 1950 Cordell Ct., Ste 103, El Cajon,
+CA 92020. Contact joey@blackboxsafety.com.
 
 - `NEEDS CLAIM`: founder's name, branch of service, and the service-connected injury behind the
   company story. The boilerplate states the certification and stops there.

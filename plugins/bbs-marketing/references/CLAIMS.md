@@ -8,6 +8,10 @@ superseded wording, any expired claim, or any missing required claim.
 - **presence `as-used`** — the wording is optional, but if the claim is made it must match
 - **scope `all`** — applies to every piece; otherwise space-separated tags, matched against
   the `--scope` values passed to brand-check (e.g. `mro`, `public-safety`, `agency`)
+- **One channel per piece.** `dvbe-cert` is the California credential. `sdvosb`, `sdvosb-full`,
+  and `vosb` are federal. Scope stays `all` so a superseded rendering still fails on any
+  piece. Printing a California approved wording and a federal approved wording on the same
+  piece is a `mixed-channel` finding.
 
 ## Registry
 
@@ -21,7 +25,7 @@ superseded wording, any expired claim, or any missing required claim.
 | body-armor-contract | 1-23-84-07 | 1-23-87-04 | as-used | public-safety | CA DGS statewide body armor LPA | Joey | 2026-08-13 | 2027-06-30 |
 | hq-city | El Cajon | headquartered in San Diego; headquartered in San Diego, CA | as-used | all | Confirmed by Joey 2026-08-13. San Diego is the county, El Cajon the city | Joey | 2026-08-13 | 2028-08-13 |
 | address | 1950 Cordell Ct., Ste 103, El Cajon, CA 92020 | | as-used | all | Confirmed by Joey 2026-08-13 | Joey | 2026-08-13 | 2028-08-13 |
-| contact-phone | (619) 967-9812 | (619) 499-7943 | as-used | all | Confirmed by Joey 2026-08-13 as the published number. Resolves pending decision 3. The retired number is on printed brochures and the website; both need updating | Joey | 2026-08-13 | 2027-08-13 |
+| contact-phone | | (619) 967-9812; (619) 499-7943 | as-used | all | NEEDS CLAIM. Joey registered 967-9812 on 2026-08-13. vendor_profile.json and canonical-facts.md both list 499-7943 as the main phone. The two sources disagree, so neither number prints until Parker reconciles them | | | |
 | person-president | Jackson Dalton, President | | as-used | all | Supplied by Joey 2026-08-13 | Joey | 2026-08-13 | 2027-08-13 |
 | cred-csp | Certified Safety Professional | | as-used | all | Held by Jackson Dalton. Issued by the Board of Certified Safety Professionals, and verifiable in the BCSP registry. An individual credential, never written as a company certification | Joey | 2026-08-13 | 2027-08-13 |
 | cred-mph | Master of Public Health | | as-used | all | Held by Jackson Dalton. Supplied by Joey 2026-08-13 | Joey | 2026-08-13 | 2027-08-13 |
@@ -128,7 +132,7 @@ the writers needed and correctly refused to invent; each appears in those files 
 |---|---|---|---|
 | 1 | The **3% DVBE goal** figure | The entire MRO wedge turns on it. The wedge is currently written without a number | none — simply unregistered |
 | 2 | **NIJ certification** wording for armor, plates, carriers | The public-safety track's central technical proof | none — simply unregistered |
-| 3 | ~~**Public phone number**~~ | **RESOLVED 2026-08-13.** `(619) 967-9812` is the published number and now carries a registry row; `(619) 499-7943` is registered as superseded. Brochures and the website still print the retired number and need updating | closed |
+| 3 | **Public phone number** | Reopened 2026-09-29. `vendor_profile.json` and `canonical-facts.md` list `(619) 499-7943`. The 2026-08-13 marketing row listed `(619) 967-9812`. Both strings are superseded until Parker picks one. A piece prints `NEEDS CLAIM` instead of a number | open |
 | 4 | **Web address** | Needed in every contact block | `blackboxsafety.com` in sources, unregistered. Note `quote-tool-url` registers one subdomain only and is not a general web address |
 | 5 | **GSA contract** `47QSWA23D000Y` | Appears in the retail context file; a federal vehicle with no registry row | unregistered; federal claims carry their own rules |
 | 6 | **NASPO number** | Registry says `7-25-51-02.03` | Branding Guide business card prints `CA LPA: 7-18-51-02.18`. Stale, or a different vehicle? |

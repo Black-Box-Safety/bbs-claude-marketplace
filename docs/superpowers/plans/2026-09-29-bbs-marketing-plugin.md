@@ -216,7 +216,7 @@ The 2026-09-11 design already places this move in v1.1. Leave the skill in `bbs-
 These are already true in the marketplace. The plugin points at them. It does not re-key them.
 
 - Unknown price, stock, lead time, cert, or contract fact is `[FLAG: why]` or `NEEDS CLAIM:`. `CLAIMS.md` is the only approved wording for a marketing piece. `plugins/bbs-sales/references/vendor_profile.json` remains the only source for values that go on a state form. If a marketing claim and the vendor profile disagree, flag it. Do not pick a winner inside a skill.
-- Certification language follows the channel. A California piece uses the OSDS SB/DVBE wording in `CLAIMS.md`. A federal or prime piece uses SDVOSB, via `bbs-deck-voice`. One piece carries one channel.
+- Certification language follows the channel. A California piece uses the DVBE wording in `CLAIMS.md`. A federal or prime piece uses SDVOSB, via `bbs-deck-voice`. One piece carries one channel. `SB/DVBE` is superseded wording.
 - CSU, UC, and body armor are in this plugin because that is Joey's marketing work. They stay out of the Kim/Aanya quote book. This plugin does not create buyer folders under `Customers/State of CA Agencies/` and does not run `ca-rfq-intake`.
 - One track per piece. `ROUTING.md` is the test. Public-safety equipment sold on an MRO vehicle is an `mro-procurement` piece.
 - No third-party mark without a ledger row. No implied agency endorsement. When a piece names an agency, the agency-disclaimer wording and `--scope agency` apply.

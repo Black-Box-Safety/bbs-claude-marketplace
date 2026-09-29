@@ -85,7 +85,20 @@ def test_matches_superseded_wording_across_html_tags():
 
 
 def test_clean_piece_produces_no_findings():
+    piece = "CA DVBE Cert. 2009473 - El Cajon, CA"
+    findings = bc.audit(piece, _claims(), scopes=["all"], today=TODAY)
+    assert findings == []
+
+
+def test_mixed_channel_is_flagged():
     piece = "CA DVBE Cert. 2009473 - SDVOSB - El Cajon, CA"
+    findings = bc.audit(piece, _claims(), scopes=["all"], today=TODAY)
+    assert [f.kind for f in findings] == ["mixed-channel"]
+    assert findings[0].claim_id == "channel"
+
+
+def test_federal_credential_alone_is_not_mixed_channel():
+    piece = "Black Box Safety is an SDVOSB."
     findings = bc.audit(piece, _claims(), scopes=["all"], today=TODAY)
     assert findings == []
 

@@ -69,8 +69,9 @@ every brand in the roster and who will proofread.
 
 Use these only in the registry's exact wording (`references/CLAIMS.md`): `body-armor-contract`
 (CA DGS statewide body armor LPA — the superseded transposition is printed on the source
-brochure, do not mine it), `sourcewell-armor`, `nppgov`, `dvbe-cert`, `sdvosb` (or
-`sdvosb-full` when spelled out), `uei`, `address`, `hq-city`, `contact-email`.
+brochure, do not mine it), `sourcewell-armor`, `nppgov`, `dvbe-cert` on a California
+piece, `address`, `hq-city`, `contact-email`. A federal piece may cite `sdvosb` (or
+`sdvosb-full` when spelled out) and `uei`, and then it does not also cite `dvbe-cert`.
 
 Do **not** put `csu-agreement`, `grainger-role`, `sourcewell-mro`, `naspo`, or `omnia` on a
 public-safety piece — they are scoped `mro` and they blur the two expressions.
