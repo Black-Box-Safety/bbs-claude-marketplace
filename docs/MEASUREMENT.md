@@ -27,6 +27,12 @@ Without this row, no future claim of time saved is provable.
 | Winback conversations | weekly log | drifted-buyer contacts that got a reply |
 | Net-new or reactivated buyers | BC | first order on a customer number with 12 months silence |
 
+## Draft quality
+
+| Metric | Source | Definition |
+|---|---|---|
+| Draft-fix rate | desk `FLAGS.md` | Drafts a review caught before send, and how many of those lines are repeats (`Happened more than once?` = yes). Count only lines that exist. Baseline: [MISSING — NEEDS INPUT]. Do not backfill a number. |
+
 ## Rules
 
 - Blended win rate hides the NASPO ruling — always segment by lane.
