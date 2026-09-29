@@ -4,6 +4,12 @@
   becomes a live product page. Catalog import (`bbs-pricelist-import` runs the five
   stages, `price-list-cleaner` is its first), contract pricing, variant families,
   enrichment, storefront pages, and quote-bot lane tuning. `plugins/bbs-website`.
+- **bbs-marketing** (live) — rep marketing material. Intake, one-page sales pieces,
+  campaign-email drafts, the logo rights ledger, and an index of prior brochures
+  and decks. The claims registry and `brand_check.py` live here. Image files and
+  finished programs stay on the SharePoint desk `MARKETING/bbs-marketing/`.
+  `grainger-promo-page` stays in `bbs-sales` until a later move. Plan:
+  `docs/superpowers/plans/2026-09-29-bbs-marketing-plugin.md`. `plugins/bbs-marketing`.
 - **bbs-sales** (live) — the California state quote desk, end to end. An inbound RFQ is
   logged, its items are pulled out of whatever the agency sent by `rfq-item-extract`
   (DWR RFQ PDF, Grainger cart PDF, or a screenshot — one skill, three front doors),

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{TITLE}}</title>
+<style>
+@page { size: letter; margin: 0; }
+:root {
+  --navy: #051C2C;
+  --gold: #B19800;
+  --gray: #B7B7B8;
+  --red: #C8102E;
+  --paper: #F7F6F3;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  /* MRO track: one family, Roboto. Embed the desk woff2 at render. Do not link a webfont URL. */
+  font-family: "Roboto", Arial, sans-serif;
+  background: var(--paper);
+  color: var(--navy);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.page {
+  width: 8.5in;
+  height: 11in;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+}
+.header { background: var(--navy); padding: 0.30in 0.5in 0.26in; color: #fff; }
+.header .mark { height: 0.30in; display: block; margin-bottom: 0.18in; }
+.eyebrow {
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+h1 {
+  font-size: 27pt;
+  font-weight: 700;
+  line-height: 1.06;
+  margin-top: 0.085in;
+  color: #fff;
+}
+.subhead { font-size: 10pt; line-height: 1.42; color: var(--gray); margin-top: 0.10in; max-width: 6.3in; }
+.body { padding: 0.22in 0.5in 0; flex: 1; }
+.section-label {
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--red);
+  padding-bottom: 0.05in;
+  border-bottom: 1.5px solid var(--navy);
+  margin-bottom: 0.12in;
+}
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.15in 0.34in; margin-bottom: 0.20in; }
+.grid h2 { font-size: 11pt; font-weight: 700; line-height: 1.2; margin-bottom: 0.05in; }
+.grid p { font-size: 9.5pt; line-height: 1.4; }
+.band { display: flex; gap: 0.34in; margin-bottom: 0.18in; }
+.band .col { flex: 1; }
+.same { font-size: 9.5pt; line-height: 1.48; margin-bottom: 0.13in; }
+.change { background: var(--navy); color: #fff; padding: 0.15in 0.17in; font-size: 9.5pt; line-height: 1.4; }
+.change .tag {
+  font-size: 7pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--gold); display: block; margin-bottom: 0.05in;
+}
+.cta {
+  background: var(--red); color: #fff; padding: 0.18in 0.22in;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 0.3in;
+}
+.cta .ask { font-size: 12.5pt; font-weight: 700; line-height: 1.24; }
+.cta .how { font-size: 9.5pt; line-height: 1.35; text-align: right; }
+.footer { background: var(--navy); color: var(--gray); padding: 0.20in 0.5in; margin-top: 0.16in; }
+.footer .contact { font-size: 8.5pt; line-height: 1.44; }
+.footer .contact .name { color: #fff; font-weight: 700; }
+.footer .creds { font-size: 7pt; line-height: 1.5; padding-top: 0.10in; }
+.footer .disclaimer { font-size: 7pt; line-height: 1.5; margin-top: 0.05in; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <!-- {{LOGO_WHITE}} only when marketing-assets allowed the file. Otherwise omit the img. -->
+    <div class="eyebrow">{{EYEBROW}}</div>
+    <h1>{{HEADLINE}}</h1>
+    <p class="subhead">{{SUBHEAD}}</p>
+  </div>
+  <div class="body">
+    <div class="section-label">{{SECTION_LABEL}}</div>
+    <div class="grid">
+      <div><h2>{{GRID_1_TITLE}}</h2><p>{{GRID_1_BODY}}</p></div>
+      <div><h2>{{GRID_2_TITLE}}</h2><p>{{GRID_2_BODY}}</p></div>
+      <div><h2>{{GRID_3_TITLE}}</h2><p>{{GRID_3_BODY}}</p></div>
+      <div><h2>{{GRID_4_TITLE}}</h2><p>{{GRID_4_BODY}}</p></div>
+    </div>
+    <div class="band">
+      <div class="col">
+        <div class="section-label">{{PROOF_LABEL}}</div>
+        <p class="same">{{PROOF_BODY}}</p>
+      </div>
+      <div class="col">
+        <div class="section-label">{{COST_LABEL}}</div>
+        <p class="same">{{COST_BODY}}</p>
+        <div class="change"><span class="tag">{{CHANGE_TAG}}</span>{{CHANGE_BODY}}</div>
+      </div>
+    </div>
+    <div class="cta">
+      <div class="ask">{{ASK}}</div>
+      <div class="how">{{ASK_HOW}}</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="contact"><span class="name">{{FOOTER_NAME}}</span><br>{{FOOTER_LINES}}</div>
+    <div class="creds">{{CREDENTIAL_LINE}}</div>
+    <div class="disclaimer">{{DISCLAIMER}}</div>
+  </div>
+</div>
+</body>
+</html>
