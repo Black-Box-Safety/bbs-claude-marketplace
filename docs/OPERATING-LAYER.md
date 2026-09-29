@@ -4,7 +4,7 @@ A pointer map. Facts live in the files named here. This page does not restate th
 
 ## Thesis
 
-Five plugins are the work Claude is for. Foundations and coach cover everyone. Sales is the California book. Back office is Business Central after the win, and it is read-only. Website is the catalog and the storefront. `bbs-marketing` is in development and is not installed: marketing material (one-pagers, email drafts, marks, prior decks and brochures). It does not create California buyer folders and it does not run the quote desk.
+Six plugins are the work Claude is for. Foundations and coach cover everyone. Sales is the California book. Marketing is one-page pieces, campaign email drafts, logo rights, and prior brochures and decks. Back office is Business Central after the win, and it is read-only. Website is the catalog and the storefront. Marketing does not create California buyer folders and it does not run the quote desk.
 
 Out of scope everywhere: sending, placing orders, writing to Business Central, renaming customer folders. Body armor and CSU/UC stay out of the Kim/Aanya California book. They stay in the company. They are part of why marketing is its own plugin.
 

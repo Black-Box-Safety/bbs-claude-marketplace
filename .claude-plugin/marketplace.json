@@ -4,7 +4,7 @@
     "name": "Black Box Safety, Inc."
   },
   "metadata": {
-    "description": "Black Box Safety internal Claude plugins — site operations, state sales, and AI foundations.",
+    "description": "Black Box Safety internal Claude plugins — site operations, state sales, marketing, and AI foundations.",
     "version": "0.5.0"
   },
   "plugins": [
@@ -54,6 +54,26 @@
         "state-of-california",
         "territory",
         "weekly-report"
+      ],
+      "category": "sales"
+    },
+    {
+      "name": "bbs-marketing",
+      "source": "./plugins/bbs-marketing",
+      "description": "Marketing material for reps: open a piece, draft a one-page sales document, draft a campaign email, check a logo against the rights ledger, and find a prior brochure or deck. Approved wording lives in the claims registry. A human sends.",
+      "author": {
+        "name": "Black Box Safety, Inc."
+      },
+      "keywords": [
+        "bbs",
+        "brand",
+        "brochures",
+        "decks",
+        "dvbe",
+        "email",
+        "logos",
+        "marketing",
+        "one-pager"
       ],
       "category": "sales"
     },

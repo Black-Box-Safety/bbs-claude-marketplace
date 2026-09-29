@@ -2,14 +2,14 @@
   <img src="https://img.shields.io/badge/company-Black%20Box%20Safety%2C%20Inc.-051c2c" alt="Black Box Safety, Inc.">
   <img src="https://img.shields.io/badge/certs-channel%20split%20%C2%B7%20see%20canonical--facts-b19800" alt="Certification language follows the channel; the numbers live in canonical-facts">
   <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20Cursor%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, Cursor, VS Code, and Desktop">
-  <img src="https://img.shields.io/badge/plugins-5%20BBS%20%2B%205%20pinned-2dd4bf" alt="Five BBS plugins plus five pinned external">
+  <img src="https://img.shields.io/badge/plugins-6%20BBS%20%2B%205%20pinned-2dd4bf" alt="Six BBS plugins plus five pinned external">
 </p>
 
 # Black Box Safety — Claude Marketplace
 
-**How the same small team runs company memory, the California book, the order after the win, and the storefront, with a coach so a non-technical teammate can start any of them.**
+**How the same small team runs company memory, the California book, marketing pieces, the order after the win, and the storefront, with a coach so a non-technical teammate can start any of them.**
 
-Black Box Safety sells safety, tactical, and MRO equipment to government buyers. Five plugins run the work today: foundations, coach, sales, back-office, and website. `bbs-marketing` is in development and is not installed yet. A person reviews every number. A person sends.
+Black Box Safety sells safety, tactical, and MRO equipment to government buyers. Six plugins run the work today: foundations, coach, sales, marketing, back-office, and website. A person reviews every number. A person sends.
 
 The skill lists live in each plugin README. Certification strings live in [`plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`](plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md). This file points at those. It does not retype them. How the files point at each other is [`docs/OPERATING-LAYER.md`](docs/OPERATING-LAYER.md).
 
@@ -80,11 +80,17 @@ The skill lists live in each plugin README. Certification strings live in [`plug
 
 **Will not.** Write the catalog or deploy without a person approving it. The quote bot does not place orders or write to Business Central. Detail: [`plugins/bbs-website/README.md`](plugins/bbs-website/README.md).
 
-## In development: bbs-marketing
+## Marketing
 
-Not installed. Not in `.claude-plugin/marketplace.json`. Not in the plugin-count badge.
+**Who.** Reps making a piece, or looking up one that already exists.
 
-It is the marketing desk: one-pagers, email drafts, marks, and prior decks and brochures. It does not create California buyer folders and it does not run the quote desk. Body armor and CSU/UC stay out of the Kim/Aanya California book; they are part of why marketing is its own plugin. Promo pages stay in sales. Federal deck copy stays in foundations.
+**What.** A one-page sales piece, a campaign email draft, a logo check against the rights ledger, and a prior brochure or deck. Approved wording is the claims registry. Finished pieces and logo files live on the SharePoint desk `MARKETING/bbs-marketing/`.
+
+**How work moves.** Intake writes the program folder and the brief, then stops. The one-page draft comes next, then one email draft, then whether a logo may be used, then a pointer to what was already printed or presented. One piece carries one channel. A Grainger hot-list page stays `grainger-promo-page` in sales. Federal slide copy stays `bbs-deck-voice` in foundations.
+
+**First command.** `/bbs-one-pager`
+
+**Will not.** Create California buyer folders or run the quote desk. It does not send email, place orders, write to Business Central, or file a quote under `Customers/State of CA Agencies/`. CSU, UC, and body-armor marketing stay in this plugin. They stay out of the Kim/Aanya quote book. A human sends. Detail: [`plugins/bbs-marketing/README.md`](plugins/bbs-marketing/README.md).
 
 ## The shared rule
 
@@ -99,7 +105,7 @@ flowchart LR
 
 ## Pinned externals
 
-These ship with the five BBS plugins. They are pinned so a third-party update does not move on its own.
+These ship with the six BBS plugins. They are pinned so a third-party update does not move on its own.
 
 | Plugin | For |
 |---|---|
@@ -166,13 +172,14 @@ python3 scripts/check_marketplace.py --requirements
 /plugin install bbs-foundations@bbs-claude-marketplace
 /plugin install bbs-claude-coach@bbs-claude-marketplace
 /plugin install bbs-sales@bbs-claude-marketplace
+/plugin install bbs-marketing@bbs-claude-marketplace
 /plugin install bbs-back-office@bbs-claude-marketplace
 /plugin install bbs-website@bbs-claude-marketplace
 /bbs-checkup
 /bbs-what-can-i-do
 ```
 
-On a managed machine the five BBS plugins and the five pinned externals are already enabled. Run the last two lines and read the report. Anything red prints the exact sentence to send the admin. Do not install `bbs-marketing`. It is not in the marketplace yet.
+On a managed machine foundations, coach, sales, back-office, website, and the five pinned externals are already enabled. `bbs-marketing` is in the marketplace. Run its install line if `/bbs-one-pager` is missing, then run the last two lines and read the report. Anything red prints the exact sentence to send the admin.
 
 ## Pick your path
 
@@ -191,7 +198,7 @@ On a managed machine the five BBS plugins and the five pinned externals are alre
 
 ```text
 bbs-claude-marketplace/
-├── .claude-plugin/marketplace.json     # manifest: 5 BBS plugins (unpinned) + 5 external (pinned)
+├── .claude-plugin/marketplace.json     # manifest: 6 BBS plugins (unpinned) + 5 external (pinned)
 ├── .cursor/rules/bbs-invariants.mdc    # always-on Cursor doctrine; stamp onto the desk too
 ├── README.md                           # this file
 ├── REGISTRY.md                         # every BBS repo and asset: canon, harvest, parked, archived
@@ -208,15 +215,14 @@ bbs-claude-marketplace/
     ├── bbs-claude-coach/               # literacy coach: understand, start, extend
     ├── bbs-foundations/                # CLAUDE.md, voice, checkup, doctrine
     ├── bbs-sales/                      # California book
+    ├── bbs-marketing/                  # claims registry, one-pagers, email, logos, decks
     ├── bbs-back-office/                # Business Central after the win, read-only
     └── bbs-website/                    # price list to product page
 ```
 
-`bbs-marketing` is not in that tree on this branch.
-
 ## How we keep it honest
 
-- **Version policy.** The five BBS plugins carry no version pin. A set `version` freezes updates until someone bumps it. Anthropic's default is that pin. We leave it off so a push to `main` updates every machine. Freeze only for a pilot, then unfreeze. The five externals stay pinned.
+- **Version policy.** The six BBS plugins carry no version pin. A set `version` freezes updates until someone bumps it. Anthropic's default is that pin. We leave it off so a push to `main` updates every machine. Freeze only for a pilot, then unfreeze. The five externals stay pinned.
 - **Registry.** [`REGISTRY.md`](REGISTRY.md) gives every repo and asset exactly one status. Change the status in the same commit as the change.
 - **Measurement.** [`docs/MEASUREMENT.md`](docs/MEASUREMENT.md). Draft-fix rate is counted from `FLAGS.md`. No baseline number is invented here.
 - **Acceptance.** A rep who is not the admin runs a real RFQ end to end, unaided. Result recorded in [`docs/acceptance/`](docs/acceptance/README.md).
