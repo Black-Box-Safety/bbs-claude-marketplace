@@ -11,6 +11,8 @@ Last verified: 2026-09-18 (workspace catalog: quote desk, web, admin).
 | Asset | Status | Ruling / where the value went |
 |---|---|---|
 | `bbs-claude-marketplace` | **canon** | The brain. Plugins, managed settings, specs, this registry |
+| `bbs-marketing` plugin | **canon** | `plugins/bbs-marketing`. Factory for one-pagers, campaign email, logo rights, deck index. Image files and program folders stay on the SharePoint desk |
+| SharePoint `MARKETING/bbs-marketing/` | **canon** | The marketing desk. Run folders, logo files, finished pieces. Points at the plugin for the factory once that plugin is on main |
 | `bbs-naspo-quote` (repo) | **canon** | Source repo; cutover pending — Marketplace `bbs-sales/naspo-quote` becomes canonical; repo keeps precedent-mining scripts + gets pointer README |
 | `ca-quote-hub` | **harvest** | `.code-workspace` + CLAUDE.md grounding → `workspace/`; Supabase `rep_cockpit` **parked** (revisit if folder tracking misses deadlines); its duplicate `ca-rfq-intake` skill: delete |
 | `bbs-sales-vault` | **harvest** | SharePoint tree map superseded by `plugins/bbs-sales/skills/ca-rfq-intake/references/agency-tree.md` (8/27); README tone reused in REP-SETUP; then archive the repo. |

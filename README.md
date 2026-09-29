@@ -2,7 +2,7 @@
   <img src="https://img.shields.io/badge/company-Black%20Box%20Safety%2C%20Inc.-051c2c" alt="Black Box Safety, Inc.">
   <img src="https://img.shields.io/badge/certified-SDVOSB%20%C2%B7%20CA%20DVBE%202009473-b19800" alt="SDVOSB federal and California DVBE 2009473">
   <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20Cursor%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, Cursor, VS Code, and Desktop">
-  <img src="https://img.shields.io/badge/plugins-5%20BBS%20%2B%205%20pinned-2dd4bf" alt="Five BBS plugins plus five pinned external">
+  <img src="https://img.shields.io/badge/plugins-6%20BBS%20%2B%205%20pinned-2dd4bf" alt="Six BBS plugins plus five pinned external">
 </p>
 
 # Black Box Safety — Claude Marketplace
@@ -57,6 +57,7 @@ Nothing drifts.
 /plugin install bbs-foundations@bbs-claude-marketplace
 /plugin install bbs-claude-coach@bbs-claude-marketplace
 /plugin install bbs-sales@bbs-claude-marketplace
+/plugin install bbs-marketing@bbs-claude-marketplace
 /plugin install bbs-back-office@bbs-claude-marketplace
 /plugin install bbs-website@bbs-claude-marketplace
 /bbs-checkup
@@ -94,6 +95,7 @@ flowchart LR
 | Plugin | What it covers | Detail |
 |---|---|---|
 | `bbs-claude-coach` | Empowerment / literacy: understand the toolkit, start any overlapping job, extend it; `/bbs-what-can-i-do`, `/bbs-start`, `/bbs-explain-claude` | [README](plugins/bbs-claude-coach/README.md) |
+| `bbs-marketing` | One-page sales pieces, campaign email drafts, logo rights, and prior brochures and decks. Facts from the claims registry. `/bbs-one-pager` | [README](plugins/bbs-marketing/README.md) |
 | `bbs-sales` | The California quote desk end to end — RFQ in, items extracted, BPO checked, priced, quoted, compliance packet filled — plus the territory work in front of it: book handoff, budget timing, agency primers, site-visit prep and the weekly sales report; promo pages and federal deck copy; `/ca-rfq`, `/ca-territory-handoff` | [README](plugins/bbs-sales/README.md) |
 | `bbs-back-office` | After the bid is won, out of Business Central: order status, vendor PO receipts, problem-order reconciliation, true margin after Grainger rebates | [README](plugins/bbs-back-office/README.md) |
 | `bbs-foundations` | Company memory, doctrine every skill inherits, the BBS way to write a CLAUDE.md, personal voice skills, `/bbs-checkup`, managed settings, the one-page AUP | [README](plugins/bbs-foundations/README.md) |
@@ -130,7 +132,7 @@ forms, and tells you where every number came from. The judgment stays with the p
 
 ```text
 bbs-claude-marketplace/
-├── .claude-plugin/marketplace.json     # manifest: 5 BBS plugins (unpinned) + 5 external (pinned)
+├── .claude-plugin/marketplace.json     # manifest: 6 BBS plugins (unpinned) + 5 external (pinned)
 ├── .cursor/rules/bbs-invariants.mdc    # always-on Cursor doctrine; stamp onto the desk too
 ├── README.md                           # this file
 ├── REGISTRY.md                         # every BBS repo and asset: canon, harvest, parked, archived
@@ -146,13 +148,14 @@ bbs-claude-marketplace/
     ├── bbs-claude-coach/               # literacy coach: understand, start, extend; docs/TOOLKIT.md
     ├── bbs-foundations/                # commands, docs (managed settings, AUP), hooks, skills
     ├── bbs-sales/                      # commands, skills
+    ├── bbs-marketing/                  # claims registry, one-pagers, email, logos, decks
     ├── bbs-back-office/                # skills
     └── bbs-website/                    # agents, commands, docs, hooks, skills
 ```
 
 ## How we keep it honest
 
-- **Version policy:** the five BBS plugins carry no version pin. Every push updates every machine.
+- **Version policy:** the six BBS plugins carry no version pin. Every push updates every machine.
   Freeze only for a pilot, then unfreeze.
 - **Registry:** [`REGISTRY.md`](REGISTRY.md) gives every repo and asset exactly one status. Change
   the status in the same commit as the change.
