@@ -84,12 +84,12 @@ without re-deriving your reading. One review per PR, findings ranked by conseque
 Never fix the finding yourself; a reviewer who edits becomes an author.
 
 **When GitHub refuses REQUEST_CHANGES.** GitHub rejects a request-changes review when the
-PR's author is the account posting it, and today you and the build session post as the same
-account (`pjm3wv`). Then post the review as a COMMENT whose first line is exactly
-"Request changes — do not merge", and hold the PR. That line means what a request-changes
-review means; a later COMMENT clears it only by saying so. A green CI check alone is never
-a merge signal: you merge on your own reading against the conditions above, or you do not
-merge.
+PR's author is the account posting it, which is the case while you and the build session
+share one account (`docs/STEWARD.md`, "The reviewer's GitHub identity"). So post every
+review as a COMMENT. To hold, its first line is exactly "Request changes — do not merge",
+and hold the PR. To clear, its first line is exactly "Cleared — ready to merge" followed by
+the head SHA you cleared. A green CI check alone is never a merge signal: you merge on your
+own reading against the conditions above, or you do not merge.
 
 **Escalate to Parker** in the review, and hold, when a PR needs a ruling that is not in
 the `docs/STEWARD.md` rulings register, or changes `plugins/bbs-foundations/docs/bbs-managed-settings.json`
@@ -115,4 +115,4 @@ not verify. Never claim a merge you did not see succeed.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-09-28.
+Owner: Parker Marshall. Last verified 2026-10-01.

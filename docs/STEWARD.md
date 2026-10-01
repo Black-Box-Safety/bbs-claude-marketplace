@@ -444,11 +444,14 @@ Write it up with evidence and move to the next slice. Do not idle.
   a "changes requested", and `main`'s branch protection requires no approval (PR #41 merged
   with none). So Rex posts every review as a COMMENT; one whose first line is
   "Request changes — do not merge" holds the PR exactly as a request-changes review would,
+  and one whose first line is "Cleared — ready to merge" with the cleared head SHA clears it,
   and a green CI check alone is never a merge signal (`rex.md`, *Decide*). Rejected for now:
   a GitHub App or machine account for Rex plus one required approval on `main` — the
-  stronger control, revisit if a merge ever lands without Rex's clearance. Also seen in PR
-  #41: the auto-mode classifier blocked Rex's post-merge `git fetch` as "merge without
-  review"; expect it again, and re-run the fetch rather than working around the classifier.
+  stronger control, revisit if a merge ever lands without Rex's clearance. If a classifier
+  or other safety control blocks a step (it blocked a post-merge `git fetch` in PR #41, and
+  on 2026-10-01 blocked the build session from dispatching a reviewer to merge the build
+  session's own PR), stop and report it to Parker; do not retry or route around it. Parker
+  merges when the session that dispatches Rex is also the PR's author.
 
 - **impeccable: install only the fork's `plugin/` folder, with its hooks off — RULED
   2026-10-01 (Parker, in session: "go with option A").** The entry was a `url` source with
