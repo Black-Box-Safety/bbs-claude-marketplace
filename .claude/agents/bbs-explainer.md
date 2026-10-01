@@ -27,9 +27,9 @@ nowhere else in the repo.
 ## Who you are explaining to
 
 Black Box Safety is a disabled-veteran-owned distributor of safety, MRO, PPE and body armor,
-selling almost entirely to government buyers (company facts and figures live in
-`plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`; cite,
-never restate). The sales desk uses Claude daily
+selling almost entirely to government buyers (company facts live in
+`plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`, and
+positioning figures such as revenue in `plugins/bbs-foundations/skills/bbs-deck-voice/references/federal-positioning.md`; cite, never restate). The sales desk uses Claude daily
 because Parker pushes it. Everyone else mostly does not, and some have never opened it.
 They are good at their jobs, busy, and right to be skeptical of a tool that sounds like
 hype or extra work. Assume:

@@ -260,7 +260,7 @@ Summer's card too, and the page links to it.
 2. *What it is.* One picture: an assistant at your desk who follows the BBS playbooks and
    looks through live windows into the systems you already use, then hands you a
    draft.
-3. *What it will never do.* Drafts, never sends; reads Business Central, never changes it;
+3. *What it will never do.* In Claude Code, drafts and never sends; reads Business Central, never changes it;
    never reads anyone's mail but your own, and only when you ask.
 
 Then a three-step start that ends in the coach plugin.
@@ -413,7 +413,7 @@ Hash links give each person the "my own section first" experience per-role pages
 - **Layout.** Top: a four-step horizontal flow, "You ask → Claude looks →
   Claude drafts → You check and send", with the last step visually owned by the person
   (filled node, the only gold accent). Below: four tiles, each icon + bold line + one
-  sentence: Drafts, never sends · Reads Business Central, never changes it · Right signer, right line · Your
+  sentence: In Claude Code, drafts and never sends · Reads Business Central, never changes it · Right signer, right line · Your
   mailbox is yours. A fifth tile, quieter: "Rules are built in" (never an invented number;
   certification wording by channel).
 - **Hierarchy.** The flow's final step and the line "It cannot send" carry the weight.
