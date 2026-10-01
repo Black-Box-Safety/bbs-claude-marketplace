@@ -151,19 +151,11 @@ foreach ($t in $tools) {
 # saved here. The machine-independent variables (CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS,
 # CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE) live once, in the managed settings' `env`
 # (bbs-managed-settings.json, 2026-10-01); this script sets the timeout only for its own
-# install run below and clears the user-level copies earlier versions saved.
+# install run below and no longer saves either one. A copy an earlier version saved is
+# left alone: it holds the same value, and removing it before Parker re-pastes the
+# managed settings would drop the timeout on that machine in between.
 $userEnv = [ordered]@{}
 $env:CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS = '600000'
-foreach ($old in 'CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS', 'CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE') {
-  if ($null -ne [Environment]::GetEnvironmentVariable($old, 'User')) {
-    if ($DryRun) {
-      Write-Host ("[would]   {0,-28} remove the saved copy (managed settings set it now)" -f $old)
-    } else {
-      Write-Host ("[remove]  {0,-28} saved copy; managed settings set it now" -f $old)
-      [Environment]::SetEnvironmentVariable($old, $null, 'User')
-    }
-  }
-}
 $gitBash = @("$env:ProgramFiles\Git\bin\bash.exe", "$env:LOCALAPPDATA\Programs\Git\bin\bash.exe") |
   Where-Object { Test-Path $_ } | Select-Object -First 1
 if ($gitBash) {

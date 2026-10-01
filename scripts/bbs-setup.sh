@@ -167,19 +167,11 @@ fi
 # false, so nothing is copied into this script. A clone gets 120 s by default; give the
 # installs below ten minutes. Claude Code's own later installs and updates get the same value
 # from the managed settings' `env` (bbs-managed-settings.json, 2026-10-01), its one home, so
-# the copy earlier versions of this script saved in ~/.zprofile is removed.
+# this script no longer saves it. A line an earlier version added to ~/.zprofile is left:
+# it holds the same value, and removing it before Parker re-pastes the managed settings
+# would drop the timeout on that machine in between.
 MARKETPLACE="bbs-claude-marketplace"
 export CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS=600000
-TIMEOUT_LINE="export CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS=600000"
-if grep -qsF "$TIMEOUT_LINE" "$HOME/.zprofile"; then
-  if [[ $DRY_RUN -eq 1 ]]; then
-    printf '[would]   %-22s %s\n' "CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS" "remove the saved copy from ~/.zprofile (managed settings set it)"
-  else
-    printf '[remove]  %-22s %s\n' "CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS" "saved copy in ~/.zprofile; managed settings set it now"
-    grep -vF -e "$TIMEOUT_LINE" -e "# BBS bootstrap: give plugin clones ten minutes, not 120 s" \
-      "$HOME/.zprofile" > "$HOME/.zprofile.bbs-tmp" && mv "$HOME/.zprofile.bbs-tmp" "$HOME/.zprofile"
-  fi
-fi
 if ! command -v claude >/dev/null 2>&1 || ! command -v jq >/dev/null 2>&1; then
   if [[ $DRY_RUN -eq 1 ]]; then
     printf '[would]   %-22s %s\n' "BBS plugins" "after claude and jq are on PATH"

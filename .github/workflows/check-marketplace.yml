@@ -73,6 +73,22 @@ jobs:
             test "${PIPESTATUS[0]}" = "0"
           done
 
+      # bbs-fill is allowed by managed settings as `Bash(bbs-fill *)`, so its refusals are the
+      # control: every way past them is a way past auto mode. The tests also fail when a
+      # skill line or packet profile names a script that is not on its allow-list.
+      - name: bbs-fill launcher tests
+        run: python3 plugins/bbs-tools/tests/test_bbs_fill.py
+
+      # The Windows bootstrap cannot be run here, but it can be parsed: a syntax error in it
+      # stops every new Windows rep at step 1.
+      - name: Parse the Windows bootstrap
+        run: |
+          pwsh -NoProfile -Command '
+            $e = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile("scripts/bbs-setup.ps1", [ref]$null, [ref]$e)
+            if ($e.Count) { $e | ForEach-Object { Write-Error $_.Message }; exit 1 }
+            "bbs-setup.ps1 parses"'
+
       # What each skill needs installed, printed on every run, so the "will this run on my
       # machine?" answer is in the PR rather than in someone's head.
       - name: What each skill requires

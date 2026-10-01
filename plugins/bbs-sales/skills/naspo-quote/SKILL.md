@@ -262,8 +262,12 @@ copy a certification value from the corpus; take it from
 To refresh the precedent tables after a batch of new RFQs:
 
 ```bash
-python scripts/mine_precedents.py "<path to State of CA Agencies>" --out /tmp/mine.json
+python "${CLAUDE_PLUGIN_ROOT}/skills/naspo-quote/scripts/mine_precedents.py" "<path to State of CA Agencies>" --out /tmp/mine.json
 ```
+
+This one is a maintainer's analysis tool, not part of filling a packet, so it is not on
+`bbs-fill`'s list: run it with `python` (Windows) or `python3` (Mac), and expect a
+permission prompt.
 
 It classifies every PDF, pulls the filled AcroForm values, and reports
 solicitation numbers, account numbers, and anything it couldn't classify — that

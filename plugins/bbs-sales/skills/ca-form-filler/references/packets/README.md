@@ -121,12 +121,15 @@ marker that matches the wrong document is the one way this design fails quietly.
 ## Tools
 
 ```bash
-SKILL_DIR=<the folder containing SKILL.md>
-python3 "$SKILL_DIR/scripts/packet_profile.py" --list
-python3 "$SKILL_DIR/scripts/packet_profile.py" --validate
-python3 "$SKILL_DIR/scripts/packet_profile.py" --recognize-pdf <packet.pdf>
-python3 "$SKILL_DIR/scripts/test_packet_profiles.py"
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/ca-form-filler/scripts/packet_profile.py" --list
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/ca-form-filler/scripts/packet_profile.py" --validate
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/ca-form-filler/scripts/packet_profile.py" --recognize-pdf <packet.pdf>
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/ca-form-filler/scripts/test_packet_profiles.py"   # maintainers; prompts
 ```
+
+A profile's `script` and `verify_script` must be on `bbs-fill`'s allow-list
+(`plugins/bbs-tools/bin/bbs-fill`, `ALLOWED`), or a rep is stopped mid-packet;
+`plugins/bbs-tools/tests/test_bbs_fill.py` fails on one that is not.
 
 `--validate` is the machine-readable half of this document, and
 `scripts/check_marketplace.py` shells out to it, so a profile that breaks this contract
