@@ -539,6 +539,13 @@ Write it up with evidence and move to the next slice. Do not idle.
   session. DGS PD 843, CV 012, STD 204 and STD 205 carry Jackson's image whoever runs the
   packet. The team ruling (R1/R1a) widens who may *run* a packet, not whose declaration those
   lines are. Rule home: `ca-form-rules.md`, "Who signs what".
+- **R4 — where control lives: Parker's machine, pushed out — RULED 2026-10-01.** Parker, in
+  session: "I want to ensure that I have all the managed settings and things I can control
+  from my machine and then be disseminated out all set up." Everything that can be set
+  centrally goes in `plugins/bbs-foundations/docs/bbs-managed-settings.json`, which Parker
+  pastes in the claude.ai admin console (`docs/ADMIN-RUNBOOK.md` §1). Nothing is merged into
+  a rep's own `~/.claude/settings.json`. `/bbs-checkup` stays read-only: it verifies, it
+  never writes.
 
 ---
 
