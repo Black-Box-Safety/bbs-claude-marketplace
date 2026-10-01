@@ -87,6 +87,24 @@ report format at the end. Read-only: create/modify nothing, send nothing.
     (once per plugin update). Mac fix: rerun `scripts/bbs-setup.sh`, which installs the same
     libraries, then quit and reopen VS Code (Cmd+Q) so it reads the new NODE_PATH.
 
+11. **Signature images.** Find the installed bbs-sales plugin root (as in check 9) and read
+    its `references/vendor_profile.json` (read-only). Find the synced
+    `Black Box Safety - MASTER` folder on this machine (on a Teams-site sync its name carries
+    a "… - " prefix; it is the library the desk folder in check 6 lives in). For each person
+    in `signature_delegation.delegates`, resolve their `signature_image`: a `MASTER/...`
+    path is joined onto that folder. Report one line per person:
+    - `null` → "not provided yet" (informational, not a WARN).
+    - Path set and the file exists and its first bytes are a PNG header
+      (`\x89PNG`, e.g. `python3 -c "print(open(p,'rb').read(8))"` or PowerShell
+      `Get-Content -AsByteStream -TotalCount 8`) → PASS.
+    - Path set but the file is missing, empty, online-only and will not download, or not a
+      PNG → WARN, naming the path. If that person is the one running the checkup (match the
+      Microsoft 365 `get_me` email from check 5 to their recorded email), say so plainly:
+      "your own signature will not be applied until this file syncs" — fix: in OneDrive,
+      right-click `Signatures` → "Always keep on this device"; if the file is not there at
+      all, send your PNG to Parker (ADMIN-RUNBOOK §3b).
+    Never open, copy or display an image; check presence and header bytes only.
+
 ## Report format
 
 For each check: ✅ PASS / ❌ FAIL / ⚠️ WARN + one line. Then:

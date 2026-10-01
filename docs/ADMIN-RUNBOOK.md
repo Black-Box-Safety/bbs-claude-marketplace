@@ -14,6 +14,34 @@ MEASUREMENT.md (metrics), ADMIN-CLEANUP.md (one-time machine cleanup).
    your user only — Windows: keep it out of shared/synced folders). Strip old values from
    `~/.claude/settings.local.json` and `~/.claude/remote-settings.json` per ADMIN-CLEANUP.md.
 
+## Parker's control surface (ruled 2026-10-01, R4)
+
+Everything that can be set centrally is set from Parker's machine and reaches every rep
+without the rep touching a settings file. Nothing is merged into a rep's own
+`~/.claude/settings.json`; `/bbs-checkup` only verifies.
+
+| What | Where it is set | How it reaches each machine |
+|---|---|---|
+| Plugins, marketplace, permissions (allow and deny), env, company CLAUDE.md | Managed settings — `plugins/bbs-foundations/docs/bbs-managed-settings.json` | The admin-console paste (§1) |
+| Connectors (Grainger, Business Central, Microsoft 365, SCPRS, Sales CRM) | Org connector assignment | The claude.ai account (§3) |
+| Signature PNGs | OneDrive `MASTER/Signatures/` (§3b) | OneDrive sync |
+| Local tools (Git Bash, Python and its PDF libraries, Node, pdftotext, LibreOffice) | The bootstrap — `scripts/bbs-setup.ps1` / `scripts/bbs-setup.sh` | Once per machine |
+
+### Onboarding a new person, step by step
+
+1. **Roster and profile.** Add them to `plugins/bbs-sales/references/vendor_profile.json`
+   `authorized_representatives` (name, title, email — from the M365 directory and their own
+   signature, never inferred) and, if counsel's authorization covers them, to
+   `signature_delegation.delegates`, in a PR. `signature_image` stays `null` for now.
+2. **Signature PNG.** They send it to the spec in §3b; drop it in `MASTER/Signatures/`, then
+   set their `signature_image` in a second small PR (or the same one, once the file is there).
+3. **Connectors.** Assign their account the connectors their role needs (§3).
+4. **Managed settings.** Re-paste `bbs-managed-settings.json` (§1) if it changed since the
+   last paste. It is the same file for everyone, so a new person needs no edit to it.
+5. **Their machine.** They run the bootstrap once (`docs/REP-SETUP.md` step 1), restart VS
+   Code, then run `/bbs-checkup` and send you the report. Every line should be ✅; the
+   signature line says whether their own PNG resolved.
+
 ## 1. Push managed settings (the deployment step that has stalled twice)
 
 1. Open claude.ai → admin settings → Claude Code → managed settings.
