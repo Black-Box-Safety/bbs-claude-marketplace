@@ -416,7 +416,7 @@ Hash links give each person the "my own section first" experience per-role pages
   sentence: In Claude Code, drafts and never sends · Reads Business Central, never changes it · Right signer, right line · Your
   mailbox is yours. A fifth tile, quieter: "Rules are built in" (never an invented number;
   certification wording by channel).
-- **Hierarchy.** The flow's final step and the line "It cannot send" carry the weight.
+- **Hierarchy.** The flow's final step and tile 1's heading, "In Claude Code, it drafts and never sends.", carry the weight.
 - **Data shown.** None.
 - **References.** Mobbin: Runner "Review before anything goes out" (numbered status list,
   last step human); Discord authorize screen ("cannot read your messages or send messages

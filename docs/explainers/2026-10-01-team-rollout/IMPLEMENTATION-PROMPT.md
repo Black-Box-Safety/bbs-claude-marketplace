@@ -399,7 +399,7 @@ Every capability on the page maps to one row. Check each path exists before you 
 | 12 | Which order is this customer PO; invoices under a PO | `plugins/bbs-back-office/skills/so-search/SKILL.md` | On Parker's list: `requires: [bc-mcp-proxy]` |
 | 13 | Margin after the Grainger rebate | `plugins/bbs-back-office/skills/bbs-rebate-profitability/SKILL.md` | On Parker's list: `requires: [cdata-connect]`, not assigned |
 | 14 | BPO check, last fiscal year's list, says so | `plugins/bbs-sales/skills/dgs-bpo-item-check/SKILL.md`; `docs/STEWARD.md` item "FY26/27 BPO list" | On Parker's list |
-| 15 | Business Central and Grainger read-only | `bbs-managed-settings.json` allow list (read tools only); `README.md` "Write to Business Central" under "What it will not do" | Rule |
+| 15 | Business Central and Grainger read-only | Both connectors expose only read tools: Business Central's tool list in `MANAGED-SETTINGS.md`'s connector table, which marks it read-only; Grainger's tools are search, price, availability and resolve-part reads. `README.md` "Write to Business Central" under "What it will not do" | Rule |
 | 16 | Signatures only on the lines of people allowed to sign | `plugins/bbs-sales/references/ca-form-rules.md` "Who signs what" and "Rep-signed lines and delegated signatures"; canonical-facts "People and signatures" (none of the six readers is a delegate) | Rule |
 | 17 | No invented numbers; unknown is flagged | `plugins/bbs-claude-coach/skills/bbs-claude-coach/references/aup-rails.md` rail 2 | Rule |
 | 18 | DVBE for California state, SDVOSB for federal | canonical-facts "Certifications, by jurisdiction" | Rule. The page never says "small business" |
