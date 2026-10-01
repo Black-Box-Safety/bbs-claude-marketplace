@@ -28,8 +28,9 @@ On a Mac the steps are the same, with Cmd for Ctrl; step 1 uses `scripts/bbs-set
      `WARNING:` line — that is the part Parker needs.
    - If anything turns red or yellow, copy the whole window and send it to Parker; don't try
      to fix it.
-   - Mac: `scripts/bbs-setup.sh` (needs Homebrew; `--dry-run` to preview). It does not install
-     the Python/Node libraries yet — `/bbs-checkup` (step 5) names any that are missing.
+   - Mac: `scripts/bbs-setup.sh` (needs Homebrew; `--dry-run` to preview). It does the same
+     job — tools, Python and Node libraries, `soffice` on PATH, every plugin. If it says
+     `python3` is missing, run `xcode-select --install` first, then rerun it.
 2. **Install VS Code** — code.visualstudio.com, all defaults.
 3. **Install the Claude Code extension** — Extensions sidebar (Ctrl+Shift+X), search
    "Claude Code", install, then sign in with your BBS Claude account (same login as the

@@ -160,12 +160,25 @@
     {
       "name": "impeccable",
       "source": {
-        "source": "url",
+        "source": "git-subdir",
         "url": "https://github.com/Black-Box-Safety/impeccable.git",
         "ref": "main",
         "path": "plugin"
       },
-      "description": "Pinned external design skill for anything with a frontend: /impeccable polish, audit, critique, typeset, layout, and 61 deterministic anti-pattern detector rules. Used on customer-facing HTML (dossiers, landing pages, quote bot, storefront). BBS fork of pbakaus/impeccable (v4.3.1); update by syncing the fork from upstream.",
+      "hooks": {
+        "PostToolUse": [
+          {
+            "matcher": "bbs-impeccable-hooks-off",
+            "hooks": [{ "type": "command", "command": "exit 0" }]
+          }
+        ],
+        "Stop": [
+          {
+            "hooks": [{ "type": "command", "command": "exit 0" }]
+          }
+        ]
+      },
+      "description": "Pinned external design skill for anything with a frontend: /impeccable polish, audit, critique, typeset, layout, and 61 deterministic anti-pattern detector rules. Used on customer-facing HTML (dossiers, landing pages, quote bot, storefront). BBS fork of pbakaus/impeccable (v4.3.1); update by syncing the fork from upstream. git-subdir fetches only the fork's plugin/ folder (2.2 MB; the whole repo plus its Node install was 639 MB and failed on rep laptops). The hooks block replaces the plugin's own PostToolUse and Stop hooks with no-ops: those run the impeccable engine on every edit, and the engine's launcher downloads its binary from upstream pbakaus/impeccable releases on first run, outside this pin. The skill itself still runs the engine when a rep invokes /impeccable, as it did before.",
       "version": "4.3.1",
       "author": {
         "name": "Paul Bakaus"

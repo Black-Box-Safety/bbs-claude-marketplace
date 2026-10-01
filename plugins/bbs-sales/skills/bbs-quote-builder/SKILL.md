@@ -231,9 +231,9 @@ cd "$SKILL_DIR"
 node scripts/build_quote.js /path/to/spec.json /path/to/output.docx
 ```
 
-Windows: `bbs-setup.ps1` installs `docx` globally and sets NODE_PATH — nothing to do (open
-a new window after running it). If `build_quote.js` says docx is missing (Mac, or no
-bootstrap), run `npm install docx` inside `$SKILL_DIR` once per plugin update.
+`bbs-setup.ps1` (Windows) and `bbs-setup.sh` (Mac) install `docx` globally and set
+NODE_PATH — nothing to do (restart VS Code after running it). If `build_quote.js` says docx
+is missing (no bootstrap), run `npm install docx` inside `$SKILL_DIR` once per plugin update.
 
 The script reads the BBS logo from `assets/bbs_logo.png` relative to its own
 location, so it does not care where the spec or the output live. It runs

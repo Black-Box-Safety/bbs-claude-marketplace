@@ -15,8 +15,8 @@ report format at the end. Read-only: create/modify nothing, send nothing.
    Report each present/absent. For each absent one, run `claude plugin list --json` via Bash
    if `claude` resolves (read-only) and quote that plugin's `errors` text, or say it is not
    installed at all — the cause goes in the Teams line. Fix: rerun `scripts/bbs-setup.ps1`
-   (Windows) — its last section installs every plugin managed settings enables and prints the
-   error for any that still fails. Then always add one more line for the retired injection
+   (Windows) or `scripts/bbs-setup.sh` (Mac) — its last section installs every plugin managed
+   settings enables and prints the error for any that still fails. Then always add one more line for the retired injection
    plugin, whichever way it goes: "✅ retired plugin absent" when nothing named `skill-bus`
    is loaded, or "⚠️ skill-bus still loaded — retired 2026-09-28, see ADMIN-RUNBOOK §1a"
    when it is. That is a WARN, not a FAIL, and you do not uninstall it yourself.
@@ -84,8 +84,8 @@ report format at the end. Read-only: create/modify nothing, send nothing.
     Windows fix: `scripts/bbs-setup.ps1` — if its last run said `[later]` or `Not done yet`,
     close that PowerShell window, open a new one, run the script again, then reopen VS Code.
     Any OS, docx only: `npm install docx` inside `<bbs-sales root>/skills/bbs-quote-builder`
-    (once per plugin update). On a Mac, `bbs-setup.sh` does not install these libraries yet;
-    name what is missing for Parker.
+    (once per plugin update). Mac fix: rerun `scripts/bbs-setup.sh`, which installs the same
+    libraries, then quit and reopen VS Code (Cmd+Q) so it reads the new NODE_PATH.
 
 ## Report format
 

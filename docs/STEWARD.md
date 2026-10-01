@@ -436,6 +436,21 @@ Write it up with evidence and move to the next slice. Do not idle.
   merge order) and drop §2 or give it a real home, in its own PR — agent config is outside
   the territory PR's scope, so `lead-reviewer.md` is deliberately unchanged there.
 
+- **impeccable: install only the fork's `plugin/` folder, with its hooks off — RULED
+  2026-10-01 (Parker, in session: "go with option A").** The entry was a `url` source with
+  `"path": "plugin"`, but `url` sources take only `url`/`ref`/`sha`, so Claude Code ignored
+  `path`, installed the whole fork and ran its Node install: 639 MB, 16,287 files, and the
+  likely reason impeccable failed to install on Kim's Windows machine. It is now
+  `git-subdir` (2.2 MB, 58 files). `plugin/` also ships PostToolUse (Edit|Write) and Stop
+  hooks whose launcher downloads the engine binary from upstream `pbakaus/impeccable`
+  releases on first run, outside the fork pin. The marketplace entry replaces both with
+  no-ops, which entry `hooks` do per event; verified with `claude -p` that neither fires
+  and nothing is downloaded. `IMPECCABLE_HOOK_DISABLED` was rejected: the binary reads it
+  only after the launcher has downloaded it. The skill still runs that same launcher
+  (byte-identical, engine 0.1.5) when a rep invokes `/impeccable`, as it did before. The
+  `plugin/` build also adds four agents (`impeccable-finish-reviewer`, `-documenter`,
+  `-manual-edit-applier`, `-asset-producer`).
+
 - **Grainger on a prime when the account manager grants no discount — OPEN (raised in the
   PR #34 review, 2026-09-28).** Canon's prime row says the rep prices "from that
   discounted cost" and "never invent a discount"; it does not say what the cost is when
@@ -450,7 +465,10 @@ Write it up with evidence and move to the next slice. Do not idle.
   structure (Parker, in session); its desk `CLAUDE.md` lives on SharePoint, not here, and
   the scripts that write to Business Central have no declared home. **Ask:** where
   Bechtel's desk context and those scripts are maintained. #35 depends on the answer.
-- **The macOS bootstrap installs no pip or npm libraries — OPEN, repo fix (2026-09-28).**
+- **The macOS bootstrap installs no pip or npm libraries — RESOLVED 2026-10-01, this
+  session's rep-setup PR** (`bbs-setup.sh` now installs pypdf/pymupdf/openpyxl for `python3`,
+  `docx`/`pptxgenjs` with NODE_PATH in `~/.zprofile`, links `soffice`, and installs the
+  plugins). Original entry:
   `scripts/bbs-setup.ps1` installs `docx` (npm; `bbs-quote-builder` needs it) and the
   Python libraries the form-fill scripts import; `scripts/bbs-setup.sh` installs no npm or pip libraries; its only Python piece is `uv`.
   A Mac rep's first quote or packet run fails on a missing module. **Fix:** mirror the
