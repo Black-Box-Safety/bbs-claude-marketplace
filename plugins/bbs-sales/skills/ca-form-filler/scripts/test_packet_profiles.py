@@ -439,7 +439,9 @@ def test_third_profile_needs_no_skill_md_change():
 
         profiles, errors = load_profiles(d)
         assert not errors, errors
-        assert len(profiles) == 4, [p.packet_id for p in profiles]
+        shipped, _ = load_profiles(DEFAULT_PROFILES_DIR)
+        assert len(profiles) == len(shipped) + 1, [p.packet_id for p in profiles]
+        assert "dsh-metro-fixture" in [p.packet_id for p in profiles]
 
         match = recognize(packet_text, profiles)
         assert match is not None and match.packet_id == "dsh-metro-fixture", match
