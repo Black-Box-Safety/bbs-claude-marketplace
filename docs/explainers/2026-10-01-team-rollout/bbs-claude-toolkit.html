@@ -440,9 +440,21 @@ const CARDS = {
         today: "You rebuild your week for the sales report and write the same follow-up emails by hand.",
         claude: "Ask what you quoted this week and Claude reads the Sales CRM for the weekly report. Ask for a follow-up and it drafts it into your Outlook Drafts, in your voice once you run /bbs-my-voice. You check it and send it.",
         say: "Draft a follow-up to ____ about quote ____ into my Outlook Drafts.",
-        hood: "Playbook: bbs-weekly-sales-report, in the sales binder, reads the Sales CRM. The Outlook window can create a draft. In Claude Code it cannot send." }
+        hood: "Playbook: bbs-weekly-sales-report, in the sales binder, reads the Sales CRM. The Outlook window can create a draft. In Claude Code it cannot send." },
+      { title: "Supplier options for an unknown item", status: "ready",
+        today: "A line comes in for an item we have never sold, and you search the web part by part for who makes and sells it.",
+        claude: "Ask for supplier options. A scout agent searches the web on its own, with no window to switch on, and comes back with makers, distributors and alternates. A price counts only from a page it actually opened, with the link and the date. Grainger prices still come from Grainger.",
+        say: "Find supplier options for ____, quantity ____, for ____.",
+        hood: "Agent: supplier-scout, in the sales binder. It checks SCPRS and Business Central first, then searches the web. It cannot write files or send anything." },
+      { title: "Federal deck copy", status: "ready", for: ["griffin"],
+        today: "You write capability and teaming slides for a federal pursuit from a blank page.",
+        claude: "Give Claude the raw content. It writes slide headlines, bullets and speaker notes in the BBS federal voice, with SDVOSB wording and no overstated federal traction. You build the deck and you present it.",
+        say: "Write slide headlines and speaker notes for a capability briefing to ____.",
+        hood: "Playbook: bbs-deck-voice, in the foundations binder. It writes the words; Anthropic's PowerPoint playbook builds the file." }
     ],
-    next: []
+    next: [
+      { t: "SAM.gov lookups: open federal solicitations for a NAICS code or an agency, found for you.", for: ["kim", "griffin"] }
+    ]
   },
   berenice: {
     group: "Purchasing",
@@ -643,12 +655,13 @@ function renderCard(cardKey, chosen, level) {
     const other = c.sharedBy.filter(s => s !== chosen.slug).map(byName).filter(Boolean);
     if (other.length) shared = `<p class="shared">Shared with ${esc(joinNames(other.map(o => o.name)))}</p>`;
   }
-  const ready = c.rows.filter(r => r.status === "ready");
-  const later = c.rows.filter(r => r.status !== "ready");
+  const rowsFor = c.rows.filter(r => !(chosen && r.for && !r.for.includes(chosen.slug)));
+  const ready = rowsFor.filter(r => r.status === "ready");
+  const later = rowsFor.filter(r => r.status !== "ready");
   const rows = ready.concat(later).map(r => {
     uid += 1;
     const sayId = "say-" + uid;
-    const top = `<div class="row-top"><${hr} class="row-title">${esc(r.title)}</${hr}>${chip(r.status)}${r.reason ? `<span class="reason">${esc(r.reason)}</span>` : ""}</div>`;
+    const top = `<div class="row-top"><${hr} class="row-title">${esc(r.title)}</${hr}>${chip(r.status)}${r.reason ? `<span class="reason">${esc(r.reason)}</span>` : ""}${!chosen && r.for ? `<span class="reason">For ${esc(joinNames(r.for.map(byName).filter(Boolean).map(p => p.name)))}</span>` : ""}</div>`;
     const pair = `<div class="pair"><div class="cell today"><span class="lbl">${ICON.x}Today</span><p>${prose(r.today)}</p></div><div class="cell claude"><span class="lbl">${ICON.check}With Claude</span><p>${prose(r.claude)}</p></div></div>`;
     const say = r.status === "ready" && r.say
       ? `<div class="try"><div class="try-body"><span class="try-lbl">Try saying</span><span class="try-text" id="${sayId}">${esc(r.say)}</span></div><button type="button" class="btn copy" data-copy="${sayId}" aria-describedby="${sayId}">${ICON.copy}Copy</button></div>`
@@ -699,9 +712,10 @@ function render(slug, moveFocus) {
     person.hidden = false;
     person.innerHTML = LEGEND + renderCard(chosen.card, chosen, 2);
     const c = CARDS[chosen.card];
-    next.hidden = c.next.length === 0;
+    const items = c.next.map(n => typeof n === "string" ? { t: n } : n).filter(n => !n.for || n.for.includes(chosen.slug));
+    next.hidden = items.length === 0;
     next.setAttribute("aria-labelledby", "next-h");
-    next.innerHTML = `<div class="head"><span class="rule" aria-hidden="true"></span><h2 id="next-h">Coming next</h2><p class="sub">Not built yet. Tell Parker which one you want first.</p></div><ul class="next">${c.next.map(t => `<li>${chip("later")}<span class="t">${esc(t)}</span></li>`).join("")}</ul>`;
+    next.innerHTML = `<div class="head"><span class="rule" aria-hidden="true"></span><h2 id="next-h">Coming next</h2><p class="sub">Not built yet. Tell Parker which one you want first.</p></div><ul class="next">${items.map(n => `<li>${chip("later")}<span class="t">${esc(n.t)}</span></li>`).join("")}</ul>`;
   } else {
     nopick.hidden = false;
     person.hidden = true;
