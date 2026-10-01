@@ -496,7 +496,82 @@ Write it up with evidence and move to the next slice. Do not idle.
   second packet profile, but no real second customer packet has been run through it.
   Verify each before acting; the `skills:` filter and `caveman-init` findings are
   recorded in `docs/COMMONS.md`.
+- **R1 — delegated signing scope — RULED 2026-10-01.** Parker, in session: "Our team has
+  been given broad discretion by counsel to sign for each other on anything under $250,000
+  and any form that is involved in that process for quoting." Supersedes the 2026-09-16
+  delegation (Parker and Jackson only) for the forms the skills fill. Counsel's written
+  authorization is filed physically at BBS; the repo records only its date (2026-10-01, as
+  given to Parker in session) and its scope — the six people (R1a), a quote under $250,000
+  including tax (R1b), forms in the quoting process — in `vendor_profile.json`
+  `signature_delegation`, never as a reference to a file. Rule home: `ca-form-rules.md`,
+  "Delegated signatures". Claude still drafts; a person reviews and sends (invariant 5).
+- **R1a — the team: six people — RULED 2026-10-01.** Parker, in session: Griffin, Parker,
+  Joey, Kim, Aanya and Jackson, and no one else; Joyce Newell, Jeff Azar and Amy Leath are
+  **not** delegates. Names, titles and emails were read the same day from BBS's Microsoft
+  365 directory and each person's own email signature, never inferred from a name pattern:
+  Griffin Forsyth, Vice President, griffin@; Joey Magliato, Account Manager, joey@; Kim
+  Quezon, Account Manager, kim@ (the directory still says "Intern"; Parker ruled "Account
+  Manager"; Kim is a man — he/him); Aanya Samarasinghe, Account Manager, aanya@; Parker and
+  Jackson as already recorded. Home: `vendor_profile.json` `authorized_representatives` and
+  `signature_delegation`. **For Parker:** correct Kim's M365 job title.
+- **R1b — the $250,000 limit is the quoted price including tax — RULED 2026-10-01.**
+  Parker, in session. The measure is the quote's grand total, tax included, as on the quote
+  of record (the Business Central sales quote / the SQ the rep sends). A delegated signature
+  is applied only when that total is **strictly under $250,000**; at or over it, or when the
+  total is missing or unreadable, no delegated signature is applied — the line is left blank
+  and flagged. The total comes from the quote of record, never an estimate. Enforced in code
+  by the form scripts; the figure lives once, in `vendor_profile.json`
+  `signature_delegation`.
+- **R2 — signature form: the PNG of record — RULED 2026-10-01.** Parker, in session: the
+  **signature image**, which each person provides. Both paths stamp the PNG; the typed-name
+  "signature" `fill_obs_packet.py` wrote into the signature fields (verified 2026-10-01 at
+  `:207`, `:383`, `:437` — the delegate's name as text, which Kim reported) goes.
+  **R2a — where the PNGs live (the session's choice, made 2026-10-01):**
+  `MASTER/Signatures/<first>-<last>.png` in the synced `Black Box Safety - MASTER` library,
+  e.g. `MASTER/Signatures/kim-quezon.png`, so every machine has them through OneDrive.
+  Parker's image sat inside a Bechtel RFP folder and broke once when that folder was renamed
+  (2026-09-28); Jackson's was at `MASTER/Jackson Dalton Signature/Copy of JACKSON_SIG.png`.
+  **For Parker:** copy both into `MASTER/Signatures/` as `parker-marshall.png` and
+  `jackson-dalton.png` before this PR's profile change reaches a rep. Every other
+  `signature_image` is `null` until that person's PNG is in place, and the scripts refuse to
+  sign as anyone whose image is missing. The PNG spec is in `docs/ADMIN-RUNBOOK.md`.
+- **R3 — Jackson's owner declarations stay Jackson's — RULED 2026-10-01.** Parker, in
+  session. DGS PD 843, CV 012, STD 204 and STD 205 carry Jackson's image whoever runs the
+  packet. The team ruling (R1/R1a) widens who may *run* a packet, not whose declaration those
+  lines are. Rule home: `ca-form-rules.md`, "Who signs what".
+- **R4 — where control lives: Parker's machine, pushed out — RULED 2026-10-01.** Parker, in
+  session: "I want to ensure that I have all the managed settings and things I can control
+  from my machine and then be disseminated out all set up." Everything that can be set
+  centrally goes in `plugins/bbs-foundations/docs/bbs-managed-settings.json`, which Parker
+  pastes in the claude.ai admin console (`docs/ADMIN-RUNBOOK.md` §1). Nothing is merged into
+  a rep's own `~/.claude/settings.json`. `/bbs-checkup` stays read-only: it verifies, it
+  never writes.
+- **R5 — "complete the packet" is the approval to sign — RULED 2026-10-01.** Parker, in
+  session: "the bbs employee says 'complete the packet' and there is implicit knowledge that
+  that means you can sign everywhere that the skills know to sign for the people that are
+  relevant for the solicitation (rep and jackson typically)." No separate per-run
+  confirmation step: the request is the authorization, within R1–R3 (the six, under the
+  limit, the right signer on each line). Rule home: `ca-form-rules.md`, "Delegated
+  signatures".
+- **OBS 1000 (GenAI factsheet) is a rep-signed line — RULED 2026-10-01.** Parker, in
+  session, asked whether R1's "any form that is involved in that process for quoting" makes
+  OBS 1000 rep-signed: "Yes, rep-signed". Closes the open question recorded under *Who signs
+  the rep-signed lines* (above). **Canon still lists it as open** — the auto-mode classifier
+  refused this session's edit to `canonical-facts.md`. The injected doctrine text
+  (`bbs-foundations/hooks/doctrine/bbs-grounding-doctrine.md`, `bbs-doctrine.md`) also still
+  names only Parker and Jackson as delegates; not attempted, being the same class of file. **For Parker:** apply the text in PR
+  #43's description to those three files.
+- **OBS 4007(C) front page on an LPA order: DVBE box ticked, cert number given — RULED
+  2026-10-01.** Parker, in session: "Tick DVBE + cert #". The box identifies BBS's
+  certification (OSDS 2009473) for the agency's DVBE reporting; SB and MB stay unticked, and
+  no incentive is claimed — the DVBE incentive is still never claimed on an LPA/NASPO order.
+  Certification logic is otherwise unchanged.
+- **CDCR Packet C arrives partly filled and must be assembled — RULED 2026-10-01.** Parker,
+  in session: "You should aggregate the other forms and be able to handle inbound documents
+  that have some of the forms filled out with customer information. That is how it will
+  typically work in practice." The 4007(C) profile recognises each bound form by its own
+  text, and the fill keeps every value the agency already entered.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-09-28.
+Owner: Parker Marshall. Last verified 2026-10-01.

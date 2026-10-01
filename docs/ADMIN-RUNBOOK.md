@@ -14,6 +14,34 @@ MEASUREMENT.md (metrics), ADMIN-CLEANUP.md (one-time machine cleanup).
    your user only — Windows: keep it out of shared/synced folders). Strip old values from
    `~/.claude/settings.local.json` and `~/.claude/remote-settings.json` per ADMIN-CLEANUP.md.
 
+## Parker's control surface (ruled 2026-10-01, R4)
+
+Everything that can be set centrally is set from Parker's machine and reaches every rep
+without the rep touching a settings file. Nothing is merged into a rep's own
+`~/.claude/settings.json`; `/bbs-checkup` only verifies.
+
+| What | Where it is set | How it reaches each machine |
+|---|---|---|
+| Plugins, marketplace, permissions (allow and deny), env, company CLAUDE.md | Managed settings — `plugins/bbs-foundations/docs/bbs-managed-settings.json` | The admin-console paste (§1) |
+| Connectors (Grainger, Business Central, Microsoft 365, SCPRS, Sales CRM) | Org connector assignment | The claude.ai account (§3) |
+| Signature PNGs | OneDrive `MASTER/Signatures/` (§3b) | OneDrive sync |
+| Local tools (Git Bash, Python and its PDF libraries, Node, pdftotext, LibreOffice) | The bootstrap — `scripts/bbs-setup.ps1` / `scripts/bbs-setup.sh` | Once per machine |
+
+### Onboarding a new person, step by step
+
+1. **Roster and profile.** Add them to `plugins/bbs-sales/references/vendor_profile.json`
+   `authorized_representatives` (name, title, email — from the M365 directory and their own
+   signature, never inferred) and, if counsel's authorization covers them, to
+   `signature_delegation.delegates`, in a PR. `signature_image` stays `null` for now.
+2. **Signature PNG.** They send it to the spec in §3b; drop it in `MASTER/Signatures/`, then
+   set their `signature_image` in a second small PR (or the same one, once the file is there).
+3. **Connectors.** Assign their account the connectors their role needs (§3).
+4. **Managed settings.** Re-paste `bbs-managed-settings.json` (§1) if it changed since the
+   last paste. It is the same file for everyone, so a new person needs no edit to it.
+5. **Their machine.** They run the bootstrap once (`docs/REP-SETUP.md` step 1), restart VS
+   Code, then run `/bbs-checkup` and send you the report. Every line should be ✅; the
+   signature line says whether their own PNG resolved.
+
 ## 1. Push managed settings (the deployment step that has stalled twice)
 
 1. Open claude.ai → admin settings → Claude Code → managed settings.
@@ -101,6 +129,36 @@ machine. Role matrix: `docs/CURSOR-SETUP.md`.
 7. Capture the baseline this month (MEASUREMENT.md) — the window closes.
 8. Inventory the BBS Marketing SharePoint folder and locate Joey's skill — feeds the
    bbs-marketing plugin decision in v1.1.
+
+## 3b. Signature images (once per person, then whenever one changes)
+
+Counsel's authorization lets the six delegates sign for each other on quoting forms under
+the limit (`plugins/bbs-sales/references/ca-form-rules.md`, "Delegated signatures"). The
+scripts stamp each person's own PNG of record; they never type a name.
+
+**Where:** `MASTER/Signatures/<first>-<last>.png` in the synced `Black Box Safety - MASTER`
+library — all lowercase, hyphenated: `jackson-dalton.png`, `parker-marshall.png`,
+`griffin-forsyth.png`, `joey-magliato.png`, `kim-quezon.png`,
+`aanya-samarasinghe.png`. Nowhere else: Parker's last image lived in a Bechtel RFP folder
+and broke when that folder was renamed (2026-09-28).
+
+**The image each person sends:**
+
+- PNG, transparent background, black ink.
+- Cropped tight to the ink — no white border, no name or date under it.
+- At least 600 px wide.
+- Their own signature, signed for this purpose. Never a scan cut from a past bid.
+
+**Turning one on:** drop the file in `MASTER/Signatures/`, then set that person's
+`signature_image` in `plugins/bbs-sales/references/vendor_profile.json` to the
+`MASTER/Signatures/...` path, in a PR. Until then it is `null`, and that person's lines
+come out blank and flagged for a hand signature. One-time move, **before** the PR that
+introduced this section merges (it needs no merge, and once reps pull that version a
+missing file stops every signed packet): copy Parker's and Jackson's current images to
+`MASTER/Signatures/parker-marshall.png` and `MASTER/Signatures/jackson-dalton.png`.
+
+The PNGs are credentials: never commit one, never paste one into a chat, and keep the
+folder's sharing to BBS staff.
 
 ## 4. Power Automate intake flow (build once)
 

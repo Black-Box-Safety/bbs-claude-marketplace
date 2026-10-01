@@ -10,11 +10,13 @@ Parker's rulings, executed rather than trusted to a comment:
   2026-09-28: "do legal name").
 - **CalRecycle 74, OBS 1000 and Darfur OBS 1500 company names are the legal
   name** (2026-09-28: "Yes, they can match legal name").
-- **Rep-signed lines — OBS 4007(B) bidder, Darfur OBS 1500, CalRecycle 74 — may
-  be signed by any BBS employee the rep names** (2026-09-28: "anyone is permitted
-  to sign"; "whomever the rep says, they can sign it with anyone"). No default
-  signer; a non-BBS signer stops the run; a signature is applied only for a
-  signature delegate, as the delegate's name of record, never free text.
+- **Rep-signed lines — OBS 4007(B) bidder, Darfur OBS 1500, CalRecycle 74, OBS
+  1000 — may be signed by any BBS employee the rep names** (2026-09-28; OBS 1000
+  added 2026-10-01). No default signer; a non-BBS signer stops the run; a
+  signature is applied only for one of the six delegates (2026-10-01), as the
+  delegate's PNG of record — a signature field is never written as text.
+- **The limit** (2026-10-01): signatures only when the quote total incl. tax is
+  strictly under signature_delegation.limit_usd; otherwise every line is blank.
 
 Expected values are read out of vendor_profile.json at test time, never typed
 here. These call `build_field_values()` — the exact list the filler writes —
@@ -46,7 +48,14 @@ SIGNED = {
     "CalRecycle 74": ("DORRR CalRec 74 - Signature", "DORRR CalRec 74 - Date"),
     "OBS 4007(B) Bidder": ("OBS RFQ 4007(B) - Bidder Signature", "OBS RFQ 4007(B) - Bidder Sig Date"),
     "Darfur OBS 1500": ("Darfur OBS 1500 - By Authorized Signature", "Darfur OBS 1500 - Date"),
+    "OBS 1000": (None, "OBS 1000 - Date"),
 }
+OWNER_SIGNED = {
+    "DGS PD 843 DV owner": ("DGS PD 843 - DVBE Owner/ Signature 1", "DVBE Dec. DGS PD 843 - Date Signed 1"),
+    "STD 204 authorized payee": ("Payee Data Record STD 204 - Auth Rep. Signature",
+                                 "Payee Data Record STD 204 - Auth Rep Sign Date"),
+}
+LIMIT = VP["signature_delegation"]["limit_usd"]   # read from the profile, never typed
 LEGAL = VP["business_identity"]["legal_name"]
 SHORT = VP["business_identity"]["short_name"]
 DOMAIN = VP["contact"]["email"].rsplit("@", 1)[1]
@@ -65,7 +74,12 @@ def _inputs(signer, rep=None):
     if rep is not None:
         inp["rep"] = rep
     inp["signer"] = signer
+    inp["quote_total_incl_tax"] = LIMIT - 0.01
     return inp
+
+
+def _plan(inp):
+    return {ln["label"]: ln for ln in fop.signing_plan(fop.load_profile(), inp)["lines"]}
 
 
 def _fields(inp):
@@ -96,16 +110,25 @@ def _employee(**over):
 KIM_REP = {"name": "Kim Quezon", "title": "Sales", "email": "kim@" + DOMAIN}
 
 
+def _never_typed(got):
+    for sig, _date in list(SIGNED.values()) + list(OWNER_SIGNED.values()):
+        assert sig is None or sig not in got, "%s written as text" % sig
+
+
 def _assert_signed(got, inp, name):
-    for line, (sig, date) in SIGNED.items():
-        assert got.get(sig) == name, (line, got.get(sig))
+    _never_typed(got)
+    plan = _plan(inp)
+    for line, (_sig, date) in SIGNED.items():
+        assert plan[line]["delegate"]["name"] == name, (line, plan[line]["delegate"])
         assert got.get(date) == inp["signature_date"], (line, got.get(date))
 
 
-def _assert_blank(got):
-    for line, (sig, date) in SIGNED.items():
-        assert sig not in got, "%s signature applied for a non-delegate" % line
+def _assert_blank(got, inp=None):
+    _never_typed(got)
+    for line, (_sig, date) in SIGNED.items():
         assert date not in got, "%s dated on a line nobody has signed" % line
+        if inp is not None:
+            assert _plan(inp)[line]["delegate"] is None, line
 
 
 # ---------- company names ----------
@@ -211,7 +234,7 @@ def test_rep_names_parker_on_a_bid_kim_prepared():
 
 def test_parkers_name_with_another_email_is_flagged_as_email_mismatch():
     inp = _inputs(_parker(email="parker.m@" + DOMAIN))
-    _assert_blank(_fields(inp))
+    _assert_blank(_fields(inp), inp)
     block = fop.signer_confirmation(fop.load_profile(), inp)
     assert any("email does not match the delegate's recorded address" in l for l in block), block
     assert not any("not a signature delegate" in l for l in block)
@@ -223,7 +246,7 @@ def test_delegate_email_with_another_name_is_not_applied():
 
 
 def test_signature_text_is_never_free_text():
-    """A typed `signature` in the inputs is ignored; the name of record is written."""
+    """A typed `signature` in the inputs is ignored; the delegate's PNG is applied."""
     inp = _inputs(_parker(name="parker   marshall", signature="Somebody Else"))
     inp["rep"]["signature"] = "Somebody Else"
     got = _fields(inp)
@@ -241,7 +264,7 @@ def test_non_delegate_signer_blank_and_flagged_on_all_three_lines():
     assert got[CR_PRINT] == signer["name"] and got[CR_TITLE] == signer["title"]
     block = fop.signer_confirmation(fop.load_profile(), inp)
     flag = [l for l in block if "SIGNATURE REQUIRED" in l]
-    assert len(flag) == 1 and signer["name"] in flag[0]
+    assert len(flag) == 1 and signer["name"] in flag[0], flag
     for line in SIGNED:
         assert line in flag[0], line
 
@@ -256,7 +279,8 @@ def test_confirmation_block_format():
     inp = _inputs(_employee())
     first = fop.signer_confirmation(fop.load_profile(), inp)[0]
     assert first.startswith("Signer: Test Rep <test.rep@%s> — applied to: " % DOMAIN), first
-    assert "CalRecycle 74, OBS 4007(B) Bidder, Darfur OBS 1500 (blank for hand signature)" in first
+    assert ("CalRecycle 74, OBS 4007(B) Bidder, Darfur OBS 1500, OBS 1000 "
+            "(blank for hand signature)") in first
     assert "CalRecycle 74 PCRC/SABRC = NA/NA — confirm before sending." in first
     inp = _inputs(_parker())
     assert "(delegated signature applied)" in fop.signer_confirmation(fop.load_profile(), inp)[0]
@@ -267,28 +291,226 @@ def test_confirmation_block_format():
 def test_delegation_roles_resolve_to_representatives():
     roles = VP["signature_delegation"]["delegates"]
     reps = {r["role"]: r for r in VP["authorized_representatives"]}
-    assert roles == ["sales_manager", "dvbe_owner"], roles
+    # The six (Parker, 2026-10-01): Griffin, Parker, Joey, Kim, Aanya, Jackson.
+    assert sorted(reps[r]["name"] for r in roles) == sorted([
+        "Griffin Forsyth", "Parker Marshall", "Joey Magliato", "Kim Quezon",
+        "Aanya Samarasinghe", "Jackson Dalton"]), roles
     assert [d["name"] for d in DELEGATES] == [reps[r]["name"] for r in roles]
     assert "pmarshall@" + DOMAIN in _delegate("Parker Marshall")["aliases"]
     for r in roles:
-        assert reps[r]["signature_image"], r
+        img = reps[r]["signature_image"]
+        assert img is None or img.startswith("MASTER/Signatures/"), (r, img)
     assert "signature_image" not in VP["default_rep"], "Parker's image moved to sales_manager"
+    for name in ("Joyce Newell", "Jeff Azar", "Amy Leath"):
+        assert name not in [reps[r]["name"] for r in roles], name
 
 
-def test_no_profile_entry_assigns_obs1000_a_signer():
-    """OBS 1000's signer is not ruled (field-maps.md; canon, Open). The profile
-    must not say otherwise, or a skill reading `signs` would stamp it."""
-    for r in VP["authorized_representatives"] + [VP["default_rep"]]:
-        assert "OBS 1000" not in r.get("signs", ""), (r["role"], r["signs"])
+def test_obs1000_is_a_rep_signed_line():
+    assert "OBS 1000" in fop.SIGNER_LINES
+    assert _plan(_inputs(_parker()))["OBS 1000"]["line"] == "rep"
 
 
-# ---------- unchanged: DV-owner lines ----------
+# ---------- DV-owner lines ----------
 
 def test_dv_owner_lines_stay_jacksons_whoever_signs():
     owner = next(r for r in VP["authorized_representatives"] if r["role"] == "dvbe_owner")
-    got = _fields(_inputs(_employee(), rep=KIM_REP))
-    assert got["DGS PD 843 - DVBE Owner/ Signature 1"] == owner["name"]
-    assert got["Payee Data Record STD 204 - Auth Rep. Signature"] == owner["name"]
+    inp = _inputs(_employee(), rep=KIM_REP)
+    got = _fields(inp)
+    _never_typed(got)
+    plan = _plan(inp)
+    for line, (_sig, date) in OWNER_SIGNED.items():
+        assert plan[line]["delegate"]["name"] == owner["name"], line
+        assert got[date] == inp["signature_date"], line
+
+
+# ---------- the limit (R1b) ----------
+
+def test_limit_just_under_signs_every_line():
+    inp = _inputs(_parker())
+    inp["quote_total_incl_tax"] = "$" + format(LIMIT - 0.01, ",.2f")
+    assert all(ln["delegate"] for ln in _plan(inp).values())
+
+
+def test_limit_at_over_missing_or_unreadable_withholds_every_line():
+    for total in (LIMIT, LIMIT + 0.01, "$250,000.00" if LIMIT == 250000 else LIMIT, None, "",
+                  "TBD", -5):
+        inp = _inputs(_parker())
+        inp["quote_total_incl_tax"] = total
+        plan = _plan(inp)
+        assert all(ln["delegate"] is None for ln in plan.values()), total
+        got = _fields(inp)
+        _never_typed(got)
+        for _sig, date in list(SIGNED.values()) + list(OWNER_SIGNED.values()):
+            assert date not in got, (total, date)
+        block = fop.signer_confirmation(fop.load_profile(), inp)
+        assert sum("SIGNATURE REQUIRED" in l for l in block) == len(plan), (total, block)
+
+
+def test_missing_png_stops_before_any_packet():
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        inp = _inputs(_parker())
+        inp["master_root"] = d          # an empty MASTER: no PNG in Signatures/
+        plan = fop.signing_plan(fop.load_profile(), inp)
+        try:
+            fop.check_images(plan, inp)
+        except SystemExit as e:
+            assert "SIGNATURE REQUIRED" in str(e.code) and "No packet written" in str(e.code)
+        else:
+            raise AssertionError("a missing PNG must stop the run")
+
+
+def test_a_delegate_with_no_png_on_file_gets_blank_flagged_rep_lines():
+    import tempfile
+    kim = _delegate("Kim Quezon")
+    assert kim["signature_image"] is None
+    with tempfile.TemporaryDirectory() as d:
+        inp = _inputs({"name": kim["name"], "title": "Account Manager", "email": kim["email"]})
+        inp["master_root"] = os.path.join(d, "Black Box Safety - MASTER")
+        _pngs(inp["master_root"])
+        plan = fop.signing_plan(fop.load_profile(), inp)
+        fop.check_images(plan, inp)                       # no stop
+        by = {ln["label"]: ln for ln in plan["lines"]}
+        for line in SIGNED:
+            assert by[line]["delegate"] is None, line
+            assert "Kim Quezon): no signature image on file yet" in by[line]["flag"], line
+        for line in OWNER_SIGNED:                         # Jackson's PNG is on file
+            assert by[line]["delegate"]["role"] == "dvbe_owner", line
+        got = fop.build_field_values(fop.load_profile(), inp, plan)
+        values = {f["field_id"]: f["value"] for f in got}
+        for _sig, date in SIGNED.values():
+            assert date not in values, date
+
+
+def test_printed_grand_total_must_agree_with_the_quote_total():
+    inp = _inputs(_parker())
+    printed = fop.worksheet_total(inp)
+    assert printed > 0
+    inp["quote_total_incl_tax"] = round(printed - 1, 2)           # quote total below the worksheet
+    assert all(ln["delegate"] is None for ln in _plan(inp).values())
+    inp["quote_total_incl_tax"] = round(printed * 1.0775, 2)       # plus tax: fine
+    assert all(ln["delegate"] for ln in _plan(inp).values())
+    big = dict(inp, line_items=[dict(inp["line_items"][0], qty=1, unit_price=LIMIT)])
+    big["quote_total_incl_tax"] = LIMIT - 0.01                     # typed under, printed at the limit
+    assert all(ln["delegate"] is None for ln in _plan(big).values())
+
+
+def test_stamping_flags_a_page_the_form_table_cannot_identify():
+    try:
+        import fitz  # noqa: F401
+    except ImportError:
+        return
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        pdf = os.path.join(d, "p.pdf")
+        _synthetic_packet(pdf, pd843_header=None)
+        inp = _inputs(_parker())
+        inp["master_root"] = os.path.join(d, "Black Box Safety - MASTER")
+        _pngs(inp["master_root"])
+        plan = fop.signing_plan(fop.load_profile(), inp)
+        fop.check_images(plan, inp)
+        flags = fop.stamp_signatures(pdf, plan)
+        assert len(flags) == 1 and "page 21 is not identified as PD843" in flags[0], flags
+
+
+def _synthetic_packet(path, obs1000_sigs=1, pd843_header="PD843"):
+    """24 pages; the signature pages carry the form table's markers and fields."""
+    import fitz
+    fcf = fop._signing()
+    table = fcf.load_form_table()
+    by_page = {ln[2]: ln for ln in fop.SIGNATURE_LINES}
+    doc = fitz.open()
+    for pno in range(1, 25):
+        page = doc.new_page()
+        ln = by_page.get(pno)
+        if not ln:
+            continue
+        kind = pd843_header if pno == 21 else ln[5]
+        if kind:
+            page.insert_text((40, 40), " ".join(table[kind]["markers"]), fontsize=9)
+        names = [ln[1]] if ln[1] else ["OBS 1000 sig %d" % i for i in range(obs1000_sigs)]
+        for i, name in enumerate(names):
+            w = fitz.Widget()
+            w.field_name, w.rect = name, fitz.Rect(40, 80 + 30 * i, 300, 98 + 30 * i)
+            w.field_type = fitz.PDF_WIDGET_TYPE_SIGNATURE if not ln[1] else fitz.PDF_WIDGET_TYPE_TEXT
+            page.add_widget(w)
+    doc.save(path)
+    doc.close()
+
+
+def _pngs(root):
+    import fitz
+    fcf = fop._signing()
+    for d in DELEGATES:
+        if d["signature_image"]:
+            path = fcf.resolve_sig_path(d["signature_image"], root)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            pix = fitz.Pixmap(fitz.csRGB, fitz.IRect(0, 0, 60, 20), False)
+            pix.clear_with(0)
+            pix.save(path)
+
+
+def test_stamping_puts_a_png_on_every_line_and_no_text():
+    try:
+        import fitz
+    except ImportError:
+        return
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        pdf = os.path.join(d, "p.pdf")
+        _synthetic_packet(pdf)
+        inp = _inputs(_parker())
+        inp["master_root"] = os.path.join(d, "Black Box Safety - MASTER")
+        _pngs(inp["master_root"])
+        plan = fop.signing_plan(fop.load_profile(), inp)
+        fop.check_images(plan, inp)
+        assert fop.stamp_signatures(pdf, plan) == []
+        doc = fitz.open(pdf)
+        stamped = [p.number + 1 for p in doc if p.get_images()]
+        left = [w.field_name for p in doc for w in (p.widgets() or [])]
+        doc.close()
+        assert stamped == [2, 15, 16, 19, 21, 24], stamped
+        assert left == [], left
+
+
+def test_stamping_flags_obs1000_when_its_field_is_ambiguous():
+    try:
+        import fitz  # noqa: F401
+    except ImportError:
+        return
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        pdf = os.path.join(d, "p.pdf")
+        _synthetic_packet(pdf, obs1000_sigs=2)
+        inp = _inputs(_parker())
+        inp["master_root"] = os.path.join(d, "Black Box Safety - MASTER")
+        _pngs(inp["master_root"])
+        plan = fop.signing_plan(fop.load_profile(), inp)
+        fop.check_images(plan, inp)
+        flags = fop.stamp_signatures(pdf, plan)
+        assert len(flags) == 1 and "OBS 1000" in flags[0] and "found 2" in flags[0], flags
+
+
+def test_stamping_stops_when_a_signature_page_reads_as_another_form():
+    try:
+        import fitz  # noqa: F401
+    except ImportError:
+        return
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        pdf = os.path.join(d, "p.pdf")
+        _synthetic_packet(pdf, pd843_header="CalRecycle74")
+        inp = _inputs(_parker())
+        inp["master_root"] = os.path.join(d, "Black Box Safety - MASTER")
+        _pngs(inp["master_root"])
+        plan = fop.signing_plan(fop.load_profile(), inp)
+        fop.check_images(plan, inp)
+        try:
+            fop.stamp_signatures(pdf, plan)
+        except SystemExit as e:
+            assert "page 21 reads as CalRecycle74, not PD843" in str(e.code), e.code
+        else:
+            raise AssertionError("a moved page must stop the run")
 
 
 def main():
