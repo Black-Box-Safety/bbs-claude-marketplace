@@ -4,55 +4,83 @@ You already use Claude Code in the Desktop app. **Everything you do today keeps 
 This adds the VS Code quote desk: same Claude, same skills — plus you can SEE the files
 Claude is reading, side by side. Screenshots will be pinned in the Teams sales channel.
 
-On a Mac the steps are the same, with Cmd for Ctrl; step 1 uses `scripts/bbs-setup.sh`.
+Same steps on Windows and Mac. Where they differ, each step says so; on a Mac read Cmd for Ctrl.
 
 ## Set up (once)
 
-1. **Run the bootstrap** (~2 minutes, safe to rerun). Download `scripts/bbs-setup.ps1` from
-   the marketplace repo (Parker posts it in Teams with the workspace file), then:
+1. **Run the setup script for your computer** (~5 minutes; safe to rerun). Parker posts both
+   in Teams with the workspace file. **Run only the one for your computer** — the other one
+   stops with a message and changes nothing.
+
+   | Your computer | How to tell | The script |
+   |---|---|---|
+   | **Windows PC** | Windows logo (Start) on the taskbar | `bbs-setup.ps1` |
+   | **Mac** | Apple logo, top-left of the screen | `bbs-setup.sh` |
+
+   **Windows PC**
    - Open PowerShell (Start → type "PowerShell" → Enter) and `cd` to where you saved the file.
-   - Run: `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1` (preview first with
-     `-DryRun` if you like).
-   - It installs Git, Node, Python, Chrome, LibreOffice, the PDF/OCR tools Claude uses to read
-     RFQs, and the Python and Node libraries the form-fill and quote skills build documents with.
-   - **Done** looks like a line saying `Done.` near the bottom. If instead it says
-     `Not done yet`, or any line above says `[later]`: close this PowerShell window, open a
-     new one, run the script again, then reopen VS Code. Node and Python only finish their
-     extra libraries from a fresh window.
-   - Yellow `WARNING:` lines, or `Finished with … to install by hand`, mean something failed.
-   - If anything turns red or yellow, copy the whole window and send it to Parker; don't try
-     to fix it.
-   - Mac: `scripts/bbs-setup.sh` (needs Homebrew; `--dry-run` to preview). It does not install
-     the Python/Node libraries yet — `/bbs-checkup` (step 5) names any that are missing.
+   - Run: `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1`
+     (add `-DryRun` to preview without installing anything).
+
+   **Mac**
+   - Homebrew must be installed once first: follow [brew.sh](https://brew.sh).
+   - Open Terminal (Cmd+Space → type "Terminal" → Enter) and `cd` to where you saved the file.
+   - Run: `chmod +x bbs-setup.sh && ./bbs-setup.sh` (add `--dry-run` to preview).
+   - If it says `python3` is missing, run `xcode-select --install`, then run the script again.
+
+   **What it does, either way:** installs the tools Claude uses to read RFQs and build quotes
+   and packets (Git, Node, Python — on a Mac, Apple's — Chrome, LibreOffice, the PDF/OCR tools, and the Python and
+   Node libraries the form-fill and quote skills import); puts each of them on PATH (`[path]`
+   lines); installs Claude Code's `claude` command if you don't have it; and installs **every
+   plugin in the BBS marketplace** — one `[ok]` or `[install]` line per plugin.
+
+   **How to read the result:**
+   - **Done** is a line saying `Done.` near the bottom.
+   - `Not done yet`, or a `[later]` line (Windows): close the PowerShell window, open a new
+     one, run the script again. Node and Python finish their libraries from a fresh window.
+   - Yellow `WARNING:` lines, `[missing]` lines, or `Finished with … to install by hand` mean
+     something failed. A plugin that will not install prints Claude Code's own error under its
+     `WARNING:` line — that is the part Parker needs. Copy the whole window and send it to
+     Parker; don't try to fix it.
+   - Already set up, and `/bbs-checkup` shows a missing plugin or tool? Run the script again.
 2. **Install VS Code** — code.visualstudio.com, all defaults.
 3. **Install the Claude Code extension** — Extensions sidebar (Ctrl+Shift+X), search
    "Claude Code", install, then sign in with your BBS Claude account (same login as the
    Desktop app).
 4. **Open the quote desk** — grab `workspace/bbs-rep.code-workspace` from the marketplace
-   repo (Parker posts it in Teams), or run `scripts/install-desktop-launchers.ps1` so it
-   lands on your Desktop with the other workspaces. First open: replace
+   repo (Parker posts it in Teams), or run the launcher script for your computer
+   (`scripts/install-desktop-launchers.ps1` on Windows, `scripts/install-desktop-launchers.sh`
+   on a Mac) so it lands on your Desktop with the other workspaces. First open: replace
    `REPLACE-ON-FIRST-OPEN` with your OneDrive root per `workspace/README.md`, save, reopen.
    Accept the 4 recommended extensions. The file explorer / primary sidebar stays
    on the **left**. If yours is on the right: View → Appearance → Move Primary
    Side Bar Left. Site maintainers open `bbs-web` instead; see
    `workspace/README.md`. Nothing to wire for the BBS doctrine — the plugins' own
    hooks inject it whenever a BBS skill runs.
-5. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
-   exact sentence to send Parker — send it, use the Desktop app meanwhile.
+5. **Restart, then check.** Close every VS Code window and quit the Claude Desktop app
+   (Windows: from the tray; Mac: Cmd+Q) so they pick up the new PATH — reopening one window
+   is not enough. Then **run `/bbs-checkup`** in a Claude panel. Everything ✅? Done.
+   Anything ❌? It prints the exact sentence to send Parker — send it, use the Desktop app
+   meanwhile.
 6. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
 
 ## What you just installed, and what each plugin needs
 
-Install the plugins you need. Everyone gets `bbs-foundations` and `bbs-claude-coach`.
+Step 1 installed every plugin, and managed settings keep them on for everyone. You do not
+need to install plugins yourself. If you ever have to by hand (the script could not run),
+these are the commands — type them in a Claude panel:
 
 ```bash
 /plugin marketplace add Black-Box-Safety/bbs-claude-marketplace   # once
-/plugin install bbs-foundations@bbs-claude-marketplace            # everyone
-/plugin install bbs-claude-coach@bbs-claude-marketplace           # everyone — understand / start / extend
-/plugin install bbs-sales@bbs-claude-marketplace                  # sales / quoting work
-/plugin install bbs-back-office@bbs-claude-marketplace            # purchasing / accounting
-/plugin install bbs-website@bbs-claude-marketplace                # whoever maintains the site
+/plugin install bbs-foundations@bbs-claude-marketplace            # doctrine, CLAUDE.md, reconciliation
+/plugin install bbs-claude-coach@bbs-claude-marketplace           # understand / start / extend
+/plugin install bbs-sales@bbs-claude-marketplace                  # territory and the quote desk
+/plugin install bbs-marketing@bbs-claude-marketplace              # one-pagers, campaign email, logos
+/plugin install bbs-back-office@bbs-claude-marketplace            # orders, vendor receipts, margin
+/plugin install bbs-website@bbs-claude-marketplace                # the website, price list to page
 ```
+
+That fallback does not install the tools in step 1, so run the script as soon as you can.
 
 New to the toolkit? Run `/bbs-explain-claude` or `/bbs-what-can-i-do` after checkup.
 

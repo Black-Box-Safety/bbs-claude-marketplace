@@ -16,14 +16,17 @@ From a clone of `bbs-claude-marketplace`:
 python3 scripts/bbs-workspaces.py discover
 ```
 
-If this session is running from the installed plugin, the same file lives two
-levels above the plugin root:
+If this session is running from the installed plugin, the script is in the copy of the
+marketplace that Claude Code keeps on every machine with the marketplace registered (the
+installed plugin folder itself holds only the plugin):
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/../../scripts/bbs-workspaces.py" discover
+python3 ~/.claude/plugins/marketplaces/bbs-claude-marketplace/scripts/bbs-workspaces.py discover
 ```
 
-If neither path exists, say so and stop. A plugin install that has not been
+If that path is missing, `claude plugin marketplace list --json` prints the marketplace's
+`installLocation`; the script is in its `scripts/` folder. If neither path exists, say so
+and stop. A plugin install that has not been
 updated from `main` will not have this script yet.
 
 **Windows.** A rep bootstrapped by `scripts\bbs-setup.ps1` has `python` (and `uv`), not
@@ -55,10 +58,10 @@ the web workspace can still be requested — that repo is optional. If
 ## 3. Request
 
 Ask which they want. Default: every named workspace that is ready, plus Desktop
-launchers.
+launchers. `bbs-workspaces.py` below means the path step 1 found.
 
 ```bash
-python3 scripts/bbs-workspaces.py request --yes --install-desktop
+python3 bbs-workspaces.py request --yes --install-desktop
 ```
 
 Or a subset: `--ids rep` · `--ids web,admin`
@@ -66,7 +69,7 @@ Or a subset: `--ids rep` · `--ids web,admin`
 **Custom workspace** — they name folders on this computer that are not a recipe:
 
 ```bash
-python3 scripts/bbs-workspaces.py request --custom "Field work" \
+python3 bbs-workspaces.py request --custom "Field work" \
   --folder /the/path/they/gave --folder /another/path/they/gave \
   --install-desktop
 ```

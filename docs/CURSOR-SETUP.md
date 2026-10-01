@@ -18,7 +18,9 @@ the folder you @-mention. Everything in the Desktop app keeps working.
      Xcode command-line tools (Homebrew installs those), so nothing more is needed.
      `brew install powershell` is optional.
    - **Windows:** `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1`.
-   It installs Git, Node, Chrome, LibreOffice, and the PDF/OCR tools used to read RFQs.
+   Run only the one for your computer. Either one installs Git, Node, Chrome, LibreOffice,
+   the PDF/OCR tools used to read RFQs, and the Python and Node libraries the document skills
+   import, then puts each on PATH and installs every plugin in the BBS marketplace.
 2. **Install Cursor** — [cursor.com](https://cursor.com), all defaults. Sign in with the
    BBS Google/Microsoft account Parker named for you (not a personal Gmail).
 3. **Install the Claude Code extension** — Extensions sidebar (Mac: Cmd+Shift+X, Windows:
@@ -68,6 +70,7 @@ Run these in the Claude Code panel:
 /plugin install bbs-foundations@bbs-claude-marketplace            # everyone
 /plugin install bbs-claude-coach@bbs-claude-marketplace           # everyone — understand / start / extend
 /plugin install bbs-sales@bbs-claude-marketplace                  # sales reps
+/plugin install bbs-marketing@bbs-claude-marketplace              # one-pagers, campaign email, logos
 /plugin install bbs-back-office@bbs-claude-marketplace            # purchasing / accounting
 /plugin install bbs-website@bbs-claude-marketplace                # whoever maintains the site
 ```

@@ -30,8 +30,9 @@ that fork goes stale and silently disagrees with the company copy.
 If you explain the same job to Claude twice, that job wants to be a skill. You do not have
 to be technical: write how you do the job well (inputs, steps, what "done" looks like,
 what must never be guessed). Ask Claude to draft it with `skill-creator` (reaches reps only
-through the additive marketplace load in `docs/COMMONS.md`, so it may be absent on some
-machines). The house rules for a skill live in `AGENTS.md`, "When the work is a skill." Send
+through the additive marketplace load described in the marketplace repo, so it may be absent
+on some machines). The house rules for a skill live in the marketplace repo's `AGENTS.md`,
+"When the work is a skill" — it does not ship with the plugin; Parker applies them in review. Send
 the draft to Parker as a PR (or a Teams message) for review — not through
 `bbs-claude-md-forge`, which only writes and audits `CLAUDE.md` files — so shared skills
 land in the marketplace, not as a private copy of a company playbook.
@@ -39,7 +40,7 @@ land in the marketplace, not as a private copy of a company playbook.
 ## 5. Propose an outside tool (commons)
 
 Generally useful third-party plugins are pinned, never copied. Parker / the commons path
-(`docs/COMMONS.md`, often `/bbs-commons-add` when available) runs the safety checks and
+(the marketplace repo's `docs/COMMONS.md`, often `/bbs-commons-add` when available) runs the safety checks and
 stops at a PR. Things that need a personal API key stay out.
 
 ## What "extend" is not

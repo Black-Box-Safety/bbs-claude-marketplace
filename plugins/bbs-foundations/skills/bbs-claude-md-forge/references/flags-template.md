@@ -17,6 +17,6 @@ Pick one bucket:
 
 One line per event. "Caught before send: yes" means a near-miss (good catch). "no" means an incident — tell Parker the same day, not at triage.
 
-"Happened more than once?" is yes when an earlier line is the same kind of miss. A repeat is supposed to become a rule in the owning skill and a case in `docs/evals`, in the same change. Wednesday is the hour for that pass. The calendar entry stays the monthly FLAGS triage in `docs/ADMIN-RUNBOOK.md`.
+"Happened more than once?" is yes when an earlier line is the same kind of miss. A repeat is supposed to become a rule in the owning skill and a case in `docs/evals`, in the same change. Wednesday is the hour for that pass. The calendar entry stays the monthly FLAGS triage, which Parker runs from the marketplace repo's `docs/ADMIN-RUNBOOK.md`.
 
 Monthly triage turns the remaining entries into skill fixes. Verified-correct cases graduate into the golden eval set.

@@ -10,9 +10,10 @@ and to grow as you find new uses for it.
 in front of you). Those commands ship in the `bbs-claude-coach` plugin, next to this file.
 
 At BBS one person keeps the toolkit consistent so every machine works the same way and gets
-improvements automatically. You never install or update anything by hand on a managed
-machine (once Parker has pushed managed settings); until then, see the install block in
-`docs/REP-SETUP.md`. You just use it — and tell us when it should do more.
+improvements automatically. The setup script Parker posts in Teams (one for a Windows PC,
+one for a Mac) installs the tools and every plugin, and managed settings keep them current;
+you don't install or update anything by hand. You just use it — and tell us when it should
+do more.
 
 ## The five kinds of tools, in plain words
 
@@ -74,8 +75,9 @@ The toolkit grows *because* people push it. You are invited to:
   **`skill-creator`**: it interviews you about how the job works and writes the skill for
   you — no technical background needed, just describe how you do your own work well.
   (`skill-creator` reaches reps only through the additive marketplace load described in
-  `docs/COMMONS.md`, so it may be absent on some machines.) The house rules a skill must
-  follow live in `AGENTS.md`, "When the work is a skill." Send the draft to Parker as a PR
+  the marketplace repo's `docs/COMMONS.md`, so it may be absent on some machines.) The house
+  rules a skill must follow live in the marketplace repo's `AGENTS.md`, "When the work is a
+  skill" — it does not ship with the plugin; Parker applies them in review. Send the draft to Parker as a PR
   (or a Teams message) for review — not through `bbs-claude-md-forge`, which only writes
   and audits `CLAUDE.md` files — and if it helps everyone, Parker folds it into the shared
   toolkit so the whole team gets it.
@@ -106,6 +108,6 @@ Reps do none of this. They run `/bbs-checkup` once to confirm their toolkit is h
 `/bbs-checkup` prints the exact sentence to send Parker if anything is off.
 
 ---
-Owner: Parker Marshall. A plain-language companion to `docs/REP-SETUP.md` (mechanics) and
-`docs/ADMIN-RUNBOOK.md` (admin steps). Lives inside `bbs-claude-coach` so a rep's install
-carries it. Last verified 2026-09-24.
+Owner: Parker Marshall. A plain-language companion to the marketplace repo's
+`docs/REP-SETUP.md` (mechanics) and `docs/ADMIN-RUNBOOK.md` (admin steps), which do not ship
+with the plugin. Lives inside `bbs-claude-coach` so a rep's install carries it. Last verified 2026-09-24.

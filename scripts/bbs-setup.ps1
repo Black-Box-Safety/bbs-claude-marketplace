@@ -21,7 +21,11 @@ $packages = @(
   @{ Id = 'Python.Python.3.12';      Why = 'the `python` the form-fill, quote and reconciliation scripts run on; pypdf/pymupdf/openpyxl install into it below' },
   @{ Id = 'DuckDB.cli';              Why = 'query price lists and SCPRS exports instead of reading them whole' },
   @{ Id = 'jqlang.jq';               Why = 'JSON plumbing for scripts and hooks' },
-  @{ Id = 'TheDocumentFoundation.LibreOffice'; Why = 'soffice: quote-builder PDF export and document-skills conversion' }
+  @{ Id = 'TheDocumentFoundation.LibreOffice'; Why = 'soffice: quote-builder PDF export and document-skills conversion' },
+  # Cmd: skip winget when the command already resolves. The VS Code extension and the Desktop
+  # app bundle their own Claude, and a second, winget-managed copy beside a native install is
+  # the conflicting-installations case Claude Code's docs warn about.
+  @{ Id = 'Anthropic.ClaudeCode';    Cmd = 'claude'; Why = 'the `claude` command this script installs the BBS plugins with' }
 )
 
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
@@ -36,6 +40,10 @@ $failed = @()
 $deferred = @()
 
 foreach ($p in $packages) {
+  if ($p.Cmd -and (Get-Command $p.Cmd -CommandType Application -ErrorAction SilentlyContinue)) {
+    Write-Host ("[ok]      {0}" -f $p.Id)
+    continue
+  }
   winget list --id $p.Id --exact --accept-source-agreements > $null 2>&1
   if ($LASTEXITCODE -eq 0) {
     Write-Host ("[ok]      {0}" -f $p.Id)
@@ -58,6 +66,121 @@ foreach ($p in $packages) {
 if (-not $DryRun) {
   $env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' +
               [Environment]::GetEnvironmentVariable('Path', 'User')
+}
+
+# Installed is not the same as on PATH, and /bbs-checkup resolves every tool by name. LibreOffice,
+# Tesseract and Git's bash.exe never put themselves on PATH, so a clean run of this script used to
+# leave soffice, tesseract and bash "missing" for ever. For each command that does not resolve,
+# look where its installer puts it and add that folder to the user PATH.
+#   Reject: a hit that answers to the name without being the tool - the Microsoft Store python
+#   stub under \WindowsApps\, and WSL's System32\bash.exe, which is not Git Bash.
+#   Prepend: go ahead of that stub, whose folder is already on the user PATH, so a plain `python`
+#   in a terminal reaches the real one.
+$WinGetLinks = Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links'
+$WinGetPkgs  = Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Packages'
+$tools = @(
+  @{ Cmd = 'git';       Dirs = @("$env:ProgramFiles\Git\cmd", "$env:LOCALAPPDATA\Programs\Git\cmd") },
+  @{ Cmd = 'bash';      Dirs = @("$env:ProgramFiles\Git\bin", "$env:LOCALAPPDATA\Programs\Git\bin"); Reject = @('*\System32\*', '*\WindowsApps\*') },
+  @{ Cmd = 'node';      Dirs = @("$env:ProgramFiles\nodejs") },
+  @{ Cmd = 'python';    Dirs = @("$env:LOCALAPPDATA\Programs\Python\Python312", "$env:ProgramFiles\Python312"); Reject = @('*\WindowsApps\*'); Prepend = $true },
+  @{ Cmd = 'pdftotext'; Dirs = @($WinGetLinks, "$WinGetPkgs\oschwartz10612.Poppler_*\poppler-*\Library\bin") },
+  @{ Cmd = 'tesseract'; Dirs = @("$env:ProgramFiles\Tesseract-OCR", "$env:LOCALAPPDATA\Programs\Tesseract-OCR") },
+  @{ Cmd = 'pandoc';    Dirs = @("$env:LOCALAPPDATA\Pandoc", "$env:ProgramFiles\Pandoc", $WinGetLinks) },
+  @{ Cmd = 'uv';        Dirs = @($WinGetLinks, "$WinGetPkgs\astral-sh.uv_*", "$env:USERPROFILE\.local\bin") },
+  @{ Cmd = 'duckdb';    Dirs = @($WinGetLinks, "$WinGetPkgs\DuckDB.cli_*") },
+  @{ Cmd = 'jq';        Dirs = @($WinGetLinks, "$WinGetPkgs\jqlang.jq_*") },
+  @{ Cmd = 'soffice';   Dirs = @("$env:ProgramFiles\LibreOffice\program", "${env:ProgramFiles(x86)}\LibreOffice\program") },
+  @{ Cmd = 'claude';    Dirs = @("$env:USERPROFILE\.local\bin", $WinGetLinks, "$WinGetPkgs\Anthropic.ClaudeCode_*") }
+)
+
+function Find-Tool($Tool) {
+  Get-Command $Tool.Cmd -CommandType Application -All -ErrorAction SilentlyContinue |
+    Where-Object { $src = $_.Source; -not ($Tool.Reject | Where-Object { $src -like $_ }) } |
+    Select-Object -First 1
+}
+
+function Add-UserPath([string]$Dir, [switch]$Prepend) {
+  # Read and write the raw registry value. [Environment]::SetEnvironmentVariable would expand
+  # every %USERPROFILE%-style entry already in the user PATH and store it back as plain text.
+  $key = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Environment', $true)
+  $raw = $key.GetValue('Path', '', [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+  $parts = @($raw -split ';' | Where-Object { $_ })
+  if ($parts -notcontains $Dir) {
+    $parts = if ($Prepend) { @($Dir) + $parts } else { $parts + $Dir }
+    $key.SetValue('Path', ($parts -join ';'), [Microsoft.Win32.RegistryValueKind]::ExpandString)
+  }
+  $key.Close()
+  if (($env:Path -split ';') -notcontains $Dir) {
+    $env:Path = if ($Prepend) { "$Dir;$env:Path" } else { "$env:Path;$Dir" }
+  }
+  $script:pathChanged = $true
+}
+
+$pathChanged = $false
+foreach ($t in $tools) {
+  $hit = Find-Tool $t
+  if ($hit) {
+    Write-Host ("[ok]      {0,-28} {1}" -f $t.Cmd, $hit.Source)
+    continue
+  }
+  $dir = $null
+  foreach ($pattern in $t.Dirs) {
+    if ($pattern -notmatch '^[A-Za-z]:\\') { continue }   # an unset env var, e.g. no ProgramFiles(x86)
+    $dir = Get-Item -Path $pattern -ErrorAction SilentlyContinue |
+      Sort-Object Name -Descending |
+      Where-Object { Test-Path (Join-Path $_.FullName "$($t.Cmd).exe") } |
+      Select-Object -First 1 -ExpandProperty FullName
+    if ($dir) { break }
+  }
+  if (-not $dir -and $DryRun) {
+    Write-Host ("[would]   {0,-28} {1}" -f $t.Cmd, 'check after the winget installs above')
+  } elseif (-not $dir) {
+    Write-Host ("[missing] {0,-28} not installed - see the winget lines above" -f $t.Cmd)
+    $failed += $t.Cmd
+  } elseif ($DryRun) {
+    Write-Host ("[would]   {0,-28} add {1} to PATH" -f $t.Cmd, $dir)
+  } else {
+    Write-Host ("[path]    {0,-28} add {1} to PATH" -f $t.Cmd, $dir)
+    Add-UserPath $dir -Prepend:([bool]$t.Prepend)
+  }
+}
+
+# Claude Code reads these from the environment. Each is documented by Anthropic:
+#   CLAUDE_CODE_GIT_BASH_PATH - which bash.exe runs the Bash tool and every plugin hook. Without
+#     Git Bash, Claude Code falls back to PowerShell and the plugins' shell hooks error.
+#   CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS - plugin and marketplace clones get 120 s by default, which
+#     a large plugin can overrun on a laptop where antivirus scans every file it writes.
+#   CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE - a winget-installed Claude Code does not update
+#     itself unless this is 1. A native install ignores it.
+$userEnv = [ordered]@{
+  CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS       = '600000'
+  CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE = '1'
+}
+$gitBash = @("$env:ProgramFiles\Git\bin\bash.exe", "$env:LOCALAPPDATA\Programs\Git\bin\bash.exe") |
+  Where-Object { Test-Path $_ } | Select-Object -First 1
+if ($gitBash) {
+  $userEnv['CLAUDE_CODE_GIT_BASH_PATH'] = $gitBash
+} elseif (-not $DryRun) {
+  Write-Host "[missing] Git Bash                     Git.Git did not install - see the winget lines above"
+  $failed += 'Git Bash'
+}
+foreach ($name in $userEnv.Keys) {
+  $want = $userEnv[$name]
+  if ([Environment]::GetEnvironmentVariable($name, 'User') -eq $want) {
+    Write-Host ("[ok]      {0}" -f $name)
+  } elseif ($DryRun) {
+    Write-Host ("[would]   {0,-28} set to {1}" -f $name, $want)
+  } else {
+    Write-Host ("[install] {0,-28} set to {1}" -f $name, $want)
+    [Environment]::SetEnvironmentVariable($name, $want, 'User')
+    Set-Item -Path "env:$name" -Value $want
+  }
+}
+if ($pathChanged -and -not $DryRun) {
+  # The PATH edit went straight to the registry, which Windows does not announce, so VS Code
+  # started from the Start menu would not see it until sign-out. Every SetEnvironmentVariable
+  # call at User scope does announce, so rewrite one variable with its own value.
+  [Environment]::SetEnvironmentVariable('CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS', $userEnv['CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS'], 'User')
 }
 
 # Some skills need npm libraries, not winget packages: bbs-quote-builder builds the quote
@@ -144,6 +267,79 @@ if ($realPython) {
   $deferred += 'pypdf, pymupdf, openpyxl'
 }
 
+# The BBS plugins. Managed settings enable them and Claude Code installs them at session start,
+# but in the background: a plugin whose install fails (a clone timeout, antivirus holding a
+# file) is simply absent, and /bbs-checkup can only say so. Installing from here shows the
+# error. The list is every plugin in the marketplace's own marketplace.json - everyone gets
+# every plugin (MANAGED-SETTINGS.md) - less any that bbs-managed-settings.json sets to false.
+# Nothing is copied into this script, so a plugin added to the marketplace is picked up.
+$marketplace = 'bbs-claude-marketplace'
+$claudeCmd = Get-Command claude -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+if (-not $claudeCmd) {
+  if ($DryRun) {
+    Write-Host ("[would]   {0,-28} {1}" -f 'BBS plugins', 'after Claude Code is on PATH')
+  } else {
+    Write-Host "[later]   the BBS plugins need the claude command on PATH: close this PowerShell window, open a new one, run the script again, then reopen VS Code."
+    $deferred += 'BBS plugins'
+  }
+} else {
+  $claude = $claudeCmd.Source
+  $mkt = $null
+  try {
+    $mkt = (& $claude plugin marketplace list --json 2>$null | Out-String | ConvertFrom-Json) |
+      Where-Object { $_.name -eq $marketplace } | Select-Object -First 1
+  } catch { }
+  if ($DryRun) {
+    Write-Host ("[would]   {0,-28} {1}" -f $marketplace, $(if ($mkt) { 'update, then install every plugin in it' } else { 'add, then install every plugin in it' }))
+  } else {
+    $out = if ($mkt) { & $claude plugin marketplace update $marketplace 2>&1 }
+           else      { & $claude plugin marketplace add "Black-Box-Safety/$marketplace" 2>&1 }
+    if ($LASTEXITCODE -ne 0) {
+      Write-Warning ("could not {0} the {1} marketplace:" -f $(if ($mkt) { 'update' } else { 'add' }), $marketplace)
+      $out | Select-Object -Last 5 | ForEach-Object { Write-Host "          $_" }
+      $failed += "$marketplace marketplace"
+    }
+    try {
+      $mkt = (& $claude plugin marketplace list --json 2>$null | Out-String | ConvertFrom-Json) |
+        Where-Object { $_.name -eq $marketplace } | Select-Object -First 1
+    } catch { $mkt = $null }
+    $catalog = if ($mkt) { Join-Path $mkt.installLocation '.claude-plugin\marketplace.json' }
+    $policy  = if ($mkt) { Join-Path $mkt.installLocation 'plugins\bbs-foundations\docs\bbs-managed-settings.json' }
+    if (-not $catalog -or -not (Test-Path $catalog)) {
+      Write-Warning "the marketplace is not on this machine, so the plugin list cannot be read. Send this window to Parker."
+      $failed += 'BBS plugins'
+    } else {
+      $blocked = @()
+      if (Test-Path $policy) {
+        $blocked = (Get-Content $policy -Raw | ConvertFrom-Json).enabledPlugins.PSObject.Properties |
+          Where-Object { $_.Value -eq $false } | ForEach-Object { $_.Name }
+      }
+      $want = (Get-Content $catalog -Raw | ConvertFrom-Json).plugins |
+        ForEach-Object { "$($_.name)@$marketplace" } |
+        Where-Object { $blocked -notcontains $_ }
+      $have = @{}
+      try {
+        foreach ($i in (& $claude plugin list --json 2>$null | Out-String | ConvertFrom-Json)) {
+          if ($i.installPath -and (Test-Path $i.installPath) -and -not $i.errors) { $have[$i.id] = $true }
+        }
+      } catch { }
+      foreach ($id in $want) {
+        if ($have[$id]) {
+          Write-Host ("[ok]      {0}" -f $id)
+          continue
+        }
+        Write-Host ("[install] {0}" -f $id)
+        $out = & $claude plugin install $id --scope user 2>&1
+        if ($LASTEXITCODE -ne 0) {
+          Write-Warning ("{0} did not install. Claude Code said:" -f $id)
+          $out | Select-Object -Last 5 | ForEach-Object { Write-Host "          $_" }
+          $failed += $id
+        }
+      }
+    }
+  }
+}
+
 Write-Host ""
 if ($failed.Count -gt 0) {
   Write-Host ("Finished with {0} item(s) to install by hand: {1}" -f $failed.Count, ($failed -join ', '))
@@ -155,4 +351,4 @@ if ($deferred.Count -gt 0) {
 if ($failed.Count -eq 0 -and $deferred.Count -eq 0) {
   if ($DryRun) { Write-Host "Dry run complete." } else { Write-Host "Done." }
 }
-Write-Host "Close and reopen VS Code or Cursor so PATH picks up the new tools, then run /bbs-checkup in Claude."
+Write-Host "Close every VS Code or Cursor window and quit the Claude Desktop app (a window you reopen keeps the old PATH), start it again, then run /bbs-checkup in Claude."
