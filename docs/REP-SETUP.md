@@ -12,14 +12,20 @@ On a Mac the steps are the same, with Cmd for Ctrl; step 1 uses `scripts/bbs-set
    the marketplace repo (Parker posts it in Teams with the workspace file), then:
    - Open PowerShell (Start → type "PowerShell" → Enter) and `cd` to where you saved the file.
    - Run: `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1` (preview first with
-     `-DryRun` if you like).
+     `-DryRun` if you like). Already set up and `/bbs-checkup` shows a missing plugin or tool?
+     Run it again — it is safe to rerun and fixes both.
    - It installs Git, Node, Python, Chrome, LibreOffice, the PDF/OCR tools Claude uses to read
      RFQs, and the Python and Node libraries the form-fill and quote skills build documents with.
+     It puts every one of those tools on PATH (`[path]` lines — LibreOffice, Tesseract and Git's
+     bash never do it themselves), installs Claude Code's `claude` command if you don't have it,
+     and installs every BBS plugin (`[ok]` or `[install]` per plugin).
    - **Done** looks like a line saying `Done.` near the bottom. If instead it says
      `Not done yet`, or any line above says `[later]`: close this PowerShell window, open a
      new one, run the script again, then reopen VS Code. Node and Python only finish their
      extra libraries from a fresh window.
-   - Yellow `WARNING:` lines, or `Finished with … to install by hand`, mean something failed.
+   - Yellow `WARNING:` lines, `[missing]` lines, or `Finished with … to install by hand`, mean
+     something failed. A plugin that will not install prints Claude Code's own error under its
+     `WARNING:` line — that is the part Parker needs.
    - If anything turns red or yellow, copy the whole window and send it to Parker; don't try
      to fix it.
    - Mac: `scripts/bbs-setup.sh` (needs Homebrew; `--dry-run` to preview). It does not install
@@ -37,7 +43,9 @@ On a Mac the steps are the same, with Cmd for Ctrl; step 1 uses `scripts/bbs-set
    Side Bar Left. Site maintainers open `bbs-web` instead; see
    `workspace/README.md`. Nothing to wire for the BBS doctrine — the plugins' own
    hooks inject it whenever a BBS skill runs.
-5. **Run `/bbs-checkup`** in a Claude panel. Everything ✅? Done. Anything ❌? It prints the
+5. **Close every VS Code window** (and quit the Claude Desktop app from the tray) so they
+   pick up the new PATH — reopening one window is not enough. Then **run `/bbs-checkup`** in
+   a Claude panel. Everything ✅? Done. Anything ❌? It prints the
    exact sentence to send Parker — send it, use the Desktop app meanwhile.
 6. **Run `/bbs-my-voice`** once (builds your personal writing voice from your sent mail).
 
