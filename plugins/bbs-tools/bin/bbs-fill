@@ -1,0 +1,151 @@
+#!/bin/bash -p
+# bbs-fill — the one way Claude runs BBS's vetted form and quote scripts.
+#
+#   bbs-fill <absolute path to a vetted script> [its arguments...]
+#
+# Managed settings allow exactly `Bash(bbs-fill *)`. That rule is safe to allow
+# because this launcher, not the rule, decides what runs:
+#   - the script must be one of ALLOWED below, by skill folder and file name;
+#   - it must sit in the bbs-sales plugin of the SAME marketplace cache this
+#     launcher is installed in (<cache>/<marketplace>/bbs-sales/<version>/skills/...),
+#     after resolving symlinks and "..";
+#   - it is run with a fixed interpreter (python for .py, node for .js), with no
+#     interpreter options from the command line, so no argument can turn into code
+#     (`-c`, `-m`, stdin); python runs with -E and NODE_OPTIONS/BASH_ENV are cleared,
+#     so the inherited environment cannot inject code either;
+#   - no argument may name a path inside a dot-folder or dotfile of the home folder
+#     (~/.zshrc, ~/.ssh, ~/.claude …) or inside the plugin cache, none may use '..', and
+#     it must not be run from such a folder (a bare file name lands there): the scripts write to
+#     the paths they are given, and Claude Code cannot see a path passed as an argument
+#     the way it sees a `>` redirect.
+# Everything after the script path is passed to the script as data.
+#
+# Why not a path-pattern rule such as `Bash(python *…/fill_obs_packet.py *)`: a `*`
+# matches anything, spaces included, so a crafted command could satisfy it and run
+# arbitrary Python past auto mode's safety check (verified in the Claude Code
+# permissions docs, 2026-10-01). Parker chose this launcher instead (2026-10-01).
+#
+# STABLE INTERFACE: the managed allow rule matches the name `bbs-fill`. Do not
+# rename it. To vet a new script, add it to ALLOWED in a reviewed PR.
+set -u
+set -f   # no globbing: a path segment like '*' must stay literal
+
+ALLOWED=(
+  "ca-form-filler/scripts/fill_obs_packet.py"
+  "ca-form-filler/scripts/fill_packet_c.py"
+  "ca-form-filler/scripts/packet_profile.py"
+  "ca-form-filler/scripts/render_pages.py"
+  "naspo-quote/scripts/fill_ca_forms.py"
+  "naspo-quote/scripts/inspect_form.py"
+  "bbs-quote-builder/scripts/build_quote.js"
+)
+
+die() { printf 'bbs-fill: REFUSED — %s\nNothing was run.\n' "$1" >&2; exit 64; }
+
+real() {  # resolve symlinks and ".." without needing GNU readlink -f (macOS)
+  local p="$1" d
+  while [ -L "$p" ]; do
+    d=$(cd "$(dirname "$p")" && pwd -P) || return 1
+    p=$(readlink "$p"); case "$p" in /*) ;; *) p="$d/$p" ;; esac
+  done
+  d=$(cd "$(dirname "$p")" 2>/dev/null && pwd -P) || return 1
+  printf '%s/%s\n' "$d" "$(basename "$p")"
+}
+
+unset BASH_ENV ENV NODE_OPTIONS PYTHONSTARTUP PYTHONPATH PYTHONHOME
+
+[ $# -ge 1 ] || die "usage: bbs-fill <absolute path to a vetted script> [args...]"
+case "$1" in
+  -*) die "the first argument must be a script path, not an option ($1)" ;;
+esac
+
+self=$(real "${BASH_SOURCE[0]}") || die "cannot locate itself"
+# <cache>/<marketplace>/bbs-tools/<version>/bin/bbs-fill  ->  <cache>/<marketplace>
+market=$(cd "$(dirname "$self")/../../.." && pwd -P) || die "cannot locate the plugin cache"
+
+# Windows paths arrive as C:\... or C:/...; Git Bash wants /c/...
+target="$1"; shift
+case "$target" in
+  [A-Za-z]:[\\/]*) drive=$(printf '%s' "${target:0:1}" | tr 'A-Z' 'a-z')
+                   target="/$drive/$(printf '%s' "${target:3}" | tr '\\' '/')" ;;
+esac
+[ -f "$target" ] || die "no such script: $target"
+script=$(real "$target") || die "cannot resolve $target"
+
+rel=${script#"$market/bbs-sales/"}
+[ "$rel" != "$script" ] || die "$script is not inside this marketplace's bbs-sales plugin ($market/bbs-sales/)"
+version=${rel%%/*}
+rest=${rel#"$version/"}
+case "$version" in ""|.|..|*[!A-Za-z0-9._+-]*) die "malformed plugin version folder: $script" ;; esac
+[ -L "$market/bbs-sales/$version" ] && die "the plugin version folder is a link: $script"
+ok=0
+for a in "${ALLOWED[@]}"; do
+  [ "$rest" = "skills/$a" ] && ok=1 && break
+done
+[ $ok -eq 1 ] || die "$rest is not a vetted script. Allowed: ${ALLOWED[*]}"
+
+# Every argument that names a path: never a dotfile or dot-folder in the home folder, never
+# the plugin cache. Relative paths are taken from the current folder; ".." and symlinks
+# of an existing parent are resolved before the check.
+winpath() {
+  case "$1" in
+    [A-Za-z]:[\\/]*) printf '/%s/%s' "$(printf '%s' "${1:0:1}" | tr 'A-Z' 'a-z')" \
+                         "$(printf '%s' "${1:3}" | tr '\\' '/')" ;;
+    *) printf '%s' "$1" ;;
+  esac
+}
+lexical() {  # absolute, with "." and ".." removed, without touching the filesystem
+  local p="$1" out="" part IFS=/
+  case "$p" in /*) ;; *) p="$PWD/$p" ;; esac
+  for part in $p; do
+    case "$part" in
+      ""|.) ;;
+      ..) out="${out%/*}" ;;
+      *) out="$out/$part" ;;
+    esac
+  done
+  printf '%s\n' "${out:-/}"
+}
+home=$(cd "$HOME" 2>/dev/null && pwd -P) || home="$HOME"
+cache=$(cd "$market/.." && pwd -P) || die "cannot locate the plugin cache"
+forbidden() {  # $1 = an absolute path; non-zero output = why it is refused
+  case "$1" in
+    "$cache"/*|"$cache") printf 'points into the plugin cache' ;;
+    "$home"/.*|"$HOME"/.*) printf 'points at a dotfile or dot-folder in the home folder' ;;
+  esac
+}
+# The folder the scripts run in: a bare file name lands here.
+here=$(pwd -P)
+why=$(forbidden "$here")
+[ -z "$why" ] || die "bbs-fill was run from $here, which $why. Run it from the rep's working folder"
+for arg in "$@"; do
+  val="$arg"
+  case "$val" in --*=*) val="${val#*=}" ;; esac      # --opt=/path: check the path
+  case "$val" in -*) continue ;; esac                  # a plain option, not a path
+  case "/$val/" in
+    */../*|*\\..\\*|*/..\\*|*\\../*) die "argument $arg uses '..'; give the path without it" ;;
+  esac
+  a=$(winpath "${val/#\~/$HOME}")
+  a=$(lexical "$a")
+  d=$(dirname "$a")
+  while [ ! -d "$d" ] && [ "$d" != "/" ]; do d=$(dirname "$d"); done
+  r=$(cd "$d" 2>/dev/null && pwd -P)${a#"$d"}
+  for x in "$a" "$r"; do
+    why=$(forbidden "$x")
+    [ -z "$why" ] || die "argument $arg $why"
+  done
+done
+
+case "$script" in
+  *.py)
+    case "$(uname -s 2>/dev/null)" in
+      MINGW*|MSYS*|CYGWIN*) py=python ;;   # Windows: python3 is the Microsoft Store stub
+      *) py=python3 ;;
+    esac
+    command -v "$py" >/dev/null 2>&1 || die "$py not found — run the BBS bootstrap (REP-SETUP step 1)"
+    exec "$py" -E "$script" "$@" ;;
+  *.js)
+    command -v node >/dev/null 2>&1 || die "node not found — run the BBS bootstrap (REP-SETUP step 1)"
+    exec node "$script" "$@" ;;
+esac
+die "unsupported script type: $script"

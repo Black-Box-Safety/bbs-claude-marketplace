@@ -661,6 +661,45 @@ def preflight(spec):
     return prepare(spec)[0]
 
 
+def _inside(path, root):
+    try:
+        return os.path.commonpath([path, root]) == root
+    except ValueError:  # different drives on Windows
+        return False
+
+
+def check_outputs(spec):
+    """Outputs stay where the rep can see them: never a home dot-folder or the plugin.
+
+    The scripts write to the paths they are given and Claude Code cannot see a path
+    inside a spec the way it sees a `>` redirect, so the check lives here: `out_dir`
+    must not resolve into a dotfile/dot-folder of the home folder (~/.zshrc, ~/.ssh,
+    ~/.claude …) or into this plugin, and each form's `out` is a plain relative name
+    — no absolute path, no "..".
+    """
+    problems = []
+    out_dir = spec.get("out_dir")
+    if not out_dir:
+        problems.append("REFUSED: the spec has no `out_dir`")
+    else:
+        real = os.path.realpath(os.path.expanduser(str(out_dir)))
+        home = os.path.realpath(os.path.expanduser("~"))
+        rel = os.path.relpath(real, home) if _inside(real, home) else None
+        if rel and rel != "." and rel.split(os.sep)[0].startswith("."):
+            problems.append(f"REFUSED: out_dir {out_dir!r} is inside a dot-folder of the home "
+                            f"folder; write the packet somewhere the rep can see it")
+        if _inside(real, os.path.realpath(PLUGIN_ROOT)):
+            problems.append(f"REFUSED: out_dir {out_dir!r} is inside the plugin itself")
+    for form in spec.get("forms", []):
+        out = str(form.get("out", ""))
+        parts = out.replace("\\", "/").split("/")
+        if not out or os.path.isabs(out) or out.startswith(("/", "\\")) or ".." in parts \
+                or (len(out) > 1 and out[1] == ":"):
+            problems.append(f"REFUSED: form `out` {out!r} must be a plain file name inside "
+                            f"out_dir (no absolute path, no '..')")
+    _raise(problems)
+
+
 def prepare(spec):
     """preflight(), plus the context fill_form checks against each PDF.
 
@@ -669,6 +708,7 @@ def prepare(spec):
     lines for signatures withheld under the limit.
     """
     forms = spec["forms"]
+    check_outputs(spec)
     signer_delegate, delegates = check_signer(spec)
     apply_signer_fields(spec)
     allowed, why = signing_allowed(spec, load_limit())

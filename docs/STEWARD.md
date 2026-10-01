@@ -571,6 +571,29 @@ Write it up with evidence and move to the next slice. Do not idle.
   that have some of the forms filled out with customer information. That is how it will
   typically work in practice." The 4007(C) profile recognises each bound form by its own
   text, and the fill keeps every value the agency already entered.
+- **How auto mode lets the vetted form scripts run — RULED 2026-10-01: the `bbs-tools`
+  launcher.** Parker, in session, chose "New bbs-tools launcher" after the Claude Code docs
+  were checked the same day: a `*` in a `Bash()` allow rule matches anything, spaces
+  included, and an allow rule overrides auto mode's classifier, so a path-pattern rule such
+  as `Bash(python *…/fill_obs_packet.py *)` could be satisfied by a crafted command (one
+  planted in an inbound agency PDF, say) and run arbitrary Python. Instead the managed
+  settings allow exactly `Bash(bbs-fill *)`; `plugins/bbs-tools/bin/bbs-fill` runs only its
+  allow-listed scripts, from the same marketplace's installed `bbs-sales`, with a fixed
+  interpreter and no interpreter options. Its own plugin because claude.ai and Cowork do not
+  install a plugin with a `bin/` folder. Rejected: path-pattern rules (bypassable), and no
+  allow rule (Kim's original stop).
+- **Kim's `ca-grainger-rfq`, `recalc_excel.ps1` and `PDF_Tools` — OPEN (2026-10-01).** Kim
+  named them for the allow list; none exists in this repo. Parker, in session: "Don't know —
+  skip". No permission rule is written for a name nobody can verify. **Ask:** find out from
+  Kim what each is (an account-synced skill, a local script, a connector) before any rule.
+- **Microsoft 365 tools that send without being "send" tools — RULED 2026-10-01.** Raised in
+  the PR #44 review. Parker, in session, chose "Deny rules + vacation, ask events": the
+  managed settings **deny** `outlook_create_filter` (an inbox rule can auto-forward mail)
+  and `outlook_set_vacation` (auto-replies go to everyone who writes), and **ask** before
+  `outlook_create_event`, `outlook_update_event` and `outlook_delete_event` (each emails
+  invites, updates or cancellations to attendees). Home:
+  `plugins/bbs-foundations/docs/bbs-managed-settings.json`; explained in
+  `MANAGED-SETTINGS.md`.
 
 ---
 

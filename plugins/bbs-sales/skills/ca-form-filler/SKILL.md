@@ -109,13 +109,17 @@ if days < 30:
 ### 1. Recognise the packet
 
 ```bash
-SKILL_DIR=<the folder containing this SKILL.md>
-python "$SKILL_DIR/scripts/packet_profile.py" --recognize-pdf <blank_packet.pdf>
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/ca-form-filler/scripts/packet_profile.py" --recognize-pdf <blank_packet.pdf>
 ```
 
-`python` here is the interpreter `scripts/bbs-setup.ps1` installs on Windows, where
-`python3` is only the Microsoft Store stub. On a Mac, where only `python3` exists, type
-that instead. Every command in this skill follows the same rule.
+**Every script in this skill runs through `bbs-fill`**, exactly as written: the managed
+settings allow `Bash(bbs-fill *)` and nothing broader, so this is the form auto mode lets
+through. `bbs-fill` (from the `bbs-tools` plugin) runs only the vetted scripts, with the
+right interpreter for the machine. Never call `python` on these scripts yourself, never
+`cd` first, and never chain another command onto the line. If `bbs-fill` is not found,
+the `bbs-tools` plugin is missing: tell the rep to rerun the bootstrap, and in the
+meantime run the same line with `python` (Windows) or `python3` (Mac) in place of
+`bbs-fill`, which will ask for permission.
 
 It reports one of four things, and each is an instruction. It checks the profile set
 conforms before it evaluates a single marker, so a malformed profile is a refusal here
@@ -190,7 +194,7 @@ and grand total are computed.
 Run the `script` the resolver named — **that path, not a remembered one**:
 
 ```bash
-python "$SKILL_DIR/<the resolver's script>" <blank_packet.pdf> <inputs.json> <output.pdf>
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/ca-form-filler/<the resolver's script>" <blank_packet.pdf> <inputs.json> <output.pdf>
 ```
 
 For the CDCR OBS 4007(B) packet the resolver names `scripts/fill_obs_packet.py`. That is
@@ -212,7 +216,7 @@ Render **the pages this profile lists under `verify_pages`** — the resolver pr
 — and look at them:
 
 ```bash
-python "$SKILL_DIR/<the resolver's verify_script>" <output.pdf> <verify_dir>/ <verify_pages>
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/ca-form-filler/<the resolver's verify_script>" <output.pdf> <verify_dir>/ <verify_pages>
 ```
 
 Every packet puts its risk on different pages, so take the numbers from the resolver
@@ -236,13 +240,13 @@ sits on an unexpected page, or is a checkbox it cannot tick, and names every off
 see what the new packet contains:
 
 ```bash
-python "$SKILL_DIR/scripts/fill_obs_packet.py" --inspect <blank_packet.pdf>
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/ca-form-filler/scripts/fill_obs_packet.py" --inspect <blank_packet.pdf>
 ```
 
 Reconcile that against the `add(...)` calls and `LINE_FIELD_IDS` in the script, update the
 profile — its page map, its `revision`, its annotation coordinates and its recognition
 markers, which are all tied to one revision — and re-run
-`python "$SKILL_DIR/scripts/packet_profile.py" --validate`.
+`bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/ca-form-filler/scripts/packet_profile.py" --validate`.
 
 Expect the field names to be irregular: in the OBS packet one extended-price field is
 literally named `"OBS Line-Item Cost Wrksht - Ext Price LOBS Line-Item Cost Wrksht - Ext
@@ -260,7 +264,7 @@ standalone form, and the correct answer for a packet nobody has mapped yet.
 ### 1. See what the PDF actually is
 
 ```bash
-python "$SKILL_DIR/scripts/fill_obs_packet.py" --inspect /path/to/forms.pdf
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/ca-form-filler/scripts/fill_obs_packet.py" --inspect /path/to/forms.pdf
 ```
 
 The inspector reads any CA form PDF, not just Packet B — it reports each field's page,
@@ -289,7 +293,7 @@ JSON spec. The script is `naspo-quote`'s, shared so there is one implementation 
 signing rules:
 
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/naspo-quote/scripts/fill_ca_forms.py" <spec.json>
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/naspo-quote/scripts/fill_ca_forms.py" <spec.json>
 ```
 
 Its docstring has the spec shape. Write `form` for each PDF (a standalone form's kind, or

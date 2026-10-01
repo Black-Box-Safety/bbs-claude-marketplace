@@ -78,6 +78,7 @@ these are the commands — type them in a Claude panel:
 /plugin install bbs-marketing@bbs-claude-marketplace              # one-pagers, campaign email, logos
 /plugin install bbs-back-office@bbs-claude-marketplace            # orders, vendor receipts, margin
 /plugin install bbs-website@bbs-claude-marketplace                # the website, price list to page
+/plugin install bbs-tools@bbs-claude-marketplace                  # bbs-fill: lets the form scripts run in auto mode
 ```
 
 That fallback does not install the tools in step 1, so run the script as soon as you can.

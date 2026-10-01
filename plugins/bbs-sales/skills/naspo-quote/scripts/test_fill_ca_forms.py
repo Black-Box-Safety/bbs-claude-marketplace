@@ -829,6 +829,24 @@ def test_markers_match_real_blanks_when_available():
         assert hits == [kind], (name, hits)
 
 
+def test_outputs_never_land_in_a_home_dot_folder_or_escape_out_dir():
+    home = os.path.realpath(os.path.expanduser("~"))
+    for out_dir in (os.path.join(home, ".claude"), os.path.join(home, ".ssh", "x"),
+                    os.path.join(home, "work", "..", ".config")):
+        msg = _raises(fill_ca_forms.check_outputs,
+                      {"out_dir": out_dir, "forms": [{"out": "a.pdf"}]})
+        assert "dot-folder" in msg, (out_dir, msg)
+    msg = _raises(fill_ca_forms.check_outputs,
+                  {"out_dir": fill_ca_forms.PLUGIN_ROOT, "forms": [{"out": "a.pdf"}]})
+    assert "inside the plugin" in msg, msg
+    with tempfile.TemporaryDirectory() as d:
+        for out in ("/etc/x.pdf", "../x.pdf", "a/../../x.pdf", "C:\\x.pdf", ""):
+            msg = _raises(fill_ca_forms.check_outputs, {"out_dir": d, "forms": [{"out": out}]})
+            assert "plain file name" in msg, (out, msg)
+        fill_ca_forms.check_outputs({"out_dir": d, "forms": [{"out": "BBS_PD843.pdf"},
+                                                            {"out": "sub/BBS_STD204.pdf"}]})
+
+
 def main():
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     failed = 0
