@@ -1,5 +1,5 @@
 <title>BBS Claude Toolkit</title>
-<meta name="description" content="Who does what with Claude at Black Box Safety: purchasing, AR, accounting and body armor.">
+<meta name="description" content="Who does what with Claude at Black Box Safety: sales, purchasing, AR, accounting and body armor.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -244,7 +244,7 @@ footer.end { border-top: 1px solid var(--line); padding-top: 20px; color: var(--
       <p class="brandmeta">Black Box Safety · Internal</p>
     </div>
     <h1>Claude does the lookups. You make the calls.</h1>
-    <p class="lede">A short guide for purchasing, accounts receivable, accounting and body armor. Pick your name to see your week first.</p>
+    <p class="lede">A short guide for sales, purchasing, accounts receivable, accounting and body armor. Pick your name to see your week first.</p>
     <p class="strap"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.2-3 7.6-7 9-4-1.4-7-4.8-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg><span>Claude drafts. You send. It reads Business Central and never changes it.</span></p>
   </header>
 
@@ -363,7 +363,7 @@ footer.end { border-top: 1px solid var(--line); padding-top: 20px; color: var(--
     <div class="rules">
       <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H5.5L4 17.5z"/><path d="M8 9h8M8 12h5"/></svg><h3>In Claude Code, it drafts and never sends.</h3><p>In Claude Code, sending, forwarding and Teams messages are switched off for Claude. It can put a draft in your Outlook Drafts; you press send. The ordinary Claude chat window does not have these switches, so use Claude Code for this work.</p></div>
       <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg><h3>Reads Business Central, never changes it.</h3><p>Business Central and Grainger are read-only for Claude. It cannot post, edit or delete a record.</p></div>
-      <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 16c2-4 4-7 5.5-7S11 15 13 15s2.5-4 4-4 1.5 3 2 5"/></svg><h3>The right signer on the right line.</h3><p>Signatures go only on the lines of the people allowed to sign them. Claude never signs for you.</p></div>
+      <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 16c2-4 4-7 5.5-7S11 15 13 15s2.5-4 4-4 1.5 3 2 5"/></svg><h3>The right signer on the right line.</h3><p>Signatures go only on the lines of the people allowed to sign them. Outside sales, Claude never signs for you. In sales, a packet is signed only for the delegates counsel approved and only under the limit Parker set; otherwise the lines stay blank and flagged.</p></div>
       <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg><h3>Your mailbox is yours.</h3><p>Claude reads your mail only when you connect it and ask. It never reads anyone else's. <code>/bbs-my-voice</code> learns from your own Sent Items and stops if the mailbox isn't yours.</p></div>
       <div class="rulecard quiet"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg><h3>Rules built in.</h3><p>No invented numbers: if Claude doesn't know, it flags it. Certification wording follows the channel: DVBE for California state work, SDVOSB for federal.</p></div>
     </div>
@@ -403,6 +403,10 @@ footer.end { border-top: 1px solid var(--line); padding-top: 20px; color: var(--
 <script>
 // Everything person-specific lives here. Removing someone is deleting their entry in PEOPLE.
 const PEOPLE = [
+  { slug: "kim", name: "Kim Quezon", group: "Sales", job: "Door and tactical quotes, CA state book", card: "sales" },
+  { slug: "aanya", name: "Aanya Samarasinghe", group: "Sales", job: "Quotes and crossovers, CA state book", card: "sales" },
+  { slug: "joey", name: "Joey Magliato", group: "Sales", job: "Customer accounts and quotes", card: "sales" },
+  { slug: "griffin", name: "Griffin Forsyth", group: "Sales", job: "Federal and Sourcewell contracts", card: "sales" },
   { slug: "berenice", name: "Berenice", group: "Purchasing", job: "Vendor POs and problem orders", card: "berenice" },
   { slug: "joyce", name: "Joyce Newell", group: "Purchasing", job: "Customer POs on the quote desk", card: "joyce" },
   { slug: "summer", name: "Summer", group: "Accounts receivable", job: "Invoices and collections", card: "summer" },
@@ -412,6 +416,34 @@ const PEOPLE = [
 ];
 
 const CARDS = {
+  sales: {
+    group: "Sales",
+    sharedBy: ["kim", "aanya", "joey", "griffin"],
+    promise: "Less time between an RFQ arriving and a packet ready to check.",
+    rows: [
+      { title: "An RFQ, start to packet", status: "ready",
+        today: "An agency sends an RFQ. You file it, price every line, build the quote and fill the state forms by hand.",
+        claude: "Type /ca-rfq and hand Claude the RFQ. It files it first, prices it, builds the quote and fills the packet, then hands you the files and every judgment call it made. Signatures go on only within the delegation Parker recorded; past the limit the lines stay blank and flagged. You check it and you send.",
+        say: "/ca-rfq This RFQ just came in from ____. File it, price it and complete the packet.",
+        hood: "Shortcut /ca-rfq, in the sales binder. It runs ca-rfq-intake, naspo-quote and the form playbooks in order and stops at any gate it cannot meet. It has no send step." },
+      { title: "Grainger and NASPO pricing", status: "ready",
+        today: "You look up each Grainger item on the right facility account and key the price into the worksheet.",
+        claude: "Give Claude the item numbers and the account. It prices them from Grainger live, with stock and ship dates, never from memory or the open web.",
+        say: "Price these Grainger items on account ____: ____",
+        hood: "Playbook: grainger-pricing, in the sales binder. The Grainger window is read-only." },
+      { title: "Before a visit or a new account", status: "ready",
+        today: "You pull an agency's history from Business Central and your notes before a call or a handover.",
+        claude: "Ask for a visit brief, an agency primer or a handover call list. Claude reads Business Central and gives you a call plan and a pocket card, or a dated list of who to call first.",
+        say: "Prep me for a site visit at ____ on ____.",
+        hood: "Playbooks: ca-site-visit-brief, ca-agency-primer and ca-territory-handoff, in the sales binder. They read Business Central and never change it." },
+      { title: "The week, and the follow-up", status: "ready",
+        today: "You rebuild your week for the sales report and write the same follow-up emails by hand.",
+        claude: "Ask what you quoted this week and Claude reads the Sales CRM for the weekly report. Ask for a follow-up and it drafts it into your Outlook Drafts, in your voice once you run /bbs-my-voice. You check it and send it.",
+        say: "Draft a follow-up to ____ about quote ____ into my Outlook Drafts.",
+        hood: "Playbook: bbs-weekly-sales-report, in the sales binder, reads the Sales CRM. The Outlook window can create a draft. In Claude Code it cannot send." }
+    ],
+    next: []
+  },
   berenice: {
     group: "Purchasing",
     promise: "Less digging through four records to find the one that is wrong.",
@@ -585,15 +617,16 @@ const CHIP_TEXT = { ready: "Ready today", list: "On Parker's list", later: "Not 
 
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 // Commands and blanks are set in mono wherever they appear in running text.
-const prose = s => esc(s).replace(/(\/bbs-[a-z-]+|SO-____|_{4})/g, m => "<code>" + m + "</code>");
+const prose = s => esc(s).replace(/(\/bbs-[a-z-]+|\/ca-rfq|SO-____|_{4})/g, m => "<code>" + m + "</code>");
 const chip = k => `<span class="chip ${k}">${ICON[k]}${CHIP_TEXT[k]}</span>`;
 const byName = slug => PEOPLE.find(p => p.slug === slug);
+const joinNames = a => a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1];
 
 function cardTitle(cardKey, chosen) {
   const c = CARDS[cardKey];
   if (c.sharedBy) {
     if (chosen && c.sharedBy.includes(chosen.slug)) return chosen.name;
-    return c.sharedBy.map(s => byName(s)).filter(Boolean).map(p => p.name).join(" and ");
+    return joinNames(c.sharedBy.map(s => byName(s)).filter(Boolean).map(p => p.name));
   }
   const p = PEOPLE.find(x => x.card === cardKey);
   return p ? p.name : "";
@@ -608,7 +641,7 @@ function renderCard(cardKey, chosen, level) {
   let shared = "";
   if (chosen && c.sharedBy) {
     const other = c.sharedBy.filter(s => s !== chosen.slug).map(byName).filter(Boolean);
-    if (other.length) shared = `<p class="shared">Shared with ${esc(other.map(o => o.name).join(" and "))}</p>`;
+    if (other.length) shared = `<p class="shared">Shared with ${esc(joinNames(other.map(o => o.name)))}</p>`;
   }
   const ready = c.rows.filter(r => r.status === "ready");
   const later = c.rows.filter(r => r.status !== "ready");
@@ -666,7 +699,7 @@ function render(slug, moveFocus) {
     person.hidden = false;
     person.innerHTML = LEGEND + renderCard(chosen.card, chosen, 2);
     const c = CARDS[chosen.card];
-    next.hidden = false;
+    next.hidden = c.next.length === 0;
     next.setAttribute("aria-labelledby", "next-h");
     next.innerHTML = `<div class="head"><span class="rule" aria-hidden="true"></span><h2 id="next-h">Coming next</h2><p class="sub">Not built yet. Tell Parker which one you want first.</p></div><ul class="next">${c.next.map(t => `<li>${chip("later")}<span class="t">${esc(t)}</span></li>`).join("")}</ul>`;
   } else {
