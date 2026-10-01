@@ -152,6 +152,11 @@ def is_counter_example_in_sentence(text, pos):
     full stop. A heading with no full stop runs into the sentence after it, which is
     the known cost of not parsing markdown.
     """
+    return _sentence_matches(text, pos, COUNTER_EXAMPLE)
+
+
+def _sentence_matches(text, pos, pattern):
+    """True if pattern occurs in the sentence holding text[pos]."""
     lines = text.splitlines(keepends=True)
     idx = text[:pos].count("\n")
     lo = max(0, idx - CONTEXT_LINES)
@@ -163,7 +168,7 @@ def is_counter_example_in_sentence(text, pos):
     bounds = [m.end() for m in SENTENCE_END.finditer(collapsed)]
     s_start = max([b for b in bounds if b <= here], default=0)
     s_end = min([b for b in bounds if b > here], default=len(collapsed))
-    return bool(COUNTER_EXAMPLE.search(collapsed[s_start:s_end]))
+    return bool(pattern.search(collapsed[s_start:s_end]))
 
 
 SENTENCE_END = re.compile(r"[.!?](?=\s|$)")
@@ -379,6 +384,9 @@ def check(findings):
 
     # --- 8b. The retired injection plugin has not crept back ------------------
     check_retired_plugin_refs(findings)
+
+    # --- 8c. Nothing read mid-run points at a file that does not ship ---------
+    check_repo_only_pointers(findings)
 
     # --- 9. marketplace.json lists the plugins that exist ---------------------
     check_marketplace_manifest(findings)
@@ -1403,6 +1411,106 @@ def check_retired_plugin_refs(findings):
                                             f"plugin is retired and writes nothing"})
 
 
+# What Claude loads while a skill or command runs on a rep's machine. A plugin's
+# README.md and docs/ ship too, but nothing reads them mid-run unless a runtime
+# file sends Claude there with ${CLAUDE_PLUGIN_ROOT}/..., and those targets are
+# added to the scan (the coach skill reads its docs/TOOLKIT.md that way).
+RUNTIME_DIRS = ("skills", "commands", "agents", "hooks", "references")
+
+# Files at the repo root that do not ship. Written as a code span they are a
+# pointer to this repo's file. Bare, "an AGENTS.md" is a kind of file the forge
+# writes and audits, so only the code-span form counts.
+REPO_ROOT_FILES = ("AGENTS.md", "HANDOFF.md", "REGISTRY.md")
+REPO_ONLY_TOKEN = re.compile(
+    r"(?<![\w/.$}-])(docs/[\w./-]+?\.md)(?!\w)|`(%s)`" % "|".join(re.escape(f) for f in REPO_ROOT_FILES))
+
+# A sentence that says the file is not on this machine is correct content.
+REPO_ONLY_MARK = re.compile(
+    r"marketplace repo|in (?:this|the) repo\b|not on (?:your|this|a rep'?s?) machine|"
+    r"maintainers?(?: only|'? record)|(?:does not|doesn't|do not|don't) ship|"
+    r"not in (?:this|the) plugin", re.I)
+
+# Runtime files written to run inside a clone of this repo, where docs/ and the
+# root files are present. Each entry says why.
+RUNS_IN_REPO = {
+    "plugins/bbs-foundations/commands/bbs-commons-add.md":
+        "pins an external plugin into this repo and opens a PR; it says to run in the "
+        "bbs-claude-marketplace repo",
+}
+
+# ${CLAUDE_PLUGIN_ROOT} is the plugin's own folder in the plugin cache. The cache
+# holds plugin folders only, so a path that climbs out of it finds nothing.
+ESCAPES_PLUGIN_ROOT = re.compile(r"\$\{?CLAUDE_PLUGIN_ROOT\}?[\\/]\.\.")
+
+
+def _runtime_files():
+    """Yield (path, plugin_root) for every file Claude reads during a run."""
+    seen = set()
+    for plugin in sorted(os.listdir(PLUGINS)):
+        proot = os.path.join(PLUGINS, plugin)
+        if not os.path.isdir(proot):
+            continue
+        for sub in RUNTIME_DIRS:
+            for path in walk(os.path.join(proot, sub), (".md", ".mdc")):
+                seen.add(path)
+                yield path, proot
+    # A plugin doc becomes runtime content when a runtime file points Claude at it.
+    for path, proot in [(p, os.path.join(PLUGINS, rel(p).split("/")[1])) for p in list(seen)]:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            for m in re.finditer(r"\$\{CLAUDE_PLUGIN_ROOT\}/([\w./-]+\.mdc?)", fh.read()):
+                target = os.path.normpath(os.path.join(proot, m.group(1)))
+                if (target.startswith(proot + os.sep) and os.path.isfile(target)
+                        and target not in seen):
+                    seen.add(target)
+                    yield target, proot
+
+
+def check_repo_only_pointers(findings):
+    """Nothing a rep's Claude reads mid-run may send it to a file that does not ship.
+
+    The plugins reach a rep's machine; this repo's docs/ and its root files do not.
+    Aanya's run reported "STEWARD.md was not available on this machine": canon,
+    which /ca-rfq reads on every run, and the DSH packet stub both named
+    docs/STEWARD.md as where the answer was. The quote builder did the same with
+    AGENTS.md on every quote. A pointer is flagged only when its path exists at
+    this repo's root and not inside the plugin making it, so a plugin's own
+    docs/TOOLKIT.md passes and another repo's docs/ is not this check's business.
+    Same-sentence exemption, as for the retired plugin: the sentence that names the
+    file has to be the one saying it is not on this machine.
+    """
+    for path, proot in _runtime_files():
+        r = rel(path)
+        if r in RUNS_IN_REPO:
+            continue
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            text = fh.read()
+        for m in REPO_ONLY_TOKEN.finditer(text):
+            target = m.group(1) or m.group(2)
+            if os.path.exists(os.path.join(proot, target)):
+                continue
+            if not os.path.exists(os.path.join(ROOT, target)):
+                continue
+            if is_counter_example_in_sentence(text, m.start()) or \
+                    _sentence_matches(text, m.start(), REPO_ONLY_MARK):
+                continue
+            line = text[:m.start()].count("\n") + 1
+            findings.append({"level": "FAIL", "code": "repo_only_pointer",
+                             "where": f"{r}:{line}",
+                             "msg": f"sends Claude to {target}, which is in this repo and "
+                                    f"not in the plugin, so on a rep's machine it does not "
+                                    f"exist and the run reports a missing file. Put the "
+                                    f"fact in a file that ships and point there, or say in "
+                                    f"the same sentence that it is in the marketplace repo"})
+        for m in ESCAPES_PLUGIN_ROOT.finditer(text):
+            line = text[:m.start()].count("\n") + 1
+            findings.append({"level": "FAIL", "code": "path_escapes_plugin_root",
+                             "where": f"{r}:{line}",
+                             "msg": "climbs out of ${CLAUDE_PLUGIN_ROOT}. An installed "
+                                    "plugin lives alone in the plugin cache, so nothing "
+                                    "beside or above it is this repo; the path never "
+                                    "resolves on a rep's machine"})
+
+
 def check_counts(findings, skills):
     """A skill count written into a README badge is a fact, and facts drift.
 
@@ -1474,9 +1582,9 @@ def main():
             if opt != "nothing":
                 print(f"  {'':<{w}}  degrades without: {opt}")
         # This footer once said python-package was installed by bbs-setup.ps1 when
-        # the script installed no pip package at all. It now installs a named few
-        # (after winget, and often only on the rerun once PATH lands), so the footer
-        # names them rather than claiming the kind. Change it with the script.
+        # the script installed no pip package at all, and later that macOS got none
+        # after bbs-setup.sh had started installing them. It names the packages
+        # rather than claiming the kind. Change it with either script.
         bootstrapped = sorted(k for k, v in EXTERNAL_SYSTEMS.items()
                               if v["kind"] == "cli" and v.get("bootstrap"))
         byhand = sorted(k for k, v in EXTERNAL_SYSTEMS.items()
@@ -1487,15 +1595,18 @@ def main():
         print("        Installed per account, not per machine. Nothing in this repo"
               + pad + "installs them.")
         print("  cli")
-        print(f"        scripts/bbs-setup.ps1 (winget, Windows only) covers: "
+        print(f"        scripts/bbs-setup.ps1 (winget, Windows) covers: "
               f"{', '.join(bootstrapped)}." + pad
+              + "scripts/bbs-setup.sh (Homebrew, Mac) installs the same; its python3 is"
+              + pad + "the Xcode command-line tools', which it asks for when missing." + pad
               + f"On the rep to install by hand: {', '.join(byhand)}.")
         print("  python-package, npm-package")
-        print("        bbs-setup.ps1 (Windows only) installs pypdf, pymupdf, openpyxl (pip)"
-              + pad + "and docx (npm, with NODE_PATH set) \u2014 on a first run often only after"
-              + pad + "the rerun it asks for. Anything else, and every package on macOS, is on"
-              + pad + "the rep; what saves them is that every import in the tree is guarded"
-              + pad + "and fails with the install command to run rather than a traceback.")
+        print("        Both bootstraps install pypdf, pymupdf, openpyxl (pip) and docx and"
+              + pad + "pptxgenjs (npm, with NODE_PATH set: the Windows user environment, or"
+              + pad + "~/.zprofile on a Mac) \u2014 on Windows often only after the rerun it asks"
+              + pad + "for. Anything else is on the rep; what saves them is that every import"
+              + pad + "in the tree is guarded and fails with the install command to run"
+              + pad + "rather than a traceback.")
         for sid, spec in sorted(EXTERNAL_SYSTEMS.items()):
             if spec.get("caveat"):
                 print(f"\n  caveat \u00b7 {sid}: {spec['caveat']}.")

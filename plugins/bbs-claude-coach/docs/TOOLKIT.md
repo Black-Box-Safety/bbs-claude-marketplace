@@ -10,9 +10,10 @@ and to grow as you find new uses for it.
 in front of you). Those commands ship in the `bbs-claude-coach` plugin, next to this file.
 
 At BBS one person keeps the toolkit consistent so every machine works the same way and gets
-improvements automatically. You never install or update anything by hand on a managed
-machine (once Parker has pushed managed settings); until then, see the install block in
-`docs/REP-SETUP.md`. You just use it — and tell us when it should do more.
+improvements automatically. The setup script Parker posts in Teams (one for a Windows PC,
+one for a Mac) installs the tools and every plugin, and managed settings keep them current;
+you don't install or update anything by hand. You just use it — and tell us when it should
+do more.
 
 ## The five kinds of tools, in plain words
 
@@ -107,6 +108,6 @@ Reps do none of this. They run `/bbs-checkup` once to confirm their toolkit is h
 `/bbs-checkup` prints the exact sentence to send Parker if anything is off.
 
 ---
-Owner: Parker Marshall. A plain-language companion to `docs/REP-SETUP.md` (mechanics) and
-`docs/ADMIN-RUNBOOK.md` (admin steps). Lives inside `bbs-claude-coach` so a rep's install
-carries it. Last verified 2026-09-24.
+Owner: Parker Marshall. A plain-language companion to the marketplace repo's
+`docs/REP-SETUP.md` (mechanics) and `docs/ADMIN-RUNBOOK.md` (admin steps), which are not on
+a rep's machine. Lives inside `bbs-claude-coach` so a rep's install carries it. Last verified 2026-09-24.

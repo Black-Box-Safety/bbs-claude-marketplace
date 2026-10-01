@@ -90,7 +90,9 @@ its own "do NOT use" clause, a pointer to a merged-away skill or a retired slash
 command, a path that resolves only
 on the author's machine, a stale model ID, a form ID that is not in the rules, a
 vendor-profile key that does not exist, an external system a skill uses without declaring,
-a drifted README badge count.
+a drifted README badge count, and a file read mid-run that points at something only this repo
+has (`docs/`, `AGENTS.md`, or a path above `${CLAUDE_PLUGIN_ROOT}`), which on a rep's machine
+reads as a missing file.
 
 It runs on every pull request via `.github/workflows/check-marketplace.yml` and **a FAIL
 fails the check** (ruled 2026-09-18). Require the `invariants` job in branch protection so
