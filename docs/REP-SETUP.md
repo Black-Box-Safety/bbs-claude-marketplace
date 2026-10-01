@@ -14,8 +14,8 @@ Same steps on Windows and Mac. Where they differ, each step says so; on a Mac re
 
    | Your computer | How to tell | The script |
    |---|---|---|
-   | **Windows PC** | Start button, bottom-left of the screen | `bbs-setup.ps1` |
-   | **Mac** | Apple menu, top-left of the screen | `bbs-setup.sh` |
+   | **Windows PC** | Windows logo (Start) on the taskbar | `bbs-setup.ps1` |
+   | **Mac** | Apple logo, top-left of the screen | `bbs-setup.sh` |
 
    **Windows PC**
    - Open PowerShell (Start → type "PowerShell" → Enter) and `cd` to where you saved the file.
@@ -29,7 +29,7 @@ Same steps on Windows and Mac. Where they differ, each step says so; on a Mac re
    - If it says `python3` is missing, run `xcode-select --install`, then run the script again.
 
    **What it does, either way:** installs the tools Claude uses to read RFQs and build quotes
-   and packets (Git, Node, Python, Chrome, LibreOffice, the PDF/OCR tools, and the Python and
+   and packets (Git, Node, Python — on a Mac, Apple's — Chrome, LibreOffice, the PDF/OCR tools, and the Python and
    Node libraries the form-fill and quote skills import); puts each of them on PATH (`[path]`
    lines); installs Claude Code's `claude` command if you don't have it; and installs **every
    plugin in the BBS marketplace** — one `[ok]` or `[install]` line per plugin.

@@ -77,7 +77,7 @@ The toolkit grows *because* people push it. You are invited to:
   (`skill-creator` reaches reps only through the additive marketplace load described in
   the marketplace repo's `docs/COMMONS.md`, so it may be absent on some machines.) The house
   rules a skill must follow live in the marketplace repo's `AGENTS.md`, "When the work is a
-  skill" — not on your machine; Parker applies them in review. Send the draft to Parker as a PR
+  skill" — it does not ship with the plugin; Parker applies them in review. Send the draft to Parker as a PR
   (or a Teams message) for review — not through `bbs-claude-md-forge`, which only writes
   and audits `CLAUDE.md` files — and if it helps everyone, Parker folds it into the shared
   toolkit so the whole team gets it.
@@ -109,5 +109,5 @@ Reps do none of this. They run `/bbs-checkup` once to confirm their toolkit is h
 
 ---
 Owner: Parker Marshall. A plain-language companion to the marketplace repo's
-`docs/REP-SETUP.md` (mechanics) and `docs/ADMIN-RUNBOOK.md` (admin steps), which are not on
-a rep's machine. Lives inside `bbs-claude-coach` so a rep's install carries it. Last verified 2026-09-24.
+`docs/REP-SETUP.md` (mechanics) and `docs/ADMIN-RUNBOOK.md` (admin steps), which do not ship
+with the plugin. Lives inside `bbs-claude-coach` so a rep's install carries it. Last verified 2026-09-24.

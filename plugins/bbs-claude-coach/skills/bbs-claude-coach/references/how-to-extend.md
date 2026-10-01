@@ -32,7 +32,7 @@ to be technical: write how you do the job well (inputs, steps, what "done" looks
 what must never be guessed). Ask Claude to draft it with `skill-creator` (reaches reps only
 through the additive marketplace load described in the marketplace repo, so it may be absent
 on some machines). The house rules for a skill live in the marketplace repo's `AGENTS.md`,
-"When the work is a skill" — not on your machine; Parker applies them in review. Send
+"When the work is a skill" — it does not ship with the plugin; Parker applies them in review. Send
 the draft to Parker as a PR (or a Teams message) for review — not through
 `bbs-claude-md-forge`, which only writes and audits `CLAUDE.md` files — so shared skills
 land in the marketplace, not as a private copy of a company playbook.

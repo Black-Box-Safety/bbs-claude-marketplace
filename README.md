@@ -172,12 +172,13 @@ one that matches your computer. The other one stops with a message and changes n
 
 | Your computer | How to tell | Script | Run it |
 |---|---|---|---|
-| **Windows PC** | Start button, bottom-left | [`scripts/bbs-setup.ps1`](scripts/bbs-setup.ps1) | In PowerShell, from the folder you saved it in: `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1` |
-| **Mac** | Apple menu, top-left | [`scripts/bbs-setup.sh`](scripts/bbs-setup.sh) | Install [Homebrew](https://brew.sh) once, then in Terminal: `chmod +x bbs-setup.sh && ./bbs-setup.sh` |
+| **Windows PC** | Windows logo (Start) on the taskbar | [`scripts/bbs-setup.ps1`](scripts/bbs-setup.ps1) | In PowerShell, from the folder you saved it in: `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1` |
+| **Mac** | Apple logo, top-left of the screen | [`scripts/bbs-setup.sh`](scripts/bbs-setup.sh) | Install [Homebrew](https://brew.sh) once, then in Terminal: `chmod +x bbs-setup.sh && ./bbs-setup.sh` |
 
-Either script installs the tools the document skills use (Git, Node, Python, Chrome,
-LibreOffice, the PDF/OCR tools, and the Python and Node libraries) and puts each one on
-PATH. It installs Claude Code's `claude` command if it is missing, then installs **every
+Either script installs the tools the document skills use (Git, Node, Chrome, LibreOffice,
+the PDF/OCR tools, and the Python and Node libraries) and puts each one on PATH. Python
+itself comes from the Windows script, or on a Mac from Apple's command-line tools, which the
+Mac script asks for if they are missing. It installs Claude Code's `claude` command if it is missing, then installs **every
 plugin in this marketplace**: six BBS plugins and five pinned externals. If a plugin fails,
 it prints Claude Code's own error. Add `-DryRun` (Windows) or `--dry-run` (Mac) to preview
 without installing anything. A good run ends with `Done.` Anything else, send the window to

@@ -58,10 +58,10 @@ the web workspace can still be requested — that repo is optional. If
 ## 3. Request
 
 Ask which they want. Default: every named workspace that is ready, plus Desktop
-launchers.
+launchers. `bbs-workspaces.py` below means the path step 1 found.
 
 ```bash
-python3 scripts/bbs-workspaces.py request --yes --install-desktop
+python3 bbs-workspaces.py request --yes --install-desktop
 ```
 
 Or a subset: `--ids rep` · `--ids web,admin`
@@ -69,7 +69,7 @@ Or a subset: `--ids rep` · `--ids web,admin`
 **Custom workspace** — they name folders on this computer that are not a recipe:
 
 ```bash
-python3 scripts/bbs-workspaces.py request --custom "Field work" \
+python3 bbs-workspaces.py request --custom "Field work" \
   --folder /the/path/they/gave --folder /another/path/they/gave \
   --install-desktop
 ```

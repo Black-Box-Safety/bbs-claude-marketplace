@@ -1426,7 +1426,7 @@ REPO_ONLY_TOKEN = re.compile(
 
 # A sentence that says the file is not on this machine is correct content.
 REPO_ONLY_MARK = re.compile(
-    r"marketplace repo|in (?:this|the) repo\b|not on (?:your|this|a rep'?s?) machine|"
+    r"marketplace repo|not on (?:your|this|a rep'?s?) machine|"
     r"maintainers?(?: only|'? record)|(?:does not|doesn't|do not|don't) ship|"
     r"not in (?:this|the) plugin", re.I)
 
@@ -1475,8 +1475,8 @@ def check_repo_only_pointers(findings):
     AGENTS.md on every quote. A pointer is flagged only when its path exists at
     this repo's root and not inside the plugin making it, so a plugin's own
     docs/TOOLKIT.md passes and another repo's docs/ is not this check's business.
-    Same-sentence exemption, as for the retired plugin: the sentence that names the
-    file has to be the one saying it is not on this machine.
+    Exempt only when the sentence naming the file says it does not ship. The general
+    counter-example words are not enough here (see the comment at the exemption).
     """
     for path, proot in _runtime_files():
         r = rel(path)
@@ -1490,8 +1490,10 @@ def check_repo_only_pointers(findings):
                 continue
             if not os.path.exists(os.path.join(ROOT, target)):
                 continue
-            if is_counter_example_in_sentence(text, m.start()) or \
-                    _sentence_matches(text, m.start(), REPO_ONLY_MARK):
+            # Only an explicit "not on this machine" sentence exempts. The general
+            # counter-example words do not: "Do not guess the signer; the answer is in
+            # docs/STEWARD.md" is a pointer, and "never" let TOOLKIT.md:15 through.
+            if _sentence_matches(text, m.start(), REPO_ONLY_MARK):
                 continue
             line = text[:m.start()].count("\n") + 1
             findings.append({"level": "FAIL", "code": "repo_only_pointer",
