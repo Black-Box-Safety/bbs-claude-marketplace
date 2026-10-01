@@ -115,11 +115,12 @@ do not paraphrase it weaker.
     NEVER run crossover." (`ca-quote-hub`). Federal primes: substitutions need written
     approval before quoting; no "or equal" unless the solicitation says so.
 23. **Signatures split by form and owner.** "Jackson Dalton ALWAYS signs as DV owner —
-    certification is tied to ownership." Parker Marshall signs bidder and cert lines as
-    authorized representative; Griffin Forsyth signs federal / Sourcewell and most
-    CalRecycle 74s. The skills apply these signatures under delegated authority (counsel
-    confirmed 2026-09-16); getting the **signer right per line** is the rule, and signing
-    for a customer or any third party is never one of them.
+    certification is tied to ownership." The signer the rep names — any of the six
+    delegates (Griffin, Parker, Joey, Kim, Aanya, Jackson) — signs the bidder and cert lines;
+    Griffin Forsyth also signs federal / Sourcewell. Under counsel's authorization (Parker,
+    2026-10-01) the skills apply each person's own PNG of record when the quote total incl.
+    tax is under the limit (bbs-sales `ca-form-rules.md`); getting the **signer right per
+    line** is the rule, and signing for a customer or any third party is never one of them.
 
 ## Structure and maintenance (every type)
 

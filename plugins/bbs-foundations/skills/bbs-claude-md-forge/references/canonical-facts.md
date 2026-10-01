@@ -160,21 +160,30 @@ and `false` on a prime quote. On an open channel it is not set by inference.
 
 | Person | Role | Signs |
 |---|---|---|
-| Jackson Dalton | President, DV owner | Ownership lines: DGS PD 843, STD 204, CV 012. Always. |
-| Griffin Forsyth | Vice President | Federal / Sourcewell contracts. Signed most historical CalRecycle 74s — history, not the rule (below) |
-| Parker Marshall | Sales Manager, primary responder | Rep-signed lines when the rep names him as signer: OBS 4007(B) bidder, Darfur, CalRecycle 74. (OBS 1000's signer is not ruled — see *Open* below) |
+| Jackson Dalton | President, DV owner | Ownership lines: DGS PD 843, CV 012, STD 204, STD 205 — always his, whoever runs the packet. Also a delegate for rep-signed lines |
+| Griffin Forsyth | Vice President | Federal / Sourcewell contracts. Delegate for rep-signed lines. Signed most historical CalRecycle 74s — history, not the rule |
+| Parker Marshall | Sales Manager, primary responder | Delegate for rep-signed lines |
+| Joey Magliato | Account Manager | Delegate for rep-signed lines |
+| Kim Quezon (he/him) | Account Manager | Delegate for rep-signed lines |
+| Aanya Samarasinghe | Account Manager | Delegate for rep-signed lines |
 
-**Who signs the rep-signed lines (OBS 4007(B) bidder, Darfur, CalRecycle 74)** was ruled by
-Parker in session, 2026-09-28. The rule — who may sign, and when a skill may apply a
-signature — lives once, in `plugins/bbs-sales/references/ca-form-rules.md`, "Rep-signed
-lines". The DV-owner declarations above stay Jackson's.
+The rep-signed lines are the OBS 4007(B)/(C) bidder signature, Darfur, CalRecycle 74 and
+OBS 1000; the rep names who signs them. These six are the whole team counsel's
+authorization covers — Joyce Newell, Jeff Azar and Amy Leath are not delegates (Parker, in
+session, 2026-10-01). Emails, signature images and the counsel record live once, in
+`plugins/bbs-sales/references/vendor_profile.json`; who may sign which line, and when a
+skill may apply a signature, lives once in `plugins/bbs-sales/references/ca-form-rules.md`,
+"Rep-signed lines and delegated signatures".
 
-Signatures are applied by the form skills: Parker and Jackson have each delegated
-authority for the forms those skills fill, confirmed with counsel 2026-09-16. The rule
-is **whose signature goes on which line** (above) — never a third party's, never a
-customer's. Signature images are credentials: they live outside git, like the Grainger
-`.env`, and are referenced at run time. Sending stays human: the managed settings deny
-the send-class tools.
+Signatures are applied by the form skills: counsel has given the team broad discretion to
+sign for each other on any form in the quoting process when the quote total including tax
+is under the limit in `vendor_profile.json` `signature_delegation.limit_usd` (Parker, in
+session, 2026-10-01); at or over it, or with no total, the lines stay blank and flagged. A
+rep asking to "complete the packet" is the approval to sign. The rule is **whose signature
+goes on which line** — never a third party's, never a customer's. Signature images are
+credentials: they live outside git, at each delegate's `signature_image`, and are
+referenced at run time. Sending
+stays human: the managed settings deny the send-class tools.
 
 Quote desk (2026-07): Aanya Samarasinghe (quotes/crossovers), Kim Quezon (door/tactical),
 Joyce Newell (POs), Jeff Azar (body armor), Griffin (federal). Accounting: Amy Leath.
@@ -195,17 +204,19 @@ marketplace repo, which does not ship to rep machines.
 | CDCR Packet B SB checkbox | 2026-09-22 | "Small-business status is channel-dependent", above |
 | DGS PD 843 "Name of DVBE" | 2026-09-18, confirmed 2026-09-28 | `ca-form-rules.md`, DGS PD 843 row |
 | Company name on CalRecycle 74, OBS 1000, Darfur OBS 1500 | 2026-09-28 | `ca-form-rules.md`, "Company name" |
-| Who signs the rep-signed lines (OBS 4007(B) bidder, Darfur, CalRecycle 74) | 2026-09-28 | `ca-form-rules.md`, "Rep-signed lines" |
+| Who signs the rep-signed lines (OBS 4007(B)/(C) bidder, Darfur, CalRecycle 74, OBS 1000) | 2026-09-28, widened 2026-10-01 | `ca-form-rules.md`, "Rep-signed lines and delegated signatures" |
 | Grainger sell rule — California state schedules (incl. the NASPO LPA); primes | 2026-09-18 / 2026-09-28 | "Grainger sell rule, by channel", above |
 | Customer quote number | 2026-09-28 | Systems of record, above |
+| Delegated signatures: the six, the limit incl. tax, PNG of record, "complete the packet" is the approval | 2026-10-01 | `ca-form-rules.md`, "Rep-signed lines and delegated signatures" |
+| Owner declarations (PD 843, CV 012, STD 204, STD 205) stay Jackson's whoever runs the packet | 2026-10-01 | `ca-form-rules.md`, "Who signs what" |
+| Who signs OBS 1000 (GenAI factsheet): rep-signed | 2026-10-01 | `ca-form-rules.md`, "Who signs what" |
+| OBS 4007(C) front page on an LPA order: DVBE box and cert number | 2026-10-01 | `ca-form-rules.md`, "Certification language" |
 
 **Open — awaiting Parker**
 
 - Grainger sell rule for national and local cooperative contracts (Sourcewell, NPPGov,
   UC/OMNIA, local co-ops), direct federal and private buyers — including whether national
   cooperative contracts are at cost. A run that needs it stops and tells the rep.
-- Who signs OBS 1000 (GenAI factsheet). `ca-form-rules.md` assigns no signer, so a skill
-  fills the date, leaves the signature blank and flags it.
 - The OBS Line-Item Cost Worksheet "BUSINESS NAME:" header. The 2026-09-28 legal-name
   ruling did not cover it; it keeps the short name `fill_obs_packet.py` writes today until
   Parker rules, and does not stop a run.

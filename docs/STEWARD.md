@@ -341,7 +341,9 @@ Write it up with evidence and move to the next slice. Do not idle.
   every form declares its `form` kind, and only PD843/CV012/STD204/STD205 take the
   dvbe_owner's `dv_owner` stamp (`test_fill_ca_forms.py`). OBS 1000's signer is not
   ruled (`field-maps.md`): no skill stamps it, and the draft line in this PR assigning it
-  to Parker was removed — **open for Parker**. Signer data (after PR #37): Parker has his own
+  to Parker was removed — **open for Parker** (superseded 2026-10-01: OBS 1000 is
+  rep-signed, and the delegates are the six of R1a — see the 2026-10-01 rulings below).
+  Signer data (after PR #37): Parker has his own
   `authorized_representatives` entry, role `sales_manager`, with his alias and the
   `signature_image` moved off `default_rep`; `signature_delegation.delegates` is
   `["sales_manager", "dvbe_owner"]`, resolved to those entries by both loaders. Canon,
@@ -556,11 +558,9 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **OBS 1000 (GenAI factsheet) is a rep-signed line — RULED 2026-10-01.** Parker, in
   session, asked whether R1's "any form that is involved in that process for quoting" makes
   OBS 1000 rep-signed: "Yes, rep-signed". Closes the open question recorded under *Who signs
-  the rep-signed lines* (above). **Canon still lists it as open** — the auto-mode classifier
-  refused this session's edit to `canonical-facts.md`. The injected doctrine text
-  (`bbs-foundations/hooks/doctrine/bbs-grounding-doctrine.md`, `bbs-doctrine.md`) also still
-  names only Parker and Jackson as delegates; not attempted, being the same class of file. **For Parker:** apply the text in PR
-  #43's description to those three files.
+  the rep-signed lines* (above). Canon, `bbs-grounding-doctrine.md` and `bbs-doctrine.md` were updated to match on
+  2026-10-01 (Parker, in session: "you make the canon and doctrine edits"), after the
+  auto-mode classifier had refused the first attempt.
 - **OBS 4007(C) front page on an LPA order: DVBE box ticked, cert number given — RULED
   2026-10-01.** Parker, in session: "Tick DVBE + cert #". The box identifies BBS's
   certification (OSDS 2009473) for the agency's DVBE reporting; SB and MB stay unticked, and
