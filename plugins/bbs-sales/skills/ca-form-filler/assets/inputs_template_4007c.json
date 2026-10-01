@@ -1,0 +1,21 @@
+{
+  "product_summary": "One-line description used on OBS 1000, CalRecycle 74 and PD 843",
+  "signature_date": "M.D.YY, or \"\" to hand-date",
+  "rep": {
+    "name": "",
+    "title": "",
+    "email": ""
+  },
+  "signer": {
+    "name": "",
+    "title": "",
+    "email": ""
+  },
+  "quote_total_incl_tax": "",
+  "quote_ref": "",
+  "master_root": "",
+  "calrecycle_pcrc": "NA",
+  "calrecycle_sabrc": "NA",
+  "attachments": [],
+  "replace_prefilled": {}
+}
