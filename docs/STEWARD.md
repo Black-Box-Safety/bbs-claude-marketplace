@@ -423,7 +423,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   maintainers' full record.
 - **`docs/PRODUCT.md` is empty on main, and Parker has no content for it — noted
   2026-09-28 (Parker, in session). RESOLVED 2026-09-28: `lead-reviewer` repointed; file
-  deleted in PR #36.** `lead-reviewer` checks rulings against this register (*Already open
+  deleted in PR #36.** The reviewer (`rex`, `.claude/agents/rex.md`; `lead-reviewer` until
+  2026-10-01) checks rulings against this register (*Already open
   for Parker*), merge order against *Tonight's slices*, and invariants against `AGENTS.md`.
   With `/ca-rfq` repointed at canon (above) and `README.md`'s two lines repointed at this
   file, nothing referenced it, so it is deleted.
@@ -435,6 +436,22 @@ Write it up with evidence and move to the next slice. Do not idle.
   and §5 checks at this register (*Already open for Parker*, and *Tonight's slices* for
   merge order) and drop §2 or give it a real home, in its own PR — agent config is outside
   the territory PR's scope, so `lead-reviewer.md` is deliberately unchanged there.
+
+- **The reviewer's GitHub identity — RULED 2026-10-01: COMMENT-style reviews accepted.**
+  Parker, in session, asked whether Rex (the reviewer, `.claude/agents/rex.md`, renamed from
+  `lead-reviewer` the same day) should get its own GitHub identity: "Accept COMMENT reviews".
+  The build session and Rex both post as `pjm3wv`, so GitHub records neither an approval nor
+  a "changes requested", and `main`'s branch protection requires no approval (PR #41 merged
+  with none). So Rex posts every review as a COMMENT; one whose first line is
+  "Request changes — do not merge" holds the PR exactly as a request-changes review would,
+  and one whose first line is "Cleared — ready to merge" with the cleared head SHA clears it,
+  and a green CI check alone is never a merge signal (`rex.md`, *Decide*). Rejected for now:
+  a GitHub App or machine account for Rex plus one required approval on `main` — the
+  stronger control, revisit if a merge ever lands without Rex's clearance. If a classifier
+  or other safety control blocks a step (it blocked a post-merge `git fetch` in PR #41, and
+  on 2026-10-01 blocked the build session from dispatching a reviewer to merge the build
+  session's own PR), stop and report it to Parker; do not retry or route around it. Parker
+  merges when the session that dispatches Rex is also the PR's author.
 
 - **impeccable: install only the fork's `plugin/` folder, with its hooks off — RULED
   2026-10-01 (Parker, in session: "go with option A").** The entry was a `url` source with
