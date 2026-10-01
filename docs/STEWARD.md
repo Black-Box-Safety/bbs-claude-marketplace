@@ -535,6 +535,10 @@ Write it up with evidence and move to the next slice. Do not idle.
   `jackson-dalton.png` before this PR's profile change reaches a rep. Every other
   `signature_image` is `null` until that person's PNG is in place, and the scripts refuse to
   sign as anyone whose image is missing. The PNG spec is in `docs/ADMIN-RUNBOOK.md`.
+- **R3 — Jackson's owner declarations stay Jackson's — RULED 2026-10-01.** Parker, in
+  session. DGS PD 843, CV 012, STD 204 and STD 205 carry Jackson's image whoever runs the
+  packet. The team ruling (R1/R1a) widens who may *run* a packet, not whose declaration those
+  lines are. Rule home: `ca-form-rules.md`, "Who signs what".
 
 ---
 
