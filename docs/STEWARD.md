@@ -522,6 +522,19 @@ Write it up with evidence and move to the next slice. Do not idle.
   and flagged. The total comes from the quote of record, never an estimate. Enforced in code
   by the form scripts; the figure lives once, in `vendor_profile.json`
   `signature_delegation`.
+- **R2 — signature form: the PNG of record — RULED 2026-10-01.** Parker, in session: the
+  **signature image**, which each person provides. Both paths stamp the PNG; the typed-name
+  "signature" `fill_obs_packet.py` wrote into the signature fields (verified 2026-10-01 at
+  `:207`, `:383`, `:437` — the delegate's name as text, which Kim reported) goes.
+  **R2a — where the PNGs live (the session's choice, made 2026-10-01):**
+  `MASTER/Signatures/<first>-<last>.png` in the synced `Black Box Safety - MASTER` library,
+  e.g. `MASTER/Signatures/kim-quezon.png`, so every machine has them through OneDrive.
+  Parker's image sat inside a Bechtel RFP folder and broke once when that folder was renamed
+  (2026-09-28); Jackson's was at `MASTER/Jackson Dalton Signature/Copy of JACKSON_SIG.png`.
+  **For Parker:** copy both into `MASTER/Signatures/` as `parker-marshall.png` and
+  `jackson-dalton.png` before this PR's profile change reaches a rep. Every other
+  `signature_image` is `null` until that person's PNG is in place, and the scripts refuse to
+  sign as anyone whose image is missing. The PNG spec is in `docs/ADMIN-RUNBOOK.md`.
 
 ---
 
