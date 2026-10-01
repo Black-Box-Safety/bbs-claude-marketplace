@@ -496,7 +496,16 @@ Write it up with evidence and move to the next slice. Do not idle.
   second packet profile, but no real second customer packet has been run through it.
   Verify each before acting; the `skills:` filter and `caveman-init` findings are
   recorded in `docs/COMMONS.md`.
+- **R1 — delegated signing scope — RULED 2026-10-01.** Parker, in session: "Our team has
+  been given broad discretion by counsel to sign for each other on anything under $250,000
+  and any form that is involved in that process for quoting." Supersedes the 2026-09-16
+  delegation (Parker and Jackson only) for the forms the skills fill. Counsel's written
+  authorization is filed physically at BBS; the repo records only its date (2026-10-01, as
+  given to Parker in session) and its scope — the six people (R1a), a quote under $250,000
+  including tax (R1b), forms in the quoting process — in `vendor_profile.json`
+  `signature_delegation`, never as a reference to a file. Rule home: `ca-form-rules.md`,
+  "Delegated signatures". Claude still drafts; a person reviews and sends (invariant 5).
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-09-28.
+Owner: Parker Marshall. Last verified 2026-10-01.

@@ -66,11 +66,15 @@ in one direction or the other. Ruling and reasoning:
 "Small-business status is channel-dependent" (Parker, in session, 2026-09-22, superseding
 the 2026-09-02 ruling).
 
-**Signatures.** Parker and Jackson have each delegated signing authority for the forms the
-skills fill (counsel confirmed 2026-09-16), so packets are produced signed. The rule is
-**the right signer on the right line** — never a customer's or a third party's signature,
-and never a line whose signer you cannot determine. The customer-facing storefront bot is
-*not* covered by that delegation and signs nothing.
+**Signatures.** Counsel has given the team broad discretion to sign for each other on any
+form in the quoting process when the quote is under $250,000 (Parker, in session,
+2026-10-01, superseding the Parker-and-Jackson delegation of 2026-09-16), so packets are
+produced signed. Who the team is, how the limit is measured and which lines stay Jackson's
+are recorded once, in `plugins/bbs-sales/references/ca-form-rules.md`, "Delegated
+signatures", and `vendor_profile.json` `signature_delegation`. The rule is **the right
+signer on the right line** — never a customer's or a third party's signature, and never a
+line whose signer you cannot determine. The customer-facing storefront bot is *not* covered
+by that delegation and signs nothing.
 
 ## Terms that mean two things
 
@@ -143,4 +147,4 @@ and answer different questions, so they stay apart.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-09-17.
+Owner: Parker Marshall. Last verified 2026-10-01.
