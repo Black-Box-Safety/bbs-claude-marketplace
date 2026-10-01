@@ -18,7 +18,7 @@ judging which one a reader would pick and whether any second skill is a plausibl
 | # | Phrasing | Fires | Nearest competitor |
 |---|---|---|---|
 | 1 | "our CDCR rep left — which of his accounts have actually gone quiet and which are still ordering?" | handoff | none. "gone quiet"/"still ordering" is relationship state, named in the description |
-| 2 | "kim's got 48 facilities and 20 working days. what does she call first?" | handoff | none. Prioritization and a dated list |
+| 2 | "kim's got 48 facilities and 20 working days. what does he call first?" | handoff | none. Prioritization and a dated list |
 | 3 | "which CMD facilities have a grainger account set up but have never placed an order with us" | handoff | intake shares "CMD" and "order"; the description names provisioned whitespace verbatim, so handoff wins |
 | 4 | "we're splitting caltrans between aanya and kim, how should it break" | handoff | none. Book split |
 | 5 | "size the winnable pond at calvet — how much of their spend can we actually get" | handoff | `grainger-promo-page` also does SCPRS segmentation, but for a campaign audience, not book sizing. Handoff names pond sizing explicitly |
