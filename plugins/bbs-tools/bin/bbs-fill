@@ -14,7 +14,8 @@
 #     (`-c`, `-m`, stdin); python runs with -E and NODE_OPTIONS/BASH_ENV are cleared,
 #     so the inherited environment cannot inject code either;
 #   - no argument may name a path inside a dot-folder or dotfile of the home folder
-#     (~/.zshrc, ~/.ssh, ~/.claude …) or inside the plugin cache: the scripts write to
+#     (~/.zshrc, ~/.ssh, ~/.claude …) or inside the plugin cache, none may use '..', and
+#     it must not be run from such a folder (a bare file name lands there): the scripts write to
 #     the paths they are given, and Claude Code cannot see a path passed as an argument
 #     the way it sees a `>` redirect.
 # Everything after the script path is passed to the script as data.
@@ -107,21 +108,31 @@ lexical() {  # absolute, with "." and ".." removed, without touching the filesys
 }
 home=$(cd "$HOME" 2>/dev/null && pwd -P) || home="$HOME"
 cache=$(cd "$market/.." && pwd -P) || die "cannot locate the plugin cache"
-for arg in "$@"; do
-  case "$arg" in
-    */*|*\\*|~*|.*) ;;
-    *) continue ;;
+forbidden() {  # $1 = an absolute path; non-zero output = why it is refused
+  case "$1" in
+    "$cache"/*|"$cache") printf 'points into the plugin cache' ;;
+    "$home"/.*|"$HOME"/.*) printf 'points at a dotfile or dot-folder in the home folder' ;;
   esac
-  a=$(winpath "${arg/#\~/$HOME}")
+}
+# The folder the scripts run in: a bare file name lands here.
+here=$(pwd -P)
+why=$(forbidden "$here")
+[ -z "$why" ] || die "bbs-fill was run from $here, which $why. Run it from the rep's working folder"
+for arg in "$@"; do
+  val="$arg"
+  case "$val" in --*=*) val="${val#*=}" ;; esac      # --opt=/path: check the path
+  case "$val" in -*) continue ;; esac                  # a plain option, not a path
+  case "/$val/" in
+    */../*|*\\..\\*|*/..\\*|*\\../*) die "argument $arg uses '..'; give the path without it" ;;
+  esac
+  a=$(winpath "${val/#\~/$HOME}")
   a=$(lexical "$a")
   d=$(dirname "$a")
   while [ ! -d "$d" ] && [ "$d" != "/" ]; do d=$(dirname "$d"); done
   r=$(cd "$d" 2>/dev/null && pwd -P)${a#"$d"}
   for x in "$a" "$r"; do
-    case "$x" in
-      "$cache"/*|"$cache") die "argument $arg points into the plugin cache" ;;
-      "$home"/.*|"$HOME"/.*) die "argument $arg points at a dotfile or dot-folder in the home folder" ;;
-    esac
+    why=$(forbidden "$x")
+    [ -z "$why" ] || die "argument $arg $why"
   done
 done
 

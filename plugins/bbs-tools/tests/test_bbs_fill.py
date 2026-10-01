@@ -146,6 +146,41 @@ def test_arguments_into_home_dotfiles_or_the_cache_are_refused():
         assert code == 0 and "RAN" in out, (code, out)
 
 
+def _run_in(launcher, cwd, env, *args):
+    p = subprocess.run(["bash", launcher, *args], capture_output=True, text=True,
+                       cwd=cwd, env=dict(os.environ, **env))
+    return p.returncode, p.stdout + p.stderr
+
+
+def test_bare_names_dotdot_and_option_paths_are_checked_too():
+    with tempfile.TemporaryDirectory() as t:
+        bf, sales = _cache(t)
+        home = os.path.join(t, "home")
+        claude_dir = os.path.join(home, ".claude")
+        work = os.path.join(home, "work")
+        os.makedirs(os.path.join(home, ".ssh", "deep"))
+        os.makedirs(claude_dir)
+        os.makedirs(work)
+        script = os.path.join(sales, "ca-form-filler/scripts/fill_obs_packet.py")
+        env = {"HOME": home}
+        # Rex: run from ~/.claude with a bare output name
+        code, out = _run_in(bf, claude_dir, env, script, "blank.pdf", "in.json", "CLAUDE.md")
+        assert code == 64 and "RAN" not in out and "was run from" in out, out
+        # Rex: run from inside the cache with a bare name
+        code, out = _run_in(bf, os.path.dirname(script), env, script, "x.pdf")
+        assert code == 64 and "RAN" not in out, out
+        # Rex: '..' through a symlink into ~/.ssh
+        os.symlink(os.path.join(home, ".ssh", "deep"), os.path.join(work, "dl"))
+        code, out = _run_in(bf, work, env, script, "dl/../authorized_keys")
+        assert code == 64 and "'..'" in out, out
+        # --opt=/path is checked as a path
+        code, out = _run_in(bf, work, env, script, "--out=" + os.path.join(home, ".zshrc"))
+        assert code == 64 and "RAN" not in out, out
+        # the ordinary case still runs: work folder, bare names, plain options
+        code, out = _run_in(bf, work, env, script, "--inspect", "blank.pdf", "out.pdf")
+        assert code == 0 and "RAN" in out, out
+
+
 def test_inherited_environment_cannot_inject_code():
     with tempfile.TemporaryDirectory() as t:
         bf, sales = _cache(t)
