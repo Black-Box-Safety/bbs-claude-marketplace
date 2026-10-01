@@ -546,6 +546,27 @@ Write it up with evidence and move to the next slice. Do not idle.
   pastes in the claude.ai admin console (`docs/ADMIN-RUNBOOK.md` §1). Nothing is merged into
   a rep's own `~/.claude/settings.json`. `/bbs-checkup` stays read-only: it verifies, it
   never writes.
+- **R5 — "complete the packet" is the approval to sign — RULED 2026-10-01.** Parker, in
+  session: "the bbs employee says 'complete the packet' and there is implicit knowledge that
+  that means you can sign everywhere that the skills know to sign for the people that are
+  relevant for the solicitation (rep and jackson typically)." No separate per-run
+  confirmation step: the request is the authorization, within R1–R3 (the six, under the
+  limit, the right signer on each line). Rule home: `ca-form-rules.md`, "Delegated
+  signatures".
+- **OBS 1000 (GenAI factsheet) is a rep-signed line — RULED 2026-10-01.** Parker, in
+  session, asked whether R1's "any form that is involved in that process for quoting" makes
+  OBS 1000 rep-signed: "Yes, rep-signed". Closes the open question recorded under *Who signs
+  the rep-signed lines* (above) and in canon's *Open* list.
+- **OBS 4007(C) front page on an LPA order: DVBE box ticked, cert number given — RULED
+  2026-10-01.** Parker, in session: "Tick DVBE + cert #". The box identifies BBS's
+  certification (OSDS 2009473) for the agency's DVBE reporting; SB and MB stay unticked, and
+  no incentive is claimed — the DVBE incentive is still never claimed on an LPA/NASPO order.
+  Certification logic is otherwise unchanged.
+- **CDCR Packet C arrives partly filled and must be assembled — RULED 2026-10-01.** Parker,
+  in session: "You should aggregate the other forms and be able to handle inbound documents
+  that have some of the forms filled out with customer information. That is how it will
+  typically work in practice." The 4007(C) profile recognises each bound form by its own
+  text, and the fill keeps every value the agency already entered.
 
 ---
 
