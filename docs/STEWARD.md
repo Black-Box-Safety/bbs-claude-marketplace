@@ -586,6 +586,14 @@ Write it up with evidence and move to the next slice. Do not idle.
   named them for the allow list; none exists in this repo. Parker, in session: "Don't know —
   skip". No permission rule is written for a name nobody can verify. **Ask:** find out from
   Kim what each is (an account-synced skill, a local script, a connector) before any rule.
+- **Microsoft 365 tools that send without being "send" tools — RULED 2026-10-01.** Raised in
+  the PR #44 review. Parker, in session, chose "Deny rules + vacation, ask events": the
+  managed settings **deny** `outlook_create_filter` (an inbox rule can auto-forward mail)
+  and `outlook_set_vacation` (auto-replies go to everyone who writes), and **ask** before
+  `outlook_create_event`, `outlook_update_event` and `outlook_delete_event` (each emails
+  invites, updates or cancellations to attendees). Home:
+  `plugins/bbs-foundations/docs/bbs-managed-settings.json`; explained in
+  `MANAGED-SETTINGS.md`.
 
 ---
 
