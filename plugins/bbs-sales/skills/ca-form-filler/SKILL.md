@@ -40,9 +40,12 @@ this skill and `naspo-quote` stay in agreement.
 1. **Never invent data.** A value that is not in the vendor profile and cannot be read out
    of the solicitation is `[MISSING — NEEDS INPUT]` in the output and a line in the gap
    report. These are binding documents; a plausible guess is worse than a blank.
-2. **Sign only BBS's own lines, only with BBS's own signatures.** Parker Marshall and
-   Jackson Dalton have each delegated authority to sign the forms in this skill's
-   profiles, so the packet is produced signed. Apply a signature **only** to the line its
+2. **Sign only BBS's own lines, only with BBS's own signatures.** Counsel has authorized
+   the six delegates to sign for each other on quoting forms when the quote total
+   including tax is under the delegation limit, and a rep asking to complete the packet
+   is the approval — so the packet is produced signed, with each person's PNG of record
+   (`ca-form-rules.md`, "Delegated signatures"). The scripts apply it; you never type a
+   signature or write code that stamps one. Apply a signature **only** to the line its
    owner signs (rule 5), and **never** on behalf of a customer, an agency, or any third
    party. A line whose correct signer you cannot determine is
    `⚑ SIGNATURE REQUIRED — <name>, <title>`, not a guess.
@@ -51,11 +54,12 @@ this skill and `naspo-quote` stay in agreement.
 4. **Check the DVBE cert against the due date before filling anything.** Expired, or
    inside 30 days of expiry, is a hard stop.
 5. **Two different kinds of line, and conflating them is the most common error.** The
-   **signer the rep names** signs the rep-signed lines (OBS 4007(B) bidder signature,
-   Darfur, CalRecycle 74) — ask for the signer on every run; there is no default.
+   **signer the rep names** signs the rep-signed lines (OBS 4007(B)/(C) bidder signature,
+   Darfur, CalRecycle 74, OBS 1000) — ask for the signer on every run; there is no
+   default.
    **Jackson Dalton**, DV owner and President, signs ownership lines (DGS PD 843,
-   STD 204 authorized payee) — those follow who *owns* the certified DVBE, so they do not
-   change with the rep. Who may sign, and when a signature may be applied rather than left
+   CV 012, STD 204 authorized payee, STD 205) — those follow who *owns* the certified
+   DVBE, so they do not change with the rep or with who runs the packet. Who may sign, and when a signature may be applied rather than left
    for a hand signature, is in `ca-form-rules.md`; Path A's script prints a signer
    confirmation block every run, and the cover summary repeats any
    `⚑ SIGNATURE REQUIRED` line.
@@ -156,8 +160,10 @@ solicitation number, the agency requestor and ship-to, the rep, and the signer t
 names. Everything else comes from the vendor profile.
 
 The rep supplies the quote (pasted, or as a PDF/xlsx), the solicitation number, dates,
-agency contact, their own name/title/email, and **who signs** — name, title and
-`@blackboxsafety.com` email. Ask; never assume the signer is the rep. If the items arrive as a Grainger cart
+agency contact, their own name/title/email, **who signs** — name, title and
+`@blackboxsafety.com` email — and the **quote total including tax** and SQ number from
+the quote of record (the Business Central sales quote). Never compute or estimate the
+total: without it nothing is signed. Ask; never assume the signer is the rep. If the items arrive as a Grainger cart
 PDF, a screenshot, or a DWR RFQ, run `rfq-item-extract` first and bring the list here.
 
 Defaults when unspecified: `signature_date` today in `M.D.YY` (BBS house style, e.g.
@@ -171,7 +177,9 @@ Copy the `inputs_template` the resolver named. For the CDCR OBS 4007(B) packet t
 `assets/inputs_template.json`, whose schema is `solicitation_number`, `release_date` and
 `due_date` (MM/DD/YYYY), `signature_date` (`M.D.YY`, or `""` to hand-date),
 `delivery_days_aro`, `product_summary` (one line, used on OBS 1000, CalRecycle 74 and PD
-843), `shipping_handling`, `rep{name,title,email}`, `signer{name,title,email}`,
+843), `shipping_handling`, `quote_total_incl_tax` and `quote_ref` (from the quote of
+record), `master_root` (the synced `Black Box Safety - MASTER` folder, where
+`Signatures/` lives), `rep{name,title,email}`, `signer{name,title,email}`,
 `agency{requestor_name,requestor_email,requestor_phone,ship_to_line1..3}`,
 `calrecycle_pcrc`, `calrecycle_sabrc`, and `line_items[]` of
 `{qty, unit, description, part_number, pcrc, unit_price}`. Extended prices, subtotal, S&H
@@ -276,16 +284,33 @@ actually has. Check a key exists before mapping it.
 
 ### 3. Fill
 
-**Fillable PDFs** are the preferred path: set the AcroForm values, then validate the same
-way Path A does before writing anything.
+**Path B fills through one vetted script — never code you write.** The work is data: a
+JSON spec. The script is `naspo-quote`'s, shared so there is one implementation of the
+signing rules:
 
-**Flat or scanned PDFs** fall back to coordinate stamping. Rasterize every page, map the
-coordinates visually, then stamp. This is slower and more error-prone, so verify harder.
+```bash
+python "${CLAUDE_PLUGIN_ROOT}/skills/naspo-quote/scripts/fill_ca_forms.py" <spec.json>
+```
+
+Its docstring has the spec shape. Write `form` for each PDF (a standalone form's kind, or
+`packet` for a bound PDF holding several forms, with `"line": "rep"` or
+`"line": "dv_owner"` on each `sign` entry), the field IDs from the inspector in step 1,
+`signer`, `quote_total_incl_tax` and `quote_ref` from the quote of record, and
+`master_root`. The script then enforces, in code: the signer rules and the limit
+(`ca-form-rules.md`, "Delegated signatures"), that each signature lands on a page that
+reads as a form whose line it is (the form table in `ca-form-rules.md`), that every field
+ID exists with the right type, and that the agency's pre-filled values are kept. It writes
+nothing unless every check passed — or, at or over the limit, writes the packet unsigned
+with every line flagged. **If it stops, fix the spec; never write a script around it.**
+A one-off fill-and-sign script is exactly what auto mode refuses, and it would bypass
+every one of those checks.
+
+**Flat or scanned PDFs** have no fields for the script to fill. Stop and tell the rep:
+print, fill and sign by hand, or ask the agency for the fillable version. Do not stamp
+coordinates by hand.
 
 **Signatures follow the same rule on this path.** Ask the rep who signs; there is no
-default. Apply a delegate's signature only as `ca-form-rules.md`, "Rep-signed lines" allows,
-and otherwise leave the line blank and flagged. `naspo-quote`'s `fill_ca_forms.py` enforces
-this in code for a spec that names its `signer`.
+default.
 
 ### 4. Verify
 
@@ -322,4 +347,4 @@ Close with the reminder to hand-date at submission if `signature_date` was left 
 
 ---
 
-Owner: Parker. Last verified 2026-09-16.
+Owner: Parker. Last verified 2026-10-01.

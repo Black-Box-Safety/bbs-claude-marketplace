@@ -102,6 +102,35 @@ machine. Role matrix: `docs/CURSOR-SETUP.md`.
 8. Inventory the BBS Marketing SharePoint folder and locate Joey's skill — feeds the
    bbs-marketing plugin decision in v1.1.
 
+## 3b. Signature images (once per person, then whenever one changes)
+
+Counsel's authorization lets the six delegates sign for each other on quoting forms under
+the limit (`plugins/bbs-sales/references/ca-form-rules.md`, "Delegated signatures"). The
+scripts stamp each person's own PNG of record; they never type a name.
+
+**Where:** `MASTER/Signatures/<first>-<last>.png` in the synced `Black Box Safety - MASTER`
+library — all lowercase, hyphenated: `jackson-dalton.png`, `parker-marshall.png`,
+`griffin-forsyth.png`, `joey-magliato.png`, `kim-quezon.png`,
+`aanya-samarasinghe.png`. Nowhere else: Parker's last image lived in a Bechtel RFP folder
+and broke when that folder was renamed (2026-09-28).
+
+**The image each person sends:**
+
+- PNG, transparent background, black ink.
+- Cropped tight to the ink — no white border, no name or date under it.
+- At least 600 px wide.
+- Their own signature, signed for this purpose. Never a scan cut from a past bid.
+
+**Turning one on:** drop the file in `MASTER/Signatures/`, then set that person's
+`signature_image` in `plugins/bbs-sales/references/vendor_profile.json` to the
+`MASTER/Signatures/...` path, in a PR. Until then it is `null`, and the scripts refuse to
+sign as that person (the run stops and names the missing file). One-time move, after the
+PR that introduced this section merges: copy Parker's and Jackson's current images to
+`MASTER/Signatures/parker-marshall.png` and `MASTER/Signatures/jackson-dalton.png`.
+
+The PNGs are credentials: never commit one, never paste one into a chat, and keep the
+folder's sharing to BBS staff.
+
 ## 4. Power Automate intake flow (build once)
 
 Flow: trigger = new mail to the quotes mailbox matching CA-agency senders/subjects →

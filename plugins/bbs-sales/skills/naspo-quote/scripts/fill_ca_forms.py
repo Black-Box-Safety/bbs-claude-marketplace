@@ -107,7 +107,7 @@ Notes that save you a debugging cycle:
   `MASTER/` path with no `master_root` stops the run. Absolute paths also work.
 
 * signer — the rep names who signs the rep-signed lines (CalRecycle 74, Darfur,
-  OBS 4007(B) bidder) on every run; the spec carries it as `signer` and there
+  OBS 1000, OBS 4007(B)/(C) bidder) on every run; the spec carries it as `signer` and there
   is no default. `check_signer()` runs first: no signer stops the run
   ([MISSING — NEEDS INPUT]); a signer whose email is not exactly one address on
   BBS's domain (from the vendor profile's `contact.email`) is REFUSED, checked
@@ -118,12 +118,11 @@ Notes that save you a debugging cycle:
   `"line": "dv_owner"`, whoever the signer is — those declarations are always
   Jackson's. On every other form `dv_owner` is refused and a stamp is a
   rep-signed line: its delegate must BE the signer (email or recorded alias,
-  and name). OBS1000's signer is not ruled, so no stamp is allowed on it at
-  all. So a non-delegate signer can have no `sign` entry on a rep-signed
+  and name). OBS1000 is a rep-signed line (Parker, 2026-10-01). So a non-delegate signer can have no `sign` entry on a rep-signed
   line — the print name and title come from `signer_fields` (filled from the
   signer; a `text` value that differs is refused), signature and date stay
   blank, and the line is flagged "⚑ SIGNATURE REQUIRED". Rule: ca-form-rules.md,
-  "Rep-signed lines".
+  "Delegated signatures".
 
 * nothing is written unless everything worked (AGENTS.md invariant 4).
   `preflight()` runs before any PDF is opened: it checks every `sign` entry's

@@ -31,7 +31,7 @@ them is a false certification.
 | **The signer the rep names** (variable) | OBS 4007(B) and OBS 4007(C) bidder signature, Darfur certification (OBS 1500 / DGS PD 1), CalRecycle 74 certification, OBS 1000 GenAI factsheet | Named by the rep on every run; never defaulted. A signature is applied only as *Delegated signatures* allows. OBS 1000 joined this row 2026-10-01 (Parker: "Yes, rep-signed"). |
 | **Jackson Dalton** (fixed) | DGS PD 843 DVBE owner declaration, CV 012, STD 204 authorized payee representative, STD 205 | Tied to who **owns** the certified business — the disabled-veteran owner's declarations. Jackson's image goes on these whoever runs the packet (Parker, 2026-10-01, R3); never anyone else's. |
 
-### Delegated signatures — when a skill applies a signature
+### Rep-signed lines and delegated signatures — when a skill applies a signature
 
 Ruled by Parker, in session, 2026-10-01 (R1): counsel has given the team "broad discretion
 … to sign for each other on anything under $250,000 and any form that is involved in that

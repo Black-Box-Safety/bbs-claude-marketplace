@@ -141,18 +141,16 @@ summary rather than inventing a figure.
 
 ## 5. Signatures
 
-`Customers/State of CA Agencies/_README.md` carries standing authorization: Parker
-and Jackson each approve their signature being applied to state requests, on the
-understanding that the rep has reviewed the items with the buyer. Confirm that
-review has happened for this RFQ, then apply:
+Counsel has authorized the team to sign for each other on the quoting forms when the
+quote total including tax is under the delegation limit, and a rep asking to complete
+the packet is the approval (Parker, 2026-10-01): `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md`,
+"Delegated signatures". Confirm the rep has reviewed the items with the buyer, then
+apply:
 
-- **The signer the rep names** — CalRecycle 74 and Darfur OBS 1500. Who may sign and
-  when a signature image may be stamped: `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md`,
-  "Rep-signed lines". The corpus shows Griffin on most historical CalRecycle 74s; that is
+- **The signer the rep names** — CalRecycle 74, Darfur OBS 1500 and OBS 1000. Who may
+  sign and when a signature image may be stamped: `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md`,
+  "Delegated signatures". The corpus shows Griffin on most historical CalRecycle 74s; that is
   history, not the rule. Never default the signer to last time's.
-- **OBS 1000** — signer not ruled (`ca-form-rules.md` assigns none; open for Parker in
-  canon's "Rulings on binding documents"). Fill the date, leave the signature blank and
-  flag `⚑ SIGNATURE REQUIRED`; do not borrow a signer from a neighbouring form.
 - **Jackson Dalton, President (DV Owner)** — DGS PD 843 and CV 012, the
   disabled-veteran declarations, and STD 204 as payee representative
   (`jackson@blackboxsafety.com`). These are his to sign, not Parker's.
@@ -163,18 +161,23 @@ Ask the rep who signs rather than defaulting to last time's answer.
 
 The spec names the signer as `signer{name,title,email}` — the person the rep named,
 every run — and every form entry says what it is in `form` (PD843, CV012, STD204,
-STD205, CalRecycle74, Darfur, OBS1000, OBS4007B, other). `fill_ca_forms.py` refuses:
-a spec with no signer or a signer who is not a BBS employee; a form with no valid
-`form`; on PD843/CV012/STD204/STD205, any stamp but Jackson's marked
-`"line": "dv_owner"`; `dv_owner` on any other form; any stamp on OBS1000 (signer not
-ruled); and a delegate's image on a rep-signed line whose signer is not that delegate.
+STD205, CalRecycle74, Darfur, OBS1000, OBS4007B, OBS4007C, Supplement, GSPD05105,
+other, or `packet` for a bound PDF). The spec also carries `quote_total_incl_tax` from
+the quote of record (the BC sales quote / SQ sent) — never an estimate; at or over the
+limit, or missing, nothing is stamped and every line is flagged. `fill_ca_forms.py`
+refuses: a spec with no signer or a signer who is not a BBS employee; a form with no
+valid `form`; on PD843/CV012/STD204/STD205, any stamp but Jackson's marked
+`"line": "dv_owner"`; `dv_owner` on any other form; a delegate's image on a
+rep-signed line whose signer is not that delegate; a stamp on a page that reads as a
+different form (ca-form-rules.md form table); an unknown field ID; and a value that
+would overwrite one the agency already filled.
 Give each form's print-name and title fields as `signer_fields`; they are filled from
 the signer. The script's docstring has the shape.
 
 Signature images: each delegate's PNG location is `signature_image` on that person in
 `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` `authorized_representatives` — the
-roles `signature_delegation.delegates` lists (Parker on `sales_manager`, Jackson on
-`dvbe_owner`). The script reads it from there itself; the spec has no `signatures` map to
+roles `signature_delegation.delegates` lists — the six (Parker, 2026-10-01); an
+image is `null` until that person's PNG is in `MASTER/Signatures/`. The script reads it from there itself; the spec has no `signatures` map to
 fill (an old-style entry is refused unless it names the same file), so one person's
 signature can never be stamped under another's name. Set `master_root` to the synced
 `Black Box Safety - MASTER` folder; the script joins the `MASTER/` path itself, so never
@@ -184,8 +187,8 @@ blank form before it opens a PDF, and writes nothing unless every form filled an
 the path or field name, or drop that `sign` entry and leave the line unsigned for the
 rep. Never work around the stop.
 
-No other signer has an image, by design; `ca-form-rules.md` says what happens to their
-lines. Never stamp Parker's or Jackson's image for anyone else.
+No one outside the six has an image, by design; `ca-form-rules.md` says what happens
+to their lines. Never stamp one delegate's image for anyone else.
 
 If the rep hasn't reviewed the items, fill everything and leave the signature
 lines blank with a note — an unsigned packet is fixable in a minute; a wrongly

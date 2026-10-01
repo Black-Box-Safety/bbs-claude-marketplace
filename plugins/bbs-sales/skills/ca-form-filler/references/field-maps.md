@@ -108,7 +108,7 @@ Form ID is **OBS 1000**. Earlier revisions of this file said STD 1000.
 | Uses GenAI? | DERIVED | "No" — BBS resells finished goods; the products contain no GenAI |
 | Conditional GenAI fields | — | skip, they depend on "Yes" |
 | Rep name | REP | the signing rep |
-| Signature, date | ⚑ SIG | **Signer not determined.** `ca-form-rules.md` assigns no signer for OBS 1000, and Path A's OBS profile fills the date only. Fill the date, leave the signature, flag `⚑ SIGNATURE REQUIRED`. Do not infer one from the neighbouring forms |
+| Signature, date | SIGN | **The signer the rep names** — OBS 1000 is a rep-signed line (ruled 2026-10-01; `ca-form-rules.md`, "Delegated signatures"). On the standalone Rev. 10/2025 blank the signature is a `/Sig` field named `Signature` on page 2, with `Date` beside it: a signature field holds no text, so it is stamped with the PNG |
 
 ## CalRecycle 74 — Recycled Content Certification
 
