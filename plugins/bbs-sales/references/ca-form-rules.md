@@ -140,21 +140,23 @@ A page is that form when every marker appears, and no `none` string appears, in 
 first 400 non-whitespace characters of its text, compared without whitespace and without
 case. `line` is whose signature the form carries: `rep` (the signer the rep names),
 `dv_owner` (Jackson), or `null` (no signature applied). A page that matches no form, or
-more than one, gets no signature.
+more than one, gets no signature. (`none: ["OBS 4007"]` keeps the 4007(B)/(C) attachment
+list, which names the Darfur and Bidder Declaration forms near the top of its last page,
+from reading as those forms.)
 
 <!-- bbs-form-table:begin -->
 ```json
 {
   "OBS4007C":     {"markers": ["OBS 4007 (C)"],                    "none": [],              "line": "rep"},
   "OBS4007B":     {"markers": ["OBS 4007 (B)"],                    "none": [],              "line": "rep"},
-  "Darfur":       {"markers": ["OBS 1500", "DARFUR CONTRACTING ACT"], "none": [],           "line": "rep"},
+  "Darfur":       {"markers": ["OBS 1500", "DARFUR CONTRACTING ACT"], "none": ["OBS 4007"], "line": "rep"},
   "CalRecycle74": {"markers": ["CalRecycle 74", "Postconsu"],      "none": [],              "line": "rep"},
   "OBS1000":      {"markers": ["GENAI REPORTING AND FACTSHEET", "OBS 1000"], "none": [],    "line": "rep"},
   "PD843":        {"markers": ["DISABLED VETERAN BUSINESS ENTERPRISE DECLARATIONS", "PD 843"], "none": [], "line": "dv_owner"},
   "STD204":       {"markers": ["PAYEE DATA RECORD", "STD 204"],    "none": ["SUPPLEMENT"],  "line": "dv_owner"},
   "STD205":       {"markers": ["PAYEE DATA RECORD SUPPLEMENT", "STATE CONTROLLERS OFFICE"], "none": [], "line": "dv_owner"},
   "Supplement":   {"markers": ["SUPPLEMENT VENDOR PAYEE DATA RECORD"], "none": [],          "line": null},
-  "GSPD05105":    {"markers": ["BIDDER DECLARATION"],              "none": [],              "line": null}
+  "GSPD05105":    {"markers": ["BIDDER DECLARATION"],              "none": ["OBS 4007"],    "line": null}
 }
 ```
 <!-- bbs-form-table:end -->

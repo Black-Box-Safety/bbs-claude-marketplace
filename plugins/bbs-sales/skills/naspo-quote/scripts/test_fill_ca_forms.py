@@ -142,6 +142,10 @@ JACKSON = {"name": _BY_ROLE["dvbe_owner"]["name"], "title": "President",
 EMPLOYEE = {"name": "Test Rep", "title": "Account Manager", "email": "test.rep@" + DOMAIN}
 
 
+LIMIT = fill_ca_forms.load_limit()   # read from vendor_profile.json, never typed here
+UNDER = LIMIT - 0.01
+
+
 def _profile_png(root, role):
     """Where the profile says `role`'s signature is, under a fake MASTER root."""
     return resolve_sig_path(_BY_ROLE[role]["signature_image"], root)
@@ -154,10 +158,13 @@ def _spec(d, forms, signatures=None, **kw):
         _png(d, os.path.join("blank", f["src"]), b"%PDF-blank")
     root = os.path.join(d, "Black Box Safety - MASTER")
     for role in _BY_ROLE:
+        if not _BY_ROLE[role]["signature_image"]:
+            continue  # no PNG recorded yet for this delegate
         path = _profile_png(root, role)
         _png(os.path.dirname(path), os.path.basename(path))
     spec = {"src_dir": os.path.join(d, "blank"), "out_dir": os.path.join(d, "out"),
-            "master_root": root, "signer": dict(PARKER), "forms": forms}
+            "master_root": root, "signer": dict(PARKER), "forms": forms,
+            "quote_total_incl_tax": UNDER}
     if signatures is not None:
         spec["signatures"] = signatures
     spec.update(kw)
@@ -294,7 +301,9 @@ def test_unmatched_sign_field_exits_non_zero_and_writes_nothing():
                          _form(src="b.pdf", field="Signatur")])
         code, err = _run_main(spec, d)
         assert code, "exited zero"
-        assert "⚑ SIGNATURE NOT APPLIED — parker: b.pdf field 'Signatur' not found" in err, err
+        # A sign field the PDF does not have is an unknown field ID: refused before
+        # anything is drawn, exactly like a mistyped text field.
+        assert "b.pdf has no field 'Signatur'" in str(code), code
         assert not os.path.exists(spec["out_dir"])
 
 
@@ -379,8 +388,9 @@ def test_dv_owner_line_is_the_dvbe_owners_only():
 
 
 def test_who_that_is_not_a_delegate_refused():
-    msg = _raises(check_signer, _signer_spec(PARKER, [_form("kim")]))
-    assert "'kim'" in msg and "not a signature delegate" in msg, msg
+    # Joyce Newell is a BBS employee but not one of the six (Parker, 2026-10-01).
+    msg = _raises(check_signer, _signer_spec(PARKER, [_form("joyce")]))
+    assert "'joyce'" in msg and "not a signature delegate" in msg, msg
 
 
 def test_jackson_as_named_signer_may_sign_a_rep_line():
@@ -457,9 +467,11 @@ def test_dv_owner_form_rejects_unmarked_or_other_delegate_stamps():
         assert "DV-owner declaration" in msg, (kind, msg)
 
 
-def test_obs1000_signer_not_ruled_so_never_stamped():
-    msg = _raises(check_signer, _signer_spec(PARKER, [_form("parker", kind="OBS1000")]))
-    assert "signer is not ruled" in msg, msg
+def test_obs1000_is_a_rep_signed_line():
+    # Ruled 2026-10-01 (Parker: "Yes, rep-signed"): the named signer's stamp goes on it.
+    check_signer(_signer_spec(PARKER, [_form("parker", kind="OBS1000")]))
+    msg = _raises(check_signer, _signer_spec(PARKER, [_form("jackson", kind="OBS1000")]))
+    assert "never applied to someone" in msg, msg
 
 
 def test_missing_or_unknown_form_kind_refused():
@@ -488,6 +500,278 @@ def test_non_ascii_lookalike_email_refused():
     kelvin = dict(EMPLOYEE, email="\u212aim@" + DOMAIN)   # KELVIN SIGN, folds to "k"
     msg = _raises(check_signer, _signer_spec(kelvin, forms=[]))
     assert msg.startswith("REFUSED"), msg
+
+
+# ---------- real PDFs: the limit, field IDs, pre-filled values, page checks ----------
+# Built with PyMuPDF at test time (no form PDF is committed). Headers reuse the
+# form table's own markers, read from ca-form-rules.md, never typed here.
+
+TABLE = fill_ca_forms.load_form_table()
+
+
+def _header(kind):
+    return "STATE OF CALIFORNIA " + " ".join(TABLE[kind]["markers"]) + " Page 1"
+
+
+def _real_pdf(path, pages):
+    """pages: [(header text, [(name, type, value)])]. Types: text, check, sig."""
+    import fitz as real
+    doc = real.open()
+    for header, fields in pages:
+        page = doc.new_page()
+        page.insert_text((40, 40), header, fontsize=9)
+        y = 80
+        for name, ftype, value in fields:
+            w = real.Widget()
+            w.field_name = name
+            w.rect = real.Rect(40, y, 300, y + 18)
+            w.field_type = {"text": real.PDF_WIDGET_TYPE_TEXT,
+                            "check": real.PDF_WIDGET_TYPE_CHECKBOX,
+                            "sig": real.PDF_WIDGET_TYPE_SIGNATURE}[ftype]
+            if value and ftype == "text":
+                w.field_value = value
+            page.add_widget(w)
+            y += 30
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    doc.save(path)
+    doc.close()
+
+
+def _real_png(path):
+    import fitz as real
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    pix = real.Pixmap(real.csRGB, real.IRect(0, 0, 60, 20), False)
+    pix.clear_with(0)
+    pix.save(path)
+
+
+def _real_spec(d, forms, pages_by_src, **kw):
+    root = os.path.join(d, "Black Box Safety - MASTER")
+    for role in _BY_ROLE:
+        if _BY_ROLE[role]["signature_image"]:
+            _real_png(_profile_png(root, role))
+    for src, pages in pages_by_src.items():
+        _real_pdf(os.path.join(d, "blank", src), pages)
+    spec = {"src_dir": os.path.join(d, "blank"), "out_dir": os.path.join(d, "out"),
+            "master_root": root, "signer": dict(PARKER), "forms": forms,
+            "quote_total_incl_tax": UNDER, "signature_date": "10.1.26"}
+    spec.update(kw)
+    return spec
+
+
+def _run_real(spec, d):
+    spec_path = os.path.join(d, "spec.json")
+    with open(spec_path, "w") as fh:
+        json.dump(spec, fh)
+    argv = sys.argv
+    sys.argv = ["fill_ca_forms.py", spec_path]
+    out, err, code = io.StringIO(), io.StringIO(), None
+    try:
+        with contextlib.redirect_stderr(err), contextlib.redirect_stdout(out):
+            fill_ca_forms.main()
+    except SystemExit as e:
+        code = e.code
+    finally:
+        sys.argv = argv
+    return code, out.getvalue(), err.getvalue()
+
+
+def _images_on(path):
+    import fitz as real
+    doc = real.open(path)
+    n = sum(len(p.get_images()) for p in doc)
+    values = {w.field_name: w.field_value for p in doc for w in (p.widgets() or [])}
+    doc.close()
+    return n, values
+
+
+CALREC = {"a.pdf": [(_header("CalRecycle74"), [("Signature", "text", ""),
+                                                ("Date", "text", "")])]}
+
+
+def _calrec_form():
+    return {"form": "CalRecycle74", "src": "a.pdf", "out": "a-out.pdf",
+            "sign": {"Signature": {"who": "parker", "date": "Date"}}}
+
+
+def _needs_fitz():
+    return fill_ca_forms.fitz is None
+
+
+def test_limit_just_under_signs():
+    if _needs_fitz():
+        return
+    with tempfile.TemporaryDirectory() as d:
+        spec = _real_spec(d, [_calrec_form()], CALREC, quote_total_incl_tax=f"${UNDER:,.2f}")
+        code, out, err = _run_real(spec, d)
+        assert not code, (code, err)
+        n, values = _images_on(os.path.join(spec["out_dir"], "a-out.pdf"))
+        assert n == 1 and values.get("Date") == "10.1.26", (n, values)
+        assert "WITHHELD" not in out
+
+
+def test_limit_exactly_at_over_missing_and_unreadable_withhold_every_signature():
+    if _needs_fitz():
+        return
+    for total in (LIMIT, f"${LIMIT:,.2f}", LIMIT + 1, None, "", "about nine thousand", True):
+        with tempfile.TemporaryDirectory() as d:
+            spec = _real_spec(d, [_calrec_form()], CALREC, quote_total_incl_tax=total)
+            code, out, err = _run_real(spec, d)
+            assert not code, (total, code, err)
+            n, values = _images_on(os.path.join(spec["out_dir"], "a-out.pdf"))
+            assert n == 0, (total, n)
+            assert not values.get("Date"), (total, values)   # hand-signed means hand-dated
+            assert "SIGNATURES WITHHELD" in out and "⚑ SIGNATURE REQUIRED" in out, out
+
+
+def test_withheld_also_covers_jacksons_owner_lines():
+    if _needs_fitz():
+        return
+    with tempfile.TemporaryDirectory() as d:
+        pages = {"p.pdf": [(_header("PD843"), [("DVBEowner1signature", "sig", "")])]}
+        form = {"form": "PD843", "src": "p.pdf", "out": "p-out.pdf",
+                "sign": {"DVBEowner1signature": {"who": "jackson", "line": "dv_owner"}}}
+        spec = _real_spec(d, [form], pages, quote_total_incl_tax=LIMIT)
+        code, out, _err = _run_real(spec, d)
+        assert not code and _images_on(os.path.join(spec["out_dir"], "p-out.pdf"))[0] == 0
+        assert "jackson" in out and "WITHHELD" in out, out
+
+
+def test_delegate_without_a_png_cannot_be_signed_for():
+    if _needs_fitz():
+        return
+    kim = next(r for r in _BY_ROLE.values() if r["role"] == "rep_kim")
+    assert kim["signature_image"] is None   # null until Kim's PNG is in MASTER/Signatures/
+    with tempfile.TemporaryDirectory() as d:
+        form = dict(_calrec_form(), sign={"Signature": {"who": "kim"}})
+        spec = _real_spec(d, [form], CALREC,
+                          signer={"name": kim["name"], "title": "Account Manager",
+                                  "email": kim["email"]})
+        code, _out, _err = _run_real(spec, d)
+        assert code and "no `signature_image`" in str(code), code
+        assert not os.path.exists(spec["out_dir"])
+
+
+def test_unknown_field_and_wrong_type_refused_nothing_written():
+    if _needs_fitz():
+        return
+    with tempfile.TemporaryDirectory() as d:
+        for form, want in ((dict(_calrec_form(), text={"Signatur Date": "x"}), "no field"),
+                           (dict(_calrec_form(), checks={"Date": True}), "not CheckBox")):
+            spec = _real_spec(d, [form], CALREC)
+            code, _out, _err = _run_real(spec, d)
+            assert code and want in str(code), (want, code)
+            assert not os.path.exists(spec["out_dir"])
+
+
+def test_agency_prefilled_values_are_kept_and_never_overwritten_silently():
+    if _needs_fitz():
+        return
+    pages = {"c.pdf": [(_header("OBS4007C"), [("Solicitation", "text", "RFQ-123"),
+                                              ("Buyer Name", "text", "T. Ryan Kemp"),
+                                              ("Bidder Signature", "text", "")])]}
+    base = {"form": "OBS4007C", "src": "c.pdf", "out": "c-out.pdf",
+            "sign": {"Bidder Signature": {"who": "parker"}}}
+    with tempfile.TemporaryDirectory() as d:
+        spec = _real_spec(d, [dict(base, text={"Solicitation": "RFQ-123"})], pages)
+        code, out, err = _run_real(spec, d)
+        assert not code, (code, err)
+        assert "kept agency value: c.pdf 'Buyer Name' = 'T. Ryan Kemp'" in out, out
+        _n, values = _images_on(os.path.join(spec["out_dir"], "c-out.pdf"))
+        assert values["Buyer Name"] == "T. Ryan Kemp" and values["Solicitation"] == "RFQ-123"
+    with tempfile.TemporaryDirectory() as d:
+        spec = _real_spec(d, [dict(base, text={"Buyer Name": "Someone Else"})], pages)
+        code, _out, _err = _run_real(spec, d)
+        assert code and "already holds 'T. Ryan Kemp'" in str(code), code
+        assert not os.path.exists(spec["out_dir"])
+    with tempfile.TemporaryDirectory() as d:
+        spec = _real_spec(d, [dict(base, text={"Buyer Name": "Someone Else"},
+                                   replace_prefilled={"Buyer Name": "rep: agency typo"})],
+                          pages)
+        code, _out, err = _run_real(spec, d)
+        assert not code, (code, err)
+
+
+def _packet_pages():
+    return {"k.pdf": [
+        (_header("OBS4007C"), [("Bidder Signature", "text", "")]),
+        ("Line Item Cost Worksheet", [("Ext 1", "text", "")]),
+        (_header("PD843"), [("DVBEowner1signature", "sig", "")]),
+        (_header("OBS1000"), [("Signature", "sig", "")]),
+    ]}
+
+
+def _packet(sign):
+    return {"form": "packet", "src": "k.pdf", "out": "k-out.pdf", "sign": sign}
+
+
+def test_packet_stamps_each_line_by_the_page_it_sits_on():
+    if _needs_fitz():
+        return
+    with tempfile.TemporaryDirectory() as d:
+        spec = _real_spec(d, [_packet({
+            "Bidder Signature": {"who": "parker", "line": "rep"},
+            "DVBEowner1signature": {"who": "jackson", "line": "dv_owner"},
+            "Signature": {"who": "parker", "line": "rep"}})], _packet_pages())
+        code, _out, err = _run_real(spec, d)
+        assert not code, (code, err)
+        assert _images_on(os.path.join(spec["out_dir"], "k-out.pdf"))[0] == 3
+
+
+def test_packet_refuses_a_line_whose_page_says_otherwise():
+    if _needs_fitz():
+        return
+    cases = (
+        # static check: Parker's stamp marked as a rep line on what is Jackson's page
+        ({"DVBEowner1signature": {"who": "parker", "line": "rep"}}, PARKER, "whose line is dv_owner"),
+        # Jackson named as signer passes the static check; the PD 843 page still says no
+        ({"DVBEowner1signature": {"who": "jackson", "line": "rep"}}, JACKSON, "whose line is dv_owner"),
+        ({"Bidder Signature": {"who": "jackson", "line": "dv_owner"}}, PARKER, "whose line is rep"),
+        ({"Ext 1": {"who": "parker", "line": "rep"}}, PARKER, "no known form"),
+        ({"Bidder Signature": {"who": "parker"}}, PARKER, "must say"),
+    )
+    for sign, signer, want in cases:
+        with tempfile.TemporaryDirectory() as d:
+            spec = _real_spec(d, [_packet(sign)], _packet_pages(), signer=dict(signer))
+            code, _out, _err = _run_real(spec, d)
+            assert code and want in str(code), (sign, code)
+            assert not os.path.exists(spec["out_dir"])
+
+
+def test_declared_kind_must_match_the_page():
+    if _needs_fitz():
+        return
+    with tempfile.TemporaryDirectory() as d:
+        pages = {"a.pdf": [(_header("PD843"), [("Signature", "text", "")])]}
+        spec = _real_spec(d, [dict(_calrec_form(), sign={"Signature": {"who": "parker"}})],
+                          pages)
+        code, _out, _err = _run_real(spec, d)
+        assert code and "reads as PD843" in str(code), code
+
+
+def test_form_table_rows_are_well_formed_and_lines_match_the_rules():
+    assert {k: v["line"] for k, v in TABLE.items() if v["line"]} == {
+        "OBS4007C": "rep", "OBS4007B": "rep", "Darfur": "rep", "CalRecycle74": "rep",
+        "OBS1000": "rep", "PD843": "dv_owner", "STD204": "dv_owner", "STD205": "dv_owner"}
+    assert set(fill_ca_forms.DV_OWNER_FORMS) - {"CV012"} <= {
+        k for k, v in TABLE.items() if v["line"] == "dv_owner"}
+
+
+def test_markers_match_real_blanks_when_available():
+    """Set BBS_BLANK_FORMS to a folder of blank state forms to check the markers
+    against real PDFs (file stem = form kind, e.g. PD843.pdf). Skipped otherwise."""
+    folder = os.environ.get("BBS_BLANK_FORMS")
+    if not folder or _needs_fitz():
+        return
+    import fitz as real
+    for name in sorted(os.listdir(folder)):
+        kind = os.path.splitext(name)[0]
+        if kind not in TABLE:
+            continue
+        doc = real.open(os.path.join(folder, name))
+        hits = fill_ca_forms.classify_page(doc[0].get_text(), TABLE)
+        doc.close()
+        assert hits == [kind], (name, hits)
 
 
 def main():
