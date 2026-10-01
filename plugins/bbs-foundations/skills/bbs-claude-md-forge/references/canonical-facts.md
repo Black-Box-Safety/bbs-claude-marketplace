@@ -177,10 +177,12 @@ skill may apply a signature, lives once in `plugins/bbs-sales/references/ca-form
 
 Signatures are applied by the form skills: counsel has given the team broad discretion to
 sign for each other on any form in the quoting process when the quote total including tax
-is under $250,000 (Parker, in session, 2026-10-01). A rep asking to "complete the packet"
-is the approval to sign. The rule is **whose signature goes on which line** — never a
-third party's, never a customer's. Signature images are credentials: they live outside
-git, in the synced `MASTER/Signatures/` folder, and are referenced at run time. Sending
+is under the limit in `vendor_profile.json` `signature_delegation.limit_usd` (Parker, in
+session, 2026-10-01); at or over it, or with no total, the lines stay blank and flagged. A
+rep asking to "complete the packet" is the approval to sign. The rule is **whose signature
+goes on which line** — never a third party's, never a customer's. Signature images are
+credentials: they live outside git, at each delegate's `signature_image`, and are
+referenced at run time. Sending
 stays human: the managed settings deny the send-class tools.
 
 Quote desk (2026-07): Aanya Samarasinghe (quotes/crossovers), Kim Quezon (door/tactical),

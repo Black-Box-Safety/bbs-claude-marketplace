@@ -99,7 +99,8 @@ use `localStorage`; the hash carries the selection.
 **G1 What Claude is at BBS.** Three columns, left to right: *Where the facts live*
 (four system tiles) → *Who does the legwork* (Claude, holding a binder) → *Who decides*
 (You). Dashed connectors with a small eye glyph from each system to Claude, labelled
-"looks, never changes". A solid arrow from Claude to You labelled "a draft". An arrow out of
+"looks in". The Business Central and Grainger tiles carry a small "read-only" tag; Outlook
+and SharePoint do not, because Claude can write drafts and files there. A solid arrow from Claude to You labelled "a draft". An arrow out of
 You labelled "you send". "You" is the heaviest node (navy fill, white text, a gold rule).
 Claude is mid weight; systems are light. Under the diagram, the five-row legend. At widths
 under 720px the columns stack vertically and the connectors point down. All labels are real
@@ -116,7 +117,7 @@ line. At phone width each pair stacks Today above With Claude. A short status le
 once above the first card (C2.0).
 
 **G3 What it will never do.** A four-step horizontal flow (vertical on phones): You ask →
-Claude looks (read-only) → Claude drafts → You check and send. The last step is filled navy
+Claude looks → Claude drafts → You check and send. The last step is filled navy
 with the only gold accent in the section. Below it, four tiles (icon, bold line, one or two
 sentences) and one quieter fifth tile.
 
@@ -205,7 +206,7 @@ Promise: `Less digging through four records to find the one that is wrong.`
    - Today: `Someone says the item or size is wrong. You open the PO, the bid sheet, the order sheet and Business Central, then search your email for what was promised.`
    - With Claude: `Give Claude the PO and the line. It lines up what the customer asked for, what we quoted, what the PO says and what shipped, tells you which one is wrong, finds every other PO with the same line, and names who can approve the fix. You decide. The account owner sends.`
    - Try saying: `PO ____ line ____: the customer says the size is wrong. Which record is wrong, and who can approve the fix?`
-   - Under the hood: `Playbook: bbs-order-reconciliation, in the back office binder. It reads Business Central, Grainger and your own Outlook. It changes nothing.`
+   - Under the hood: `Playbook: bbs-order-reconciliation, in the back office binder. It reads Business Central, Grainger and your own Outlook. It changes nothing in Business Central or Grainger.`
 2. **Money owed back to us** · Ready today
    - Today: `A vendor promised a credit on the phone. Weeks later nobody knows if it landed.`
    - With Claude: `When Claude rebuilds an order's history, it lists the credits promised, free replacements shipped and freight we paid for someone else's mistake, and who owes what. You decide what to chase.`
@@ -255,7 +256,7 @@ Promise: `Less looking up the same balances one agency at a time.`
 
 1. **Who owes us** · Ready today
    - Today: `You pull the aging, then open each agency to see what is still open.`
-   - With Claude: `Ask what is past due, or where we stand with one agency. Claude reads Business Central and answers with the open invoices, orders and quotes in one place, and says where each number came from.`
+   - With Claude: `Ask what is past due, or where we stand with one agency. Claude reads Business Central and answers with the open invoices, orders and quotes in one place, and says where each number came from. Shopify card payments may still show as unpaid: check before you chase.`
    - Try saying: `Which invoices are past due right now, oldest first?`
    - Under the hood: `The Business Central window. Read-only: it never posts or changes an invoice.`
 2. **The reminder email** · Ready today
@@ -320,25 +321,24 @@ Promise: `Fewer retyped replies and order lookups.`
    - With Claude: `Claude lines up what was ordered, what the PO says and what shipped, and tells you which one is wrong before anyone reorders.`
    - Try saying: `SO-____: the officer received the wrong size. Which record is wrong?`
    - Under the hood: `Playbook: bbs-order-reconciliation, in the back office binder.`
-4. **A Point Blank price sheet** · Ready today
+4. **A Point Blank price sheet** · On Parker's list · reason `Needs one piece of software and the website folder set up`
    - Today: `You key price-list rows into a template by hand.`
-   - With Claude: `Hand Claude the sheet. It cleans it into the BBS import template and tells you what it could not match. Loading it into the catalog stays with Parker.`
-   - Try saying: `Clean this Point Blank price list into the BBS import template.`
-   - Under the hood: `Playbook: price-list-cleaner, in the website binder. The first run may need Parker to add one piece of software.`
+   - With Claude: `Soon: hand Claude the sheet. It cleans it into the BBS import template and tells you what it could not match. Loading it into the catalog stays with Parker.`
+   - Under the hood: `Playbook: price-list-cleaner, in the website binder.`
 
 ### C3. G1 What Claude is at BBS
 
 - Heading: `What Claude is at BBS`
-- Sub: `An assistant at your desk. It follows the BBS playbooks, looks through read-only windows, and hands you a draft.`
-- Column 1 label: `Where the facts live`. Tiles: `Business Central` (`orders, invoices, POs`) · `Your Outlook` (`your own mail`) · `SharePoint` (`customer folders`) · `Grainger` (`pricing`)
+- Sub: `An assistant at your desk. It follows the BBS playbooks, looks through live windows into the systems you already use, and hands you a draft.`
+- Column 1 label: `Where the facts live`. Tiles: `Business Central` (`orders, invoices, POs` + tag `read-only`) · `Your Outlook` (`your own mail`) · `SharePoint` (`customer folders`) · `Grainger` (`pricing` + tag `read-only`)
 - Column 2 label: `Who does the legwork`. Node: `Claude` (`with the BBS playbooks`)
 - Column 3 label: `Who decides`. Node: `You`
-- Connector labels: `looks, never changes` · `a draft` · `you send`
-- Text alternative: `Claude reads Business Central, your Outlook, SharePoint and Grainger without changing them, follows the BBS playbooks, and hands you a draft. You decide and you send.`
+- Connector labels: `looks in` · `a draft` · `you send`
+- Text alternative: `Claude looks into Business Central and Grainger, which it can only read, and into your Outlook and SharePoint. It follows the BBS playbooks and hands you a draft. You decide and you send.`
 - Legend (term · what it is):
   - `Playbook (a skill)` · `The BBS way of doing one job, written down. Claude picks the right one when your request matches. You don't have to name it.`
   - `Binder (a plugin)` · `A set of playbooks for one area, like back office or the website. Yours are already on your computer.`
-  - `Window (a connector)` · `A live, read-only view into a system you already use. Parker switches these on for each person.`
+  - `Window (a connector)` · `A live view into a system you already use. Parker switches these on for each person. Business Central and Grainger are read-only.`
   - `Shortcut (a command)` · `A word you type that starts with a slash, like /bbs-what-can-i-do.`
   - `You` · `You check it, you decide, you send.`
 - Footnote: `Skill, plugin and connector are the words you'll see in Claude. Type /bbs-explain-claude for the plain-language version.`
@@ -346,10 +346,10 @@ Promise: `Fewer retyped replies and order lookups.`
 ### C4. G3 What it will never do
 
 - Heading: `What it will never do`
-- Sub: `These rules are switched on for everyone. They are why it is safe to try things.`
-- Flow steps: `You ask` → `Claude looks (read-only)` → `Claude drafts` → `You check and send`
-- Tile 1: **`Drafts, never sends.`** `Claude can put a draft in your Outlook Drafts. Sending, forwarding and Teams messages are switched off for Claude. You press send.`
-- Tile 2: **`Reads, never changes.`** `Business Central and Grainger are read-only for Claude. It cannot post, edit or delete a record.`
+- Sub: `In Claude Code, the app your setup installs, these rules are switched on for everyone. They are why it is safe to try things there.`
+- Flow steps: `You ask` → `Claude looks` → `Claude drafts` → `You check and send`
+- Tile 1: **`Drafts, never sends.`** `In Claude Code, sending, forwarding and Teams messages are switched off for Claude. It can put a draft in your Outlook Drafts; you press send. The ordinary Claude chat window does not have these switches, so use Claude Code for this work.`
+- Tile 2: **`Reads Business Central, never changes it.`** `Business Central and Grainger are read-only for Claude. It cannot post, edit or delete a record.`
 - Tile 3: **`The right signer on the right line.`** `Signatures go only on the lines of the people allowed to sign them. Claude never signs for you.`
 - Tile 4: **`Your mailbox is yours.`** `Claude reads your mail only when you connect it and ask. It never reads anyone else's. /bbs-my-voice learns from your own Sent Items and stops if the mailbox isn't yours.`
 - Tile 5 (quieter): **`Rules built in.`** `No invented numbers: if Claude doesn't know, it flags it. Certification wording follows the channel: DVBE for California state work, SDVOSB for federal.`
@@ -359,7 +359,7 @@ Promise: `Fewer retyped replies and order lookups.`
 
 - Heading: `Start tomorrow`
 - Step 1: **`Get set up, once.`** `Run the setup file Parker sends for your computer. If the window ends with anything other than Done, send Parker the whole window. Don't try to fix it.`
-- Step 2 (primary): **`Ask what it can do for you.`** `Open Claude and type /bbs-what-can-i-do. Tell it what you're working on.` Copy button text: `/bbs-what-can-i-do`
+- Step 2 (primary): **`Ask what it can do for you.`** `Open Claude Code (in VS Code or the Claude Desktop app, where your setup put it) and type /bbs-what-can-i-do. Tell it what you're working on.` Copy button text: `/bbs-what-can-i-do`
 - Step 3: **`Try your first ask.`** `Copy the first "Try saying" line from your card, fill in the blank, and check what comes back.`
 - Footer: `Something missing or wrong? Tell Parker in one line: what you asked, what happened. A missing tool is a request, not a dead end.`
 - Quiet links (text, not hyperlinks): `/bbs-explain-claude` · `the words, in plain language` and `/bbs-start` · `one first step for whatever is in front of you`
@@ -394,7 +394,7 @@ Every capability on the page maps to one row. Check each path exists before you 
 | 7 | Drafts into your Outlook Drafts; cannot send, forward or message in Teams | `bbs-managed-settings.json` `permissions.allow` (draft tools) and `permissions.deny` (send, send-draft, forward, Teams, meeting responses, SignNow, QuickBooks sends) | Ready today |
 | 8 | `/bbs-my-voice` learns from your own Sent Items; stops on someone else's mailbox | `plugins/bbs-foundations/commands/bbs-my-voice.md` steps 1 and 2 | Ready today: `bbs-voice-template` `requires: [microsoft-365]` |
 | 9 | Workbooks, PDFs, statements | `document-skills` (pinned commons, `docs/COMMONS.md`); jobs map row in `plugins/bbs-claude-coach/skills/bbs-claude-coach/references/jobs-map.md` | Ready today |
-| 10 | Price sheet to the BBS import template; catalog load stays with Parker | `plugins/bbs-website/skills/price-list-cleaner/SKILL.md`; Supabase site-maintainer only per `MANAGED-SETTINGS.md` connector table | Ready today for cleaning: `requires: [python3, pymupdf, pandas]`; pandas is not in the bootstrap (`check_marketplace.py --requirements` footer) |
+| 10 | Price sheet to the BBS import template; catalog load stays with Parker | `plugins/bbs-website/skills/price-list-cleaner/SKILL.md`; Supabase site-maintainer only per `MANAGED-SETTINGS.md` connector table | On Parker's list: `requires:` includes pandas, which the bootstrap does not install, and the output path assumes the website repo layout |
 | 11 | What a vendor still owes us | `plugins/bbs-back-office/skills/bbs-po-status/SKILL.md` | On Parker's list: `requires: [bc-mcp-proxy]`, retired; `README.md` back office "Will not ... retarget" |
 | 12 | Which order is this customer PO; invoices under a PO | `plugins/bbs-back-office/skills/so-search/SKILL.md` | On Parker's list: `requires: [bc-mcp-proxy]` |
 | 13 | Margin after the Grainger rebate | `plugins/bbs-back-office/skills/bbs-rebate-profitability/SKILL.md` | On Parker's list: `requires: [cdata-connect]`, not assigned |
@@ -446,6 +446,12 @@ or the personal copies of marketplace skills). They are being retired (`HANDOFF.
 11. **Impeccable review.** Run the `impeccable` review on the page and fix what it finds
     within these rules; list any finding you chose not to fix and why.
 12. **Repo check.** `python3 scripts/check_marketplace.py` exits 0 with your files added.
+13. **"Read-only" is never general.** `grep -niE 'read-only|never changes|without changing|changes nothing'`
+    on the built HTML: every hit names Business Central or Grainger in the same sentence.
+    Any hit that could be read as covering Outlook, SharePoint, the CRM or "connectors" in
+    general is a FAIL: Claude can write drafts, files and CRM records there.
+14. **Send claims are scoped.** Every sentence saying sending is switched off names Claude
+    Code. None says "everyone" or "always" without it.
 
 ## 9. Stop and report (do not guess) when
 
@@ -454,6 +460,9 @@ or the personal copies of marketplace skills). They are being retired (`HANDOFF.
 - A path in section 7 is missing, or check 2 shows a changed `requires:` line.
 - You would need a fact, number, name, title or capability that is not in this prompt.
 - A line of copy cannot be laid out at 360 px without changing its meaning.
+- Summer's row 1 would publish without its Shopify caveat. Keep the caveat until Parker
+  confirms in writing that the 2026-09-11 Gap 4 (Shopify card-paid invoices showing unpaid
+  in Business Central) is fixed; only then remove it.
 
 Report what is missing, what you did up to that point, and what you need from Parker.
 
@@ -474,3 +483,9 @@ Report what is missing, what you did up to that point, and what you need from Pa
      warn them?
    - Confirm each of the six has Business Central, Microsoft 365 and Grainger assigned, and
      the customer folders synced (the problem-order playbook reads them).
+   - Is Gap 4 (Shopify card-paid invoices showing unpaid in Business Central,
+     `docs/assessments/2026-09-11-bc-assessment.md`) fixed? Until it is, Summer's card keeps
+     its "check before you chase" caveat.
+   - Has the test send been denied in both VS Code and the Claude Desktop app's Claude Code
+     (ADMIN-RUNBOOK §1)? The page says sending is switched off in Claude Code; confirm it
+     before sharing the link.

@@ -210,7 +210,7 @@ Summer's card too, and the page links to it.
   | Replies to coordinators drafted into her Outlook Drafts, in her voice | Microsoft 365 connector + `/bbs-my-voice` | `plugins/bbs-foundations/commands/bbs-my-voice.md`; `bbs-managed-settings.json` | Ready today |
   | Look up an order that reached Business Central (header and lines) or what is still open for an agency | Business Central connector | `.../references/tool-recipes.md` | Ready today |
   | Wrong size, shortage or lost shipment on an armor order | `bbs-order-reconciliation` | as above | Ready today |
-  | A Point Blank price sheet cleaned into the BBS import template | `price-list-cleaner` | `plugins/bbs-website/skills/price-list-cleaner/SKILL.md` | Ready today for the cleaning step (`requires: [python3, pymupdf, pandas]`; pandas is not in the bootstrap, the guarded import prints the install line). Loading into the catalog needs Supabase, which is site-maintainer only, so that step stays with Parker |
+  | A Point Blank price sheet cleaned into the BBS import template | `price-list-cleaner` | `plugins/bbs-website/skills/price-list-cleaner/SKILL.md` | On Parker's list (`requires: [python3, pymupdf, pandas]`; pandas is not in the bootstrap, and the output path `templates/2026-{slug}.csv` assumes the website repo layout). Loading into the catalog needs Supabase, which is site-maintainer only, so that step stays with Parker |
   | A body-armor email or one-page piece in the public-safety voice | `campaign-email`, `sales-one-pager` | `plugins/bbs-marketing/skills/`; voice rules `plugins/bbs-marketing/references/VOICE.md` | Ready today |
 
 - **Before → after.** Before: "I answer the same sizing and lead-time email over and
@@ -258,22 +258,22 @@ Summer's card too, and the page links to it.
 1. *Your week, minus the lookups.* Lead with their own task, not with Claude. Each person
    sees three or four things they already do and what changes.
 2. *What it is.* One picture: an assistant at your desk who follows the BBS playbooks and
-   looks through read-only windows into the systems you already use, then hands you a
+   looks through live windows into the systems you already use, then hands you a
    draft.
 3. *What it will never do.* Drafts, never sends; reads Business Central, never changes it;
    never reads anyone's mail but your own, and only when you ask.
 
 Then a three-step start that ends in the coach plugin.
 
-**The metaphor: an assistant at your desk, with the BBS playbooks and a read-only
-window.**
+**The metaphor: an assistant at your desk, with the BBS playbooks and a window onto
+each system.**
 
 | Term people will hear | In the picture | One line on the page |
 |---|---|---|
 | Claude | An assistant at your desk | Does the lookups and the first draft |
 | Skill | A playbook | The BBS way of doing one job, written down. Claude picks the right one when your request matches |
 | Plugin | A binder | A set of playbooks for one area. Yours are already on your computer |
-| Connector | A read-only window | A live view into Business Central or your Outlook. Parker switches these on per person |
+| Connector | A window | A live view into a system you already use. Parker switches these on per person. Business Central and Grainger are read-only; Outlook, SharePoint and the CRM are not (Claude can write drafts, files and CRM records), so "read-only" is never said of connectors in general |
 | Command | A shortcut | A word you type that starts with `/`, like `/bbs-what-can-i-do` |
 | You | The person who decides | You check it, you decide, you send |
 
@@ -287,8 +287,9 @@ window.**
 - It builds on the coach instead of competing. The coach glossary already says a skill is
   "a playbook Claude follows" and a connector is "a live link to a real system"
   (`plugins/bbs-claude-coach/skills/bbs-claude-coach/references/glossary.md`). The page
-  keeps "playbook" and turns "live link" into "read-only window", which carries the safety
-  property inside the image.
+  keeps "playbook" and turns "live link" into "window". An earlier draft said "read-only
+  window"; Rex's review of PR #45 caught that only Business Central and Grainger are
+  read-only, so the read-only tag sits on those two tiles alone.
 - It answers the split Anthropic draws: "MCP connects Claude to data; Skills teach Claude
   what to do with that data." Window and playbook are exactly those two halves.
 - There is house precedent. Parker's own plain-English guide in `bbs-shopify`
@@ -310,9 +311,10 @@ their own. "Digital employee": feeds the fear we most need to remove.
 Said early (a one-line strap in the page header) and then in full (G3). Four promises,
 each grounded:
 
-1. **Claude drafts. You send.** Outlook send, send-draft and forward, Teams messages,
+1. **Claude drafts. You send.** In Claude Code, Outlook send, send-draft and forward, Teams messages,
    meeting responses, SignNow invites and QuickBooks sends are denied for everyone in
-   managed settings (`plugins/bbs-foundations/docs/bbs-managed-settings.json`,
+   managed settings. Those settings do not reach the ordinary claude.ai chat, where the
+   same connectors are live, so the page scopes the claim to Claude Code (`plugins/bbs-foundations/docs/bbs-managed-settings.json`,
    `permissions.deny`). Drafting into your own Outlook Drafts is allowed.
 2. **It reads, it does not change.** The Business Central connector is read-only; every
    Business Central and Grainger tool on the allow list is a read
@@ -365,7 +367,8 @@ Hash links give each person the "my own section first" experience per-role pages
 - **Layout.** Three columns, left to right: *Where the facts live* (Business Central,
   Outlook, SharePoint, Grainger) → *Who does the legwork* (Claude, holding a binder of
   playbooks) → *Who decides* (you). Dashed lines with an eye glyph from the systems to
-  Claude, labelled "looks, never changes". One solid arrow from Claude to you labelled "a
+  Claude, labelled "looks in"; a "read-only" tag on the Business Central and Grainger tiles
+  only. One solid arrow from Claude to you labelled "a
   draft". One arrow out of you labelled "you send". Below, a five-row legend (the table in
   §3). At phone width the three columns stack top to bottom and the arrows turn downward.
 - **Hierarchy.** "You" is the heaviest node (navy fill, gold rule). Claude is mid weight.
@@ -407,10 +410,10 @@ Hash links give each person the "my own section first" experience per-role pages
 ### G3. The guardrails
 
 - **Purpose.** Remove the fear of breaking, sending or snooping, early and plainly.
-- **Layout.** Top: a four-step horizontal flow, "You ask → Claude looks (read-only) →
+- **Layout.** Top: a four-step horizontal flow, "You ask → Claude looks →
   Claude drafts → You check and send", with the last step visually owned by the person
   (filled node, the only gold accent). Below: four tiles, each icon + bold line + one
-  sentence: Drafts, never sends · Reads, never changes · Right signer, right line · Your
+  sentence: Drafts, never sends · Reads Business Central, never changes it · Right signer, right line · Your
   mailbox is yours. A fifth tile, quieter: "Rules are built in" (never an invented number;
   certification wording by channel).
 - **Hierarchy.** The flow's final step and the line "It cannot send" carry the weight.
@@ -507,8 +510,8 @@ that fight the BBS navy and gold.
 1. Joyce Newell: include her card? The prompt includes her and makes removal a one-line
    change.
 2. Shopify card-paid orders still showing unpaid in Business Central: fixed since
-   2026-09-11? Until confirmed, the AR card does not mention it, and Summer should hear it
-   from you.
+   2026-09-11? Until confirmed, Summer's card carries "Shopify card payments may still
+   show as unpaid: check before you chase", and the build prompt stops before removing it.
 3. Will you add AR, accounting and Shopify rows to the coach's `jobs-map.md` before the
    page goes out, so `/bbs-what-can-i-do` agrees with it?
 4. A role-aware `/bbs-checkup` (skip the desk folder and signature checks for non-desk

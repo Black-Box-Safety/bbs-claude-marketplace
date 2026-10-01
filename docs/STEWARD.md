@@ -341,7 +341,9 @@ Write it up with evidence and move to the next slice. Do not idle.
   every form declares its `form` kind, and only PD843/CV012/STD204/STD205 take the
   dvbe_owner's `dv_owner` stamp (`test_fill_ca_forms.py`). OBS 1000's signer is not
   ruled (`field-maps.md`): no skill stamps it, and the draft line in this PR assigning it
-  to Parker was removed — **open for Parker**. Signer data (after PR #37): Parker has his own
+  to Parker was removed — **open for Parker** (superseded 2026-10-01: OBS 1000 is
+  rep-signed, and the delegates are the six of R1a — see the 2026-10-01 rulings below).
+  Signer data (after PR #37): Parker has his own
   `authorized_representatives` entry, role `sales_manager`, with his alias and the
   `signature_image` moved off `default_rep`; `signature_delegation.delegates` is
   `["sales_manager", "dvbe_owner"]`, resolved to those entries by both loaders. Canon,
