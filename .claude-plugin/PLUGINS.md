@@ -44,6 +44,12 @@
   tools) without desk silos or control tone. Commands: `/bbs-what-can-i-do`, `/bbs-start`,
   `/bbs-explain-claude`. `plugins/bbs-claude-coach`. Spec:
   `docs/superpowers/specs/2026-09-17-bbs-claude-coach-design.md`.
+- **bbs-tools** (live, 2026-10-01) — Claude Code only. Ships `bin/bbs-fill`, the launcher
+  the managed settings allow (`Bash(bbs-fill *)`) so auto mode lets the vetted form and
+  quote scripts run without stopping a rep mid-packet. It runs only the scripts on its
+  allow-list, from the installed `bbs-sales`, with a fixed interpreter — a path-pattern
+  rule would have let a crafted command run arbitrary Python. Its own plugin because
+  claude.ai and Cowork do not install a plugin with a `bin/` folder. `plugins/bbs-tools`.
 - **claudeforge** (pinned external) — the generic CLAUDE.md engine `bbs-foundations`
   depends on, pinned to the BBS fork `Black-Box-Safety/ClaudeForge` at `dev` so it updates
   through git and never gets hand-copied. Install it for `/sync-claude-md` and the

@@ -91,16 +91,19 @@ not match the visible captions (`Text1` is the DVBE certification line,
 For a form revision you haven't seen, run:
 
 ```bash
-python scripts/inspect_form.py "<blank form>.pdf"
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/naspo-quote/scripts/inspect_form.py" "<blank form>.pdf"
 ```
 
-`python` is the interpreter `scripts/bbs-setup.ps1` installs on Windows (where `python3` is
-only the Microsoft Store stub). Mac: type `python3` instead, here and in every command below.
+Run every script through `bbs-fill`, exactly as written: the managed settings allow
+`Bash(bbs-fill *)` and nothing broader, and `bbs-fill` (the `bbs-tools` plugin) runs only the
+vetted scripts with the right interpreter for the machine. No `cd`, nothing chained. If
+`bbs-fill` is not found, `bbs-tools` is missing — rerun the bootstrap; meanwhile use
+`python` (Windows) or `python3` (Mac) in its place, which asks for permission.
 
 Then write one JSON spec covering every form and run:
 
 ```bash
-python scripts/fill_ca_forms.py spec.json
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/naspo-quote/scripts/fill_ca_forms.py" spec.json
 ```
 
 The script handles text, checkboxes, radio groups, and signature stamping. Its

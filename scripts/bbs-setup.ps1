@@ -145,16 +145,24 @@ foreach ($t in $tools) {
   }
 }
 
-# Claude Code reads these from the environment. Each is documented by Anthropic:
-#   CLAUDE_CODE_GIT_BASH_PATH - which bash.exe runs the Bash tool and every plugin hook. Without
-#     Git Bash, Claude Code falls back to PowerShell and the plugins' shell hooks error.
-#   CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS - plugin and marketplace clones get 120 s by default, which
-#     a large plugin can overrun on a laptop where antivirus scans every file it writes.
-#   CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE - a winget-installed Claude Code does not update
-#     itself unless this is 1. A native install ignores it.
-$userEnv = [ordered]@{
-  CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS       = '600000'
-  CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE = '1'
+# Claude Code reads CLAUDE_CODE_GIT_BASH_PATH from the environment (documented by Anthropic):
+# which bash.exe runs the Bash tool and every plugin hook. Without Git Bash, Claude Code falls
+# back to PowerShell and the plugins' shell hooks error. It depends on this machine, so it is
+# saved here. The machine-independent variables (CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS,
+# CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE) live once, in the managed settings' `env`
+# (bbs-managed-settings.json, 2026-10-01); this script sets the timeout only for its own
+# install run below and clears the user-level copies earlier versions saved.
+$userEnv = [ordered]@{}
+$env:CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS = '600000'
+foreach ($old in 'CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS', 'CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE') {
+  if ($null -ne [Environment]::GetEnvironmentVariable($old, 'User')) {
+    if ($DryRun) {
+      Write-Host ("[would]   {0,-28} remove the saved copy (managed settings set it now)" -f $old)
+    } else {
+      Write-Host ("[remove]  {0,-28} saved copy; managed settings set it now" -f $old)
+      [Environment]::SetEnvironmentVariable($old, $null, 'User')
+    }
+  }
 }
 $gitBash = @("$env:ProgramFiles\Git\bin\bash.exe", "$env:LOCALAPPDATA\Programs\Git\bin\bash.exe") |
   Where-Object { Test-Path $_ } | Select-Object -First 1
@@ -180,7 +188,9 @@ if ($pathChanged -and -not $DryRun) {
   # The PATH edit went straight to the registry, which Windows does not announce, so VS Code
   # started from the Start menu would not see it until sign-out. Every SetEnvironmentVariable
   # call at User scope does announce, so rewrite one variable with its own value.
-  [Environment]::SetEnvironmentVariable('CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS', $userEnv['CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS'], 'User')
+  if ($userEnv.Contains('CLAUDE_CODE_GIT_BASH_PATH')) {
+    [Environment]::SetEnvironmentVariable('CLAUDE_CODE_GIT_BASH_PATH', $userEnv['CLAUDE_CODE_GIT_BASH_PATH'], 'User')
+  }
 }
 
 # Some skills need npm libraries, not winget packages: bbs-quote-builder builds the quote

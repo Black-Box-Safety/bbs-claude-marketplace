@@ -10,7 +10,7 @@ report format at the end. Read-only: create/modify nothing, send nothing.
 ## Checks
 
 1. **Plugins.** Confirm the bbs-foundations, bbs-sales, bbs-marketing, bbs-back-office, bbs-website,
-   bbs-claude-coach, claudeforge, impeccable, superpowers-chrome, caveman, and
+   bbs-claude-coach, bbs-tools, claudeforge, impeccable, superpowers-chrome, caveman, and
    document-skills plugins are loaded (their skills appear in your available skills).
    Report each present/absent. For each absent one, run `claude plugin list --json` via Bash
    if `claude` resolves (read-only) and quote that plugin's `errors` text, or say it is not
@@ -104,6 +104,19 @@ report format at the end. Read-only: create/modify nothing, send nothing.
       right-click `Signatures` → "Always keep on this device"; if the file is not there at
       all, send your PNG to Parker (ADMIN-RUNBOOK §3b).
     Never open, copy or display an image; check presence and header bytes only.
+
+12. **Managed permissions and the form launcher.** Resolve `bbs-fill` on PATH
+    (`command -v bbs-fill`; it comes from the `bbs-tools` plugin's `bin/` and exists only
+    while that plugin is enabled). Then run `bbs-fill` with no arguments: it must print its
+    usage line ("REFUSED — usage: …", exit 64) and run nothing — that is the expected
+    answer, and it shows the launcher runs on this machine. Then ask the rep to type
+    `/permissions` and read you two things: whether **Allow** lists `Bash(bbs-fill *)`,
+    and whether **Deny** lists the Outlook `outlook_send_mail` tool. PASS = `bbs-fill`
+    resolves, prints its usage, and both rules are listed. WARN, naming which part failed:
+    `bbs-fill` missing → rerun the bootstrap and restart (bbs-tools not installed); a rule
+    missing → the managed settings on this machine are older than the current file: restart
+    Claude Code, and if it is still missing tell Parker to re-paste them (ADMIN-RUNBOOK §1).
+    Never edit any settings file yourself.
 
 ## Report format
 

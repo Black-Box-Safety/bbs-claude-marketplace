@@ -205,9 +205,10 @@ This does not install the tools in step 1.
 /plugin install bbs-marketing@bbs-claude-marketplace
 /plugin install bbs-back-office@bbs-claude-marketplace
 /plugin install bbs-website@bbs-claude-marketplace
+/plugin install bbs-tools@bbs-claude-marketplace
 ```
 
-Managed settings ([`plugins/bbs-foundations/docs/bbs-managed-settings.json`](plugins/bbs-foundations/docs/bbs-managed-settings.json)) enable all eleven plugins for everyone, once the admin has pasted the current file ([`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §1).
+Managed settings ([`plugins/bbs-foundations/docs/bbs-managed-settings.json`](plugins/bbs-foundations/docs/bbs-managed-settings.json)) enable all twelve plugins for everyone, once the admin has pasted the current file ([`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §1).
 
 ## Pick your path
 
@@ -245,7 +246,8 @@ bbs-claude-marketplace/
     ├── bbs-sales/                      # California book
     ├── bbs-marketing/                  # claims registry, one-pagers, email, logos, decks
     ├── bbs-back-office/                # Business Central after the win, read-only
-    └── bbs-website/                    # price list to product page
+    ├── bbs-website/                    # price list to product page
+    └── bbs-tools/                      # bbs-fill: the one way Claude runs the vetted form scripts
 ```
 
 ## How we keep it honest

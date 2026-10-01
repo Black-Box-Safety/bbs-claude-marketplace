@@ -226,14 +226,18 @@ description.
 Write a JSON spec (schema in `references/spec-schema.md`) and run:
 
 ```bash
-# SKILL_DIR is the folder holding this SKILL.md — wherever the plugin installed.
-cd "$SKILL_DIR"
-node scripts/build_quote.js /path/to/spec.json /path/to/output.docx
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/bbs-quote-builder/scripts/build_quote.js" /path/to/spec.json /path/to/output.docx
 ```
+
+Run it exactly so — through `bbs-fill`, no `cd`, nothing chained: the managed settings
+allow `Bash(bbs-fill *)`, and `bbs-fill` (the `bbs-tools` plugin) runs only vetted scripts.
+If `bbs-fill` is not found, the `bbs-tools` plugin is missing; rerun the bootstrap, and
+meanwhile use `node` in its place, which asks for permission.
 
 `bbs-setup.ps1` (Windows) and `bbs-setup.sh` (Mac) install `docx` globally and set
 NODE_PATH — nothing to do (restart VS Code after running it). If `build_quote.js` says docx
-is missing (no bootstrap), run `npm install docx` inside `$SKILL_DIR` once per plugin update.
+is missing (no bootstrap), run `npm install docx` inside
+`${CLAUDE_PLUGIN_ROOT}/skills/bbs-quote-builder` once per plugin update.
 
 The script reads the BBS logo from `assets/bbs_logo.png` relative to its own
 location, so it does not care where the spec or the output live. It runs
