@@ -162,9 +162,10 @@ fi
 
 # The BBS plugins. Managed settings enable them and Claude Code installs them at session start,
 # in the background, so a failed install is just an absent plugin. Installing from here shows
-# Claude Code's own error. The list is read from the marketplace's bbs-managed-settings.json,
-# the file Parker deploys, never copied into this script. A clone gets 120 s by default; give
-# the installs below ten minutes.
+# Claude Code's own error. The list is every plugin in the marketplace's own marketplace.json -
+# everyone gets every plugin (MANAGED-SETTINGS.md) - less any bbs-managed-settings.json sets to
+# false, so nothing is copied into this script. A clone gets 120 s by default; give the
+# installs below ten minutes.
 MARKETPLACE="bbs-claude-marketplace"
 export CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS=600000
 if ! command -v claude >/dev/null 2>&1 || ! command -v jq >/dev/null 2>&1; then
@@ -181,7 +182,7 @@ else
   }
   MKT_DIR="$(mkt_dir)"
   if [[ $DRY_RUN -eq 1 ]]; then
-    printf '[would]   %-22s %s\n' "$MARKETPLACE" "$([[ -n "$MKT_DIR" ]] && echo update || echo add), then install every plugin managed settings enables"
+    printf '[would]   %-22s %s\n' "$MARKETPLACE" "$([[ -n "$MKT_DIR" ]] && echo update || echo add), then install every plugin in it"
   else
     if [[ -n "$MKT_DIR" ]]; then
       out="$(claude plugin marketplace update "$MARKETPLACE" 2>&1)"
@@ -191,15 +192,20 @@ else
             printf '%s\n' "$out" | tail -n 5 | sed 's/^/          /' >&2
             failed+=("$MARKETPLACE marketplace"); }
     MKT_DIR="$(mkt_dir)"
+    CATALOG="$MKT_DIR/.claude-plugin/marketplace.json"
     POLICY="$MKT_DIR/plugins/bbs-foundations/docs/bbs-managed-settings.json"
-    if [[ -z "$MKT_DIR" || ! -f "$POLICY" ]]; then
+    if [[ -z "$MKT_DIR" || ! -f "$CATALOG" ]]; then
       echo "warning: the marketplace is not on this machine, so the plugin list cannot be read. Send this window to Parker." >&2
       failed+=("BBS plugins")
     else
       HAVE="$(claude plugin list --json 2>/dev/null |
         jq -r '.[] | select((.errors // []) | length == 0) | "\(.id)\t\(.installPath)"' 2>/dev/null)"
-      for id in $(jq -r --arg m "@$MARKETPLACE" \
-          '.enabledPlugins | to_entries[] | select(.value == true and (.key | endswith($m))) | .key' "$POLICY"); do
+      BLOCKED=""
+      [[ -f "$POLICY" ]] && BLOCKED="$(jq -r '.enabledPlugins | to_entries[] | select(.value == false) | .key' "$POLICY")"
+      for id in $(jq -r --arg m "@$MARKETPLACE" '.plugins[].name + $m' "$CATALOG"); do
+        if printf '%s\n' "$BLOCKED" | grep -qxF "$id"; then
+          continue
+        fi
         path="$(printf '%s\n' "$HAVE" | awk -F'\t' -v id="$id" '$1 == id { print $2; exit }')"
         if [[ -n "$path" && -d "$path" ]]; then
           printf '[ok]      %s\n' "$id"

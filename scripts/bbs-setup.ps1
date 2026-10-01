@@ -270,8 +270,9 @@ if ($realPython) {
 # The BBS plugins. Managed settings enable them and Claude Code installs them at session start,
 # but in the background: a plugin whose install fails (a clone timeout, antivirus holding a
 # file) is simply absent, and /bbs-checkup can only say so. Installing from here shows the
-# error. The list is read from the marketplace's own bbs-managed-settings.json, the file Parker
-# deploys, so it is never copied into this script.
+# error. The list is every plugin in the marketplace's own marketplace.json - everyone gets
+# every plugin (MANAGED-SETTINGS.md) - less any that bbs-managed-settings.json sets to false.
+# Nothing is copied into this script, so a plugin added to the marketplace is picked up.
 $marketplace = 'bbs-claude-marketplace'
 $claudeCmd = Get-Command claude -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
 if (-not $claudeCmd) {
@@ -289,7 +290,7 @@ if (-not $claudeCmd) {
       Where-Object { $_.name -eq $marketplace } | Select-Object -First 1
   } catch { }
   if ($DryRun) {
-    Write-Host ("[would]   {0,-28} {1}" -f $marketplace, $(if ($mkt) { 'update, then install every plugin managed settings enables' } else { 'add, then install every plugin managed settings enables' }))
+    Write-Host ("[would]   {0,-28} {1}" -f $marketplace, $(if ($mkt) { 'update, then install every plugin in it' } else { 'add, then install every plugin in it' }))
   } else {
     $out = if ($mkt) { & $claude plugin marketplace update $marketplace 2>&1 }
            else      { & $claude plugin marketplace add "Black-Box-Safety/$marketplace" 2>&1 }
@@ -302,14 +303,20 @@ if (-not $claudeCmd) {
       $mkt = (& $claude plugin marketplace list --json 2>$null | Out-String | ConvertFrom-Json) |
         Where-Object { $_.name -eq $marketplace } | Select-Object -First 1
     } catch { $mkt = $null }
-    $policy = if ($mkt) { Join-Path $mkt.installLocation 'plugins\bbs-foundations\docs\bbs-managed-settings.json' }
-    if (-not $policy -or -not (Test-Path $policy)) {
+    $catalog = if ($mkt) { Join-Path $mkt.installLocation '.claude-plugin\marketplace.json' }
+    $policy  = if ($mkt) { Join-Path $mkt.installLocation 'plugins\bbs-foundations\docs\bbs-managed-settings.json' }
+    if (-not $catalog -or -not (Test-Path $catalog)) {
       Write-Warning "the marketplace is not on this machine, so the plugin list cannot be read. Send this window to Parker."
       $failed += 'BBS plugins'
     } else {
-      $want = (Get-Content $policy -Raw | ConvertFrom-Json).enabledPlugins.PSObject.Properties |
-        Where-Object { $_.Value -eq $true -and $_.Name -like "*@$marketplace" } |
-        ForEach-Object { $_.Name }
+      $blocked = @()
+      if (Test-Path $policy) {
+        $blocked = (Get-Content $policy -Raw | ConvertFrom-Json).enabledPlugins.PSObject.Properties |
+          Where-Object { $_.Value -eq $false } | ForEach-Object { $_.Name }
+      }
+      $want = (Get-Content $catalog -Raw | ConvertFrom-Json).plugins |
+        ForEach-Object { "$($_.name)@$marketplace" } |
+        Where-Object { $blocked -notcontains $_ }
       $have = @{}
       try {
         foreach ($i in (& $claude plugin list --json 2>$null | Out-String | ConvertFrom-Json)) {

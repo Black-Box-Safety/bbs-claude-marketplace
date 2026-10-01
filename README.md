@@ -110,7 +110,7 @@ These ship with the six BBS plugins. They are pinned so a third-party update doe
 | Plugin | For |
 |---|---|
 | `claudeforge` | The generic `CLAUDE.md` engine under foundations. [Fork](https://github.com/Black-Box-Safety/ClaudeForge) |
-| `impeccable` | Anything with a frontend. [Fork](https://github.com/Black-Box-Safety/impeccable) |
+| `impeccable` | Anything with a frontend: `/impeccable`. Installed from the fork's `plugin/` folder only, with its automatic edit hooks switched off in the marketplace entry. [Fork](https://github.com/Black-Box-Safety/impeccable) |
 | `superpowers-chrome` | The rep's real Chrome, for product research. |
 | `document-skills` | Anthropic's Word, PDF, and Excel skills. |
 | `caveman` | Terse mode. Off until someone asks. Managed settings keep it off; a person turns it on for a session. |
@@ -165,7 +165,36 @@ python3 scripts/check_marketplace.py --requirements
 
 **Not connectors.** Do not add QuickBooks (money is Business Central), SignNow (a person sends; signing stays denied), a separate Excel, Adobe, or LAO connector (Word, PDF, and Excel are the pinned `document-skills`; a budget page is a web read), GitHub, Mobbin, or an image or video generator. Do not add a second path to Business Central, Grainger, the CRM, Microsoft 365, SCPRS, Supabase, Shopify, Firecrawl, Sirv, or Vercel. Do not add a 150-tool third-party government bundle beside the narrow SAM.gov lookup.
 
-## Sixty-second install
+## Install
+
+**1. Run the setup script for your computer.** One script, once; safe to rerun. Run only the
+one that matches your computer. The other one stops with a message and changes nothing.
+
+| Your computer | How to tell | Script | Run it |
+|---|---|---|---|
+| **Windows PC** | Start button, bottom-left | [`scripts/bbs-setup.ps1`](scripts/bbs-setup.ps1) | In PowerShell, from the folder you saved it in: `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1` |
+| **Mac** | Apple menu, top-left | [`scripts/bbs-setup.sh`](scripts/bbs-setup.sh) | Install [Homebrew](https://brew.sh) once, then in Terminal: `chmod +x bbs-setup.sh && ./bbs-setup.sh` |
+
+Either script installs the tools the document skills use (Git, Node, Python, Chrome,
+LibreOffice, the PDF/OCR tools, and the Python and Node libraries) and puts each one on
+PATH. It installs Claude Code's `claude` command if it is missing, then installs **every
+plugin in this marketplace**: six BBS plugins and five pinned externals. If a plugin fails,
+it prints Claude Code's own error. Add `-DryRun` (Windows) or `--dry-run` (Mac) to preview
+without installing anything. A good run ends with `Done.` Anything else, send the window to
+Parker. Step by step: [`docs/REP-SETUP.md`](docs/REP-SETUP.md).
+
+**2. Restart, then check.** Close every VS Code or Cursor window and quit the Claude Desktop
+app, so they pick up the new PATH. Reopening one window is not enough. Then run:
+
+```text
+/bbs-checkup
+/bbs-what-can-i-do
+```
+
+Anything red in the checkup prints the exact sentence to send the admin.
+
+**Without the script** (it could not run), install the plugins by hand in a Claude panel.
+This does not install the tools in step 1.
 
 ```text
 /plugin marketplace add Black-Box-Safety/bbs-claude-marketplace
@@ -175,11 +204,9 @@ python3 scripts/check_marketplace.py --requirements
 /plugin install bbs-marketing@bbs-claude-marketplace
 /plugin install bbs-back-office@bbs-claude-marketplace
 /plugin install bbs-website@bbs-claude-marketplace
-/bbs-checkup
-/bbs-what-can-i-do
 ```
 
-On a managed machine foundations, coach, sales, back-office, website, and the five pinned externals are already enabled. `bbs-marketing` is in the marketplace. Run its install line if `/bbs-one-pager` is missing, then run the last two lines and read the report. Anything red prints the exact sentence to send the admin.
+Managed settings ([`plugins/bbs-foundations/docs/bbs-managed-settings.json`](plugins/bbs-foundations/docs/bbs-managed-settings.json)) enable all eleven plugins for everyone, once the admin has pasted the current file ([`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §1).
 
 ## Pick your path
 

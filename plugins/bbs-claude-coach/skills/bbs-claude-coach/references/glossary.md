@@ -45,6 +45,6 @@ everyone. See `aup-rails.md`.
 | Word | Meaning here |
 |---|---|
 | Marketplace | This repo — the catalog of BBS plugins plus pinned outside tools |
-| Commons | Third-party plugins we pin (Chrome browsing, document skills, terse mode) — see `docs/COMMONS.md` |
+| Commons | Third-party plugins we pin (Chrome browsing, document skills, terse mode) — the marketplace repo's `docs/COMMONS.md` lists them |
 | Managed settings | Policy Parker pushes from the admin console (plugins on, send tools denied, company memory) |
 | System of record | The place a fact is true (Business Central for money, Supabase for catalog, SharePoint for documents) |

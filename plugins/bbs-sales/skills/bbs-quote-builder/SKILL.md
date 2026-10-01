@@ -124,8 +124,8 @@ getting them wrong is costly:
    agencies — never SB; BBS is not a California small business), `federal`
    prints SDVOSB (federal agencies and primes), `none` prints no line (local or
    commercial buyers, unless the rep says otherwise). The strings come from
-   `vendor_profile.json`; the channel rule is canon — `AGENTS.md`,
-   "Certifications follow the channel". For `california` the script checks the
+   `vendor_profile.json`; the channel rule is canon — `bbs-foundations`
+   `references/canonical-facts.md`, "Small-business status is channel-dependent". For `california` the script checks the
    DVBE expiration in the profile against the document date: expired stops the
    build, within 30 days warns — pass that warning to the rep.
 3. **Tax** — ask whether to add sales tax and at what rate. Tax is based on the

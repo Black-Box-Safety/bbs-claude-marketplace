@@ -74,8 +74,9 @@ The toolkit grows *because* people push it. You are invited to:
   **`skill-creator`**: it interviews you about how the job works and writes the skill for
   you — no technical background needed, just describe how you do your own work well.
   (`skill-creator` reaches reps only through the additive marketplace load described in
-  `docs/COMMONS.md`, so it may be absent on some machines.) The house rules a skill must
-  follow live in `AGENTS.md`, "When the work is a skill." Send the draft to Parker as a PR
+  the marketplace repo's `docs/COMMONS.md`, so it may be absent on some machines.) The house
+  rules a skill must follow live in the marketplace repo's `AGENTS.md`, "When the work is a
+  skill" — not on your machine; Parker applies them in review. Send the draft to Parker as a PR
   (or a Teams message) for review — not through `bbs-claude-md-forge`, which only writes
   and audits `CLAUDE.md` files — and if it helps everyone, Parker folds it into the shared
   toolkit so the whole team gets it.

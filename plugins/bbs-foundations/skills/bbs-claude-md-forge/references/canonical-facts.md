@@ -82,8 +82,8 @@ since 2026-09-28 the same text, byte for byte, lives in
 in another repo and still outstanding there.
 
 **The two injected doctrine sets carried different problems. Both were RESOLVED
-2026-09-22 in PR #30.** Record kept in `docs/STEWARD.md` (the resolved entry under
-*Already open for Parker*). The files named below are where the text lives today; on
+2026-09-22 in PR #30.** The maintainers keep the full record in the marketplace repo; it
+does not ship with the plugins and nothing here depends on it. The files named below are where the text lives today; on
 2026-09-22 it lived in each plugin's `hooks/` config for the since-retired injection plugin,
 and the 2026-09-28 move carried it over unchanged.
 
@@ -183,8 +183,9 @@ Joyce Newell (POs), Jeff Azar (body armor), Griffin (federal). Accounting: Amy L
 
 `/ca-rfq` (bbs-sales) stops on an open ruling. This is where it looks, because this file
 ships to reps and the marketplace repo's `docs/` does not. Each row names a question and
-where its answer lives; the answer itself is not restated here. The full record, with
-history, is `docs/STEWARD.md` in the marketplace repo (maintainers only).
+where its answer lives; the answer itself is not restated here. This section is complete
+for a run: do not look for another file. The maintainers keep the history in the
+marketplace repo, which does not ship to rep machines.
 
 **Ruled**
 

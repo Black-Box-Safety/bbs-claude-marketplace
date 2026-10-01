@@ -89,7 +89,12 @@ machine. Role matrix: `docs/CURSOR-SETUP.md`.
    and writes Desktop launchers with the BBS logo) in the Teams sales channel; pin it.
    `scripts/bbs-clone-web-stack.sh` is for site maintainers who still need git clones.
 4. Post `scripts/bbs-setup.ps1` (Windows) and `scripts/bbs-setup.sh` (Mac) in the same
-   Teams post; reps run the one for their OS before anything else.
+   Teams post, labelled **Windows PC** and **Mac**; reps run the one for their computer
+   before anything else. Each script installs the tools, puts them on PATH, and installs
+   every plugin in the marketplace. **Machines set up before 2026-10-01** (Kim, Aanya): post
+   the new scripts and have each rep rerun theirs. The earlier version left `soffice`,
+   `tesseract` and Git's `bash` off PATH and installed no plugins. Re-paste managed settings
+   (§1) too: `bbs-marketing` was added to `enabledPlugins`.
 5. Pick the pilot rep and date. Gate: rep runs `/bbs-checkup` clean, logs one real RFQ,
    produces one packet, unaided. Record PASS/FAIL in `docs/acceptance/YYYY-MM-DD-<initials>.md`.
 6. Start ADMIN-CLEANUP.md on both admin machines.

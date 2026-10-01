@@ -9,14 +9,14 @@ report format at the end. Read-only: create/modify nothing, send nothing.
 
 ## Checks
 
-1. **Plugins.** Confirm the bbs-foundations, bbs-sales, bbs-back-office, bbs-website,
+1. **Plugins.** Confirm the bbs-foundations, bbs-sales, bbs-marketing, bbs-back-office, bbs-website,
    bbs-claude-coach, claudeforge, impeccable, superpowers-chrome, caveman, and
    document-skills plugins are loaded (their skills appear in your available skills).
    Report each present/absent. For each absent one, run `claude plugin list --json` via Bash
    if `claude` resolves (read-only) and quote that plugin's `errors` text, or say it is not
    installed at all — the cause goes in the Teams line. Fix: rerun `scripts/bbs-setup.ps1`
-   (Windows) or `scripts/bbs-setup.sh` (Mac) — its last section installs every plugin managed
-   settings enables and prints the error for any that still fails. Then always add one more line for the retired injection
+   (Windows) or `scripts/bbs-setup.sh` (Mac) — its last section installs every plugin in the
+   marketplace and prints the error for any that still fails. Then always add one more line for the retired injection
    plugin, whichever way it goes: "✅ retired plugin absent" when nothing named `skill-bus`
    is loaded, or "⚠️ skill-bus still loaded — retired 2026-09-28, see ADMIN-RUNBOOK §1a"
    when it is. That is a WARN, not a FAIL, and you do not uninstall it yourself.
