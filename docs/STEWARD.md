@@ -505,6 +505,15 @@ Write it up with evidence and move to the next slice. Do not idle.
   including tax (R1b), forms in the quoting process — in `vendor_profile.json`
   `signature_delegation`, never as a reference to a file. Rule home: `ca-form-rules.md`,
   "Delegated signatures". Claude still drafts; a person reviews and sends (invariant 5).
+- **R1a — the team: six people — RULED 2026-10-01.** Parker, in session: Griffin, Parker,
+  Joey, Kim, Aanya and Jackson, and no one else; Joyce Newell, Jeff Azar and Amy Leath are
+  **not** delegates. Names, titles and emails were read the same day from BBS's Microsoft
+  365 directory and each person's own email signature, never inferred from a name pattern:
+  Griffin Forsyth, Vice President, griffin@; Joey Magliato, Account Manager, joey@; Kim
+  Quezon, Account Manager, kim@ (the directory still says "Intern"; Parker ruled "Account
+  Manager"; Kim is a man — he/him); Aanya Samarasinghe, Account Manager, aanya@; Parker and
+  Jackson as already recorded. Home: `vendor_profile.json` `authorized_representatives` and
+  `signature_delegation`. **For Parker:** correct Kim's M365 job title.
 
 ---
 
