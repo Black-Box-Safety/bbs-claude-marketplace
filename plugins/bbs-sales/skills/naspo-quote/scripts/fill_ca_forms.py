@@ -139,6 +139,7 @@ Requires: pymupdf
 """
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -164,6 +165,10 @@ FORM_KINDS = ("PD843", "CV012", "STD204", "STD205", "CalRecycle74", "Darfur",
               "OBS1000", "OBS4007B", "OBS4007C", "Supplement", "GSPD05105", "other",
               PACKET)
 DV_OWNER_FORMS = ("PD843", "CV012", "STD204", "STD205")
+# Owner forms with no row in the form table yet: their blank could not be read
+# for markers (ca-form-rules.md). A standalone one keeps its declared kind; a page
+# of one inside a bound packet is never identified, so never signed.
+NO_MARKER_KINDS = ("CV012",)
 # Forms that carry no signature BBS applies.
 UNSIGNED_FORMS = ("Supplement", "GSPD05105", "other")
 TABLE_BEGIN, TABLE_END = "<!-- bbs-form-table:begin -->", "<!-- bbs-form-table:end -->"
@@ -511,23 +516,30 @@ def load_limit(path=None):
     return float(limit)
 
 
+MONEY = re.compile(r"^\$?\s?(\d{1,3}(,\d{3})+|\d+)(\.\d{1,2})?$")
+
+
 def parse_total(value):
     """The quote total incl. tax as a float, or None if missing or unreadable.
 
-    Accepts a number or a money string ("$9,054.75", "9054.75"). Anything else —
-    empty, a word, a negative, two numbers — is unreadable, never guessed at.
+    Accepts a positive number or a US money string ("$9,054.75", "9054.75").
+    Anything else — empty, zero, a word, a negative, European separators — is
+    unreadable, never guessed at, and unreadable means nothing is signed.
     """
     if isinstance(value, bool) or value is None:
         return None
     if isinstance(value, (int, float)):
         total = float(value)
     else:
-        text = str(value).strip().replace("$", "").replace(",", "").replace("USD", "").strip()
-        try:
-            total = float(text)
-        except ValueError:
+        text = str(value).strip()
+        if text.upper().endswith("USD"):
+            text = text[:-3].strip()
+        # US money only: 9054.75, 9,054.75, $9,054.75. "300.000,00" and "9.054,75"
+        # are not read as small numbers; they are unreadable.
+        if not MONEY.match(text):
             return None
-    if total != total or total < 0 or total in (float("inf"),):
+        total = float(text.lstrip("$").strip().replace(",", ""))
+    if total != total or total <= 0 or total == float("inf"):
         return None
     return total
 
@@ -619,6 +631,31 @@ def withhold_signatures(spec, why):
     return flags
 
 
+def withhold_no_image(spec, delegates):
+    """Drop stamps for delegates with no PNG on file yet; flag each line instead.
+
+    A null `signature_image` means the person has not sent their PNG yet
+    (ADMIN-RUNBOOK §3b): the line is left for a hand signature, as it would be
+    for any employee outside the six. A path that is set but broken still stops
+    the run (check_signatures), because that is a fault, not a gap.
+    """
+    flags = []
+    for form in spec.get("forms", []):
+        sign = form.get("sign")
+        if not isinstance(sign, dict):
+            continue
+        for field, who, sig in list(_sign_entries(form, [])):
+            d = _delegate_for(who, delegates)
+            if d is not None and not d.get("signature_image"):
+                flags.append(f"⚑ SIGNATURE REQUIRED — {form.get('src')} field {field!r} "
+                             f"({d['name']}): no signature image on file yet "
+                             f"(MASTER/Signatures/); sign and date by hand.")
+                del sign[field]
+        if not sign:
+            form.pop("sign", None)
+    return flags
+
+
 def preflight(spec):
     """Everything that can be checked without opening a PDF. Returns sig paths."""
     return prepare(spec)[0]
@@ -635,7 +672,8 @@ def prepare(spec):
     signer_delegate, delegates = check_signer(spec)
     apply_signer_fields(spec)
     allowed, why = signing_allowed(spec, load_limit())
-    withheld = [] if allowed else withhold_signatures(spec, why)
+    withheld = (withhold_no_image(spec, delegates) if allowed
+                else withhold_signatures(spec, why))
     apply_dates(spec, allowed)
     sig_paths = delegate_signature_paths(spec, delegates)
     sigs = check_signatures(forms, sig_paths, spec.get("master_root"))
@@ -710,6 +748,12 @@ def check_prefilled(spec, index):
         if current and value not in TRUTHY and name not in replace:
             problems.append(f"REFUSED: {src} checkbox {name!r} is already ticked by the "
                             f"agency; the spec would clear it")
+    for name, choice in (spec.get("radios") or {}).items():
+        set_to = {str(v).lstrip("/") for _p, _t, v in index.get(name, []) if _on(v)}
+        if set_to and set_to != {str(choice.get("on", "")).lstrip("/")} and name not in replace:
+            problems.append(f"REFUSED: {src} radio {name!r} is already set to "
+                            f"{', '.join(sorted(set_to))!r} by the agency; the spec would "
+                            f"change it to {choice.get('on')!r}")
     for name, entries in index.items():
         if name in touched or name in (spec.get("sign") or {}):
             continue
@@ -743,9 +787,11 @@ def check_sign_pages(spec, doc, index, ctx):
                     problems.append(f"REFUSED: {where} is on {hits[0]}, whose line is "
                                     f"{line or 'unsigned'}, but the spec says "
                                     f"{sig.get('line')!r}")
-            elif hits and hits != [kind]:
+            elif hits != [kind] and not (kind in NO_MARKER_KINDS and not hits):
                 problems.append(f"REFUSED: {where} — the spec says this is {kind}, but the "
-                                f"page reads as {', '.join(hits)}")
+                                f"page reads as {', '.join(hits) or 'no known form'}. A "
+                                f"signature goes only on a page the form table positively "
+                                f"identifies (ca-form-rules.md)")
                 continue
             else:
                 line = line_for_kind(kind, table)

@@ -57,8 +57,14 @@ the "any other signer" rule that went with it.
 - **What is applied:** the delegate's own PNG of record, read from that person's
   `signature_image` in `vendor_profile.json` (Parker, 2026-10-01, R2) — never typed text,
   never a path from the request, never an image that could differ from the signer. A
-  delegate whose `signature_image` is null or whose PNG is missing cannot be signed for;
-  the run stops and names the file.
+  delegate whose `signature_image` is still null has not sent a PNG yet: their lines are
+  left blank and flagged `⚑ SIGNATURE REQUIRED`, as for any other employee. A
+  `signature_image` that is set but whose file is missing, empty or not a PNG stops the
+  run and names the file — that is a fault, not a gap.
+- **A page the form table cannot identify is never signed.** Every signature goes on a
+  page the table below positively identifies as a form whose line it is (CV 012, which
+  has no row yet, is the one standalone exception). The packet's own printed Grand Total
+  must also be under the limit and not above the quote total incl. tax.
 - **Never a customer, an agency or a third party.** The signer's email must be a single
   address on BBS's domain (the domain of `vendor_profile.json` `contact.email`); anything
   else stops the run with nothing written. The domain is checked first. A BBS employee
@@ -76,11 +82,11 @@ the "any other signer" rule that went with it.
 |---|---|
 | **STD 204** Payee Data Record | Section 1 NAME is the legal name, not the short name. Section 6 is the paying agency's block — leave it entirely blank. Signed by the owner, not the rep. |
 | **DGS PD 843** DVBE declaration | Signed by the DVBE owner. "Name of DVBE" is the **legal name** exactly as `vendor_profile.json` `business_identity.legal_name` gives it (ruled 2026-09-18, matches the filed corpus; confirmed by Parker 2026-09-28, "do legal name"); never the short name, and never typed as a literal. SCPRS reference number is the State's to fill; leave it. |
-| **CalRecycle 74** (SABRC) | **Never leave blank — a missing CalRecycle 74 can disqualify the bid.** BBS resells finished goods and rarely certifies a postconsumer percentage, so PCRC and SABRC default to "NA". Only override with a real percentage the rep supplies. Contractor/Company Name is the legal name (see *Company name*). Signed by the signer the rep names — *Rep-signed lines* above. |
+| **CalRecycle 74** (SABRC) | **Never leave blank — a missing CalRecycle 74 can disqualify the bid.** BBS resells finished goods and rarely certifies a postconsumer percentage, so PCRC and SABRC default to "NA". Only override with a real percentage the rep supplies. Contractor/Company Name is the legal name (see *Company name*). Signed by the signer the rep names — *Rep-signed lines and delegated signatures* above. |
 | **OBS 1000** GenAI factsheet | Answer the "was GenAI used" question; it is about the *product* being sold, not about how the bid was prepared. Business Name is the legal name (see *Company name*). Signed by the signer the rep names (ruled 2026-10-01). |
 | **GSPD-05-105** Bidder Declaration | BBS bids as the certified business, not through subs or brokers, unless the rep says otherwise for this bid. The "distinct element of work" is the CUF statement, which is **not** in the vendor profile — ask the rep. |
 | **STD 205** Payee Data Record Supplement | Accompanies STD 204 when the agency asks for it. Same signer as the STD 204 — the owner, not the rep. Agency block stays blank, exactly as on the STD 204. |
-| **OBS 1500** Darfur Contracting Act (CDCR) | The CDCR packet's Darfur form; **DGS PD 1** is the standalone equivalent outside a CDCR packet. Same substance either way: BBS has no business operations in Sudan, so the no-foreign-operations paragraph is the one that applies. Company name is the legal name (see *Company name*). Signed by the signer the rep names — *Rep-signed lines* above. |
+| **OBS 1500** Darfur Contracting Act (CDCR) | The CDCR packet's Darfur form; **DGS PD 1** is the standalone equivalent outside a CDCR packet. Same substance either way: BBS has no business operations in Sudan, so the no-foreign-operations paragraph is the one that applies. Company name is the legal name (see *Company name*). Signed by the signer the rep names — *Rep-signed lines and delegated signatures* above. |
 | **OBS 4007(C)** Price Request front page (CDCR, Fair and Reasonable / Exempt, e.g. an LPA order) | Bidder block from the vendor profile; DVBE box ticked with the OSDS cert number and expiry, SB and MB **not** ticked (Parker, 2026-10-01) — this identifies the certification and claims no incentive. Signed by the signer the rep names. The solicitation, buyer and ship-to blocks are the agency's: keep whatever the agency entered. |
 | **DGS PD 1** Darfur Contracting Act (standalone) | As OBS 1500, when the agency sends the DGS form rather than the CDCR one. Do not fill both for the same bid. |
 

@@ -222,8 +222,14 @@ def build_spec(docs, vp, inp, staging):
                 return True
 
             for name, key in fmap.get("text", {}).items():
-                if usable(name) and vals[key] != "":
+                if not usable(name):
+                    continue
+                if str(vals[key]).strip():
                     entry["text"][name] = vals[key]
+                else:
+                    gaps.append(f"[MISSING — NEEDS INPUT] {kind} in {os.path.basename(path)}: "
+                                f"{name!r} needs `{key}`, which the inputs do not give; "
+                                f"left blank")
             for name, on in fmap.get("checks", {}).items():
                 if usable(name):
                     entry["checks"][name] = on

@@ -72,9 +72,16 @@ class _Widget:
 
 
 class _Page:
+    # Every fake blank reads as a CalRecycle 74 page (the fixtures' default kind),
+    # using the form table's own markers.
+    TEXT = "CalRecycle 74 Postconsumer-Content Certification"
+
     def __init__(self, names):
         self._w = [_Widget(n) for n in names]
         self.stamps = []
+
+    def get_text(self):
+        return self.TEXT
 
     def widgets(self):
         return list(self._w)
@@ -637,19 +644,67 @@ def test_withheld_also_covers_jacksons_owner_lines():
         assert "jackson" in out and "WITHHELD" in out, out
 
 
-def test_delegate_without_a_png_cannot_be_signed_for():
+def test_delegate_without_a_png_gets_a_blank_flagged_line_not_a_stop():
     if _needs_fitz():
         return
     kim = next(r for r in _BY_ROLE.values() if r["role"] == "rep_kim")
     assert kim["signature_image"] is None   # null until Kim's PNG is in MASTER/Signatures/
     with tempfile.TemporaryDirectory() as d:
-        form = dict(_calrec_form(), sign={"Signature": {"who": "kim"}})
+        form = dict(_calrec_form(), sign={"Signature": {"who": "kim", "date": "Date"}})
         spec = _real_spec(d, [form], CALREC,
                           signer={"name": kim["name"], "title": "Account Manager",
                                   "email": kim["email"]})
-        code, _out, _err = _run_real(spec, d)
-        assert code and "no `signature_image`" in str(code), code
-        assert not os.path.exists(spec["out_dir"])
+        code, out, err = _run_real(spec, d)
+        assert not code, (code, err)
+        n, values = _images_on(os.path.join(spec["out_dir"], "a-out.pdf"))
+        assert n == 0 and not values.get("Date"), (n, values)
+        assert "Kim Quezon): no signature image on file yet" in out, out
+
+
+def test_a_set_but_missing_png_still_stops():
+    with tempfile.TemporaryDirectory() as d:
+        spec = _spec(d, [_form("parker")])
+        os.remove(_profile_png(spec["master_root"], "sales_manager"))
+        msg = _raises(preflight, spec)
+        assert "not found" in msg, msg
+
+
+def test_unidentified_page_is_never_signed():
+    if _needs_fitz():
+        return
+    for kind, who, line in (("CalRecycle74", "parker", None), ("PD843", "jackson", "dv_owner")):
+        with tempfile.TemporaryDirectory() as d:
+            pages = {"a.pdf": [("MASTER SERVICES AGREEMENT between the parties",
+                                [("Signature", "text", "")])]}
+            sig = {"who": who}
+            if line:
+                sig["line"] = line
+            form = {"form": kind, "src": "a.pdf", "out": "a-out.pdf",
+                    "sign": {"Signature": sig}}
+            spec = _real_spec(d, [form], pages)
+            code, _out, _err = _run_real(spec, d)
+            assert code and "no known form" in str(code), (kind, code)
+            assert not os.path.exists(spec["out_dir"])
+
+
+def test_zero_and_foreign_formatted_totals_are_unreadable():
+    for raw in ("$0.00", 0, "0", "300.000,00", "9.054,75", "1,23", "$ 12,34.5", "12e5"):
+        assert fill_ca_forms.parse_total(raw) is None, raw
+    for raw, want in (("$9,054.75", 9054.75), ("9054.75", 9054.75), (9054.75, 9054.75),
+                      ("249,999.99", 249999.99), ("1000 USD", 1000.0)):
+        assert fill_ca_forms.parse_total(raw) == want, raw
+
+
+def test_agency_radio_choice_is_kept():
+    # The index _widget_index() builds: one radio group, the agency picked "Yes".
+    index = {"Is GenAI utilized?": [(0, "RadioButton", "Yes"), (0, "RadioButton", "Off")]}
+    spec = {"src": "r.pdf", "radios": {"Is GenAI utilized?": {"index": 1, "on": "No"}}}
+    msg = _raises(fill_ca_forms.check_prefilled, spec, index)
+    assert "already set to 'Yes'" in msg, msg
+    spec["replace_prefilled"] = {"Is GenAI utilized?": "rep: agency ticked the wrong box"}
+    fill_ca_forms.check_prefilled(spec, index)                    # the rep's call, recorded
+    same = {"src": "r.pdf", "radios": {"Is GenAI utilized?": {"index": 0, "on": "Yes"}}}
+    fill_ca_forms.check_prefilled(same, index)                    # same choice: fine
 
 
 def test_unknown_field_and_wrong_type_refused_nothing_written():

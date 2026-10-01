@@ -151,9 +151,10 @@ and broke when that folder was renamed (2026-09-28).
 
 **Turning one on:** drop the file in `MASTER/Signatures/`, then set that person's
 `signature_image` in `plugins/bbs-sales/references/vendor_profile.json` to the
-`MASTER/Signatures/...` path, in a PR. Until then it is `null`, and the scripts refuse to
-sign as that person (the run stops and names the missing file). One-time move, after the
-PR that introduced this section merges: copy Parker's and Jackson's current images to
+`MASTER/Signatures/...` path, in a PR. Until then it is `null`, and that person's lines
+come out blank and flagged for a hand signature. One-time move, **before** the PR that
+introduced this section merges (it needs no merge, and once reps pull that version a
+missing file stops every signed packet): copy Parker's and Jackson's current images to
 `MASTER/Signatures/parker-marshall.png` and `MASTER/Signatures/jackson-dalton.png`.
 
 The PNGs are credentials: never commit one, never paste one into a chat, and keep the

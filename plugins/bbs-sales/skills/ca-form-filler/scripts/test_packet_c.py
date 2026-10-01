@@ -168,16 +168,32 @@ def test_at_or_over_the_limit_or_no_total_writes_it_unsigned():
             assert text.count("⚑ SIGNATURE REQUIRED") == 5, (total, text)
 
 
-def test_a_delegate_without_a_png_stops_with_nothing_written():
+def test_a_delegate_without_a_png_gets_blank_flagged_lines_and_jackson_still_signs():
     if fitz is None:
         return
     kim = REPS["rep_kim"]
     with tempfile.TemporaryDirectory() as d:
         packet, ip, out = _setup(d, LIMIT - 0.01, signer={
             "name": kim["name"], "title": kim["title"], "email": kim["email"]})
-        code, _text = _run(packet, ip, out)
-        assert code and "MASTER/Signatures/" in str(code), code
-        assert not os.path.exists(out)
+        code, text = _run(packet, ip, out)
+        assert not code, (code, text)
+        assert "Signatures stamped: 2" in text, text            # PD 843 and STD 204
+        assert text.count("no signature image on file yet") == 3, text
+
+
+def test_empty_inputs_are_reported_not_silently_blank():
+    if fitz is None:
+        return
+    with tempfile.TemporaryDirectory() as d:
+        packet, ip, out = _setup(d, LIMIT - 0.01)
+        with open(ip) as fh:
+            inp = json.load(fh)
+        inp["product_summary"] = ""
+        with open(ip, "w") as fh:
+            json.dump(inp, fh)
+        code, text = _run(packet, ip, out)
+        assert not code, (code, text)
+        assert "needs `product_summary`" in text, text
 
 
 def test_a_non_delegate_signer_gets_no_rep_stamps_but_jackson_still_signs():

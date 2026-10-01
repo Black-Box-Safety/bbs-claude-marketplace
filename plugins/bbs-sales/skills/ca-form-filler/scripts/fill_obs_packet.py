@@ -233,7 +233,21 @@ def signing_plan(profile, inp):
     """
     fcf = _signing()
     signer = resolve_signer(profile, inp)
-    allowed, why = fcf.signing_allowed(inp, fcf.load_limit(VENDOR_PROFILE))
+    limit = fcf.load_limit(VENDOR_PROFILE)
+    allowed, why = fcf.signing_allowed(inp, limit)
+    if allowed:
+        # The packet prints its own Grand Total; it must not contradict the quote of
+        # record. A printed total at or over the limit, or above the typed total incl.
+        # tax (a total incl. tax is never below the pre-tax worksheet), withholds.
+        printed = worksheet_total(inp)
+        typed = fcf.parse_total(inp.get("quote_total_incl_tax"))
+        if printed >= limit:
+            allowed, why = False, (f"the worksheet's Grand Total, ${printed:,.2f}, is not under "
+                                   f"the ${limit:,.0f} delegation limit")
+        elif printed > typed + 0.005:
+            allowed, why = False, (f"the worksheet's Grand Total, ${printed:,.2f}, is more than "
+                                   f"the quote total incl. tax given (${typed:,.2f}); the two "
+                                   f"must agree with the quote of record")
     owner = next(d for d in profile["signature_delegates"] if d["role"] == "dvbe_owner")
     lines = []
     for label, field, page, line, date_field, kind in SIGNATURE_LINES:
@@ -253,7 +267,11 @@ def signing_plan(profile, inp):
 
 
 def check_images(plan, inp):
-    """Resolve every PNG this run will stamp; stop (no packet) if one can't be used."""
+    """Resolve every PNG this run will stamp.
+
+    A delegate with no image on file yet gets a blank, flagged line; an image
+    path that is set but unusable stops the run with no packet.
+    """
     fcf = _signing()
     problems = []
     for ln in plan["lines"]:
@@ -261,9 +279,10 @@ def check_images(plan, inp):
         if d is None:
             continue
         if not d.get("signature_image"):
-            problems.append(f"{d['name']} has no `signature_image` in vendor_profile.json — "
-                            f"their PNG is not in MASTER/Signatures/ yet, so no one can sign "
-                            f"for them ({ln['label']})")
+            # Not sent yet (ADMIN-RUNBOOK §3b): a hand signature, as for anyone else.
+            ln["delegate"] = None
+            ln["flag"] = (f"⚑ SIGNATURE REQUIRED — {ln['label']} ({d['name']}): no signature "
+                          f"image on file yet (MASTER/Signatures/); sign and date by hand.")
             continue
         try:
             path = fcf.resolve_sig_path(d["signature_image"], inp.get("master_root"))
@@ -399,20 +418,7 @@ def build_field_values(profile, inp, plan=None):
         desc = item.get("description", "")
         part = item.get("part_number", "")
         pcrc = item.get("pcrc", "n/a")
-        unit_price = item.get("unit_price", 0.0)
-        ext_price = item.get("ext_price")
-        try:
-            up = float(str(unit_price).replace("$", "").replace(",", ""))
-        except (ValueError, TypeError):
-            up = 0.0
-        try:
-            q = float(qty)
-        except (ValueError, TypeError):
-            q = 0.0
-        if ext_price is None:
-            ext = up * q
-        else:
-            ext = float(str(ext_price).replace("$", "").replace(",", ""))
+        up, ext = _line_amounts(item)
         subtotal += ext
 
         # Field IDs are not perfectly regular in the source PDF; resolve per-row.
@@ -426,11 +432,7 @@ def build_field_values(profile, inp, plan=None):
         add(line_field_map["unit_price"], 12, _money(up))
         add(line_field_map["ext_price"], 12, _money(ext))
 
-    sh = inp.get("shipping_handling", 0.0)
-    try:
-        sh_val = float(str(sh).replace("$", "").replace(",", ""))
-    except (ValueError, TypeError):
-        sh_val = 0.0
+    sh_val = _shipping(inp)
     total = subtotal + sh_val
     add("OBS Line-Item Cost Wrksht - Subtotal", 12, _money(subtotal))
     add("OBS Line-Item Cost Wrksht - S&H", 12, _money(sh_val))
@@ -553,6 +555,33 @@ def build_field_values(profile, inp, plan=None):
 
 
 MAX_LINE_ITEMS = 23
+
+
+def _line_amounts(item):
+    """(unit price, extended price) for one worksheet line, as the worksheet prints them."""
+    try:
+        up = float(str(item.get("unit_price", 0.0)).replace("$", "").replace(",", ""))
+    except (ValueError, TypeError):
+        up = 0.0
+    try:
+        q = float(str(item.get("qty", "")))
+    except (ValueError, TypeError):
+        q = 0.0
+    ext_price = item.get("ext_price")
+    ext = up * q if ext_price is None else float(str(ext_price).replace("$", "").replace(",", ""))
+    return up, ext
+
+
+def _shipping(inp):
+    try:
+        return float(str(inp.get("shipping_handling", 0.0)).replace("$", "").replace(",", ""))
+    except (ValueError, TypeError):
+        return 0.0
+
+
+def worksheet_total(inp):
+    """The Grand Total the worksheet will print: line items plus S&H (no tax)."""
+    return sum(_line_amounts(i)[1] for i in inp.get("line_items", [])) + _shipping(inp)
 
 
 def _money(x):
@@ -876,6 +905,11 @@ def stamp_signatures(pdf_path, plan):
         if hits and hits != [ln["kind"]]:
             errors.append(f"page {ln['page']} reads as {', '.join(hits)}, not {ln['kind']} — "
                           f"the packet revision has changed; nothing signed")
+            continue
+        if not hits:
+            flags.append(f"⚑ SIGNATURE REQUIRED — {ln['label']}: page {ln['page']} is not "
+                         f"identified as {ln['kind']} by the form table, so nothing was "
+                         f"signed on it. Sign and date by hand, and check the packet revision.")
             continue
         widgets = list(page.widgets() or [])
         if ln["field"]:

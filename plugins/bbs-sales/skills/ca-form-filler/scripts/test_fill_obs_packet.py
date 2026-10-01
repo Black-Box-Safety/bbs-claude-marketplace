@@ -360,17 +360,57 @@ def test_missing_png_stops_before_any_packet():
             raise AssertionError("a missing PNG must stop the run")
 
 
-def test_a_delegate_with_no_png_on_file_cannot_be_signed_for():
+def test_a_delegate_with_no_png_on_file_gets_blank_flagged_rep_lines():
+    import tempfile
     kim = _delegate("Kim Quezon")
     assert kim["signature_image"] is None
-    inp = _inputs({"name": kim["name"], "title": "Account Manager", "email": kim["email"]})
-    plan = fop.signing_plan(fop.load_profile(), inp)
+    with tempfile.TemporaryDirectory() as d:
+        inp = _inputs({"name": kim["name"], "title": "Account Manager", "email": kim["email"]})
+        inp["master_root"] = os.path.join(d, "Black Box Safety - MASTER")
+        _pngs(inp["master_root"])
+        plan = fop.signing_plan(fop.load_profile(), inp)
+        fop.check_images(plan, inp)                       # no stop
+        by = {ln["label"]: ln for ln in plan["lines"]}
+        for line in SIGNED:
+            assert by[line]["delegate"] is None, line
+            assert "Kim Quezon): no signature image on file yet" in by[line]["flag"], line
+        for line in OWNER_SIGNED:                         # Jackson's PNG is on file
+            assert by[line]["delegate"]["role"] == "dvbe_owner", line
+        got = fop.build_field_values(fop.load_profile(), inp, plan)
+        values = {f["field_id"]: f["value"] for f in got}
+        for _sig, date in SIGNED.values():
+            assert date not in values, date
+
+
+def test_printed_grand_total_must_agree_with_the_quote_total():
+    inp = _inputs(_parker())
+    printed = fop.worksheet_total(inp)
+    assert printed > 0
+    inp["quote_total_incl_tax"] = round(printed - 1, 2)           # quote total below the worksheet
+    assert all(ln["delegate"] is None for ln in _plan(inp).values())
+    inp["quote_total_incl_tax"] = round(printed * 1.0775, 2)       # plus tax: fine
+    assert all(ln["delegate"] for ln in _plan(inp).values())
+    big = dict(inp, line_items=[dict(inp["line_items"][0], qty=1, unit_price=LIMIT)])
+    big["quote_total_incl_tax"] = LIMIT - 0.01                     # typed under, printed at the limit
+    assert all(ln["delegate"] is None for ln in _plan(big).values())
+
+
+def test_stamping_flags_a_page_the_form_table_cannot_identify():
     try:
+        import fitz  # noqa: F401
+    except ImportError:
+        return
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        pdf = os.path.join(d, "p.pdf")
+        _synthetic_packet(pdf, pd843_header=None)
+        inp = _inputs(_parker())
+        inp["master_root"] = os.path.join(d, "Black Box Safety - MASTER")
+        _pngs(inp["master_root"])
+        plan = fop.signing_plan(fop.load_profile(), inp)
         fop.check_images(plan, inp)
-    except SystemExit as e:
-        assert "Kim Quezon has no `signature_image`" in str(e.code), e.code
-    else:
-        raise AssertionError("Kim has no PNG yet; signing as him must stop")
+        flags = fop.stamp_signatures(pdf, plan)
+        assert len(flags) == 1 and "page 21 is not identified as PD843" in flags[0], flags
 
 
 def _synthetic_packet(path, obs1000_sigs=1, pd843_header="PD843"):
@@ -386,7 +426,8 @@ def _synthetic_packet(path, obs1000_sigs=1, pd843_header="PD843"):
         if not ln:
             continue
         kind = pd843_header if pno == 21 else ln[5]
-        page.insert_text((40, 40), " ".join(table[kind]["markers"]), fontsize=9)
+        if kind:
+            page.insert_text((40, 40), " ".join(table[kind]["markers"]), fontsize=9)
         names = [ln[1]] if ln[1] else ["OBS 1000 sig %d" % i for i in range(obs1000_sigs)]
         for i, name in enumerate(names):
             w = fitz.Widget()
