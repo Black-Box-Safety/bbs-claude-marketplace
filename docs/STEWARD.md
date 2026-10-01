@@ -514,6 +514,14 @@ Write it up with evidence and move to the next slice. Do not idle.
   Manager"; Kim is a man — he/him); Aanya Samarasinghe, Account Manager, aanya@; Parker and
   Jackson as already recorded. Home: `vendor_profile.json` `authorized_representatives` and
   `signature_delegation`. **For Parker:** correct Kim's M365 job title.
+- **R1b — the $250,000 limit is the quoted price including tax — RULED 2026-10-01.**
+  Parker, in session. The measure is the quote's grand total, tax included, as on the quote
+  of record (the Business Central sales quote / the SQ the rep sends). A delegated signature
+  is applied only when that total is **strictly under $250,000**; at or over it, or when the
+  total is missing or unreadable, no delegated signature is applied — the line is left blank
+  and flagged. The total comes from the quote of record, never an estimate. Enforced in code
+  by the form scripts; the figure lives once, in `vendor_profile.json`
+  `signature_delegation`.
 
 ---
 
