@@ -594,6 +594,27 @@ Write it up with evidence and move to the next slice. Do not idle.
   invites, updates or cancellations to attendees). Home:
   `plugins/bbs-foundations/docs/bbs-managed-settings.json`; explained in
   `MANAGED-SETTINGS.md`.
+- **The team-rollout page covers Sales — RULED 2026-10-01.** Parker, in session: "I want
+  sales to be included as well", then chose one shared Sales card for Kim, Aanya, Joey and
+  Griffin with four rows (`/ca-rfq` to packet, Grainger and NASPO pricing, visit and account
+  prep, weekly report and follow-up drafts); later added a federal deck row for Griffin
+  (`bbs-deck-voice`), SAM.gov for Kim and Griffin, and "a way for an agent to internet
+  search ... without a window" (shown as the existing `supplier-scout` agent). SAM.gov has
+  no skill, so the page shows it as Not built yet. Page: PR #46. Building the SAM.gov skill
+  and a general web-research agent is deferred to a separate session (Parker: "we will do
+  that separately").
+- **Team-rollout page: impeccable's product interview skipped — RULED 2026-10-01.** Parker,
+  in session, chose "Build, infer from brief": product context comes from the build prompt
+  and `brief.md`; no PRODUCT.md or DESIGN.md is committed.
+- **Team-rollout page, signature tile wording — OPEN (2026-10-01).** All four Sales readers
+  are R1a delegates, so the prompt's "Claude never signs for you" was false for them. The
+  page now says Claude never signs outside sales, and that a sales packet is signed only for
+  the delegates counsel approved and only under the limit Parker set, otherwise the lines
+  stay blank and flagged. It restates R1, R1a, R1b and R5 and makes no new rule; no amount is
+  on the page. **Ask:** Parker confirms the wording before the link is shared.
+- **Team-rollout page, Joey Magliato's picker line — OPEN (2026-10-01).** Canon records only
+  his title, so "Customer accounts and quotes" is the build session's wording. **Ask:**
+  Parker confirms or replaces it (one string in `PEOPLE`).
 
 ---
 

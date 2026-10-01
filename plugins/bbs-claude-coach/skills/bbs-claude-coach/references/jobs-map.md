@@ -24,7 +24,8 @@ the closer job and say so.
 | Accounting: was a promised vendor credit received? | Ask about the PO; `bbs-order-reconciliation` lists credits, free replacements and absorbed freight ("Money owed back to us") | `bbs-back-office` | **Business Central** |
 | Accounting: match a statement against an export | Hand over both files; Claude builds the workbook and flags the rows that don't match | commons `document-skills` | none |
 | AR / accounting: invoices under a customer PO, what a vendor still owes, margin after the Grainger rebate | **Not ready yet.** `so-search` and `bbs-po-status` wait on a Business Central link fix; `bbs-rebate-profitability` needs a connector Parker hasn't switched on. Tell Parker which one you need | Parker | n/a |
-| Supplier scouting / product research | Ask Claude to open your real Chrome and look; prices still from a real source | commons `superpowers-chrome` | Chrome/Node from bootstrap |
+| Supplier options for an item BBS has never sold | Ask for supplier options; the `supplier-scout` agent searches the web itself and prices only from pages it opened, with link and date. Grainger prices still come from Grainger | `bbs-sales` | none (built-in web search; Firecrawl when assigned) |
+| Product research you want to see yourself | Ask Claude to open your real Chrome and look; prices still from a real source | commons `superpowers-chrome` | Chrome/Node from bootstrap |
 | Channel-partner / federal deck copy | Ask for deck copy in BBS voice (`bbs-deck-voice`) | `bbs-foundations` | document skills for assembly |
 | Read or build a PDF / Word / Excel / PPT | Hand the file over or ask to build it | commons `document-skills` | LibreOffice caveat for some PDF paths |
 | "Is my machine set up?" | `/bbs-checkup` | `bbs-foundations` | checkup probes the connectors it can |

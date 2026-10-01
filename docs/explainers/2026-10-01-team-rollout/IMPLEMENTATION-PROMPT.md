@@ -3,6 +3,12 @@
 > Parker: paste everything below the line into a fresh Claude Code session opened in the
 > `bbs-claude-marketplace` repo. It is self-contained. The reasoning behind it is in
 > `brief.md` beside this file; the builder does not need it.
+>
+> **Built 2026-10-01 (PR #46).** The page went beyond this prompt at Parker's direction in
+> session: a shared Sales card (Kim, Aanya, Joey, Griffin), a supplier-scout row, Griffin's
+> federal deck row, and SAM.gov under Coming next for Kim and Griffin. The page source
+> (`bbs-claude-toolkit.html`) is the current truth; what changed and what is still open is in
+> `docs/SESSION-HANDOFF-2026-10-01.md`. Re-running this prompt as written would drop Sales.
 
 ---
 
