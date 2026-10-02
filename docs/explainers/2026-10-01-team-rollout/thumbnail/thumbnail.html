@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toolkit thumbnails</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;800&display=swap">
+<style>
+  /* Source for the two share thumbnails. Each .card is one image; render.js screenshots it. */
+  :root {
+    --navy: #051c2c;
+    --gold: #b19800;
+    --white: #ffffff;
+    --mist: #c9d3da;      /* secondary text on navy, tinted from navy: 11.9:1 */
+    --plate: #ffffff;
+  }
+  /* The images are fixed artwork, so both themes keep the same navy ground. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --navy: #051c2c; }
+  }
+  :root[data-theme="dark"] { --navy: #051c2c; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #e6e9ec;
+    font-family: "Archivo", sans-serif;
+    display: grid;
+    gap: 40px;
+    padding: 40px;
+    justify-items: start;
+  }
+
+  .card {
+    position: relative;
+    background: var(--navy);
+    color: var(--white);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Logo: the committed file, unmodified, at its native pixel size
+     (156 x 177 rendered at 2x = 78 x 88.5 CSS px), on a white plate. */
+  .plate {
+    background: var(--plate);
+    border-radius: 14px;
+    padding: 14px 16px;
+    align-self: flex-start;
+    line-height: 0;
+  }
+  .plate img { display: block; width: 78px; height: 88.5px; }
+
+  h1 {
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+    text-wrap: balance;
+  }
+  h1 .lookup { display: block; color: var(--mist); font-weight: 500; }
+  /* The human half of the line is the one that sits on gold. Navy on gold: 5.9:1. */
+  h1 .calls {
+    display: inline;
+    background: var(--gold);
+    color: var(--navy);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    padding: 0.02em 0.16em 0.06em;
+    margin-left: -0.16em;
+    border-radius: 4px;
+  }
+
+  .send {
+    font-weight: 500;
+    color: var(--white);
+    letter-spacing: -0.01em;
+  }
+
+  .foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-weight: 500;
+    color: var(--mist);
+    letter-spacing: 0.01em;
+  }
+  .foot::before {
+    content: "";
+    height: 3px;
+    width: 64px;
+    background: var(--gold);
+    flex: none;
+  }
+
+  /* 1200 x 630: email and link preview */
+  #wide { width: 1200px; height: 630px; padding: 56px 72px 52px; }
+  #wide .top { display: flex; align-items: flex-start; gap: 56px; }
+  #wide h1 { font-size: 88px; margin-top: 4px; }
+  #wide h1 .lookup { margin-bottom: 14px; }
+  #wide .send { font-size: 40px; margin-top: 44px; padding-left: 166px; }
+  #wide .foot { font-size: 30px; padding-left: 166px; }
+
+  /* 1080 x 1080: square for texts */
+  #square { width: 1080px; height: 1080px; padding: 80px 84px 76px; }
+  #square h1 { font-size: 118px; margin-top: 88px; }
+  #square h1 .lookup { margin-bottom: 22px; }
+  #square .send { font-size: 52px; margin-top: 64px; }
+  #square .foot { font-size: 36px; }
+</style>
+</head>
+<body>
+
+<section class="card" id="wide" aria-label="Share image, 1200 by 630">
+  <div class="top">
+    <div class="plate"><img src="../../../../plugins/bbs-sales/skills/bbs-quote-builder/assets/bbs_logo.png" alt="Black Box Safety"></div>
+    <h1><span class="lookup">Claude does the lookups.</span><span class="calls">You make the calls.</span></h1>
+  </div>
+  <p class="send">Claude drafts. You send.</p>
+  <p class="foot">BBS Claude Toolkit</p>
+</section>
+
+<section class="card" id="square" aria-label="Share image, 1080 by 1080">
+  <div class="plate"><img src="../../../../plugins/bbs-sales/skills/bbs-quote-builder/assets/bbs_logo.png" alt="Black Box Safety"></div>
+  <h1><span class="lookup">Claude does the lookups.</span><span class="calls">You make the calls.</span></h1>
+  <p class="send">Claude drafts. You send.</p>
+  <p class="foot">BBS Claude Toolkit</p>
+</section>
+
+</body>
+</html>
