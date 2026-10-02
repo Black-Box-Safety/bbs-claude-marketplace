@@ -139,5 +139,25 @@
    "items.pdf"
   ],
   "query": "Pull the Grainger numbers out of items.pdf."
+ },
+ {
+  "id": "sam-1",
+  "expect": "sam-gov-opportunities",
+  "query": "What's open on SAM.gov right now for NAICS 423450? Just the open solicitations."
+ },
+ {
+  "id": "sam-2",
+  "expect": "sam-gov-opportunities",
+  "query": "Are there any SDVOSB set-asides at the VA in California we could still respond to?"
+ },
+ {
+  "id": "usa-1",
+  "expect": "usaspending-awards",
+  "query": "Who has won the VA's contracts under NAICS 339113 over the last two years, and for how much?"
+ },
+ {
+  "id": "usa-2",
+  "expect": "usaspending-awards",
+  "query": "What federal contract awards has Black Box Safety won? Pull our history by UEI."
  }
 ]

@@ -669,25 +669,90 @@ Write it up with evidence and move to the next slice. Do not idle.
   merge. The build session still never merges its own PR, and still never edits a PR Rex is
   reviewing. Parker merged PR #50 himself on 2026-10-02, by instruction in session, after
   both reviews' findings were fixed and CI was green.
+- **Federal lookups: SAM.gov and USAspending skills — BUILT and RULED 2026-10-02.** Built
+  the item Parker deferred on 2026-10-01 (see "The team-rollout page covers Sales" above).
+  - **Skills.** `bbs-sales` gained two read-only skills:
+    - `sam-gov-opportunities`: open federal notices, through SAM.gov's Get Opportunities API.
+    - `usaspending-awards`: past contract awards, top vendors, reported subawards and BBS's
+      own history, through the public USAspending search API.
+  - **PRs.** Both registry entries (`sam-gov`, `usaspending`) are in the review-side PR
+    [Black-Box-Safety/bbs-claude-marketplace#51](https://github.com/Black-Box-Safety/bbs-claude-marketplace/pull/51).
+    The skills PR is stacked on it.
+  - **Design.** `docs/superpowers/specs/2026-10-02-sam-gov-opportunities-design.md`.
+
+  Parker's rulings, in session, 2026-10-02:
+  - **(a) USAspending comes into the marketplace.** "I want it to incorporate and create a
+    skill for usaspending API too." The README had said "Not in this marketplace". Cursor's
+    `bbs-usaspending` MCP stays as it is.
+  - **(b) One SAM.gov account, one shared key.** "It will all link to the same sam.gov
+    account, we dont need multiple." Parker supplies the value for each machine's
+    `SAM_GOV_API_KEY`. The whole team shares one daily request budget.
+  - **(c) Both scripts run without a prompt.** "yes it can run without a call". They are
+    added to the `bbs-fill` allow list. They write no file; each makes network GETs to
+    SAM.gov, or search POSTs to USAspending.
+  - **(d) No Systems of record row.** "no it doesnt need a SOR". SAM.gov and USAspending are
+    public data sources. The two `system_not_in_canon` WARNs are therefore expected and
+    accepted.
+  - **(e) BBS is VOSB.** "yes we are VOSB". This is now in canon's certification table, and
+    VA VSA/VSS set-asides read "Eligible".
+  - **(f) Federal codes.** Parker attached screenshots of BBS's NAICS, PSC and GSA SIN codes.
+    They are now in canon, "Federal codes", as their single home.
+
+  Parker's follow-up rulings, in session, 2026-10-02:
+  - **(g) GSA MAS ultimate end date is 2042.** "for GSA use 2042". Canon's vehicle row now
+    reads current option period to 11/14/2027 and ultimate end 11/14/2042. This supersedes the
+    "No 'ult. 2042'" line. The storefront doctrine's restatement was corrected to match.
+  - **(h) SDB is never claimed.** "dont do small disadvantaged business". This holds even
+    though the GSA record lists "SBA Certified Small Disadvantaged Business".
+  - **(i) The PSC list is complete.** "the PSC list is correct". The flag is removed from
+    canon.
+  - **(j) The shared key is the entity account's.** "parker@blackboxsafety.com is the
+    entity". So it is on the 1,000-requests-a-day tier.
+  - **(k) Key expiry.** The current key was issued 2026-10-02, valid 89 days, through
+    2026-12-30. Canon, "Federal codes", records the account and the expiry date, never the
+    value.
+    - **Declined: storing the key in this repo.** Parker asked to "store that to the bbs
+      claude marketplace". The key's value was not written to git, because AGENTS.md
+      ("Credentials stay out of git — API keys") and invariant 2 put credentials outside the
+      repo. It goes in each machine's `SAM_GOV_API_KEY`.
+    - **Not done: a live test.** A one-request live test with the key, from the build
+      container, was refused by the auto-mode permission classifier. The SAM.gov script is
+      still unverified live.
+  - **Set-aside size flag (Rex, PR #52 review).** Every SDVOSB, VOSB and small-business fit
+    line reads "Eligible" and also carries a flag to confirm BBS is small under that NAICS
+    size standard, because all three are small-business programs. This is not a new ruling:
+    it is the stricter reading of (e) and of canon. **Ask:** Parker confirms the flag stays.
+  - **(l) The key reaches machines through the bootstrap, not the repo.** Parker, in
+    session: "Add the api to the GitHub repo so it's accessible through there. I haven't run
+    the install yet." The value is not committed (AGENTS.md, credentials). Instead,
+    `bbs-setup.ps1` and `bbs-setup.sh` ask for the key with hidden input, never print it, and
+    save it as `SAM_GOV_API_KEY`: the user environment on Windows, `~/.zprofile` on a Mac. Enter
+    skips. The Mac script refuses anything but letters, digits, `-` and `_`, so a paste cannot
+    break out of the profile line.
+    - **A GitHub Actions secret would not do this job.** Only workflows can read one; an
+      install cannot.
+  - **`bbs-tools` 0.2.0.** The two scripts reach installed machines only through the
+    version bump, so `bbs-tools` moves to 0.2.0 with the allow-list change.
 - **Connector access: everyone reads, writing to a shared space is by request — RULED
-  2026-10-02.** Parker, in session: "I want everyone to have access to all of the connectors
-  and items provided in BBS Claude Marketplace. Our team is small enough that there is no
-  reason to isolate the information." Asked how live writes should behave: "everyone should
-  have read access, but not write access. They have to request write access to anything
-  that acts as a shared information space, or canonical space, for the company." QuickBooks
-  payroll: "Everyone, block payroll" (every `qbo_payroll_*` tool denied and console-blocked,
-  admins included). Vercel: block purchases (`buy_*`, `create_or_transfer_domain`) and
-  `delete_project`, admins included. Supabase spending, asked the same day ("block Supabase
-  spending too"): `create_project`, `create_branch` and `restore_project` (each adds billing),
-  denied and console-blocked, admins included; no skill uses them. Team-rollout page: flip connector rows to Ready today
-  now. Every plugin was already enabled for everyone (`enabledPlugins`). Homes:
+  2026-10-02.** Parker, in session: "I want everyone to have access to all of the
+  connectors and items provided in BBS Claude Marketplace. Our team is small enough that
+  there is no reason to isolate the information." Asked how live writes should behave:
+  "everyone should have read access, but not write access. They have to request write
+  access to anything that acts as a shared information space, or canonical space, for the
+  company." QuickBooks payroll: "Everyone, block payroll" (every `qbo_payroll_*` tool
+  denied and console-blocked, admins included). Vercel: block purchases (`buy_*`,
+  `create_or_transfer_domain`) and `delete_project`, admins included. Supabase spending,
+  asked the same day ("block Supabase spending too"): `create_project`, `create_branch`
+  and `restore_project` (each adds billing), denied and console-blocked, admins included;
+  no skill uses them. Team-rollout page: flip connector rows to Ready today now. Every
+  plugin was already enabled for everyone (`enabledPlugins`). Homes:
   `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md` (matrix and "Enforcing write by
   request"), `bbs-managed-settings.json` `permissions.deny`, `docs/ADMIN-RUNBOOK.md` §3.
-  Managed settings and console blocks are org-wide, so write-by-request is enforced in each
-  system or by a read-only connection; **OPEN for Parker:** how each connector signs in, the
-  CRM's `crm_update_record` (already on everyone's account), and the new deny names'
-  live-fire check (`mcp__claude_ai_Vercel__` and `mcp__claude_ai_Supabase__` are inferred from the naming of the others).
-  Cursor plugins are unchanged (invariant 5).
+  Managed settings and console blocks are org-wide, so write-by-request is enforced in
+  each system or by a read-only connection; **OPEN for Parker:** how each connector signs
+  in, the CRM's `crm_update_record` (already on everyone's account), and the new deny
+  names' live-fire check (`mcp__claude_ai_Vercel__` and `mcp__claude_ai_Supabase__` are
+  inferred from the naming of the others). Cursor plugins are unchanged (invariant 5).
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.
