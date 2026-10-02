@@ -646,6 +646,17 @@ Write it up with evidence and move to the next slice. Do not idle.
   `permissions.blockReadsOutsideWorkingDirectories` is removed from their
   `~/.claude/settings.json` and a new session is started (`/add-dir` re-opens one folder at
   a time meanwhile); `/bbs-checkup` does not detect it yet.
+- **`so-search` and `bbs-po-status` move onto the Business Central connector — RULED
+  2026-10-02.** Parker, in session: "The business central purchase order finding should
+  work", then "Yes" to doing the retarget. This overrides the README's earlier "do not
+  retarget those two skills onto `bc_*`". Both now use `bc_query_entity` (read-only):
+  `salesInvoices` filtered on `customerPurchaseOrderReference` returns `orderNumber`;
+  `purchaseOrders` with `expand=purchaseOrderLines` returns line-level received and invoiced
+  quantities. Verified live the same day. Two behaviours the skills now state: Business
+  Central text search is case-sensitive and `tolower()` returns nothing silently, and
+  `purchaseOrderLines` cannot be queried without its parent. `requires:` is
+  `business-central` for both; the retired `bc-mcp-proxy` is required by nothing.
+  `bbs-rebate-profitability` stays on CData; this ruling does not cover it.
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.

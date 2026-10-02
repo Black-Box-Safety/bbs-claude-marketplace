@@ -11,7 +11,7 @@ description: >
   status. NEVER answer from the PO header `fullyReceived` flag — it is
   systematically unreliable. This skill applies to every vendor (Allstar Fire,
   Grainger, LION, Point Blank, etc.), not just one.
-requires: [bc-mcp-proxy]
+requires: [business-central]
 ---
 
 # BBS Purchase Order Status — Receipt & Outstanding Logic
@@ -61,29 +61,42 @@ receivedQuantity = invoicedQuantity + invoiceQuantity   (received-but-unbilled v
 
 ## Required procedure
 
-1. **Identify the PO set.** Pull PO headers for the vendor / date window via
-   `ListPurchaseOrders_PAG30066`. Use these only for `number`, `orderDate`,
-   `vendorName`, `vendorNumber`, and `id`. **Ignore `fullyReceived` and `status`
-   for receipt determination.** Do NOT skip any PO based on the header flag —
-   every PO in scope must be inspected at the line level.
+Every call goes through the Business Central connector's `bc_query_entity` (read-only).
+Text filters are case-sensitive; dates are bare `yyyy-mm-dd`.
 
-2. **Pull lines for EVERY PO** via `ListPurchaseOrderLines_PAG30067` (parent
-   `PurchaseOrder_id` = header `id`). Select:
-   `description, quantity, directUnitCost, receivedQuantity, invoiceQuantity, invoicedQuantity, amountExcludingTax`.
+1. **Identify the PO set and pull every line in the same call.**
 
-3. **Compute per line:**
+   ```
+   entitySet: purchaseOrders
+   filter:    vendorNumber eq '<V#####>' and orderDate ge <yyyy-mm-dd>   (or number eq 'PO-########')
+   select:    id, number, orderDate, vendorNumber, vendorName
+   expand:    purchaseOrderLines($select=description,quantity,directUnitCost,receivedQuantity,invoiceQuantity,invoicedQuantity,amountExcludingTax)
+   top:       200   (page with skip while has_more)
+   ```
+
+   Use the header only for `number`, `orderDate`, `vendorName`, `vendorNumber` and `id`.
+   **Do not select or use `fullyReceived` or `status` for receipt determination.** Do NOT skip
+   any PO based on the header: every PO in scope is inspected at the line level.
+   `purchaseOrderLines` cannot be queried on its own (Business Central requires the parent
+   document); it only comes back through `expand` on `purchaseOrders`.
+   To resolve a vendor name to its number, query `vendors` with
+   `contains(displayName,'<Name as spelled>')`.
+
+2. **Compute per line:**
    - Outstanding qty = `quantity − receivedQuantity`
    - Outstanding value = Outstanding qty × `directUnitCost`
    - Received value = `receivedQuantity` × `directUnitCost`
 
-4. **Validate "received" against Posted Purchase Invoices** (vendor bills) when
-   the number matters: `ListPurchaseInvoices_PAG30042` →
-   `ListPurchaseInvoiceLines_PAG30047`, and/or confirm posted receipts via
-   `ListPurchaseReceipts_PAG30064`. If no posted receipt/invoice exists, the
-   goods have not been received regardless of any header flag.
+3. **Validate "received" when the number matters.** Posted receipts:
+   `purchaseReceipts` (filter `orderNumber eq 'PO-########'`, expand `purchaseReceiptLines`).
+   Posted vendor bills: `purchaseInvoices` (expand `purchaseInvoiceLines`). Physical receipt
+   with cost: `itemLedgerEntries` with `entryType eq 'Purchase' and sourceNumber eq '<V#####>'`.
+   If no posted receipt or invoice exists, the goods have not been received, whatever any
+   header says. Check a field exists with `bc_describe_entity` before filtering on it; a
+   filter on a field the entity does not have fails with a 400, not an empty result.
 
-5. **Roll up** received value, outstanding value, and PO total (Σ
-   `amountExcludingTax`). Report all three.
+4. **Roll up** received value, outstanding value, and PO total (Σ `amountExcludingTax`).
+   Report all three, and say which entity each number came from.
 
 ## Data-quality flags to surface every time
 
@@ -104,10 +117,9 @@ receivedQuantity = invoicedQuantity + invoiceQuantity   (received-but-unbilled v
   reservation is a commitment, not a receipt.
 - Do **not** sum comment/spec lines into value totals.
 
-## Tools (Cloud BBS BC MCP / bc-mcp-proxy)
+## Tools (Business Central connector, read-only)
 
-- `ListPurchaseOrders_PAG30066` — PO headers
-- `ListPurchaseOrderLines_PAG30067` — PO lines (the source of truth)
-- `ListPurchaseReceipts_PAG30064` / `ListPurchaseReceiptLines_PAG30065` — posted receipts
-- `ListPurchaseInvoices_PAG30042` / `ListPurchaseInvoiceLines_PAG30047` — posted vendor bills (validation)
-- `ListItemLedgerEntries_PAG30069` — `entryType eq 'Purchase'`, `sourceNumber eq '<vendorNo>'` for physical receipt ground-truth with cost
+- `bc_query_entity` on `purchaseOrders` with `expand=purchaseOrderLines`: headers and lines (the lines are the source of truth)
+- `bc_query_entity` on `purchaseReceipts` / `purchaseInvoices` (with their line expands): posted receipts and vendor bills, for validation
+- `bc_query_entity` on `itemLedgerEntries`: physical receipt ground truth with cost
+- `bc_describe_entity`: field names and one sample record, before filtering on an unfamiliar field
