@@ -226,6 +226,35 @@ else
   fi
 fi
 
+# The shared BBS SAM.gov API key, for the sam-gov-opportunities skill (one account, one key
+# for the team: Parker, 2026-10-02). It is a credential, so it is never in this script or the
+# repo: the person running the bootstrap pastes it when asked (Parker supplies it), and it is
+# saved to ~/.zprofile beside NODE_PATH, which is what VS Code reads at launch. Input is hidden
+# and the value is never printed. Enter skips; rerun later to add it. Its expiry date is in
+# bbs-foundations canonical-facts.md, "Federal codes"; to replace it, delete that line and rerun.
+if [[ -n "${SAM_GOV_API_KEY:-}" ]] || grep -qs '^export SAM_GOV_API_KEY=' "$HOME/.zprofile"; then
+  printf '[ok]      %-22s %s\n' "SAM_GOV_API_KEY" "set (value not shown)"
+elif [[ $DRY_RUN -eq 1 ]]; then
+  printf '[would]   %-22s %s\n' "SAM_GOV_API_KEY" "ask for the BBS SAM.gov key from Parker"
+elif [[ ! -t 0 ]]; then
+  failed+=("SAM_GOV_API_KEY (rerun in a terminal and paste the key from Parker)")
+else
+  read -r -s -p "Paste the BBS SAM.gov API key from Parker (input hidden; press Enter to skip): " SAM_KEY_IN
+  echo ""
+  if [[ -z "$SAM_KEY_IN" ]]; then
+    printf '[skip]    %-22s %s\n' "SAM_GOV_API_KEY" "not set; rerun this script to add it"
+    failed+=("SAM_GOV_API_KEY (rerun and paste the key from Parker)")
+  elif [[ ! "$SAM_KEY_IN" =~ ^[A-Za-z0-9_-]+$ ]]; then
+    # Letters, digits, '-' and '_' only, so nothing pasted can break out of the quoted line.
+    printf '[skip]    %-22s %s\n' "SAM_GOV_API_KEY" "that paste had characters a key does not; rerun and paste the key alone"
+    failed+=("SAM_GOV_API_KEY (rerun and paste the key alone)")
+  else
+    printf "\n# BBS bootstrap: the shared SAM.gov API key (from Parker)\nexport SAM_GOV_API_KEY='%s'\n" "$SAM_KEY_IN" >> "$HOME/.zprofile"
+    printf '[install] %-22s %s\n' "SAM_GOV_API_KEY" "saved to ~/.zprofile (value not shown)"
+  fi
+  unset SAM_KEY_IN
+fi
+
 echo ""
 if [[ ${#failed[@]} -gt 0 ]]; then
   echo "Finished with ${#failed[@]} item(s) to install by hand: ${failed[*]}"
