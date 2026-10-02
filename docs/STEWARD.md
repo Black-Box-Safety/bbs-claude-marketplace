@@ -669,6 +669,24 @@ Write it up with evidence and move to the next slice. Do not idle.
   merge. The build session still never merges its own PR, and still never edits a PR Rex is
   reviewing. Parker merged PR #50 himself on 2026-10-02, by instruction in session, after
   both reviews' findings were fixed and CI was green.
+- **Claude may send, with a person's Allow on every send — RULED 2026-10-02.** Parker, in
+  session: "I actually want send to be enabled", then chose "Ask each time" over "Fully
+  allowed" and "Only for me", for Outlook email, Teams messages, and calendar and mailbox
+  rules. Rex's review of PR #55 raised three follow-ups, and Parker chose, in session:
+  "Org 'ask'", "Managed mods only" and "Keep send_draft denied". So: eight Microsoft 365
+  tools (`outlook_send_mail`, `outlook_forward_mail`, `outlook_respond_to_event`,
+  `outlook_create_filter`, `outlook_set_vacation`, and the three Teams sends) move from
+  `permissions.deny` to `permissions.ask` in `bbs-managed-settings.json` and are set to
+  `ask` in the admin console as well; `outlook_send_draft` stays denied (its Allow prompt
+  shows only a message id) and is `blocked` in the console; the SignNow and QuickBooks sends
+  stay denied and `blocked`; managed settings set `allowManagedModsOnly`, because a user's
+  mod can approve past an `ask` rule. This supersedes the 2026-09-11 draft-first deny for
+  those eight tools, narrows ruling (d) above to the still-denied tools, and rewords
+  `AGENTS.md` invariant 5 to "A person approves every send"; Cursor stays draft-only
+  (`.cursor/rules/bbs-invariants.mdc`). Org `ask` does not reach the Desktop app's local
+  sessions, so whether a Desktop Code-tab send stops for Allow is unverified; ADMIN-RUNBOOK
+  §3 has the test and the fallback. The team page, the coach rails, the desk template and
+  `/bbs-checkup` check 12 say what holds.
 - **Federal lookups: SAM.gov and USAspending skills — BUILT and RULED 2026-10-02.** Built
   the item Parker deferred on 2026-10-01 (see "The team-rollout page covers Sales" above).
   - **Skills.** `bbs-sales` gained two read-only skills:

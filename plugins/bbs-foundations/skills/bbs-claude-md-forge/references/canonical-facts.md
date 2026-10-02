@@ -207,7 +207,8 @@ rep asking to "complete the packet" is the approval to sign. The rule is **whose
 goes on which line** — never a third party's, never a customer's. Signature images are
 credentials: they live outside git, at each delegate's `signature_image`, and are
 referenced at run time. Sending
-stays human: the managed settings deny the send-class tools.
+stays human: in Claude Code each Outlook or Teams send waits for a person's Allow and the
+other send-class tools are denied (`bbs-managed-settings.json`; AGENTS.md invariant 5).
 
 Quote desk (2026-07): Aanya Samarasinghe (quotes/crossovers), Kim Quezon (door/tactical),
 Joyce Newell (POs), Jeff Azar (body armor), Griffin (federal). Accounting: Amy Leath.

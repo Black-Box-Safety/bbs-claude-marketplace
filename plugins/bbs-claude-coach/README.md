@@ -33,7 +33,7 @@ Everyone gets the whole toolkit. Roles at BBS overlap, so nothing here is locked
 
 Protection, not control:
 
-1. **Claude drafts; you send.**
+1. **Claude drafts; you approve every send.**
 2. **Never an invented number** (price, stock, lead time, cert). Unknown gets flagged.
 
 Full one-pager: `bbs-foundations` → `docs/AUP.md`.

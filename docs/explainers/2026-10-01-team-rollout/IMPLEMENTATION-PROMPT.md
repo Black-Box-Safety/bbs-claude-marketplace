@@ -277,7 +277,7 @@ Promise: `Less looking up the same balances one agency at a time.`
    - Today: `You write the same past-due reminder again and again.`
    - With Claude: `Claude writes the reminder into your Outlook Drafts. Run /bbs-my-voice once and it sounds like you. You read it and press send.`
    - Try saying: `Draft a polite past-due reminder for invoice ____ into my Outlook Drafts.`
-   - Under the hood: `The Outlook window can create a draft. In Claude Code it cannot send. /bbs-my-voice, in the foundations binder, learns only from your own Sent Items.`
+   - Under the hood: `The Outlook window can create a draft, and in Claude Code it sends only after you click Allow. /bbs-my-voice, in the foundations binder, learns only from your own Sent Items.`
 3. **A short payment over a price or quantity** · Ready today
    - Today: `An agency pays less because they say the price is wrong, and you chase sales to find out why.`
    - With Claude: `Claude lines up what we quoted, what the PO says and what shipped, says which one is wrong, and names who at the agency can approve a corrected PO. Sales decides what goes back to the customer.`
@@ -324,7 +324,7 @@ Promise: `Fewer retyped replies and order lookups.`
    - Today: `You answer the same sizing, lead-time and order-status emails over and over.`
    - With Claude: `Tell Claude what you want to say. It drafts the reply into your Outlook Drafts, in your voice once you run /bbs-my-voice. You check it and send it.`
    - Try saying: `Draft a reply to this email in my Outlook Drafts. Here's what I want to say: ____`
-   - Under the hood: `The Outlook window can create a draft. In Claude Code it cannot send.`
+   - Under the hood: `The Outlook window can create a draft, and in Claude Code it sends only after you click Allow.`
 2. **Where is this order?** · Ready today
    - Today: `You look an order up in Business Central screen by screen.`
    - With Claude: `Give Claude the sales order number and it reads the order, every line, from Business Central. Orders still sitting in Shopify are not visible to Claude yet.`
@@ -362,7 +362,7 @@ Promise: `Fewer retyped replies and order lookups.`
 - Heading: `What it will never do`
 - Sub: `In Claude Code, the app your setup installs, these rules are switched on for everyone. They are why it is safe to try things there.`
 - Flow steps: `You ask` → `Claude looks` → `Claude drafts` → `You check and send`
-- Tile 1: **`In Claude Code, it drafts and never sends.`** `In Claude Code, sending, forwarding and Teams messages are switched off for Claude. It can put a draft in your Outlook Drafts; you press send. The ordinary Claude chat window does not have these switches, so use Claude Code for this work.`
+- Tile 1: **`In Claude Code, nothing sends without your Allow.`** `In Claude Code, Claude can send an email or Teams message only after you click Allow on that send, or put a draft in your Outlook Drafts for you to send. The ordinary Claude chat window does not have this rule, so use Claude Code for this work.`
 - Tile 2: **`Reads Business Central, never changes it.`** `Business Central and Grainger are read-only for Claude. It cannot post, edit or delete a record.`
 - Tile 3: **`The right signer on the right line.`** `Signatures go only on the lines of the people allowed to sign them. Claude never signs for you.`
 - Tile 4: **`Your mailbox is yours.`** `Claude reads your mail only when you connect it and ask. It never reads anyone else's. /bbs-my-voice learns from your own Sent Items and stops if the mailbox isn't yours.`
@@ -405,7 +405,7 @@ Every capability on the page maps to one row. Check each path exists before you 
 | 4 | Cart PDF or screenshot to `ITEM#,QTY` for the Grainger portal | `plugins/bbs-sales/skills/rfq-item-extract/SKILL.md` | Ready today: `requires: []` |
 | 5 | Order or invoice by number, header and lines; past-due invoices; one agency's position | Business Central connector tools `bc_get_sales_document`, `bc_list_unpaid_invoices`, `bc_customer_snapshot`, `bc_query_entity`: `plugins/bbs-back-office/skills/bbs-order-reconciliation/references/tool-recipes.md`; read-only allow list in `plugins/bbs-foundations/docs/bbs-managed-settings.json`; connector row in `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md` | Ready today: assigned to everyone (`docs/ADMIN-RUNBOOK.md` §3) |
 | 6 | "Says where each number came from" | `README.md`, "What it will not do": "tells you where every number came from" | Ready today |
-| 7 | Drafts into your Outlook Drafts; in Claude Code cannot send, forward or message in Teams | `bbs-managed-settings.json` `permissions.allow` (draft tools) and `permissions.deny` (send, send-draft, forward, Teams, meeting responses, SignNow, QuickBooks sends) | Ready today |
+| 7 | Drafts into your Outlook Drafts; in Claude Code sends, forwards or messages in Teams only after a person's Allow | `bbs-managed-settings.json` `permissions.allow` (draft tools), `permissions.ask` (send, forward, Teams, meeting responses) and `permissions.deny` (send-draft, SignNow, QuickBooks sends) | Ready today |
 | 8 | `/bbs-my-voice` learns from your own Sent Items; stops on someone else's mailbox | `plugins/bbs-foundations/commands/bbs-my-voice.md` steps 1 and 2 | Ready today: `bbs-voice-template` `requires: [microsoft-365]` |
 | 9 | Workbooks, PDFs, statements | `document-skills` (pinned commons, `docs/COMMONS.md`); jobs map row in `plugins/bbs-claude-coach/skills/bbs-claude-coach/references/jobs-map.md` | Ready today |
 | 10 | Price sheet to the BBS import template; catalog load stays with Parker | `plugins/bbs-website/skills/price-list-cleaner/SKILL.md`; Supabase site-maintainer only per `MANAGED-SETTINGS.md` connector table | On Parker's list: `requires:` includes pandas, which the bootstrap does not install, and the output path assumes the website repo layout |
@@ -465,7 +465,7 @@ or the personal copies of marketplace skills). They are being retired (`HANDOFF.
     or is the `read-only` tag inside the Business Central or Grainger tile (the tile names
     its system). Any hit that could be read as covering Outlook, SharePoint, the CRM or
     "connectors" in general is a FAIL: Claude can write drafts, files and CRM records there.
-14. **Send claims are scoped.** `grep -niE 'cannot send|never sends?|switched off|can.t send'`
+14. **Send claims are scoped.** `grep -niE 'without your Allow|after you click Allow|cannot send|never sends?|switched off|can.t send'`
     on the built HTML: every hit names Claude Code in the same sentence. None says
     "everyone" or "always" without it.
 
@@ -502,8 +502,8 @@ Report what is missing, what you did up to that point, and what you need from Pa
    - Is Gap 4 (Shopify card-paid invoices showing unpaid in Business Central,
      `docs/assessments/2026-09-11-bc-assessment.md`) fixed? Until it is, Summer's card keeps
      its "check before you chase" caveat.
-   - Has the test send been denied in both VS Code and the Claude Desktop app's Claude Code
-     (ADMIN-RUNBOOK §1)? The page says sending is switched off in Claude Code; confirm it
+   - Did the test send stop for an Allow prompt in both VS Code and the Claude Desktop app's Claude Code
+     (ADMIN-RUNBOOK §1)? The page says a send in Claude Code waits for a person's Allow; confirm it
      before sharing the link.
    - The read-only claims rest on today's Business Central connector, which
      `MANAGED-SETTINGS.md` calls interim. When it is swapped for Microsoft's official

@@ -145,7 +145,7 @@ merged into `rfq-item-extract`, which is what the page names.
   | Job | Tool | Path | Status |
   |---|---|---|---|
   | Who owes us, what is past due; where we stand with one agency | Business Central connector (`bc_list_unpaid_invoices`, `bc_customer_snapshot`) | `plugins/bbs-back-office/skills/bbs-order-reconciliation/references/tool-recipes.md`; connector row "Quote of record, AR, open orders" in `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md` | Ready today (read-only) |
-  | Reminder email drafted into her own Outlook Drafts | Microsoft 365 connector, draft tools allowed, send denied | `plugins/bbs-foundations/docs/bbs-managed-settings.json` (allow and deny lists) | Ready today |
+  | Reminder email drafted into her own Outlook Drafts | Microsoft 365 connector, draft tools allowed, send behind an Allow prompt | `plugins/bbs-foundations/docs/bbs-managed-settings.json` (allow and ask lists) | Ready today |
   | Drafts that sound like her | `/bbs-my-voice` | `plugins/bbs-foundations/commands/bbs-my-voice.md` | Ready today |
   | A short-pay caused by a price or quantity dispute | `bbs-order-reconciliation` (names "purchasing or AR") | as above | Ready today |
   | Which invoices sit under a customer PO | `so-search` | `plugins/bbs-back-office/skills/so-search/SKILL.md` | On Parker's list |
@@ -268,7 +268,7 @@ Summer's card too, and the page links to it.
 2. *What it is.* One picture: an assistant at your desk who follows the BBS playbooks and
    looks through live windows into the systems you already use, then hands you a
    draft.
-3. *What it will never do.* In Claude Code, drafts and never sends; reads Business Central, never changes it;
+3. *What it will never do.* In Claude Code, nothing sends without your Allow; reads Business Central, never changes it;
    never reads anyone's mail but your own, and only when you ask.
 
 Then a three-step start that ends in the coach plugin.
@@ -319,11 +319,14 @@ their own. "Digital employee": feeds the fear we most need to remove.
 Said early (a one-line strap in the page header) and then in full (G3). Four promises,
 each grounded:
 
-1. **Claude drafts. You send.** In Claude Code, Outlook send, send-draft and forward, Teams messages,
-   meeting responses, SignNow invites and QuickBooks sends are denied for everyone in
-   managed settings. Those settings do not reach the ordinary claude.ai chat, where the
-   same connectors are live, so the page scopes the claim to Claude Code (`plugins/bbs-foundations/docs/bbs-managed-settings.json`,
-   `permissions.deny`). Drafting into your own Outlook Drafts is allowed.
+1. **Claude drafts. You approve every send.** In Claude Code, Outlook send and forward,
+   Teams messages, meeting responses, inbox rules and auto-replies wait for a person's
+   Allow on every call (`permissions.ask`, and org `ask` in the console); send-draft,
+   SignNow invites and QuickBooks sends are denied (`permissions.deny`; Parker,
+   2026-10-02). Those settings do not reach the ordinary claude.ai chat, where the same
+   connectors are live, so the page scopes the claim to Claude Code
+   (`plugins/bbs-foundations/docs/bbs-managed-settings.json`). Drafting into your own
+   Outlook Drafts is allowed.
 2. **It reads, it does not change.** The Business Central connector is read-only; every
    Business Central and Grainger tool on the allow list is a read
    (`bbs-managed-settings.json`, `permissions.allow`; `MANAGED-SETTINGS.md` connector
@@ -421,10 +424,10 @@ Hash links give each person the "my own section first" experience per-role pages
 - **Layout.** Top: a four-step horizontal flow, "You ask → Claude looks →
   Claude drafts → You check and send", with the last step visually owned by the person
   (filled node, the only gold accent). Below: four tiles, each icon + bold line + one
-  sentence: In Claude Code, drafts and never sends · Reads Business Central, never changes it · Right signer, right line · Your
+  sentence: In Claude Code, nothing sends without your Allow · Reads Business Central, never changes it · Right signer, right line · Your
   mailbox is yours. A fifth tile, quieter: "Rules are built in" (never an invented number;
   certification wording by channel).
-- **Hierarchy.** The flow's final step and tile 1's heading, "In Claude Code, it drafts and never sends.", carry the weight.
+- **Hierarchy.** The flow's final step and tile 1's heading, "In Claude Code, nothing sends without your Allow.", carry the weight.
 - **Data shown.** None.
 - **References.** Mobbin: Runner "Review before anything goes out" (numbered status list,
   last step human); Discord authorize screen ("cannot read your messages or send messages

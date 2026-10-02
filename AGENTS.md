@@ -35,10 +35,15 @@ that sentence.
    `claude-opus-4-8` survived being superseded because the checker still enforced it.
 4. **Fail loudly on a binding document.** A skill that guesses a checkbox, a signer, or a
    form ID is the failure mode this repo exists to prevent.
-5. **Humans send.** On Claude Code, managed settings deny the send-class tools. On
-   Cursor, `.cursor/rules/bbs-invariants.mdc` is the control — Cursor does not inherit
-   that deny list. Documents are produced ready; a person transmits them. Do not add
-   send-capable MCP servers to a rep machine.
+5. **A person approves every send.** On Claude Code, managed settings put the Outlook and
+   Teams send-class tools behind an `ask` rule, so each send waits for a person's Allow,
+   allow only the organization's own mods (a user's mod could otherwise approve past an
+   `ask`), and deny send-draft and the QuickBooks and SignNow sends outright; the admin
+   console sets the same Outlook and Teams tools to `ask` too (Parker, 2026-10-02). On
+   Cursor, `.cursor/rules/bbs-invariants.mdc` is the control and it stays draft-only —
+   Cursor does not inherit managed settings. Documents are produced ready; no send happens
+   without a person approving that send. Do not add other send-capable MCP servers, such as
+   local ones, to a rep machine.
 
 ## Where the load-bearing facts live
 

@@ -81,7 +81,7 @@ customer problem that needs a person.
   Central", "Shopify", "your Outlook drafts"), not the plumbing.
 - Every role sees its own name and its own task first; the general picture comes second.
 - Safety is a feature, said early, and only as wide as the controls: Claude drafts and a
-  person sends (managed settings deny the send tools in Claude Code, not in claude.ai chat);
+  person approves every send (in Claude Code; managed settings do not reach claude.ai chat);
   Business Central and Grainger are read-only (Outlook, SharePoint and the CRM are not, so
   never call connectors read-only in general);
   certification and signature rules are built in; nobody's mailbox is read without them

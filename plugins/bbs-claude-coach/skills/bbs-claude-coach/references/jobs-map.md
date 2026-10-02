@@ -18,7 +18,7 @@ the closer job and say so.
 | Order / invoice / "what do they owe us?" | Ask about the PO, order, or vendor balance | `bbs-back-office` | **Business Central** |
 | Problem order / reconciliation | Ask what the order needs (`bbs-order-reconciliation` lives in `bbs-back-office`) | `bbs-back-office` | **Business Central** |
 | AR: what is past due / where we stand with one agency | Ask; Claude reads Business Central (read-only) and says where each number came from. Shopify card payments may still show as unpaid: check before you chase | `bbs-back-office` | **Business Central** |
-| AR: past-due reminder email | Ask for the reminder in your Outlook Drafts; once, run `/bbs-my-voice`. You read it and send it | `bbs-foundations` (voice) | **Microsoft 365** (draft only; sending is denied in Claude Code) |
+| AR: past-due reminder email | Ask for the reminder in your Outlook Drafts; once, run `/bbs-my-voice`. You read it and send it | `bbs-foundations` (voice) | **Microsoft 365** (drafts; in Claude Code a send waits for your Allow) |
 | AR: short payment over a price or quantity | Ask which record is wrong (`bbs-order-reconciliation`); sales decides what goes back to the customer | `bbs-back-office` | **Business Central** |
 | Accounting: one question about the books, no export | Ask it in plain words; Claude reads Business Central (read-only) and names the records behind each number | `bbs-back-office` | **Business Central** |
 | Accounting: was a promised vendor credit received? | Ask about the PO; `bbs-order-reconciliation` lists credits, free replacements and absorbed freight ("Money owed back to us") | `bbs-back-office` | **Business Central** |
