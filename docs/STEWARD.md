@@ -729,6 +729,11 @@ Write it up with evidence and move to the next slice. Do not idle.
     save it as `SAM_GOV_API_KEY`: the user environment on Windows, `~/.zprofile` on a Mac. Enter
     skips. The Mac script refuses anything but letters, digits, `-` and `_`, so a paste cannot
     break out of the profile line.
+    - **Opt-in.** Parker, in session: "yes fix 1 and 2". The prompt now runs only with
+      `-SamGov` / `--sam-gov`, so people who never use SAM.gov are neither asked nor shown it
+      as undone. On Windows, a run with redirected input or `-NonInteractive` skips quietly
+      instead of erroring. Rex's PR #56 finding 3, the plain-text key readable by Claude, is
+      accepted ("3 is fine").
     - **A GitHub Actions secret would not do this job.** Only workflows can read one; an
       install cannot.
   - **`bbs-tools` 0.2.0.** The two scripts reach installed machines only through the
