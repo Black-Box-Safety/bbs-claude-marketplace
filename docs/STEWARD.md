@@ -756,6 +756,15 @@ Write it up with evidence and move to the next slice. Do not idle.
       install cannot.
   - **`bbs-tools` 0.2.0.** The two scripts reach installed machines only through the
     version bump, so `bbs-tools` moves to 0.2.0 with the allow-list change.
+- **Channels stay on; the repo file replaces the console copy — RULED 2026-10-02.** Parker
+  shared the console's live managed settings (v12), which set `channelsEnabled: true`, and
+  asked that it be "added to the managed settings". It is now in
+  `bbs-managed-settings.json`, so the paste in ADMIN-RUNBOOK §1 keeps channels on, and §1
+  says the repo file replaces the console copy whole. The same console copy's local
+  `bbs-grainger` server entry is not carried: it points at a path and gateway on Parker's
+  Mac, so on every other machine it fails. Everyone gets Grainger through the BBS Grainger
+  MCP connector assigned in the console (ADMIN-RUNBOOK §3); Parker said "I just want it to
+  work for everyone".
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.
