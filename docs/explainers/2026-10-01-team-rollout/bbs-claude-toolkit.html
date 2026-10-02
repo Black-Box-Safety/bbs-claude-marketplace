@@ -455,11 +455,14 @@ const CARDS = {
         today: "You write capability and teaming slides for a federal pursuit from a blank page.",
         claude: "Give Claude the raw content. It writes slide headlines, bullets and speaker notes in the BBS federal voice, with SDVOSB wording and no overstated federal traction. You build the deck and you present it.",
         say: "Write slide headlines and speaker notes for a capability briefing to ____.",
-        hood: "Playbook: bbs-deck-voice, in the foundations binder. It writes the words; Anthropic's PowerPoint playbook builds the file." }
+        hood: "Playbook: bbs-deck-voice, in the foundations binder. It writes the words; Anthropic's PowerPoint playbook builds the file." },
+      { title: "Open federal solicitations", status: "ready", for: ["kim", "griffin"],
+        today: "You search SAM.gov by hand for open notices under a NAICS code or an agency, then read each one for its set-aside.",
+        claude: "Ask what is open. Claude looks it up on SAM.gov and lists the open notices, soonest deadline first, with a column saying whether BBS can respond to each set-aside as an SDVOSB. Anything it cannot tell is flagged, not guessed. It needs your own free SAM.gov key, set up once; the playbook walks you through it.",
+        say: "What is open on SAM.gov for NAICS ____?",
+        hood: "Playbook: sam-gov-opportunities, in the sales binder. It only looks things up on SAM.gov: no bids, no registration, nothing written to the CRM." }
     ],
-    next: [
-      { t: "SAM.gov lookups: open federal solicitations for a NAICS code or an agency, found for you.", for: ["kim", "griffin"] }
-    ]
+    next: []
   },
   berenice: {
     group: "Purchasing",

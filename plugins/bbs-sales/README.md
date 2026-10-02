@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-16-b19800" alt="16 skills">
+  <img src="https://img.shields.io/badge/skills-17-b19800" alt="17 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
@@ -48,6 +48,11 @@ certification language leak into a state bid. On California competitive solicita
 discipline is different in both halves — OSDS 2009473 carries **DVBE only**, so claim the
 DVBE incentive (SCM §1202) and **never** the 5% SB preference (SCM §1204): BBS passed
 California's SB revenue threshold and is not a California small business.
+
+`sam-gov-opportunities` is the other federal exception: a read-only lookup of open SAM.gov
+solicitations by NAICS code or agency, with a column saying whether BBS can respond to each
+set-aside as an SDVOSB and federal small business. It reads only; it never bids, registers or
+writes to the CRM, and it says SDVOSB, never DVBE.
 
 An order that has already been taken is not this plugin's work. A wrong item, a short
 shipment, a price discrepancy on the PO — those go to `bbs-back-office`.
@@ -144,6 +149,13 @@ This skill does not touch the PDF stack or `vendor_profile.json` above: it has i
 - **A Business Central connection**, to pull the agency's ship-to addresses for the unit picker. `scripts/units_from_bc.py` turns a `bc_query_entity` result into `data/units.json`.
 - **Chrome installed locally**, for `scripts/make_og.py` to render the 1200x630 Open Graph preview card in the real brand typeface. Without a preview card the link renders as a bare URL in Outlook.
 - **The Vercel CLI**, for deploy: `vercel deploy --prod --yes --scope <team>`. The Vercel MCP deploy tool fails on payloads over about 100KB, which a page with product photography routinely exceeds, so use the CLI.
+
+### For `sam-gov-opportunities`
+
+Each person needs their own free SAM.gov public API key, in an environment variable named
+`SAM_GOV_API_KEY`, set outside Claude and never committed or pasted into a chat. The skill's
+Setup section has the steps. A personal key with no role on an entity is limited to 10
+requests a day; a role on BBS's entity registration raises it to 1,000.
 
 ## Commands
 

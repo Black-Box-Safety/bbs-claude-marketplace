@@ -139,5 +139,15 @@
    "items.pdf"
   ],
   "query": "Pull the Grainger numbers out of items.pdf."
+ },
+ {
+  "id": "sam-1",
+  "expect": "sam-gov-opportunities",
+  "query": "What's open on SAM.gov right now for NAICS 423450? Just the open solicitations."
+ },
+ {
+  "id": "sam-2",
+  "expect": "sam-gov-opportunities",
+  "query": "Are there any SDVOSB set-asides at the VA in California we could still respond to?"
  }
 ]

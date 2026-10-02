@@ -641,6 +641,34 @@ Write it up with evidence and move to the next slice. Do not idle.
   `permissions.blockReadsOutsideWorkingDirectories` is removed from their
   `~/.claude/settings.json` and a new session is started (`/add-dir` re-opens one folder at
   a time meanwhile); `/bbs-checkup` does not detect it yet.
+- **SAM.gov opportunities skill — BUILT 2026-10-02; five asks OPEN.** This is the item Parker
+  deferred on 2026-10-01 (see "The team-rollout page covers Sales" above).
+  - **What it is.** `bbs-sales` `sam-gov-opportunities` is a read-only lookup of open
+    federal notices, one GET request per NAICS code. Each person's key goes in
+    `SAM_GOV_API_KEY`.
+  - **PRs.** The `sam-gov` registry entry is its own review-side PR,
+    [Black-Box-Safety/bbs-claude-marketplace#51](https://github.com/Black-Box-Safety/bbs-claude-marketplace/pull/51).
+    The skill PR is stacked on it.
+  - **No new ruling.** The skill's "BBS fit" column applies the 2026-09-22 ruling and
+    nothing more: federally BBS is SDVOSB and a small business, it never says DVBE, and canon
+    is cited, not restated.
+  - **Design.** `docs/superpowers/specs/2026-10-02-sam-gov-opportunities-design.md`.
+  - **Not verified live.** Every request from the cloud build container got an empty 404,
+    with or without a key, so the script treats any 404 as a failure, never as "nothing open".
+
+  **Asks:**
+  - (a) **Record BBS's NAICS codes.** They are in neither canon nor `vendor_profile.json`, so
+    the skill asks for them, or writes `[MISSING — NEEDS INPUT]`.
+  - (b) **Are VA veteran-owned set-asides (VSA/VSS) claimable?** Canon records SDVOSB, not
+    VOSB, so they are flagged "confirm with Griffin".
+  - (c) **Do Kim's and Griffin's SAM.gov accounts hold a role on BBS's entity
+    registration?** Without one, a key gets 10 requests a day; with one, 1,000.
+  - (d) **Should the script join the `bbs-fill` allow list** so auto mode runs it without a
+    prompt? It is not on it: that is a permission decision, and this script makes network
+    calls. Until then each run asks.
+  - (e) **Should SAM.gov get a row in canon's Systems of record table?** The checker now
+    WARNs `system_not_in_canon`. The build treats SAM.gov as a public data source, not a
+    system of record.
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.
