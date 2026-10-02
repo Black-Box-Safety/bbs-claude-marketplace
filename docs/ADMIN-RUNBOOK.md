@@ -101,7 +101,8 @@ Supabase/Shopify/Vercel/QuickBooks stay admin-only.
 console's connector tool controls, set to `blocked` every connector tool that
 `plugins/bbs-foundations/docs/bbs-managed-settings.json` `permissions.deny` names (its
 `mcp__claude_ai_<connector>__<tool>` entries; currently Microsoft 365, Teams, SignNow and
-QuickBooks send-class tools). A connector the org has not connected has nothing to block.
+QuickBooks send-class tools). A connector the org has not connected has nothing to block yet; when one is connected,
+block its send tools here before assigning it to anyone.
 Why: the managed deny's connector entries are not documented to match in the Desktop app's
 Code tab, and managed settings do not reach Desktop chat or Cowork. The docs say the desktop
 app and claude.ai chat apply `blocked`; Cowork is unverified. `blocked` is org-wide: it
