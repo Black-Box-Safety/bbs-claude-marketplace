@@ -1,5 +1,13 @@
 # Build prompt: BBS Claude toolkit page for the team rollout
 
+> **Superseded 2026-10-02 for four rows.** `so-search` and `bbs-po-status` now run on the
+> Business Central connector (`requires: [business-central]`), and their page rows are Ready
+> today: Berenice's and Bella and Annette's "What vendors still owe us", Joyce's "Which order
+> is this customer PO?", and Summer's "Which invoices sit under a customer PO". Where this
+> file says those are On Parker's list, waiting on a Business Central link fix, or require
+> `bc-mcp-proxy`, the register entry "`so-search` and `bbs-po-status` move onto the Business
+> Central connector" (`docs/STEWARD.md`) and the page source win.
+
 > Parker: paste everything below the line into a fresh Claude Code session opened in the
 > `bbs-claude-marketplace` repo. It is self-contained. The reasoning behind it is in
 > `brief.md` beside this file; the builder does not need it.

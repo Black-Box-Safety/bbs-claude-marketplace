@@ -481,10 +481,11 @@ const CARDS = {
         claude: "Drop in the PDF or screenshot. Claude hands back ITEM#,QTY lines to paste into the Grainger portal. You check the count.",
         say: "Pull the item numbers and quantities from this Grainger cart.",
         hood: "Playbook: rfq-item-extract, in the sales binder. It reads only the file you give it." },
-      { title: "What a vendor still owes us", status: "list", reason: "Waiting on a Business Central link fix",
+      { title: "What a vendor still owes us", status: "ready",
         today: "The PO can say fully received when nothing has arrived, so you check every line.",
-        claude: "Soon: Claude adds up received and outstanding from the lines, never the header flag.",
-        hood: "Playbook: bbs-po-status, in the back office binder." }
+        claude: "Give Claude the vendor or the PO. It adds up received and outstanding from the lines, never the header flag, and flags lines with no price.",
+        say: "What is still outstanding on PO ____, line by line?",
+        hood: "Playbook: bbs-po-status, in the back office binder. It reads Business Central and never changes it." }
     ],
     note: "Working a problem order, you can write to Claude in English or Spanish. It answers in the language you write in and keeps PO numbers, part numbers and units like EA or PK exactly as printed.",
     next: [
@@ -512,10 +513,11 @@ const CARDS = {
         claude: "Claude tells you which record is wrong, which other POs have the same line, and who can approve the fix.",
         say: "PO ____ line ____ looks wrong. Which record is wrong?",
         hood: "Playbook: bbs-order-reconciliation, in the back office binder." },
-      { title: "Which order is this customer PO?", status: "list", reason: "Waiting on a Business Central link fix",
+      { title: "Which order is this customer PO?", status: "ready",
         today: "A PO number arrives and you search for the order behind it, invoiced or not.",
-        claude: "Soon: Claude finds the sales order from the customer's PO number, even before it has been invoiced.",
-        hood: "Playbook: so-search, in the back office binder." },
+        claude: "Give Claude the customer's PO number. It finds the sales order behind it from the invoices. If nothing is invoiced yet, it asks for the agency, a rough amount and the month, then finds the best match.",
+        say: "Which sales order is customer PO ____?",
+        hood: "Playbook: so-search, in the back office binder. It reads Business Central and never changes it." },
       { title: "Is this part on the DGS BPO?", status: "list", reason: "Waiting on this fiscal year's BPO list",
         today: "You look each Grainger part up on the BPO list.",
         claude: "Soon: Claude checks every part against the current list. Today it still holds last fiscal year's list, and it says so on every answer.",
@@ -544,10 +546,11 @@ const CARDS = {
         claude: "Claude lines up what we quoted, what the PO says and what shipped, says which one is wrong, and names who at the agency can approve a corrected PO. Sales decides what goes back to the customer.",
         say: "Invoice ____ was short-paid on line ____. Which record is wrong?",
         hood: "Playbook: bbs-order-reconciliation, in the back office binder." },
-      { title: "Which invoices sit under a customer PO", status: "list", reason: "Waiting on a Business Central link fix",
+      { title: "Which invoices sit under a customer PO", status: "ready",
         today: "A payment quotes a PO number and you search for the invoices behind it.",
-        claude: "Soon: Claude lists every invoice under that PO and the order it came from.",
-        hood: "Playbook: so-search, in the back office binder." }
+        claude: "Give Claude the PO number from the payment. It lists every invoice under that PO and the order it came from.",
+        say: "Which invoices are under customer PO ____?",
+        hood: "Playbook: so-search, in the back office binder. It reads Business Central and never changes it." }
     ],
     next: [
       "A collections run: the aging turned into reminder drafts, agency by agency.",
@@ -579,10 +582,11 @@ const CARDS = {
         today: "Business Central shows little or no margin on rebate deals, because the rebate isn't in it.",
         claude: "Soon: Claude applies the rebate by contract code and shows margin by account and by contract.",
         hood: "Playbook: bbs-rebate-profitability, in the back office binder." },
-      { title: "What vendors still owe us", status: "list", reason: "Waiting on a Business Central link fix",
+      { title: "What vendors still owe us", status: "ready",
         today: "The PO can say fully received when nothing has arrived.",
-        claude: "Soon: Claude adds up what is still outstanding from the receipt lines.",
-        hood: "Playbook: bbs-po-status, in the back office binder." }
+        claude: "Ask what a vendor still owes us. Claude adds up what is still outstanding from the PO lines, never the header flag.",
+        say: "What does ____ still owe us on open POs?",
+        hood: "Playbook: bbs-po-status, in the back office binder. It reads Business Central and never changes it." }
     ],
     noteHtml: "Roles overlap. <a href=\"#summer\">Summer's card</a> covers invoices and collections.",
     next: [
