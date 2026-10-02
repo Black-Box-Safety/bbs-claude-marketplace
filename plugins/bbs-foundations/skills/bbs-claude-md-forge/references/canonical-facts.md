@@ -22,10 +22,34 @@ numbers are never committed.
 
 | Channel | Say | Number | Expires |
 |---|---|---|---|
-| Federal, primes (Bechtel, USACE, Centerra, UCOR), DoD | **SDVOSB** (VA CVE / SBA VetCert) **and small business** under SBA size standards | UEI `FRK5MJD35GN5` | 05/16/2028 |
+| Federal, primes (Bechtel, USACE, Centerra, UCOR), DoD | **SDVOSB** (VA CVE / SBA VetCert), **VOSB**, **and small business** under SBA size standards | UEI `FRK5MJD35GN5` | 05/16/2028 |
 | California state agencies | **DVBE** — the OSDS certification carries DVBE only | `2009473` | 12/31/2027 |
 | LA County only | LA County DVBE (local credit only) | `10086` | 11/17/2027 |
 | City of San Diego only | SLBE (local credit only) | `17BB1659` | — |
+
+VOSB: Parker, in session, 2026-10-02 ("yes we are VOSB"); the GSA eLibrary record for
+`47QSWA23D000Y` lists "SBA Certified Veteran Owned Small Business". So VA veteran-owned
+set-asides (VSA/VSS) are claimable federally. The same record also lists "SBA Certified
+Small Disadvantaged Business"; Parker ruled 2026-10-02 "dont do small disadvantaged
+business": BBS **never** claims SDB, whatever that record lists.
+
+### Federal codes
+
+From BBS's SAM.gov entity record and GSA eLibrary, screenshots Parker supplied in session
+2026-10-02. The one home for these; skills read them here.
+
+- **NAICS** (primary first): `339113` (primary), `315210`, `316210`, `332216`, `332510`,
+  `332999`, `339920`, `423440`, `423610`, `423620`, `423690`, `423710`, `423840`.
+- **PSC:** `4210`, `4240`, `5110`, `5120`, `5340`, `5975`, `6135`, `6230`, `6515`, `6545`,
+  `7125`, `7320`, `8415`, `8430`, `8465`, `8470`. Complete (Parker, 2026-10-02).
+- **SAM.gov entity and API key.** BBS's entity registration is held by the
+  `parker@blackboxsafety.com` SAM.gov account, and the team's one shared public API key is
+  that account's, so it is entity-associated (the 1,000-requests-a-day tier, per the
+  SAM.gov System Account User Guide). The current key was issued 2026-10-02 and is valid
+  89 days, **through 2026-12-30**. The key's value is a credential: it is never written in
+  this repo; each machine holds it in `SAM_GOV_API_KEY`.
+- **GSA MAS `47QSWA23D000Y` SINs:** `3152`, `315210`, `316210`, `332216`, `332999`,
+  `332999BMS`, `339113PA`, `OLM`.
 
 ### Small-business status is channel-dependent, and the reason matters
 
@@ -99,7 +123,7 @@ and the 2026-09-28 move carried it over unchanged.
 | NASPO ValuePoint CA MRO Statewide LPA | `7-25-51-02.03` | Grainger-fulfilled. **Not** `7-25-52-02.03` (a typo that spread to `bbs-agent`), not legacy `7-18-51-02.18` |
 | CA Body Armor LPA | `1-23-84-07` | Point Blank, sole-source |
 | Sourcewell Body Armor | `091924-BBS` | |
-| GSA MAS | `47QSWA23D000Y` | 11/15/2022–11/14/2027. No "ult. 2042" |
+| GSA MAS | `47QSWA23D000Y` | Current option period ends 11/14/2027; ultimate contract end 11/14/2042 (GSA eLibrary; Parker, in session, 2026-10-02: "for GSA use 2042", superseding the old "no ult. 2042" line) |
 | NPPGov | `PS25650` | LE; BBS is the awarded vendor |
 | UC / OMNIA | `2018-000207` | |
 | CSU | — | |

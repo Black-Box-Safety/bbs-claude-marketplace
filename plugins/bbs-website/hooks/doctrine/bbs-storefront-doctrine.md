@@ -8,7 +8,7 @@ CERT & CLAIM DOCTRINE (hard — never violate):
 - No cross-jurisdiction cert credit: San Diego SLBE 17BB1659 and LA County DVBE 10086 are LOCAL only; statewide credit = OSDS DVBE 2009473. BBS is not a California small business; no SB or DVBE preference language in storefront copy. (Reason: BBS exceeded California's SB revenue threshold — bbs-foundations canonical-facts.md, "Small-business status is channel-dependent".)
 - A manufacturer's own GSA/contract vehicle does NOT authorize BBS to fulfill unless BBS is a named reseller (respect each _brief.md "landmines").
 - Pricing: Shopify price = MAP/MSRP list, NOT contract price (real contract price lives in Supabase). Label store prices "List price / contract pricing on quote" — never "GSA Net / Contract Net".
-- Canonical quote SLA = 48 hours. Contract vehicles = 8 (7 verified + NPPGov PS25650, BBS = awarded vendor). GSA MAS = 47QSWA23D000Y (period 2022-2027; no "ult. 2042").
+- Canonical quote SLA = 48 hours. Contract vehicles = 8 (7 verified + NPPGov PS25650, BBS = awarded vendor). GSA MAS = 47QSWA23D000Y (current option period to 2027; ultimate end 2042).
 
 DESIGN TOKENS (use existing, add none): --navy #051c2c, --gold #b19800, --gold-ink (dark gold, PAPER surfaces only), --paper, --black, --gray-2, --line*. Fonts: --display (uppercase headings), --mono (tracked micro-labels), --body. Focus ring: --gold on dark grounds, --gold-ink on paper (WCAG 2.2 non-text >=3:1; body text >=4.5:1).
 
