@@ -37,8 +37,9 @@ these.
 ## Draft vs send
 
 Everything Claude produces — quotes, emails, filled forms, promo pages — is a **draft**
-until a person reviews it. Claude can send an email or Teams message only after you click
-Allow on that send; it never sends on its own. That rail is on for everyone. See `aup-rails.md`.
+until a person reviews it. In Claude Code, Claude can send an email or Teams message only
+after you click Allow on that send; it never sends on its own there. In the ordinary chat
+window this is not guaranteed, so send from Claude Code. See `aup-rails.md`.
 
 ## Related words you will hear
 
@@ -46,5 +47,5 @@ Allow on that send; it never sends on its own. That rail is on for everyone. See
 |---|---|
 | Marketplace | This repo — the catalog of BBS plugins plus pinned outside tools |
 | Commons | Third-party plugins we pin (Chrome browsing, document skills, terse mode) — the marketplace repo's `docs/COMMONS.md` lists them |
-| Managed settings | Policy Parker pushes from the admin console (plugins on, send tools denied, company memory) |
+| Managed settings | Policy Parker pushes from the admin console (plugins on, every send behind an Allow prompt, company memory) |
 | System of record | The place a fact is true (Business Central for money, Supabase for catalog, SharePoint for documents) |

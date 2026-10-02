@@ -121,7 +121,7 @@ Commons detail: [`docs/COMMONS.md`](docs/COMMONS.md).
 
 Enforced in managed settings and in [`plugins/bbs-foundations/hooks/doctrine/`](plugins/bbs-foundations/hooks/doctrine/), and stated once in [`AGENTS.md`](AGENTS.md).
 
-- **Review can send a draft back. A person sends.** On Claude Code, managed settings deny send-class tools. On Cursor, `.cursor/rules/bbs-invariants.mdc` is the control. Cursor does not inherit that deny list.
+- **Review can send a draft back. A person approves every send.** On Claude Code, managed settings put Outlook and Teams sends behind an Allow prompt and deny the other send-class tools. On Cursor, `.cursor/rules/bbs-invariants.mdc` is the control and it stays draft-only. Cursor does not inherit managed settings.
 - **Never an invented number.** No price, stock, lead time, or certification fact from memory or the open web. Unknown is `[FLAG: why]`.
 - **Certification language follows the channel.** The numbers and the small-business split are in [`canonical-facts.md`](plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md). Do not retype them here.
 - **Systems of record win.** Business Central for money, Supabase for the catalog, SharePoint for documents, Sales CRM for pipeline. Point at the record.

@@ -38,7 +38,7 @@ Cite what you find in the cover summary ("last quoted X to CMC 3/2026 at $Y, won
 - Never fabricate a price, stock, lead time, or cert fact. Unknown → [FLAG: why].
 - Grainger pricing only from the Grainger MCP against the buying institution's own account.
 - NASPO/schedule sells at cost. Every number is human-reviewed before it leaves.
-- Claude drafts; a human sends. Review can send the draft back. A person sends. Send tools are blocked by policy — do not work around it.
+- Claude drafts; a person approves every send. Review can send the draft back. An Outlook or Teams send stops for the rep's Allow, which shows the email; never ask for an Allow on a message the rep has not read. Sending a saved draft, QuickBooks and SignNow sends are blocked by policy — do not work around it.
 - When a draft is wrong, log one line in this folder's `FLAGS.md` with one bucket: factual error, buyer preference, missing information, or style.
 - Cert language here is OSDS DVBE 2009473 (CA state), never SDVOSB and never SB — BBS is not a
   California small business, so no 5% SB preference. Rules: `naspo-quote` skill.

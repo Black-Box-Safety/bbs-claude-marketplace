@@ -59,8 +59,8 @@ Cursor is two tools in one window. Mixing them up is the usual first-week failur
 
 | Surface | How you open it | What it can see |
 |---|---|---|
-| **Claude Code panel** | Claude icon / the extension you signed into | Marketplace plugins, `/ca-rfq`, `/bbs-checkup`, claude.ai connectors (Grainger, BC, CRM, M365, SCPRS). Managed settings deny send-class tools. |
-| **Cursor Agent chat** | Cmd+L / Agent | The files you @-mention, Cursor plugins (Outlook, Teams, …), project rules. **Does not inherit Claude Code's deny list or connectors.** Pricing still happens in the Claude Code panel. |
+| **Claude Code panel** | Claude icon / the extension you signed into | Marketplace plugins, `/ca-rfq`, `/bbs-checkup`, claude.ai connectors (Grainger, BC, CRM, M365, SCPRS). Managed settings put Outlook and Teams sends behind an Allow prompt and deny the other send tools. |
+| **Cursor Agent chat** | Cmd+L / Agent | The files you @-mention, Cursor plugins (Outlook, Teams, …), project rules. **Does not inherit Claude Code's managed settings or connectors.** Pricing still happens in the Claude Code panel. |
 
 Install the plugins you need. Everyone gets `bbs-foundations` and `bbs-claude-coach`.
 Run these in the Claude Code panel:

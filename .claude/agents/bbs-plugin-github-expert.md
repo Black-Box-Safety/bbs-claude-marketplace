@@ -99,8 +99,8 @@ inside** a skill, not a sibling skill that competes on description.
 
 - **Content** (skills, commands, plugins, hooks) lives in this repo. Merge to `main` and
   registered machines pick it up (`autoUpdate` on the marketplace).
-- **Policy** (which plugins are enabled, connectors per person, company memory, deny on
-  send-class tools) is **managed settings** pushed from the Claude admin console. The
+- **Policy** (which plugins are enabled, connectors per person, company memory, ask
+  and deny rules on send-class tools) is **managed settings** pushed from the Claude admin console. The
   template is `plugins/bbs-foundations/docs/bbs-managed-settings.json`. Updating the
   template is not the same as deploying it — name the Parker action in the PR.
 - **MCPs / connectors are not marketplace plugins.** Assign them in the console. A skill

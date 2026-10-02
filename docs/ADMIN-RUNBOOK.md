@@ -54,9 +54,9 @@ without the rep touching a settings file. Nothing is merged into a rep's own
    send; approve it and check it arrives (`/permissions` should list the send tools under
    Ask). Rules on wrong tool names fail silently, so this test is not optional. Repeat it once on the pilot rep's machine. The Desktop
    app's **Code** tab is tested after the console blocks in §3, not here: there connectors
-   arrive from the app and our ask and deny rules are not documented to match. **Cursor Agent chat is not covered by this deny list.** The stamped
+   arrive from the app and our ask and deny rules are not documented to match. **Cursor Agent chat is not covered by managed settings.** The stamped
    `.cursor/rules/bbs-invariants.mdc` is the control there; do not treat a Claude Code
-   send-denial as proof Cursor cannot send. Ask Claude to open Chrome and search a product — expect it to run without
+   Allow prompt as proof of how Cursor behaves. Ask Claude to open Chrome and search a product — expect it to run without
    a permission prompt (the browser tool is on the managed allow list). Then run `/context` and
    record the startup context size (managed CLAUDE.md + plugin skill descriptions + MCP tool
    schemas) in the deployment note; if MCP tool schemas dominate, trim connector assignments per
@@ -97,22 +97,31 @@ Per the matrix in MANAGED-SETTINGS.md: everyone gets BC MCP (Custom API, read-on
 M365, Grainger, Sales CRM; CA-book reps add SCPRS; BC Chat Connector is retired — unassign it;
 Supabase/Shopify/Vercel/QuickBooks stay admin-only.
 
-**Block the send tools in the console too (ruled 2026-10-02).** In the claude.ai admin
-console's connector tool controls, set to `blocked` every connector tool that
-`plugins/bbs-foundations/docs/bbs-managed-settings.json` `permissions.deny` names (its
-`mcp__claude_ai_<connector>__<tool>` entries; currently the SignNow and QuickBooks
-send-class tools). Do **not** block the Outlook and Teams send tools: since 2026-10-02 they
-are in `permissions.ask` so Claude can send with a person's Allow, and `blocked` would
-remove them everywhere, Claude Code included. A connector the org has not connected has nothing to block yet; when one is connected,
-block its send tools here before assigning it to anyone.
-Why: the managed deny's connector entries are not documented to match in the Desktop app's
+**Set the send tools in the console too (ruled 2026-10-02).** In the claude.ai admin
+console's connector tool controls (per-tool "Tool permission restrictions"):
+
+- set to **`blocked`** every connector tool that
+  `plugins/bbs-foundations/docs/bbs-managed-settings.json` `permissions.deny` names (its
+  `mcp__claude_ai_<connector>__<tool>` entries; currently Outlook send-draft and the
+  SignNow and QuickBooks send-class tools);
+- set to **`ask`** every Microsoft 365 tool that `permissions.ask` names (the Outlook and
+  Teams sends, meeting responses, inbox rules, auto-replies). Org `ask` makes Claude Code
+  prompt on every call, even in auto mode, and no allow rule or remembered answer skips it.
+  For Microsoft 365, first turn on its write actions, and make sure the Teams send tools
+  are not left at a default `blocked`, or Claude has no tool to send with.
+
+A connector the org has not connected has nothing to set yet; when one is connected, set
+its send tools here before assigning it to anyone. When a deny or ask entry is added in the
+managed settings, set the same tool here in the same change.
+Why: the managed rules' connector entries are not documented to match in the Desktop app's
 Code tab, and managed settings do not reach Desktop chat or Cowork. The docs say the desktop
-app and claude.ai chat apply `blocked`; Cowork is unverified. `blocked` is org-wide: it
-removes these tools from every member's chat too, admins included. When a deny entry is
-added there, block the same tool here in the same change (ask entries are not blocked). After setting the blocks, ask
-Claude in a Desktop app Code session to send you a test email: expect an Allow prompt before
-it goes out. If it sends without asking, the Desktop app is not applying our ask rules;
-tell the steward, and tell reps to send from VS Code until that is settled.
+app and claude.ai chat apply `blocked`; Cowork is unverified. Org `ask` does not reach the
+Desktop app's local sessions, and the docs do not say whether claude.ai chat honours it.
+Both settings are org-wide: `blocked` removes a tool from every member's chat too, admins
+included. After setting them, ask Claude in a Desktop app Code session to send you a test
+email: expect an Allow prompt before it goes out. If it sends without asking, set those
+tools to `blocked` in the console until it is settled (that also turns sending off in
+Claude Code) and tell the steward.
 
 Those assignments are **claude.ai connectors** (Claude Code, Desktop, and the Claude Code
 extension inside Cursor/VS Code). Reps do not use Cursor (ruled 2026-09-28).

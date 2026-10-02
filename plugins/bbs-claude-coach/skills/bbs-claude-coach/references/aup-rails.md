@@ -9,10 +9,12 @@ file for the rest.
 
 ## 1. Claude drafts; you approve every send
 
-Every quote, price, email, and form is a draft until **you** review it. In Claude Code the
-Outlook and Teams send tools stop for your Allow on every send (managed settings, Parker,
-2026-10-02); the QuickBooks and SignNow sends stay switched off. Asking Claude to "just
-send it" gets the draft shown first and an Allow prompt, never a silent send.
+Every quote, price, email, and form is a draft until **you** review it. In Claude Code
+Claude can send an email or Teams message only after you click Allow on that send, and the
+Allow prompt shows the recipients, subject and body (managed settings and the admin
+console, Parker, 2026-10-02). Sending a saved Outlook draft, QuickBooks sends and SignNow
+invites stay switched off: drafts Claude writes, you send from Outlook. In the ordinary
+Claude chat window this rule is not guaranteed, so do sending in Claude Code.
 
 ## 2. Never an invented number
 
