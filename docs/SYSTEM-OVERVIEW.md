@@ -88,7 +88,7 @@ Business Central.
 | Weekly sales report (`bbs-weekly-sales-report`) | Sales CRM, Business Central | Parker's summary of the CA team's week | Ready today |
 | Supplier options (`supplier-scout`) | SCPRS, Business Central, the web | Makers, distributors, alternates; prices only from pages opened | Ready today |
 | Problem order (`bbs-order-reconciliation`) | Business Central, Grainger, Microsoft 365 | Which record is wrong, every affected PO, who can approve the fix, money owed back | Ready today |
-| Order behind a customer PO; vendor still owes us (`so-search`, `bbs-po-status`) | Business Central | Invoices and SO for a PO; received and outstanding from the lines | Ready once this change merges |
+| Order behind a customer PO; vendor still owes us (`so-search`, `bbs-po-status`) | Business Central | Invoices and SO for a PO; received and outstanding from the lines | Ready today |
 
 ### Tier 2: small builds that join what we already have
 
