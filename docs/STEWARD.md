@@ -609,8 +609,11 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **Team-rollout page, signature wording — RULED 2026-10-02.** Parker, in session: "Claude
   can sign it for outside sales, that is the point. They do not need to know about counsel,
   just that claude can sign the packets for them. make it more direct and simpler." Tile 3
-  now reads: Claude signs sales packets for you once Parker has your signature on file; it
-  signs only your lines, never for a customer; anything it can't sign comes back flagged.
+  is seen by every reader, so it is scoped to Sales (PR #50 review): "If you're in Sales,
+  Claude signs your packets once Parker has your signature on file. It signs each line as
+  the right person, and never for a customer. Anything it can't sign comes back flagged.
+  Outside Sales, it doesn't sign for you." "Each line as the right person" covers Jackson's
+  owner lines (R3, R5); "Outside Sales" keeps the six non-delegates out (R1a).
   The RFQ row says it signs the packet and flags what it can't sign. Page copy only: the
   signing rules themselves stay R1, R1a, R1b, R2 and R5, unchanged. All four Sales readers'
   `signature_image` is null today, so until their PNGs are filed their lines come back

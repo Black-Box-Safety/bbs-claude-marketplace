@@ -4,7 +4,7 @@
 const path = require('path');
 let playwright;
 try { playwright = require('playwright'); }
-catch { playwright = require('/opt/node22/lib/node_modules/playwright'); }
+catch { playwright = require(process.env.PLAYWRIGHT_MODULE || '/opt/node22/lib/node_modules/playwright'); } // fallback is the cloud container's path; set PLAYWRIGHT_MODULE elsewhere
 
 (async () => {
   const dir = __dirname;
