@@ -66,7 +66,7 @@ The skill lists live in each plugin README. Certification strings live in [`plug
 
 **First command.** There is no slash command. Ask one of the four questions.
 
-**Will not.** Post to Business Central, send the customer an answer, or retarget `so-search` and `bbs-po-status` off the retired `bc-mcp-proxy`, or retarget `bbs-rebate-profitability` off CData. Those gaps are named under Connectors. Detail: [`plugins/bbs-back-office/README.md`](plugins/bbs-back-office/README.md).
+**Will not.** Post to Business Central, send the customer an answer, or retarget `bbs-rebate-profitability` off CData. (`so-search` and `bbs-po-status` moved onto the Business Central connector by Parker's ruling of 2026-10-02.) Those gaps are named under Connectors. Detail: [`plugins/bbs-back-office/README.md`](plugins/bbs-back-office/README.md).
 
 ## Website
 
@@ -154,8 +154,7 @@ python3 scripts/check_marketplace.py --requirements
 | Sales | Firecrawl | Optional. Page reads when a skill says it can continue without it. | claude.ai → Settings → Connectors, if it is listed. The key stays in the environment, never in git. |
 | Sales | USAspending | Federal award questions: incumbents, top vendors, subawards, BBS's own history. Read by `usaspending-awards` (`bbs-sales`) through a bundled script (ruled into the marketplace 2026-10-02). Cursor also runs it as `bbs-usaspending` (`usaspending_*`). The public award API needs no key. | Cursor Settings → MCP, on the machine that needs it. Do not copy another machine's `mcp.json`. Public API: [api.usaspending.gov](https://api.usaspending.gov). |
 | Sales | SAM.gov opportunities | Open solicitations for a NAICS or an agency, beside USAspending. Narrow lookup only. | Official Get Opportunities API: [open.gsa.gov](https://open.gsa.gov/api/get-opportunities-public-api/). BBS uses one shared key from one SAM.gov account (ruled 2026-10-02); Parker supplies the value. Store it in an environment variable named `SAM_GOV_API_KEY`. The value stays out of the repo. Read by `sam-gov-opportunities` (`bbs-sales`) through a bundled script; no server. |
-| Back office | Business Central (`bc_*`) | `bbs-order-reconciliation`. | Same Business Central connector as sales. |
-| Back office | `bc-mcp-proxy` | `so-search` and `bbs-po-status` still require it. | Gap. Managed settings already call this proxy retired. Do not retarget those two skills onto `bc_*` in order to "finish" them. |
+| Back office | Business Central (`bc_*`) | `bbs-order-reconciliation`, `so-search`, `bbs-po-status`. | Same Business Central connector as sales. The retired `bc-mcp-proxy` is required by nothing now. |
 | Back office | CData Connect AI | `bbs-rebate-profitability`. A third path to the same books. | Gap. Do not retarget that skill onto the current Business Central connector in order to "finish" it. |
 | Website | Supabase | The catalog. Whole team. | claude.ai → Settings → Connectors → Supabase, or Cursor Settings → Plugins → Supabase. A catalog write still waits for a person. |
 | Website | Shopify | The storefront. Whole team. | Shopify CLI on the machine. Managed settings already ask before `shopify theme push`. Keep that ask. |
