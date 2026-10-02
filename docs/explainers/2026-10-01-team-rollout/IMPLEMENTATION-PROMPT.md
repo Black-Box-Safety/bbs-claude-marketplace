@@ -364,7 +364,7 @@ Promise: `Fewer retyped replies and order lookups.`
 - Flow steps: `You ask` → `Claude looks` → `Claude drafts` → `You check and send`
 - Tile 1: **`In Claude Code, nothing sends without your Allow.`** `In Claude Code, Claude can send an email or Teams message only after you click Allow on that send, or put a draft in your Outlook Drafts for you to send. The ordinary Claude chat window does not have this rule, so use Claude Code for this work.`
 - Tile 2: **`Reads Business Central, never changes it.`** `Business Central and Grainger are read-only for Claude. It cannot post, edit or delete a record.`
-- Tile 3: **`The right signer on the right line.`** `Signatures go only on the lines of the people allowed to sign them. Claude never signs for you.`
+- Tile 3: **`The right signer on the right line.`** Body: the text recorded in the `docs/STEWARD.md` register entry "Team-rollout page, signature wording — RULED 2026-10-02", exactly as worded there (scoped to Sales; the page source is the current copy). Do not write a signing sentence of your own.
 - Tile 4: **`Your mailbox is yours.`** `Claude reads your mail only when you connect it and ask. It never reads anyone else's. /bbs-my-voice learns from your own Sent Items and stops if the mailbox isn't yours.`
 - Tile 5 (quieter): **`Rules built in.`** `No invented numbers: if Claude doesn't know, it flags it. Certification wording follows the channel: DVBE for California state work, SDVOSB for federal.`
 - Closing line: `The full one-page policy is the AUP you sign with Parker.`
@@ -414,7 +414,7 @@ Every capability on the page maps to one row. Check each path exists before you 
 | 13 | Margin after the Grainger rebate | `plugins/bbs-back-office/skills/bbs-rebate-profitability/SKILL.md` | On Parker's list: `requires: [cdata-connect]`, not assigned |
 | 14 | BPO check, last fiscal year's list, says so | `plugins/bbs-sales/skills/dgs-bpo-item-check/SKILL.md`; `docs/STEWARD.md` item "FY26/27 BPO list" | On Parker's list |
 | 15 | Business Central and Grainger read-only | Both connectors expose only read tools: Business Central's tool list in `MANAGED-SETTINGS.md`'s connector table, which marks it read-only; Grainger's tools are search, price, availability and resolve-part reads. `README.md` "Write to Business Central" under "What it will not do" | Rule |
-| 16 | Signatures only on the lines of people allowed to sign | `plugins/bbs-sales/references/ca-form-rules.md` "Who signs what" and "Rep-signed lines and delegated signatures"; canonical-facts "People and signatures" (none of the six readers is a delegate) | Rule |
+| 16 | Signatures only on the lines of people allowed to sign | `plugins/bbs-sales/references/ca-form-rules.md` "Who signs what" and "Rep-signed lines and delegated signatures"; canonical-facts "People and signatures". The four Sales readers (Kim, Aanya, Joey, Griffin) are R1a delegates; the other readers are not. Wording: register entry "Team-rollout page, signature wording — RULED 2026-10-02" | Rule |
 | 17 | No invented numbers; unknown is flagged | `plugins/bbs-claude-coach/skills/bbs-claude-coach/references/aup-rails.md` rail 2 | Rule |
 | 18 | DVBE for California state, SDVOSB for federal | canonical-facts "Certifications, by jurisdiction" | Rule. The page never says "small business" |
 | 19 | Playbook, binder, window, shortcut | `plugins/bbs-claude-coach/skills/bbs-claude-coach/references/glossary.md` (skill = playbook, connector = live link, Parker assigns) | Explanation |

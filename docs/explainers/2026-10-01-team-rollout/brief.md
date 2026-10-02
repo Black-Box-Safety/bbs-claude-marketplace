@@ -334,9 +334,10 @@ each grounded:
 3. **The right signer on the right line.** Signatures belong to the six people counsel's
    authorization covers, on the lines each may sign
    (`plugins/bbs-sales/references/ca-form-rules.md`, "Who signs what" and "Rep-signed lines and delegated signatures";
-   canonical-facts "People and signatures"). None of the six readers is a delegate, so the
-   page states the rule without names: "Claude never signs for you and never puts anyone's
-   signature on a line that isn't theirs."
+   canonical-facts "People and signatures"). Of the page's readers, the four in Sales (Kim,
+   Aanya, Joey, Griffin) are delegates under R1a and the others are not, so the tile is
+   scoped to Sales. Its wording lives in one place: the `docs/STEWARD.md` register entry
+   "Team-rollout page, signature wording — RULED 2026-10-02".
 4. **Your mailbox is yours.** The Microsoft 365 connector works as the person signed in.
    `/bbs-my-voice` reads only your own Sent Items and stops if the mailbox is someone
    else's (`plugins/bbs-foundations/commands/bbs-my-voice.md`, step 1). Nobody's mail is
