@@ -755,13 +755,10 @@ Write it up with evidence and move to the next slice. Do not idle.
   inferred from the naming of the others). Cursor plugins are unchanged (invariant 5).
   **Signing is excluded** (Rex, PR #53 review): the ruling is about information and
   shared-space writes, so who signs stays R1 and R1a and no connector grant changes it;
-  SignNow grants no one signing by request. **OPEN for Parker**
-  (Rex, PR #53): whether QuickBooks' other irreversible tools
-  (`money_onboarding_application_submit`, `qbo_lending_shop_loans`,
-  `qbo_sales_delete_invoice`, `qbo_sales_delete_estimate`,
-  `qbo_sales_create_payment_link`, `quickbooks_transaction_import`) join the deny list,
-  and that the payroll denies are enumerated, so a payroll tool Intuit adds later is not
-  covered.
+  SignNow grants no one signing by request. **Closed** (Parker, in session): QuickBooks is
+  hardly used, so no further QuickBooks denies. **Signed off** (Parker, in session,
+  2026-10-02): "I approve the deny list changes" (payroll, Vercel, Supabase; Rex E1), and
+  Microsoft 365 is assigned to Rachelle ("yes it is assigned").
 - **Rachelle does not sign through Claude — RULED 2026-10-02.** Parker, in session, in the
   brief for her team-rollout card: "Signing stays off her page. Rachelle does not sign
   through Claude. Leave out packets, signing and form filling." She is not one of the R1a

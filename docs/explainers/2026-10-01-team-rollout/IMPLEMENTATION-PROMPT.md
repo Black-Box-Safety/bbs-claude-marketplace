@@ -23,7 +23,7 @@
 > Microsoft 365 rows were first On Parker's list (no connectors assigned); the same day Parker
 > ruled that everyone gets every connector and chose to flip them to Ready today "Now, on the
 > expectation you'll assign the connectors before sharing the link" (`docs/STEWARD.md`,
-> "Connector access"). Confirm Microsoft 365 is assigned to her before the link goes out.
+> "Connector access"). Parker confirmed Microsoft 365 is assigned to her (2026-10-02).
 > Re-running this prompt as written would drop her card as well.
 
 ---
