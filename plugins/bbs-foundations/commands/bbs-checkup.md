@@ -110,9 +110,10 @@ report format at the end. Read-only: create/modify nothing, send nothing.
     while that plugin is enabled). Then run `bbs-fill` with no arguments: it must print its
     usage line ("REFUSED — usage: …", exit 64) and run nothing — that is the expected
     answer, and it shows the launcher runs on this machine. Then ask the rep to type
-    `/permissions` and read you two things: whether **Allow** lists `Bash(bbs-fill *)`,
-    and whether **Deny** lists the Outlook `outlook_send_mail` tool. PASS = `bbs-fill`
-    resolves, prints its usage, and both rules are listed. WARN, naming which part failed:
+    `/permissions` and read you three things: whether **Allow** lists `Bash(bbs-fill *)`
+    and `Read(~/**/*Black Box Safety - MASTER/**)`, and whether **Deny** lists the Outlook
+    `outlook_send_mail` tool. PASS = `bbs-fill` resolves, prints its usage, and all three
+    rules are listed. WARN, naming which part failed:
     `bbs-fill` missing → rerun the bootstrap and restart (bbs-tools not installed); a rule
     missing → the managed settings on this machine are older than the current file: restart
     Claude Code, and if it is still missing tell Parker to re-paste them (ADMIN-RUNBOOK §1).
