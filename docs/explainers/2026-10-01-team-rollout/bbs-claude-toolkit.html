@@ -1,0 +1,782 @@
+<title>BBS Claude Toolkit</title>
+<meta name="description" content="Who does what with Claude at Black Box Safety: sales, purchasing, AR, accounting and body armor.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column, navy blocks carry emphasis, thin gold rules mark sections. */
+:root {
+  --bg: #f5f7f8;
+  --surface: #ffffff;
+  --tint: #edf1f3;
+  --fg: #051c2c;
+  --muted: #475966;
+  --line: #d3dbe0;
+  --gold: #b19800;
+  --strong-bg: #051c2c;
+  --strong-fg: #ffffff;
+  --focus: #051c2c;
+  --font-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --measure: 66ch;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #051c2c;
+    --surface: #0a2637;
+    --tint: #082131;
+    --fg: #eef2f5;
+    --muted: #a9b8c3;
+    --line: #26455b;
+    --gold: #c9ad1a;
+    --strong-bg: #eef2f5;
+    --strong-fg: #051c2c;
+    --focus: #e0c63a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #051c2c;
+  --surface: #0a2637;
+  --tint: #082131;
+  --fg: #eef2f5;
+  --muted: #a9b8c3;
+  --line: #26455b;
+  --gold: #c9ad1a;
+  --strong-bg: #eef2f5;
+  --strong-fg: #051c2c;
+  --focus: #e0c63a;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  padding-inline: 16px;
+  padding-block: 0 48px;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--gold); color: #051c2c; }
+.wrap { max-width: 1040px; margin-inline: auto; display: flex; flex-direction: column; gap: 56px; }
+h1, h2, h3, h4 { text-wrap: balance; line-height: 1.2; margin: 0; }
+p { margin: 0; }
+code, .mono { font-family: var(--font-mono); font-size: 0.92em; overflow-wrap: anywhere; }
+a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.rule { display: block; width: 48px; height: 2px; background: var(--gold); border: 0; margin: 0; }
+section > .head { display: flex; flex-direction: column; gap: 10px; max-width: var(--measure); }
+section > .head h2 { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); font-weight: 700; letter-spacing: -0.01em; }
+section > .head .sub { color: var(--muted); }
+section { display: flex; flex-direction: column; gap: 24px; }
+
+/* Header */
+header.top { padding-block: 32px 0; display: flex; flex-direction: column; gap: 20px; }
+.brandrow { display: flex; align-items: center; gap: 16px; }
+.plate { background: #ffffff; border-radius: 10px; padding: 8px; line-height: 0; border: 1px solid var(--line); }
+.plate img { height: 64px; width: auto; display: block; }
+.brandmeta { color: var(--muted); font-weight: 600; font-size: 0.9375rem; letter-spacing: 0.02em; }
+h1 { font-size: clamp(2rem, 1.4rem + 2.6vw, 3.25rem); font-weight: 800; letter-spacing: -0.02em; max-width: 18ch; }
+.lede { font-size: 1.1875rem; color: var(--muted); max-width: var(--measure); }
+.strap { background: var(--strong-bg); color: var(--strong-fg); border-radius: 10px; padding: 16px 20px; font-weight: 600; font-size: 1.125rem; display: flex; gap: 14px; align-items: flex-start; }
+.strap svg { flex: none; margin-top: 2px; color: var(--gold); }
+
+/* Picker */
+.picker { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.picker-label { font-weight: 700; font-size: 1.125rem; }
+.groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px 20px; }
+.group { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.group-name { font-size: 0.875rem; font-weight: 600; color: var(--muted); letter-spacing: 0.02em; }
+.who { appearance: none; text-align: start; font: inherit; color: var(--fg); background: var(--bg); border: 1.5px solid var(--line); border-radius: 8px; padding: 10px 14px; min-height: 44px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.who:hover { border-color: var(--fg); }
+.who .n { font-weight: 700; }
+.who .j { font-size: 0.9375rem; color: var(--muted); }
+.who[aria-pressed="true"] { background: var(--strong-bg); color: var(--strong-fg); border-color: var(--strong-bg); }
+.who[aria-pressed="true"] .j { color: var(--strong-fg); }
+.collapsed { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+.collapsed p { font-weight: 600; }
+.btn { appearance: none; font: inherit; font-weight: 600; color: var(--fg); background: transparent; border: 1.5px solid var(--fg); border-radius: 8px; padding: 8px 16px; min-height: 44px; min-width: 44px; cursor: pointer; }
+.btn:hover { background: var(--tint); }
+.hint { color: var(--muted); }
+
+/* Status chips */
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 0.875rem; font-weight: 600; line-height: 1; padding: 6px 10px; border-radius: 999px; white-space: nowrap; }
+.chip svg { flex: none; }
+.chip.ready { background: var(--strong-bg); color: var(--strong-fg); border: 1.5px solid var(--strong-bg); }
+.chip.list { background: transparent; color: var(--fg); border: 1.5px solid var(--fg); }
+.chip.later { background: transparent; color: var(--fg); border: 1.5px dashed var(--fg); }
+.legend { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; color: var(--muted); font-size: 0.9375rem; }
+.legend > span { display: inline-flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+
+/* Person card (G2) */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.card-head { display: flex; flex-direction: column; gap: 8px; }
+.card-head .role { font-weight: 600; color: var(--muted); }
+.card-head .shared { font-size: 0.9375rem; color: var(--muted); }
+.card-head .promise { font-size: 1.375rem; font-weight: 600; line-height: 1.3; max-width: 40ch; }
+.person-h { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); font-weight: 800; letter-spacing: -0.01em; }
+.card h3.card-title { font-size: 1.375rem; font-weight: 800; }
+.rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
+.row { display: flex; flex-direction: column; gap: 12px; padding-block: 20px; border-top: 1px solid var(--line); min-width: 0; }
+.row-top { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.row-title { font-size: 1.125rem; font-weight: 700; }
+.reason { color: var(--muted); font-size: 0.9375rem; }
+.pair { display: grid; grid-template-columns: 1fr 1.35fr; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.cell { padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.cell .lbl { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.04em; }
+.cell.today { background: var(--tint); color: var(--muted); }
+.cell.today .lbl { color: var(--muted); }
+.cell.claude { color: var(--fg); }
+.cell.claude .lbl svg { color: var(--gold); }
+.try { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; }
+.try-body { flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.try-lbl { font-size: 0.875rem; font-weight: 600; color: var(--muted); }
+.try-text { font-family: var(--font-mono); font-size: 0.9375rem; background: var(--tint); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-wrap: anywhere; }
+.copy { align-self: flex-end; display: inline-flex; align-items: center; gap: 8px; }
+details.hood > summary { cursor: pointer; font-weight: 600; font-size: 0.9375rem; color: var(--muted); min-height: 44px; display: inline-flex; align-items: center; gap: 8px; list-style: none; }
+details.hood > summary::-webkit-details-marker { display: none; }
+details.hood > summary .plus { font-family: var(--font-mono); }
+details.hood > summary .plus::before { content: "+"; }
+details.hood[open] > summary .plus::before { content: "\2212"; }
+details.hood p { color: var(--muted); font-size: 0.9375rem; max-width: var(--measure); padding-bottom: 4px; }
+.card-note { color: var(--muted); max-width: var(--measure); border-top: 1px solid var(--line); padding-top: 16px; }
+
+/* G1 */
+.g1 { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 24px; }
+.g1 figure { margin: 0; overflow-x: auto; }
+.g1 svg { display: block; width: 100%; height: auto; }
+.g1 .tall { display: none; max-width: 420px; margin-inline: auto; }
+@media (max-width: 719px) { .g1 .wide { display: none; } .g1 .tall { display: block; } }
+svg text { font-family: var(--font-body); fill: var(--fg); }
+svg .col-l { font-size: 13px; font-weight: 600; fill: var(--muted); letter-spacing: 0.03em; }
+svg .t-name { font-size: 15px; font-weight: 700; }
+svg .t-sub { font-size: 12.5px; fill: var(--muted); }
+svg .tile { fill: var(--bg); stroke: var(--line); stroke-width: 1.5; }
+svg .tag { fill: none; stroke: var(--fg); stroke-width: 1.2; }
+svg .tag-t { font-size: 11px; font-weight: 600; }
+svg .claude { fill: var(--surface); stroke: var(--fg); stroke-width: 2; }
+svg .c-name { font-size: 20px; font-weight: 800; }
+svg .you { fill: var(--strong-bg); }
+svg .you-t { font-size: 24px; font-weight: 800; fill: var(--strong-fg); }
+svg .gold { stroke: var(--gold); stroke-width: 3; }
+svg .dash { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 5; fill: none; }
+svg .solid { stroke: var(--fg); stroke-width: 2.25; fill: none; }
+svg .lab { font-size: 13px; font-weight: 600; }
+svg .eye-bg { fill: var(--surface); stroke: var(--muted); stroke-width: 1.2; }
+svg .eye { fill: none; stroke: var(--fg); stroke-width: 1.4; }
+svg .eye-p { fill: var(--fg); }
+svg .ink { fill: var(--fg); }
+svg .binder { fill: none; stroke: var(--fg); stroke-width: 1.6; }
+.terms { display: grid; grid-template-columns: minmax(180px, 14rem) 1fr; gap: 0; margin: 0; border-top: 1px solid var(--line); }
+.terms dt, .terms dd { padding-block: 12px; border-bottom: 1px solid var(--line); margin: 0; min-width: 0; }
+.terms dt { font-weight: 700; padding-inline-end: 16px; }
+.terms dd { color: var(--muted); }
+.foot { color: var(--muted); font-size: 0.9375rem; max-width: var(--measure); }
+
+/* G3 */
+.flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; counter-reset: none; }
+.flow li { position: relative; border: 1.5px solid var(--line); border-radius: 10px; padding: 16px; font-weight: 700; font-size: 1.0625rem; background: var(--surface); display: flex; align-items: center; min-height: 64px; }
+.flow li:not(:last-child)::after { content: ""; position: absolute; right: -11px; top: 50%; margin-top: -5px; border-style: solid; border-width: 5px 0 5px 8px; border-color: transparent transparent transparent var(--muted); }
+.flow li.final { background: var(--strong-bg); color: var(--strong-fg); border-color: var(--strong-bg); box-shadow: inset 0 -3px 0 var(--gold); }
+.rules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.rulecard { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; display: grid; grid-template-columns: 28px 1fr; gap: 6px 14px; align-content: start; }
+.rulecard svg { grid-row: span 2; color: var(--fg); margin-top: 2px; }
+.rulecard h3 { font-size: 1.125rem; font-weight: 700; }
+.rulecard p { color: var(--muted); }
+.rulecard.quiet { grid-column: 1 / -1; background: transparent; border-style: dashed; }
+.closing { font-weight: 600; }
+
+/* G4 */
+.start { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: start; }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 20px; }
+.steps li { display: grid; grid-template-columns: 40px 1fr; gap: 6px 14px; }
+.steps .num { grid-row: span 3; width: 36px; height: 36px; border-radius: 999px; border: 1.5px solid var(--fg); display: grid; place-items: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.steps li.primary .num { background: var(--strong-bg); color: var(--strong-fg); border-color: var(--strong-bg); }
+.steps h3 { font-size: 1.125rem; font-weight: 700; }
+.steps p { color: var(--muted); max-width: var(--measure); }
+.steps li.primary h3 { font-size: 1.3125rem; }
+.cmd { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 6px; }
+.cmd .try-text { font-size: 1.0625rem; font-weight: 500; }
+.ring { color: var(--gold); }
+.start-foot { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; }
+.quiet-links { color: var(--muted); font-size: 0.9375rem; display: flex; flex-wrap: wrap; gap: 6px 20px; }
+
+/* C6 */
+.next { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.next li { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; background: var(--surface); border: 1px dashed var(--muted); border-radius: 10px; padding: 14px 16px; }
+.next li span.t { flex: 1 1 260px; min-width: 0; }
+
+/* Everyone else */
+details.others { border-top: 2px solid var(--gold); padding-top: 8px; }
+details.others > summary { cursor: pointer; list-style: none; min-height: 44px; display: flex; align-items: center; gap: 12px; padding-block: 8px; }
+details.others > summary::-webkit-details-marker { display: none; }
+details.others > summary h2 { font-size: clamp(1.375rem, 1.15rem + 0.9vw, 1.75rem); font-weight: 700; }
+details.others > summary .plus { font-family: var(--font-mono); font-size: 1.25rem; width: 28px; height: 28px; border: 1.5px solid var(--fg); border-radius: 6px; display: grid; place-items: center; flex: none; }
+details.others > summary .plus::before { content: "+"; }
+details.others[open] > summary .plus::before { content: "\2212"; }
+.others-body { display: flex; flex-direction: column; gap: 24px; padding-top: 16px; }
+
+footer.end { border-top: 1px solid var(--line); padding-top: 20px; color: var(--muted); font-size: 0.9375rem; }
+
+@media (max-width: 719px) {
+  .wrap { gap: 44px; }
+  .pair { grid-template-columns: 1fr; }
+  .flow { grid-template-columns: 1fr; gap: 14px; }
+  .flow li:not(:last-child)::after { right: auto; left: 24px; top: auto; bottom: -12px; margin-top: 0; border-width: 8px 5px 0 5px; border-color: var(--muted) transparent transparent transparent; }
+  .rules { grid-template-columns: 1fr; }
+  .start { grid-template-columns: 1fr; }
+  .ring { display: none; }
+  .terms { grid-template-columns: 1fr; }
+  .terms dt { border-bottom: 0; padding-bottom: 0; }
+  .card, .g1, .start { padding: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brandrow">
+      <span class="plate"><img src="bbs_logo.png" alt="Black Box Safety" width="156" height="177"></span>
+      <p class="brandmeta">Black Box Safety · Internal</p>
+    </div>
+    <h1>Claude does the lookups. You make the calls.</h1>
+    <p class="lede">A short guide for sales, purchasing, accounts receivable, accounting and body armor. Pick your name to see your week first.</p>
+    <p class="strap"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.2-3 7.6-7 9-4-1.4-7-4.8-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg><span>Claude drafts. You send. It reads Business Central and never changes it.</span></p>
+  </header>
+
+  <main id="main" class="wrap">
+  <div id="picker" class="picker">
+    <noscript><p class="hint">Turn on JavaScript to see your own week first.</p></noscript>
+  </div>
+
+  <p id="nopick" class="hint">Pick your name above, or read on for the whole picture.</p>
+
+  <section id="person" aria-labelledby="person-h" hidden></section>
+
+  <section id="what" aria-labelledby="what-h">
+    <div class="head">
+      <span class="rule" aria-hidden="true"></span>
+      <h2 id="what-h">What Claude is at BBS</h2>
+      <p class="sub">An assistant at your desk. It follows the BBS playbooks, looks through live windows into the systems you already use, and hands you a draft.</p>
+    </div>
+    <div class="g1">
+      <figure>
+        <svg class="wide" viewBox="0 0 960 360" role="img" aria-labelledby="g1w-t g1w-d">
+          <title id="g1w-t">What Claude is at BBS</title>
+          <desc id="g1w-d">Claude looks into Business Central and Grainger, which it can only read, and into your Outlook and SharePoint. It follows the BBS playbooks and hands you a draft. You decide and you send.</desc>
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ink"/></marker>
+            <symbol id="eye" viewBox="0 0 22 22"><circle cx="11" cy="11" r="10" class="eye-bg"/><path d="M4.5 11c1.8-3 4-4.4 6.5-4.4s4.7 1.4 6.5 4.4c-1.8 3-4 4.4-6.5 4.4S6.3 14 4.5 11z" class="eye"/><circle cx="11" cy="11" r="2.1" class="eye-p"/></symbol>
+          </defs>
+          <text class="col-l" x="150" y="24" text-anchor="middle">Where the facts live</text>
+          <text class="col-l" x="480" y="24" text-anchor="middle">Who does the legwork</text>
+          <text class="col-l" x="810" y="24" text-anchor="middle">Who decides</text>
+          <path class="dash" d="M270 76 L380 168"/>
+          <path class="dash" d="M270 156 L380 188"/>
+          <path class="dash" d="M270 236 L380 212"/>
+          <path class="dash" d="M270 316 L380 232"/>
+          <use href="#eye" x="314" y="111" width="22" height="22"/>
+          <use href="#eye" x="314" y="161" width="22" height="22"/>
+          <use href="#eye" x="314" y="213" width="22" height="22"/>
+          <use href="#eye" x="314" y="263" width="22" height="22"/>
+          <text class="lab" x="325" y="88" text-anchor="middle">looks in</text>
+          <g><rect class="tile" x="30" y="44" width="240" height="64" rx="8"/><text class="t-name" x="46" y="70">Business Central</text><text class="t-sub" x="46" y="92">orders, invoices, POs</text><rect class="tag" x="190" y="54" width="68" height="20" rx="10"/><text class="tag-t" x="224" y="68" text-anchor="middle">read-only</text></g>
+          <g><rect class="tile" x="30" y="124" width="240" height="64" rx="8"/><text class="t-name" x="46" y="150">Your Outlook</text><text class="t-sub" x="46" y="172">your own mail</text></g>
+          <g><rect class="tile" x="30" y="204" width="240" height="64" rx="8"/><text class="t-name" x="46" y="230">SharePoint</text><text class="t-sub" x="46" y="252">customer folders</text></g>
+          <g><rect class="tile" x="30" y="284" width="240" height="64" rx="8"/><text class="t-name" x="46" y="310">Grainger</text><text class="t-sub" x="46" y="332">pricing</text><rect class="tag" x="190" y="294" width="68" height="20" rx="10"/><text class="tag-t" x="224" y="308" text-anchor="middle">read-only</text></g>
+          <rect class="claude" x="380" y="136" width="200" height="128" rx="12"/>
+          <g><rect class="binder" x="466" y="150" width="28" height="30" rx="3"/><line class="binder" x1="473" y1="150" x2="473" y2="180"/><circle class="ink" cx="473" cy="158" r="1.6"/><circle class="ink" cx="473" cy="165" r="1.6"/><circle class="ink" cx="473" cy="172" r="1.6"/></g>
+          <text class="c-name" x="480" y="216" text-anchor="middle">Claude</text>
+          <text class="t-sub" x="480" y="240" text-anchor="middle">with the BBS playbooks</text>
+          <path class="solid" d="M580 200 L722 200" marker-end="url(#ah)"/>
+          <text class="lab" x="651" y="190" text-anchor="middle">a draft</text>
+          <rect class="you" x="730" y="150" width="160" height="100" rx="12"/>
+          <text class="you-t" x="810" y="206" text-anchor="middle">You</text>
+          <line class="gold" x1="784" y1="222" x2="836" y2="222"/>
+          <path class="solid" d="M810 250 L810 330" marker-end="url(#ah)"/>
+          <text class="lab" x="822" y="296">you send</text>
+        </svg>
+        <svg class="tall" viewBox="0 0 360 760" role="img" aria-labelledby="g1t-t g1t-d">
+          <title id="g1t-t">What Claude is at BBS</title>
+          <desc id="g1t-d">Claude looks into Business Central and Grainger, which it can only read, and into your Outlook and SharePoint. It follows the BBS playbooks and hands you a draft. You decide and you send.</desc>
+          <defs>
+            <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ink"/></marker>
+            <symbol id="eye2" viewBox="0 0 22 22"><circle cx="11" cy="11" r="10" class="eye-bg"/><path d="M4.5 11c1.8-3 4-4.4 6.5-4.4s4.7 1.4 6.5 4.4c-1.8 3-4 4.4-6.5 4.4S6.3 14 4.5 11z" class="eye"/><circle cx="11" cy="11" r="2.1" class="eye-p"/></symbol>
+          </defs>
+          <text class="col-l" x="16" y="20">Where the facts live</text>
+          <path class="dash" d="M246 64 H320"/>
+          <path class="dash" d="M246 134 H320"/>
+          <path class="dash" d="M246 204 H320"/>
+          <path class="dash" d="M246 274 H320"/>
+          <path class="dash" d="M320 64 V330 H180 V356" marker-end="url(#ah2)"/>
+          <use href="#eye2" x="272" y="53" width="22" height="22"/>
+          <use href="#eye2" x="272" y="123" width="22" height="22"/>
+          <use href="#eye2" x="272" y="193" width="22" height="22"/>
+          <use href="#eye2" x="272" y="263" width="22" height="22"/>
+          <text class="lab" x="312" y="322" text-anchor="end">looks in</text>
+          <g><rect class="tile" x="16" y="34" width="230" height="60" rx="8"/><text class="t-name" x="30" y="58">Business Central</text><text class="t-sub" x="30" y="80">orders, invoices, POs</text><rect class="tag" x="168" y="66" width="68" height="20" rx="10"/><text class="tag-t" x="202" y="80" text-anchor="middle">read-only</text></g>
+          <g><rect class="tile" x="16" y="104" width="230" height="60" rx="8"/><text class="t-name" x="30" y="128">Your Outlook</text><text class="t-sub" x="30" y="150">your own mail</text></g>
+          <g><rect class="tile" x="16" y="174" width="230" height="60" rx="8"/><text class="t-name" x="30" y="198">SharePoint</text><text class="t-sub" x="30" y="220">customer folders</text></g>
+          <g><rect class="tile" x="16" y="244" width="230" height="60" rx="8"/><text class="t-name" x="30" y="268">Grainger</text><text class="t-sub" x="30" y="290">pricing</text><rect class="tag" x="168" y="256" width="68" height="20" rx="10"/><text class="tag-t" x="202" y="270" text-anchor="middle">read-only</text></g>
+          <text class="col-l" x="16" y="352">Who does the legwork</text>
+          <rect class="claude" x="80" y="362" width="200" height="110" rx="12"/>
+          <g><rect class="binder" x="166" y="372" width="28" height="30" rx="3"/><line class="binder" x1="173" y1="372" x2="173" y2="402"/><circle class="ink" cx="173" cy="380" r="1.6"/><circle class="ink" cx="173" cy="387" r="1.6"/><circle class="ink" cx="173" cy="394" r="1.6"/></g>
+          <text class="c-name" x="180" y="432" text-anchor="middle">Claude</text>
+          <text class="t-sub" x="180" y="454" text-anchor="middle">with the BBS playbooks</text>
+          <path class="solid" d="M180 472 V570" marker-end="url(#ah2)"/>
+          <text class="lab" x="192" y="524">a draft</text>
+          <text class="col-l" x="16" y="566">Who decides</text>
+          <rect class="you" x="100" y="576" width="160" height="96" rx="12"/>
+          <text class="you-t" x="180" y="632" text-anchor="middle">You</text>
+          <line class="gold" x1="154" y1="648" x2="206" y2="648"/>
+          <path class="solid" d="M180 672 V742" marker-end="url(#ah2)"/>
+          <text class="lab" x="192" y="714">you send</text>
+        </svg>
+      </figure>
+      <dl class="terms">
+        <dt>Playbook (a skill)</dt><dd>The BBS way of doing one job, written down. Claude picks the right one when your request matches. You don't have to name it.</dd>
+        <dt>Binder (a plugin)</dt><dd>A set of playbooks for one area, like back office or the website. Yours are already on your computer.</dd>
+        <dt>Window (a connector)</dt><dd>A live view into a system you already use. Parker switches these on for each person. Business Central and Grainger are read-only.</dd>
+        <dt>Shortcut (a command)</dt><dd>A word you type that starts with a slash, like <code>/bbs-what-can-i-do</code>.</dd>
+        <dt>You</dt><dd>You check it, you decide, you send.</dd>
+      </dl>
+      <p class="foot">Skill, plugin and connector are the words you'll see in Claude. Type <code>/bbs-explain-claude</code> for the plain-language version.</p>
+    </div>
+  </section>
+
+  <section id="never" aria-labelledby="never-h">
+    <div class="head">
+      <span class="rule" aria-hidden="true"></span>
+      <h2 id="never-h">What it will never do</h2>
+      <p class="sub">In Claude Code, the app your setup installs, these rules are switched on for everyone. They are why it is safe to try things there.</p>
+    </div>
+    <ol class="flow" aria-label="How a piece of work moves">
+      <li>You ask</li>
+      <li>Claude looks</li>
+      <li>Claude drafts</li>
+      <li class="final">You check and send</li>
+    </ol>
+    <div class="rules">
+      <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H5.5L4 17.5z"/><path d="M8 9h8M8 12h5"/></svg><h3>In Claude Code, it drafts and never sends.</h3><p>In Claude Code, sending, forwarding and Teams messages are switched off for Claude. It can put a draft in your Outlook Drafts; you press send. The ordinary Claude chat window does not have these switches, so use Claude Code for this work.</p></div>
+      <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg><h3>Reads Business Central, never changes it.</h3><p>Business Central and Grainger are read-only for Claude. It cannot post, edit or delete a record.</p></div>
+      <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 16c2-4 4-7 5.5-7S11 15 13 15s2.5-4 4-4 1.5 3 2 5"/></svg><h3>The right signer on the right line.</h3><p>Signatures go only on the lines of the people allowed to sign them. Outside sales, Claude never signs for you. In sales, a packet is signed only for the delegates counsel approved, only under counsel's limit, and only once Parker has that person's signature image on file; otherwise the lines stay blank and flagged.</p></div>
+      <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg><h3>Your mailbox is yours.</h3><p>Claude reads your mail only when you connect it and ask. It never reads anyone else's. <code>/bbs-my-voice</code> learns from your own Sent Items and stops if the mailbox isn't yours.</p></div>
+      <div class="rulecard quiet"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg><h3>Rules built in.</h3><p>No invented numbers: if Claude doesn't know, it flags it. Certification wording follows the channel: DVBE for California state work, SDVOSB for federal.</p></div>
+    </div>
+    <p class="closing">The full one-page policy is the AUP you sign with Parker.</p>
+  </section>
+
+  <section id="start" aria-labelledby="start-h">
+    <div class="head">
+      <span class="rule" aria-hidden="true"></span>
+      <h2 id="start-h">Start tomorrow</h2>
+    </div>
+    <div class="start">
+      <ol class="steps">
+        <li><span class="num" aria-hidden="true">1</span><h3>Get set up, once.</h3><p>Run the setup file Parker sends for your computer. If the window ends with anything other than Done, send Parker the whole window. Don't try to fix it.</p></li>
+        <li class="primary"><span class="num" aria-hidden="true">2</span><h3>Ask what it can do for you.</h3><p>Open Claude Code (in VS Code or the Claude Desktop app, where your setup put it) and type <code>/bbs-what-can-i-do</code>. Tell it what you're working on.</p>
+          <div class="cmd"><span class="try-text" id="cmd-main">/bbs-what-can-i-do</span><button type="button" class="btn copy" data-copy="cmd-main" aria-describedby="cmd-main"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>Copy</button></div></li>
+        <li><span class="num" aria-hidden="true">3</span><h3>Try your first ask.</h3><p>Copy the first "Try saying" line from your card, fill in the blank, and check what comes back.</p></li>
+      </ol>
+      <svg class="ring" width="96" height="96" viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="40" fill="none" stroke="var(--line)" stroke-width="6"/><path d="M48 8 A40 40 0 0 1 82.6 68" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/></svg>
+      <div class="start-foot">
+        <p>Something missing or wrong? Tell Parker in one line: what you asked, what happened. A missing tool is a request, not a dead end.</p>
+        <p class="quiet-links"><span><code>/bbs-explain-claude</code> · the words, in plain language</span><span><code>/bbs-start</code> · one first step for whatever is in front of you</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="next" aria-labelledby="next-h" hidden></section>
+
+  <details id="others" class="others"></details>
+  </main>
+
+  <footer class="end"><p>Owner: Parker Marshall. Questions go to Parker. Built from the BBS Claude marketplace as of 1 October 2026.</p></footer>
+</div>
+
+<div id="announce" class="vh" aria-live="polite"></div>
+
+<script>
+// Everything person-specific lives here. Removing someone is deleting their entry in PEOPLE.
+const PEOPLE = [
+  { slug: "kim", name: "Kim Quezon", group: "Sales", job: "Door and tactical quotes, CA state book", card: "sales" },
+  { slug: "aanya", name: "Aanya Samarasinghe", group: "Sales", job: "Quotes and crossovers, CA state book", card: "sales" },
+  { slug: "joey", name: "Joey Magliato", group: "Sales", job: "Customer accounts and quotes", card: "sales" },
+  { slug: "griffin", name: "Griffin Forsyth", group: "Sales", job: "Federal and Sourcewell contracts", card: "sales" },
+  { slug: "berenice", name: "Berenice", group: "Purchasing", job: "Vendor POs and problem orders", card: "berenice" },
+  { slug: "joyce", name: "Joyce Newell", group: "Purchasing", job: "Customer POs on the quote desk", card: "joyce" },
+  { slug: "summer", name: "Summer", group: "Accounts receivable", job: "Invoices and collections", card: "summer" },
+  { slug: "bella", name: "Bella", group: "Accounting", job: "Books, billing and reconciliation", card: "accounting" },
+  { slug: "annette", name: "Annette Somers", group: "Accounting", job: "Books, billing and reconciliation", card: "accounting" },
+  { slug: "emily", name: "Emily", group: "Body armor and Shopify", job: "Body armor orders and Shopify", card: "emily" }
+];
+
+const CARDS = {
+  sales: {
+    group: "Sales",
+    sharedBy: ["kim", "aanya", "joey", "griffin"],
+    promise: "Less time between an RFQ arriving and a packet ready to check.",
+    rows: [
+      { title: "An RFQ, start to packet", status: "ready",
+        today: "An agency sends an RFQ. You file it, price every line, build the quote and fill the state forms by hand.",
+        claude: "Type /ca-rfq and hand Claude the RFQ. It files it first, prices it, builds the quote and fills the packet, then hands you the files and every judgment call it made. Signatures go on only within counsel's delegation and only once Parker has your signature image on file; otherwise the lines stay blank and flagged. You check it and you send.",
+        say: "/ca-rfq This RFQ just came in from ____. File it, price it and complete the packet.",
+        hood: "Shortcut /ca-rfq, in the sales binder. It runs ca-rfq-intake, naspo-quote and the form playbooks in order and stops at any gate it cannot meet. It has no send step." },
+      { title: "Grainger and NASPO pricing", status: "ready",
+        today: "You look up each Grainger item on the right facility account and key the price into the worksheet.",
+        claude: "Give Claude the item numbers and the account. It prices them from Grainger live, with stock and ship dates, never from memory or the open web.",
+        say: "Price these Grainger items on account ____: ____",
+        hood: "Playbook: grainger-pricing, in the sales binder. The Grainger window is read-only." },
+      { title: "Before a visit or a new account", status: "ready",
+        today: "You pull an agency's history from Business Central and your notes before a call or a handover.",
+        claude: "Ask for a visit brief, an agency primer or a handover call list. Claude reads Business Central and gives you a call plan and a pocket card, or a dated list of who to call first.",
+        say: "Prep me for a site visit at ____ on ____.",
+        hood: "Playbooks: ca-site-visit-brief, ca-agency-primer and ca-territory-handoff, in the sales binder. They read Business Central and never change it." },
+      { title: "The follow-up email", status: "ready",
+        today: "You write the same follow-up emails by hand.",
+        claude: "Ask for a follow-up and Claude drafts it into your Outlook Drafts, in your voice once you run /bbs-my-voice. You check it and send it.",
+        say: "Draft a follow-up to ____ about quote ____ into my Outlook Drafts.",
+        hood: "The Outlook window can create a draft. In Claude Code it cannot send." },
+      { title: "What you quoted this week", status: "ready", for: ["kim", "aanya"],
+        today: "You rebuild your week from memory and the CRM when Parker writes up the weekly sales report.",
+        claude: "Ask what you quoted this week. Claude reads the Sales CRM the way Parker's weekly sales report does and lists your quotes, RFQs and orders.",
+        say: "What did I quote this week?",
+        hood: "Playbook: bbs-weekly-sales-report, in the sales binder. It covers Parker, Kim and Aanya on the CA state book and reads the Sales CRM." },
+      { title: "Supplier options for an unknown item", status: "ready",
+        today: "A line comes in for an item we have never sold, and you search the web part by part for who makes and sells it.",
+        claude: "Ask for supplier options. A scout agent searches the web on its own, with no window to switch on, and comes back with makers, distributors and alternates. A price counts only from a page it actually opened, with the link and the date. Grainger prices still come from Grainger.",
+        say: "Find supplier options for ____, quantity ____, for ____.",
+        hood: "Agent: supplier-scout, in the sales binder. It checks SCPRS and Business Central first, then searches the web. It cannot write files or send anything." },
+      { title: "Federal deck copy", status: "ready", for: ["griffin"],
+        today: "You write capability and teaming slides for a federal pursuit from a blank page.",
+        claude: "Give Claude the raw content. It writes slide headlines, bullets and speaker notes in the BBS federal voice, with SDVOSB wording and no overstated federal traction. You build the deck and you present it.",
+        say: "Write slide headlines and speaker notes for a capability briefing to ____.",
+        hood: "Playbook: bbs-deck-voice, in the foundations binder. It writes the words; Anthropic's PowerPoint playbook builds the file." }
+    ],
+    next: [
+      { t: "SAM.gov lookups: open federal solicitations for a NAICS code or an agency, found for you.", for: ["kim", "griffin"] }
+    ]
+  },
+  berenice: {
+    group: "Purchasing",
+    promise: "Less digging through four records to find the one that is wrong.",
+    rows: [
+      { title: "A problem order", status: "ready",
+        today: "Someone says the item or size is wrong. You open the PO, the bid sheet, the order sheet and Business Central, then search your email for what was promised.",
+        claude: "Give Claude the PO and the line. It lines up what the customer asked for, what we quoted, what the PO says and what shipped, tells you which one is wrong, finds every other PO with the same line, and names who can approve the fix. You decide. The account owner sends.",
+        say: "PO ____ line ____: the customer says the size is wrong. Which record is wrong, and who can approve the fix?",
+        hood: "Playbook: bbs-order-reconciliation, in the back office binder. It reads Business Central, Grainger and your own Outlook. It changes nothing in Business Central or Grainger." },
+      { title: "Money owed back to us", status: "ready",
+        today: "A vendor promised a credit on the phone. Weeks later nobody knows if it landed.",
+        claude: "When Claude rebuilds an order's history, it lists the credits promised, free replacements shipped and freight we paid for someone else's mistake, and who owes what. You decide what to chase.",
+        say: "On PO ____, was any vendor credit or free replacement promised, and did it happen?",
+        hood: "Same playbook, its \"money owed back to us\" step." },
+      { title: "A Grainger cart into the portal", status: "ready",
+        today: "You retype item numbers and quantities from a cart PDF or a screenshot.",
+        claude: "Drop in the PDF or screenshot. Claude hands back ITEM#,QTY lines to paste into the Grainger portal. You check the count.",
+        say: "Pull the item numbers and quantities from this Grainger cart.",
+        hood: "Playbook: rfq-item-extract, in the sales binder. It reads only the file you give it." },
+      { title: "What a vendor still owes us", status: "list", reason: "Waiting on a Business Central link fix",
+        today: "The PO can say fully received when nothing has arrived, so you check every line.",
+        claude: "Soon: Claude adds up received and outstanding from the lines, never the header flag.",
+        hood: "Playbook: bbs-po-status, in the back office binder." }
+    ],
+    note: "Working a problem order, you can write to Claude in English or Spanish. It answers in the language you write in and keeps PO numbers, part numbers and units like EA or PK exactly as printed.",
+    next: [
+      "A list of vendor POs past the date the vendor committed to.",
+      "One shared place to log vendor problems, so the pattern is on record when you talk to the vendor.",
+      "Vendor bill, PO and receipt checked against each other."
+    ]
+  },
+  joyce: {
+    group: "Purchasing",
+    promise: "Less hunting for the order behind a PO.",
+    rows: [
+      { title: "A whole order from its number", status: "ready",
+        today: "You click through Business Central screens to see what is on an order.",
+        claude: "Give Claude the sales order or invoice number. It reads the header and every line from Business Central, so you can check them against the customer's PO.",
+        say: "Show me SO-____ with every line.",
+        hood: "The Business Central window, which is read-only." },
+      { title: "A Grainger cart into the portal", status: "ready",
+        today: "You retype item numbers and quantities from a cart PDF or a screenshot.",
+        claude: "Drop in the PDF or screenshot. Claude hands back ITEM#,QTY lines to paste into the Grainger portal. You check the count.",
+        say: "Pull the item numbers and quantities from this Grainger cart.",
+        hood: "Playbook: rfq-item-extract, in the sales binder." },
+      { title: "A problem order", status: "ready",
+        today: "A customer says a line is wrong and you go looking through the PO, the quote and the emails.",
+        claude: "Claude tells you which record is wrong, which other POs have the same line, and who can approve the fix.",
+        say: "PO ____ line ____ looks wrong. Which record is wrong?",
+        hood: "Playbook: bbs-order-reconciliation, in the back office binder." },
+      { title: "Which order is this customer PO?", status: "list", reason: "Waiting on a Business Central link fix",
+        today: "A PO number arrives and you search for the order behind it, invoiced or not.",
+        claude: "Soon: Claude finds the sales order from the customer's PO number, even before it has been invoiced.",
+        hood: "Playbook: so-search, in the back office binder." },
+      { title: "Is this part on the DGS BPO?", status: "list", reason: "Waiting on this fiscal year's BPO list",
+        today: "You look each Grainger part up on the BPO list.",
+        claude: "Soon: Claude checks every part against the current list. Today it still holds last fiscal year's list, and it says so on every answer.",
+        hood: "Playbook: dgs-bpo-item-check, in the sales binder." }
+    ],
+    next: [
+      "A new customer PO checked against our quote, line by line, before the order is entered."
+    ]
+  },
+  summer: {
+    group: "Accounts receivable",
+    promise: "Less looking up the same balances one agency at a time.",
+    rows: [
+      { title: "Who owes us", status: "ready",
+        today: "You pull the aging, then open each agency to see what is still open.",
+        claude: "Ask what is past due, or where we stand with one agency. Claude reads Business Central and answers with the open invoices, orders and quotes in one place, and says where each number came from. Shopify card payments may still show as unpaid: check before you chase.",
+        say: "Which invoices are past due right now, oldest first?",
+        hood: "The Business Central window, which is read-only: it never posts or changes an invoice." },
+      { title: "The reminder email", status: "ready",
+        today: "You write the same past-due reminder again and again.",
+        claude: "Claude writes the reminder into your Outlook Drafts. Run /bbs-my-voice once and it sounds like you. You read it and press send.",
+        say: "Draft a polite past-due reminder for invoice ____ into my Outlook Drafts.",
+        hood: "The Outlook window can create a draft. In Claude Code it cannot send. /bbs-my-voice, in the foundations binder, learns only from your own Sent Items." },
+      { title: "A short payment over a price or quantity", status: "ready",
+        today: "An agency pays less because they say the price is wrong, and you chase sales to find out why.",
+        claude: "Claude lines up what we quoted, what the PO says and what shipped, says which one is wrong, and names who at the agency can approve a corrected PO. Sales decides what goes back to the customer.",
+        say: "Invoice ____ was short-paid on line ____. Which record is wrong?",
+        hood: "Playbook: bbs-order-reconciliation, in the back office binder." },
+      { title: "Which invoices sit under a customer PO", status: "list", reason: "Waiting on a Business Central link fix",
+        today: "A payment quotes a PO number and you search for the invoices behind it.",
+        claude: "Soon: Claude lists every invoice under that PO and the order it came from.",
+        hood: "Playbook: so-search, in the back office binder." }
+    ],
+    next: [
+      "A collections run: the aging turned into reminder drafts, agency by agency.",
+      "A payment advice matched to the invoices it pays.",
+      "A statement of account or invoice-copy pack for an agency."
+    ]
+  },
+  accounting: {
+    group: "Accounting",
+    sharedBy: ["bella", "annette"],
+    promise: "Ask Business Central a question in plain words.",
+    rows: [
+      { title: "One question, no export", status: "ready",
+        today: "You build a filter or an export to Excel to answer one question.",
+        claude: "Ask the question. Claude reads Business Central, read-only, and tells you which records each number came from, so you can check it.",
+        say: "From Business Central, list the purchase invoices posted last month that are still open.",
+        hood: "The Business Central window, which is read-only." },
+      { title: "Money owed back to us", status: "ready",
+        today: "A vendor credit was promised and nobody can tell if it ever landed.",
+        claude: "When Claude rebuilds an order's history, it lists the credits promised, free replacements shipped and freight we absorbed, so you know what to chase.",
+        say: "On PO ____, was any vendor credit promised, and did it post?",
+        hood: "Playbook: bbs-order-reconciliation, its \"money owed back to us\" step." },
+      { title: "A workbook from a pile of files", status: "ready",
+        today: "You copy columns between spreadsheets and statements by hand.",
+        claude: "Hand Claude the export and the statement. It builds the workbook and flags the rows that don't match. You check the flags.",
+        say: "Match this vendor statement against this export and flag what doesn't match.",
+        hood: "document-skills, Anthropic's Excel, Word and PDF playbooks, pinned in the toolkit." },
+      { title: "Margin after the Grainger rebate", status: "list", reason: "Needs a connection Parker hasn't switched on",
+        today: "Business Central shows little or no margin on rebate deals, because the rebate isn't in it.",
+        claude: "Soon: Claude applies the rebate by contract code and shows margin by account and by contract.",
+        hood: "Playbook: bbs-rebate-profitability, in the back office binder." },
+      { title: "What vendors still owe us", status: "list", reason: "Waiting on a Business Central link fix",
+        today: "The PO can say fully received when nothing has arrived.",
+        claude: "Soon: Claude adds up what is still outstanding from the receipt lines.",
+        hood: "Playbook: bbs-po-status, in the back office binder." }
+    ],
+    noteHtml: "Roles overlap. <a href=\"#summer\">Summer's card</a> covers invoices and collections.",
+    next: [
+      "A month-end close checklist.",
+      "Vendor statement reconciliation, and vendor bill, PO and receipt checked against each other."
+    ]
+  },
+  emily: {
+    group: "Body armor and Shopify",
+    promise: "Fewer retyped replies and order lookups.",
+    rows: [
+      { title: "The same question, again", status: "ready",
+        today: "You answer the same sizing, lead-time and order-status emails over and over.",
+        claude: "Tell Claude what you want to say. It drafts the reply into your Outlook Drafts, in your voice once you run /bbs-my-voice. You check it and send it.",
+        say: "Draft a reply to this email in my Outlook Drafts. Here's what I want to say: ____",
+        hood: "The Outlook window can create a draft. In Claude Code it cannot send." },
+      { title: "Where is this order?", status: "ready",
+        today: "You look an order up in Business Central screen by screen.",
+        claude: "Give Claude the sales order number and it reads the order, every line, from Business Central. Orders still sitting in Shopify are not visible to Claude yet.",
+        say: "Show me SO-____ with every line.",
+        hood: "The Business Central window, which is read-only." },
+      { title: "Wrong size delivered", status: "ready",
+        today: "An officer got the wrong size, and you go back through the order, the PO and the emails.",
+        claude: "Claude lines up what was ordered, what the PO says and what shipped, and tells you which one is wrong before anyone reorders.",
+        say: "SO-____: the officer received the wrong size. Which record is wrong?",
+        hood: "Playbook: bbs-order-reconciliation, in the back office binder." },
+      { title: "A Point Blank price sheet", status: "list", reason: "Needs one piece of software and the website folder set up",
+        today: "You key price-list rows into a template by hand.",
+        claude: "Soon: hand Claude the sheet. It cleans it into the BBS import template and tells you what it could not match. Loading it into the catalog stays with Parker.",
+        hood: "Playbook: price-list-cleaner, in the website binder." }
+    ],
+    next: [
+      "Shopify lookups: orders, products and size options.",
+      "One view of an officer's order from Shopify to Business Central to Point Blank.",
+      "A check that every agency's size options are complete.",
+      "The agency carrier procedure, brought into the toolkit."
+    ]
+  }
+};
+
+const ICON = {
+  ready: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="var(--strong-bg)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  list: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  later: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  x: '<svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  check: '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>',
+  copy: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>'
+};
+const CHIP_TEXT = { ready: "Ready today", list: "On Parker's list", later: "Not built yet" };
+
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+// Commands and blanks are set in mono wherever they appear in running text.
+const prose = s => esc(s).replace(/(\/bbs-[a-z-]+|\/ca-rfq|SO-____|_{4})/g, m => "<code>" + m + "</code>");
+const chip = k => `<span class="chip ${k}">${ICON[k]}${CHIP_TEXT[k]}</span>`;
+const byName = slug => PEOPLE.find(p => p.slug === slug);
+const joinNames = a => a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1];
+
+function cardTitle(cardKey, chosen) {
+  const c = CARDS[cardKey];
+  if (c.sharedBy) {
+    if (chosen && c.sharedBy.includes(chosen.slug)) return chosen.name;
+    return joinNames(c.sharedBy.map(s => byName(s)).filter(Boolean).map(p => p.name));
+  }
+  const p = PEOPLE.find(x => x.card === cardKey);
+  return p ? p.name : "";
+}
+
+let uid = 0;
+function renderCard(cardKey, chosen, level) {
+  const c = CARDS[cardKey];
+  const h = "h" + level, hr = "h" + (level + 1);
+  const name = cardTitle(cardKey, chosen);
+  const headId = chosen ? "person-h" : "card-" + cardKey;
+  let shared = "";
+  if (chosen && c.sharedBy) {
+    const other = c.sharedBy.filter(s => s !== chosen.slug).map(byName).filter(Boolean);
+    if (other.length) shared = `<p class="shared">Shared with ${esc(joinNames(other.map(o => o.name)))}</p>`;
+  }
+  const rowsFor = c.rows.filter(r => !(chosen && r.for && !r.for.includes(chosen.slug)));
+  const ready = rowsFor.filter(r => r.status === "ready");
+  const later = rowsFor.filter(r => r.status !== "ready");
+  const rows = ready.concat(later).map(r => {
+    uid += 1;
+    const sayId = "say-" + uid;
+    const top = `<div class="row-top"><${hr} class="row-title">${esc(r.title)}</${hr}>${chip(r.status)}${r.reason ? `<span class="reason">${esc(r.reason)}</span>` : ""}${!chosen && r.for ? `<span class="reason">For ${esc(joinNames(r.for.map(byName).filter(Boolean).map(p => p.name)))}</span>` : ""}</div>`;
+    const pair = `<div class="pair"><div class="cell today"><span class="lbl">${ICON.x}Today</span><p>${prose(r.today)}</p></div><div class="cell claude"><span class="lbl">${ICON.check}With Claude</span><p>${prose(r.claude)}</p></div></div>`;
+    const say = r.status === "ready" && r.say
+      ? `<div class="try"><div class="try-body"><span class="try-lbl">Try saying</span><span class="try-text" id="${sayId}">${esc(r.say)}</span></div><button type="button" class="btn copy" data-copy="${sayId}" aria-describedby="${sayId}">${ICON.copy}Copy</button></div>`
+      : "";
+    const hood = `<details class="hood"><summary><span class="plus" aria-hidden="true"></span>Under the hood</summary><p>${prose(r.hood)}</p></details>`;
+    return `<li class="row">${top}${pair}${say}${hood}</li>`;
+  }).join("");
+  const note = c.noteHtml ? `<p class="card-note">${c.noteHtml}</p>` : c.note ? `<p class="card-note">${prose(c.note)}</p>` : "";
+  const titleCls = chosen ? "person-h" : "card-title";
+  return `<article class="card" aria-labelledby="${headId}"><div class="card-head"><${h} id="${headId}" class="${titleCls}"${chosen ? ' tabindex="-1"' : ""}>${esc(name)}, your week with Claude</${h}>${shared}<p class="role">${esc(c.group)}</p><p class="promise">${esc(c.promise)}</p></div><ul class="rows">${rows}</ul>${note}</article>`;
+}
+
+const LEGEND = `<p class="legend"><span>${chip("ready")}<span>: works now.</span></span><span>${chip("list")}<span>: built, waiting on one fix or switch.</span></span><span>${chip("later")}<span>: tell Parker if you want it.</span></span></p>`;
+
+function renderPicker(chosen, open) {
+  const el = document.getElementById("picker");
+  if (chosen && !open) {
+    el.innerHTML = `<div class="collapsed"><p>Showing ${esc(chosen.name)}'s week first.</p><button type="button" class="btn" id="change">Change</button></div>`;
+    document.getElementById("change").addEventListener("click", () => {
+      renderPicker(chosen, true);
+      const first = el.querySelector(".who[aria-pressed=\"true\"]") || el.querySelector(".who");
+      if (first) first.focus();
+    });
+    return;
+  }
+  const groups = [];
+  PEOPLE.forEach(p => { let g = groups.find(x => x.name === p.group); if (!g) { g = { name: p.group, people: [] }; groups.push(g); } g.people.push(p); });
+  el.innerHTML = `<p class="picker-label" id="picker-label">Who are you?</p><div class="groups" role="group" aria-labelledby="picker-label">${groups.map(g => `<div class="group" role="group" aria-label="${esc(g.name)}"><span class="group-name" aria-hidden="true">${esc(g.name)}</span>${g.people.map(p => `<button type="button" class="who" data-slug="${p.slug}" aria-pressed="${chosen && chosen.slug === p.slug ? "true" : "false"}"><span class="n">${esc(p.name)}</span><span class="j">${esc(p.job)}</span></button>`).join("")}</div>`).join("")}</div>`;
+  el.querySelectorAll(".who").forEach(b => b.addEventListener("click", () => choose(b.dataset.slug, true)));
+}
+
+function render(slug, moveFocus) {
+  const chosen = byName(slug) || null;
+  const person = document.getElementById("person");
+  const next = document.getElementById("next");
+  const others = document.getElementById("others");
+  const nopick = document.getElementById("nopick");
+  renderPicker(chosen, false);
+
+  const main = document.getElementById("main");
+  const order = chosen
+    ? ["picker", "person", "what", "never", "start", "next", "others"]
+    : ["picker", "nopick", "what", "never", "start", "others"];
+  order.forEach(id => main.appendChild(document.getElementById(id)));
+
+  if (chosen) {
+    nopick.hidden = true;
+    person.hidden = false;
+    person.innerHTML = LEGEND + renderCard(chosen.card, chosen, 2);
+    const c = CARDS[chosen.card];
+    const items = c.next.map(n => typeof n === "string" ? { t: n } : n).filter(n => !n.for || n.for.includes(chosen.slug));
+    next.hidden = items.length === 0;
+    next.setAttribute("aria-labelledby", "next-h");
+    next.innerHTML = `<div class="head"><span class="rule" aria-hidden="true"></span><h2 id="next-h">Coming next</h2><p class="sub">Not built yet. Tell Parker which one you want first.</p></div><ul class="next">${items.map(n => `<li>${chip("later")}<span class="t">${esc(n.t)}</span></li>`).join("")}</ul>`;
+  } else {
+    nopick.hidden = false;
+    person.hidden = true;
+    person.innerHTML = "";
+    next.hidden = true;
+    next.innerHTML = "";
+  }
+
+  const seen = new Set();
+  const keys = [];
+  PEOPLE.forEach(p => { if (!seen.has(p.card)) { seen.add(p.card); keys.push(p.card); } });
+  const rest = keys.filter(k => !chosen || k !== chosen.card);
+  others.innerHTML = `<summary><span class="plus" aria-hidden="true"></span><h2>${chosen ? "Everyone else's week" : "See every role"}</h2></summary><div class="others-body">${chosen ? "" : LEGEND}${rest.map(k => renderCard(k, null, 3)).join("")}</div>`;
+  others.open = false;
+
+  wireCopy(document);
+  if (chosen && moveFocus) {
+    const h = document.getElementById("person-h");
+    if (h) h.focus();
+  }
+}
+
+function choose(slug, moveFocus) {
+  try { history.replaceState(null, "", "#" + slug); } catch (e) { /* the frame may refuse; the page still updates */ }
+  render(slug, moveFocus);
+}
+
+function wireCopy(root) {
+  root.querySelectorAll("button.copy").forEach(b => {
+    if (b.dataset.wired) return;
+    b.dataset.wired = "1";
+    b.addEventListener("click", () => {
+      const target = document.getElementById(b.dataset.copy);
+      if (!target) return;
+      const text = target.textContent;
+      const done = () => { const a = document.getElementById("announce"); a.textContent = ""; setTimeout(() => { a.textContent = "Copied"; }, 30); };
+      const fallback = () => {
+        const sel = window.getSelection(); const range = document.createRange();
+        range.selectNodeContents(target); sel.removeAllRanges(); sel.addRange(range);
+        document.getElementById("announce").textContent = "Text selected. Press Control C or Command C to copy.";
+      };
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+        else fallback();
+      } catch (e) { fallback(); }
+    });
+  });
+}
+
+document.addEventListener("click", e => {
+  const a = e.target.closest && e.target.closest("a[href^=\"#\"]");
+  if (!a) return;
+  const slug = a.getAttribute("href").slice(1);
+  if (byName(slug)) { e.preventDefault(); choose(slug, true); window.scrollTo(0, 0); }
+});
+window.addEventListener("hashchange", () => render(location.hash.slice(1), true));
+document.documentElement.lang = "en";
+render(location.hash.slice(1), false);
+</script>
