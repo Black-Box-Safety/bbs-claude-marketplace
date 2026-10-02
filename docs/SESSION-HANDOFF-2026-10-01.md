@@ -88,7 +88,7 @@ Deferred by Parker ("we will do that separately"):
   cloud session", has the five commands.
 - **Its static `detect` reports false low-contrast hits on a two-theme page.** Measured in a
   real browser, the page's lowest text contrast is 6.4:1 (light) and 7.68:1 (dark).
-- **Rex (`.claude/agents/rex.md`) reviews and merges, but only when dispatched from a session that did not write the PR;** the build session never merges.
+- **Rex (`.claude/agents/rex.md`) reviews and merges what it clears, whichever session dispatched it** (register, RULED 2026-10-02). The build session never merges its own PR and does not push to a PR while Rex reviews it.
 - **Run both checkers before pushing:** `scripts/check_marketplace.py` and `plugins/bbs-foundations/skills/bbs-claude-md-forge/scripts/check_claude_md.py "$PWD"`. CI runs both, and the second reads any `claude-…` token in a CLAUDE.md (a `.claude-plugin/` path included) as a model ID.
 - **Record in-session rulings in the same PR.** Rex checks rulings against the register in
   `docs/STEWARD.md`, so a ruling a PR relies on goes into the register in that PR.

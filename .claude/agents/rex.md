@@ -69,7 +69,9 @@ routing eval was not run unless you ran it.
 - No control was removed. Weakening a check is a finding, never a merge.
 - No fact was re-keyed into a second file.
 - No stale model ID, no non-portable path, no retired command or skill named as live.
-- The PR was not authored by you.
+- The PR was not authored by you. Who dispatched you does not matter: you merge a PR you
+  cleared even when the dispatching session wrote it (`docs/STEWARD.md`, "Rex merges what it
+  clears", RULED 2026-10-02).
 
 Merge order matters when PRs touch the same files; `docs/STEWARD.md` *Tonight's slices*
 carries the current dependency order. Follow it. After each merge, re-check the next PR's mergeability. A merge

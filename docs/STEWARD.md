@@ -452,8 +452,9 @@ Write it up with evidence and move to the next slice. Do not idle.
   stronger control, revisit if a merge ever lands without Rex's clearance. If a classifier
   or other safety control blocks a step (it blocked a post-merge `git fetch` in PR #41, and
   on 2026-10-01 blocked the build session from dispatching a reviewer to merge the build
-  session's own PR), stop and report it to Parker; do not retry or route around it. Parker
-  merges when the session that dispatches Rex is also the PR's author.
+  session's own PR), stop and report it to Parker; do not retry or route around it. ~~Parker
+  merges when the session that dispatches Rex is also the PR's author.~~ Superseded
+  2026-10-02 (next entry).
 
 - **impeccable: install only the fork's `plugin/` folder, with its hooks off — RULED
   2026-10-01 (Parker, in session: "go with option A").** The entry was a `url` source with
@@ -646,6 +647,28 @@ Write it up with evidence and move to the next slice. Do not idle.
   `permissions.blockReadsOutsideWorkingDirectories` is removed from their
   `~/.claude/settings.json` and a new session is started (`/add-dir` re-opens one folder at
   a time meanwhile); `/bbs-checkup` does not detect it yet.
+- **`so-search` and `bbs-po-status` move onto the Business Central connector — RULED
+  2026-10-02.** Parker, in session: "The business central purchase order finding should
+  work", then "Yes" to doing the retarget. This overrides the README's earlier "do not
+  retarget those two skills onto `bc_*`". Both now use `bc_query_entity` (read-only):
+  `salesInvoices` filtered on `customerPurchaseOrderReference` returns `orderNumber`;
+  `purchaseOrders` with `expand=purchaseOrderLines` returns line-level received and invoiced
+  quantities. Verified live the same day. Two behaviours the skills now state: Business
+  Central text search is case-sensitive and `tolower()` returns nothing silently, and
+  `purchaseOrderLines` cannot be queried without its parent. `requires:` is
+  `business-central` for both; the retired `bc-mcp-proxy` is required by nothing.
+  `bbs-rebate-profitability` stays on CData; this ruling does not cover it.
+- **Rex merges what it clears, whichever session dispatched it — RULED 2026-10-02.**
+  Parker, in session: "enable rex to conduct merges himself going forward for all session".
+  This supersedes "Parker merges when the session that dispatches Rex is also the PR's
+  author" (2026-10-01 entry above). Rex squash-merges any PR it has cleared on its own
+  reading, including one written by the session that dispatched it, as long as Rex did not
+  write or push content to that PR (`rex.md`, *Never*). Everything else in `rex.md` *Decide*
+  still holds: both checkers at exit 0, a recorded ruling for any binding-document change,
+  no removed control, and a "Cleared — ready to merge" COMMENT with the head SHA before the
+  merge. The build session still never merges its own PR, and still never edits a PR Rex is
+  reviewing. Parker merged PR #50 himself on 2026-10-02, by instruction in session, after
+  both reviews' findings were fixed and CI was green.
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.
