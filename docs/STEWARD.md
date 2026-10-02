@@ -669,6 +669,61 @@ Write it up with evidence and move to the next slice. Do not idle.
   merge. The build session still never merges its own PR, and still never edits a PR Rex is
   reviewing. Parker merged PR #50 himself on 2026-10-02, by instruction in session, after
   both reviews' findings were fixed and CI was green.
+- **Federal lookups: SAM.gov and USAspending skills — BUILT and RULED 2026-10-02.** Built
+  the item Parker deferred on 2026-10-01 (see "The team-rollout page covers Sales" above).
+  - **Skills.** `bbs-sales` gained two read-only skills:
+    - `sam-gov-opportunities`: open federal notices, through SAM.gov's Get Opportunities API.
+    - `usaspending-awards`: past contract awards, top vendors, reported subawards and BBS's
+      own history, through the public USAspending search API.
+  - **PRs.** Both registry entries (`sam-gov`, `usaspending`) are in the review-side PR
+    [Black-Box-Safety/bbs-claude-marketplace#51](https://github.com/Black-Box-Safety/bbs-claude-marketplace/pull/51).
+    The skills PR is stacked on it.
+  - **Design.** `docs/superpowers/specs/2026-10-02-sam-gov-opportunities-design.md`.
+
+  Parker's rulings, in session, 2026-10-02:
+  - **(a) USAspending comes into the marketplace.** "I want it to incorporate and create a
+    skill for usaspending API too." The README had said "Not in this marketplace". Cursor's
+    `bbs-usaspending` MCP stays as it is.
+  - **(b) One SAM.gov account, one shared key.** "It will all link to the same sam.gov
+    account, we dont need multiple." Parker supplies the value for each machine's
+    `SAM_GOV_API_KEY`. The whole team shares one daily request budget.
+  - **(c) Both scripts run without a prompt.** "yes it can run without a call". They are
+    added to the `bbs-fill` allow list. They write no file; each makes network GETs to
+    SAM.gov, or search POSTs to USAspending.
+  - **(d) No Systems of record row.** "no it doesnt need a SOR". SAM.gov and USAspending are
+    public data sources. The two `system_not_in_canon` WARNs are therefore expected and
+    accepted.
+  - **(e) BBS is VOSB.** "yes we are VOSB". This is now in canon's certification table, and
+    VA VSA/VSS set-asides read "Eligible".
+  - **(f) Federal codes.** Parker attached screenshots of BBS's NAICS, PSC and GSA SIN codes.
+    They are now in canon, "Federal codes", as their single home.
+
+  Parker's follow-up rulings, in session, 2026-10-02:
+  - **(g) GSA MAS ultimate end date is 2042.** "for GSA use 2042". Canon's vehicle row now
+    reads current option period to 11/14/2027 and ultimate end 11/14/2042. This supersedes the
+    "No 'ult. 2042'" line. The storefront doctrine's restatement was corrected to match.
+  - **(h) SDB is never claimed.** "dont do small disadvantaged business". This holds even
+    though the GSA record lists "SBA Certified Small Disadvantaged Business".
+  - **(i) The PSC list is complete.** "the PSC list is correct". The flag is removed from
+    canon.
+  - **(j) The shared key is the entity account's.** "parker@blackboxsafety.com is the
+    entity". So it is on the 1,000-requests-a-day tier.
+  - **(k) Key expiry.** The current key was issued 2026-10-02, valid 89 days, through
+    2026-12-30. Canon, "Federal codes", records the account and the expiry date, never the
+    value.
+    - **Declined: storing the key in this repo.** Parker asked to "store that to the bbs
+      claude marketplace". The key's value was not written to git, because AGENTS.md
+      ("Credentials stay out of git — API keys") and invariant 2 put credentials outside the
+      repo. It goes in each machine's `SAM_GOV_API_KEY`.
+    - **Not done: a live test.** A one-request live test with the key, from the build
+      container, was refused by the auto-mode permission classifier. The SAM.gov script is
+      still unverified live.
+  - **Set-aside size flag (Rex, PR #52 review).** Every SDVOSB, VOSB and small-business fit
+    line reads "Eligible" and also carries a flag to confirm BBS is small under that NAICS
+    size standard, because all three are small-business programs. This is not a new ruling:
+    it is the stricter reading of (e) and of canon. **Ask:** Parker confirms the flag stays.
+  - **`bbs-tools` 0.2.0.** The two scripts reach installed machines only through the
+    version bump, so `bbs-tools` moves to 0.2.0 with the allow-list change.
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.

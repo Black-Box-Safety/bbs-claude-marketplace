@@ -27,6 +27,8 @@ the closer job and say so.
 | Margin after the Grainger rebate | **Not ready yet.** `bbs-rebate-profitability` needs a connector Parker hasn't switched on. Tell Parker if you need it | Parker | n/a |
 | Supplier options for an item BBS has never sold | Ask for supplier options; the `supplier-scout` agent searches the web itself and prices only from pages it opened, with link and date. Grainger prices still come from Grainger | `bbs-sales` | none (built-in web search; Firecrawl when assigned) |
 | Product research you want to see yourself | Ask Claude to open your real Chrome and look; prices still from a real source | commons `superpowers-chrome` | Chrome/Node from bootstrap |
+| What federal solicitations are open for a NAICS code or an agency? | Ask what is open on SAM.gov (`sam-gov-opportunities`); it lists open notices with a set-aside fit column and flags what it cannot tell | `bbs-sales` | **SAM.gov key** in `SAM_GOV_API_KEY` (BBS's one shared key, from Parker; never pasted into a chat) |
+| Who won this kind of federal work before / top vendors / BBS's own federal awards | Ask who won (`usaspending-awards`); it reads past contract awards and says what each amount means | `bbs-sales` | none (public API, no key) |
 | Channel-partner / federal deck copy | Ask for deck copy in BBS voice (`bbs-deck-voice`) | `bbs-foundations` | document skills for assembly |
 | Read or build a PDF / Word / Excel / PPT | Hand the file over or ask to build it | commons `document-skills` | LibreOffice caveat for some PDF paths |
 | "Is my machine set up?" | `/bbs-checkup` | `bbs-foundations` | checkup probes the connectors it can |
