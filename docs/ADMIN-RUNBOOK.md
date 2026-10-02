@@ -53,8 +53,9 @@ without the rep touching a settings file. Nothing is merged into a rep's own
    draft-first rail:** ask Claude to send you a test email — expect a permission denial, not a
    send (`/permissions` should list the managed deny entries). Deny rules on wrong tool names fail
    silently, so this test is not optional. Repeat it once on the pilot rep's machine. Repeat the
-   send test once in the Desktop app as well — managed settings govern both surfaces; confirm
-   rather than assume. **Cursor Agent chat is not covered by this deny list.** The stamped
+   send test once in a Desktop app **Code** session as well: there connectors arrive from the
+   app, our deny rules are not documented to match, and the documented control is the
+   console's `blocked` (§3). Confirm rather than assume (Parker's test, 2026-10-02: denied). **Cursor Agent chat is not covered by this deny list.** The stamped
    `.cursor/rules/bbs-invariants.mdc` is the control there; do not treat a Claude Code
    send-denial as proof Cursor cannot send. Ask Claude to open Chrome and search a product — expect it to run without
    a permission prompt (the browser tool is on the managed allow list). Then run `/context` and
@@ -96,6 +97,14 @@ Add the monthly reading to the metrics review (MEASUREMENT.md).
 Per the matrix in MANAGED-SETTINGS.md: everyone gets BC MCP (Custom API, read-only, interim),
 M365, Grainger, Sales CRM; CA-book reps add SCPRS; BC Chat Connector is retired — unassign it;
 Supabase/Shopify/Vercel/QuickBooks stay admin-only.
+
+**Block the send tools in the console too (ruled 2026-10-02).** In the claude.ai admin
+console's connector tool controls, set to `blocked` every connector tool that
+`plugins/bbs-foundations/docs/bbs-managed-settings.json` `permissions.deny` names (the
+`mcp__claude_ai_<connector>__<tool>` entries: Microsoft 365 send, send-draft, forward,
+event responses, inbox rules, vacation, the three Teams sends; SignNow invites; QuickBooks
+sends). The managed deny rules do not reach the Desktop app or Cowork; this does. When a
+deny entry is added there, block the same tool here in the same change.
 
 Those assignments are **claude.ai connectors** (Claude Code, Desktop, and the Claude Code
 extension inside Cursor/VS Code). Reps do not use Cursor (ruled 2026-09-28).
