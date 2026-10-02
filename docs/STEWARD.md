@@ -616,29 +616,31 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **Team-rollout page, Joey Magliato's picker line — OPEN (2026-10-01).** Canon records only
   his title, so "Customer accounts and quotes" is the build session's wording. **Ask:**
   Parker confirms or replaces it (one string in `PEOPLE`).
-- **Reading files in Claude Desktop — 2026-10-02: no new rule; four questions OPEN.**
+- **Reading files in Claude Desktop, and where "humans send" holds — RULED 2026-10-02.**
   Parker, in session, asked for a setting "so that users can read files in claude desktop",
   chose "Both" (the Code tab and the chat window) and approved a managed allow rule
   `Read(~/**/*Black Box Safety - MASTER/**)`. Rex's review of PR #47 found the premise wrong:
   the managed settings already allow bare `Read`, which "matches all file reads", so Claude
   Code already reads MASTER, and every other file the person can open, without a prompt.
-  The rule was dropped and the docs corrected; nothing about reads changed. The chat window
-  and Cowork never receive server-managed settings, and in the Desktop app's Code tab the
-  docs say connectors arrive directly from the app, where our `mcp__claude_ai_…` deny rules
-  are not documented to match and the console's `blocked` control is what applies. So
-  `AGENTS.md` invariant 5 ("On Claude Code, managed settings deny the send-class tools") is
-  narrower than it reads: it is documented only for the terminal and VS Code. Not edited
-  here; Parker's call. A rep who answers "No, and block reads … from now on" to the
-  first-read prompt loses reads outside the opened folder until
+  The rule was dropped and the docs corrected (PR #47). The chat window and Cowork never
+  receive server-managed settings, and in the Desktop app's Code tab the docs say connectors
+  arrive directly from the app, where our `mcp__claude_ai_…` deny rules are not documented
+  to match and the console's `blocked` control is what applies. Parker then ruled, in
+  session: "a keep, b no, c yes, d yes":
+  (a) **keep bare `Read`**; (b) **no** `Edit` ask rule on MASTER (the quote desk writes
+  packets there); (c) **yes**: the `.env` denies also cover the whole home folder
+  (`Read(~/**/.env)`, `.env.local`, `.env.production`, in `bbs-managed-settings.json`);
+  (d) **yes**: every connector tool the managed deny list names is also set to `blocked` in
+  the claude.ai admin console (`docs/ADMIN-RUNBOOK.md` §3), so "humans send" holds on the
+  Desktop app (Code tab and chat); Cowork coverage is unverified. Parker's test send from a
+  Desktop Code-tab session was denied the same day ("it is blocked"); what denied it is not
+  shown, so (d) stands. `AGENTS.md` invariant 5 ("On Claude Code, managed settings deny the
+  send-class tools") is documented only for the terminal and VS Code; it is not edited here
+  (Parker's call). A rep who answers "No, and block reads … from now on" to the first-read
+  prompt loses reads outside the opened folder until
   `permissions.blockReadsOutsideWorkingDirectories` is removed from their
-  `~/.claude/settings.json`; `/bbs-checkup` does not detect it yet. **Ask (each changes what reps can do):**
-  (a) keep bare `Read`, or narrow it to the working folder plus MASTER; (b) an `Edit` ask
-  rule on MASTER so edits there always prompt (the quote desk writes packets inside MASTER,
-  so this adds prompts to it); (c) widen the `.env` denies from the session folder to the
-  whole home folder (`Read(~/**/.env)` and the two siblings); (d) set the send-class
-  connector tools to `blocked` in the claude.ai admin console, so "humans send" (invariant
-  5) also holds on the Desktop app (Code tab and chat) and in Cowork (Cowork coverage
-  unverified).
+  `~/.claude/settings.json` and a new session is started (`/add-dir` re-opens one folder at
+  a time meanwhile); `/bbs-checkup` does not detect it yet.
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.
