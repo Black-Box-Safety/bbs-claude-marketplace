@@ -4,8 +4,9 @@ Everyone gets the whole toolkit. Nothing below is locked to a title. If two rows
 the closer job and say so.
 
 Everyone can **read** every connector. **Changing** a shared space (the catalog, the
-storefront, the site, the books, the pipeline, SharePoint, signing) needs write access that
-Parker grants to the person, on request. If a job needs a write you don't have, say so and
+storefront, the site, the books, the pipeline, SharePoint) needs write access that Parker
+grants to the person, on request. Signing is not a write anyone can request: who signs is
+set by the delegated-signature rules, never by a connector. If a job needs a write you don't have, say so and
 tell them to ask Parker; do not look for another way to make the change. QuickBooks payroll,
 Vercel purchases and Supabase spending are blocked for everyone.
 

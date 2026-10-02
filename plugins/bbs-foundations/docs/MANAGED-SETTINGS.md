@@ -86,10 +86,12 @@ Parker asked for actually happens.
 session, 2026-10-02; `docs/STEWARD.md`, "Connector access"). The team is small, so no
 information is walled off by role. What is held back is the ability to *change* a space the
 whole company relies on: the catalog, the storefront, the site, the books, the pipeline,
-SharePoint, signing. A person who needs to write to one asks Parker, and Parker grants it to
-that person. Two things are blocked for everyone, admins included: QuickBooks payroll,
-Vercel purchases and project deletion, and Supabase spending (managed `permissions.deny` plus the console `blocked`
-control, `docs/ADMIN-RUNBOOK.md` §3). A person's own Outlook drafts and own calendar are not
+SharePoint. A person who needs to write to one asks Parker, and Parker grants it to that
+person. **Signing is not on that list**: who signs which line is R1 and R1a, recorded in
+`plugins/bbs-sales/references/ca-form-rules.md`, "Delegated signatures", and no connector
+grant changes it. Three things are blocked for everyone, admins included: QuickBooks
+payroll, Vercel purchases and project deletion, and Supabase spending (managed
+`permissions.deny` plus the console `blocked` control, `docs/ADMIN-RUNBOOK.md` §3). A person's own Outlook drafts and own calendar are not
 shared spaces: drafts stay allowed, invites stay `ask`.
 
 Of the connectors on Parker's account today:
@@ -102,7 +104,8 @@ Of the connectors on Parker's account today:
 | Microsoft 365 (Outlook, SharePoint, Teams search) | **Everyone** | Own Outlook drafts: everyone. SharePoint writes: by request, through the person's SharePoint permissions | It signs in as the person (it reads their own mailbox), so SharePoint's own permissions decide who can write. Send, forward and Teams messages stay denied |
 | BBS Sales CRM MCP | **Everyone** | By request | Pipeline of record (ruled 2026-09-13). It exposes `crm_update_record`; see "Enforcing write by request" |
 | Supabase | **Everyone**, through a read-only connection | By request | The catalog is the source of truth; a mass UPDATE from a quote session is the failure mode. Creating a project or branch and restoring a paused project (each adds billing) are blocked for everyone |
-| Shopify admin, Vercel, Firecrawl, Dataverse, SignNow, Adobe | **Everyone** | By request | Storefront, site, crawl, data, signing and design. Vercel purchases and project deletion are blocked for everyone |
+| Shopify admin, Vercel, Firecrawl, Dataverse, Adobe | **Everyone** | By request | Storefront, site, crawl, data and design. Vercel purchases and project deletion are blocked for everyone |
+| SignNow | **Everyone**, once Parker confirms its remaining tools cannot place a signature | **Not by request.** Who signs is R1 and R1a (`ca-form-rules.md`, "Delegated signatures"); the send and invite tools stay denied | Signing is a binding-document rule, not a shared-space write |
 | QuickBooks | **Everyone**, payroll excluded | By request | The books. Every `qbo_payroll_*` tool is denied and blocked for everyone, admins included: payroll is personnel data |
 
 ### Enforcing write by request

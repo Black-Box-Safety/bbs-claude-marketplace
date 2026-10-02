@@ -753,6 +753,22 @@ Write it up with evidence and move to the next slice. Do not idle.
   in, the CRM's `crm_update_record` (already on everyone's account), and the new deny
   names' live-fire check (`mcp__claude_ai_Vercel__` and `mcp__claude_ai_Supabase__` are
   inferred from the naming of the others). Cursor plugins are unchanged (invariant 5).
+  **Signing is excluded** (Rex, PR #53 review): the ruling is about information and
+  shared-space writes, so who signs stays R1 and R1a and no connector grant changes it;
+  SignNow grants no one signing by request. **OPEN for Parker**
+  (Rex, PR #53): whether QuickBooks' other irreversible tools
+  (`money_onboarding_application_submit`, `qbo_lending_shop_loans`,
+  `qbo_sales_delete_invoice`, `qbo_sales_delete_estimate`,
+  `qbo_sales_create_payment_link`, `quickbooks_transaction_import`) join the deny list,
+  and that the payroll denies are enumerated, so a payroll tool Intuit adds later is not
+  covered.
+- **Rachelle does not sign through Claude — RULED 2026-10-02.** Parker, in session, in the
+  brief for her team-rollout card: "Signing stays off her page. Rachelle does not sign
+  through Claude. Leave out packets, signing and form filling." She is not one of the R1a
+  delegates, so this matches R1a; her card and jobs-map rows carry no signing, packet or
+  form-filling job, and tile 3 ("Outside Sales, it doesn't sign for you") covers her.
+  `/bbs-my-voice` learns only from her own Sent Items, so drafting in Jackson's voice is
+  shown as Not built yet.
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.
