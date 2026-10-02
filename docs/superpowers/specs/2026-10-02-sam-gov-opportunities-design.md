@@ -16,7 +16,7 @@ registration, no CRM write.
 | Decision | Choice | Why |
 |---|---|---|
 | Transport | A stdlib Python script calling `GET https://api.sam.gov/opportunities/v2/search` | The README connector table rules out a server and a 150-tool government bundle. A script keeps the key out of the conversation. Fetching the URL with the web tool would put the key in the transcript. |
-| Credential | One shared BBS key in each machine's `SAM_GOV_API_KEY`, set outside Claude (ruled 2026-10-02) | Never in git, never pasted into chat; the script redacts it from every error. One key means one daily budget for the team. |
+| Credential | One shared BBS key in each machine's `SAM_GOV_API_KEY`, set outside Claude (ruled 2026-10-02) | Never in git, never pasted into chat; the script redacts it from every error. One key means one daily budget for the team. The key is the entity account's (`parker@blackboxsafety.com`), so 1,000 a day; expiry in canon. |
 | Home | `bbs-sales` | The README connector table files SAM.gov under Sales, and Kim and Griffin install `bbs-sales`. Federal is an exception to the plugin's California framing, and the README says so, as it already does for `bbs-deck-voice`. |
 | Request budget | One request per NAICS code; at most 4 per run unless raised | A personal key with no role on an entity is limited to 10 requests a day. One associated with an entity gets 1,000. Sources: GSA's PSC API page and the SAM.gov System Account User Guide, read 2026-10-02. |
 | Paging | None; more than 1,000 matches is reported TRUNCATED | The docs call `offset` "the page index" without saying whether it counts pages or records. A wrong guess skips records silently. |

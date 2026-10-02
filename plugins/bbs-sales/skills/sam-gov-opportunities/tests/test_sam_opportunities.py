@@ -114,7 +114,7 @@ def test_key_redacted_from_api_error():
     code, out, err = run(["--naics", "423450"], Opener(error=e))
     assert code == 1
     assert KEY not in out and KEY not in err
-    assert "[REDACTED]" in err and "HTTP 403" in err
+    assert "[REDACTED]" in err and "HTTP 403" in err and "may have lapsed" in err
 
 
 def test_rate_limit_hint():

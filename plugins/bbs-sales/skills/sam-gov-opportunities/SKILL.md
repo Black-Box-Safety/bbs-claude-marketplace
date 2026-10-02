@@ -39,14 +39,16 @@ will all link to the same sam.gov account, we dont need multiple").
    - Mac: add `export SAM_GOV_API_KEY=…` to `~/.zshrc`.
    - Then quit and reopen Claude.
 3. **Never paste the key into a chat**, a repo file or a customer folder. If someone pastes it
-   anyway, do not repeat it or save it, and tell them Parker should generate a new one.
+   anyway, do not repeat it, save it or write it anywhere.
 
-**One daily budget for everyone.** The key is shared, so every person's lookups draw on the
-same daily limit:
+**One daily budget for everyone.** The key belongs to the SAM.gov account that holds BBS's
+entity registration, so it is on the 1,000-requests-a-day tier, and every person's lookups
+draw on that one budget:
 
-- An account with no role on an entity gets **10 requests a day**; one with a role gets 1,000.
 - Each NAICS code costs one request.
 - HTTP 429 means the day's budget is spent for the whole team: say so, and tell Parker.
+- HTTP 401 or 403 usually means the key has lapsed. Its expiry date is in canon, "Federal
+  codes"; say the lookup failed and tell Parker.
 
 ## Run it
 
@@ -71,8 +73,8 @@ bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/sam-gov-opportunities/scripts/sam_opportu
 At least one of `--naics`, `--agency`, `--solnum` or `--keyword` is required.
 
 **"Our NAICS codes"** means the list in canon, "Federal codes". All of them is thirteen
-requests, over the default cap of 4 and over the whole day's budget if the shared key has
-no entity role. So ask which codes matter, or start with the primary one. Never supply a
+requests, over the default cap of 4. Ask which codes matter, or start with the primary
+one; for all thirteen, pass `--max-requests 13`. Never supply a
 code from memory.
 
 ## What comes back, and how to present it

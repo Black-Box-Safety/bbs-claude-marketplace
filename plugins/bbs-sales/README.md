@@ -156,8 +156,8 @@ This skill does not touch the PDF stack or `vendor_profile.json` above: it has i
 
 BBS uses one SAM.gov account and one shared key (ruled 2026-10-02). Parker gives each person
 the value for an environment variable named `SAM_GOV_API_KEY`, set outside Claude and never
-committed or pasted into a chat. The whole team shares one daily request budget: 10 a day on
-an account with no entity role, 1,000 with one. `usaspending-awards` needs no key. Both run
+committed or pasted into a chat. The key is the entity account's, so the whole team shares one
+budget of 1,000 requests a day; its expiry date is in canon. `usaspending-awards` needs no key. Both run
 through `bbs-fill`, so they need the `bbs-tools` plugin.
 
 ## Commands

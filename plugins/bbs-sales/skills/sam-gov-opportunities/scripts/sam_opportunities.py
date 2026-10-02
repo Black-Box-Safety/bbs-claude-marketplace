@@ -238,8 +238,10 @@ def fetch(params, key, opener=None):
                     "machine, or check the same search on sam.gov.")
         elif e.code == 429:
             hint = (" The shared BBS key's daily request budget is spent, for everyone, until it "
-                    "resets. A key on an account with no role on an entity gets 10 requests a "
-                    "day; with a role, 1,000. Tell Parker.")
+                    "resets (10 requests a day without an entity role, 1,000 with one). Tell Parker.")
+        elif e.code in (401, 403):
+            hint = (" The shared BBS key was refused; it may have lapsed. Its expiry date is in "
+                    "canon, \"Federal codes\". Tell Parker.")
         raise LookupError_(redact(f"SAM.gov returned HTTP {e.code}.{hint} {detail}".strip(), key)) from None
     except urllib.error.URLError as e:
         raise LookupError_(redact(f"could not reach SAM.gov: {e.reason}", key)) from None

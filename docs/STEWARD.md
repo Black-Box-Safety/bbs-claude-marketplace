@@ -670,17 +670,26 @@ Write it up with evidence and move to the next slice. Do not idle.
   - **(f) Federal codes.** Parker attached screenshots of BBS's NAICS, PSC and GSA SIN codes.
     They are now in canon, "Federal codes", as their single home.
 
-  **Still OPEN:**
-  - **GSA MAS end date.** The GSA eLibrary screenshot shows "Ultimate Contract End Date: Nov 14,
-    2042", but canon's vehicle row says "No 'ult. 2042'". Canon is not changed here.
-    **Ask:** which is right?
-  - **Small Disadvantaged Business.** The same screenshot lists "SBA Certified Small
-    Disadvantaged Business". It is not claimed anywhere until ruled. **Ask:** is it claimable?
-  - **PSC list.** The PSC screenshot ends at `8470`. **Ask:** is that the whole list?
-  - **Entity role.** Does the shared SAM.gov account hold a role on BBS's entity registration?
-    The answer decides whether the team gets 10 requests a day or 1,000.
-  - **SAM.gov live run.** Not verified: every request from the cloud build container got an
-    empty 404, so the script treats a 404 as a failure. USAspending was verified live.
+  Parker's follow-up rulings, in session, 2026-10-02:
+  - **(g) GSA MAS ultimate end date is 2042.** "for GSA use 2042". Canon's vehicle row now
+    reads current option period to 11/14/2027 and ultimate end 11/14/2042. This supersedes the
+    "No 'ult. 2042'" line. The storefront doctrine's restatement was corrected to match.
+  - **(h) SDB is never claimed.** "dont do small disadvantaged business". This holds even
+    though the GSA record lists "SBA Certified Small Disadvantaged Business".
+  - **(i) The PSC list is complete.** "the PSC list is correct". The flag is removed from
+    canon.
+  - **(j) The shared key is the entity account's.** "parker@blackboxsafety.com is the
+    entity". So it is on the 1,000-requests-a-day tier.
+  - **(k) Key expiry.** The current key was issued 2026-10-02, valid 89 days, through
+    2026-12-30. Canon, "Federal codes", records the account and the expiry date, never the
+    value.
+    - **Declined: storing the key in this repo.** Parker asked to "store that to the bbs
+      claude marketplace". The key's value was not written to git, because AGENTS.md
+      ("Credentials stay out of git — API keys") and invariant 2 put credentials outside the
+      repo. It goes in each machine's `SAM_GOV_API_KEY`.
+    - **Not done: a live test.** A one-request live test with the key, from the build
+      container, was refused by the auto-mode permission classifier. The SAM.gov script is
+      still unverified live.
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.
