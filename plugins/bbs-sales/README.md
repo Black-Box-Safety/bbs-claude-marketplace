@@ -155,8 +155,8 @@ This skill does not touch the PDF stack or `vendor_profile.json` above: it has i
 ### For `sam-gov-opportunities`
 
 BBS uses one SAM.gov account and one shared key (ruled 2026-10-02). Parker gives each person
-the value, and the bootstrap (`bbs-setup.ps1` / `bbs-setup.sh`) asks for it with hidden input
-and saves it as `SAM_GOV_API_KEY`. It is never committed or pasted into a chat. The key is the entity account's, so the whole team shares one
+the value, and the bootstrap asks for it with hidden input when run with the SAM.gov flag
+(`bbs-setup.ps1 -SamGov` / `bbs-setup.sh --sam-gov`) and saves it as `SAM_GOV_API_KEY`. It is never committed or pasted into a chat. The key is the entity account's, so the whole team shares one
 budget of 1,000 requests a day; its expiry date is in canon. `usaspending-awards` needs no key. Both run
 through `bbs-fill`, so they need the `bbs-tools` plugin.
 

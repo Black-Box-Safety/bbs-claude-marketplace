@@ -7,8 +7,10 @@
     powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1
   Preview without installing:
     powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1 -DryRun
+  SAM.gov users (Kim, Griffin) add -SamGov to be asked for the shared SAM.gov API key:
+    powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1 -SamGov
 #>
-param([switch]$DryRun)
+param([switch]$DryRun, [switch]$SamGov)
 
 $packages = @(
   @{ Id = 'Git.Git';                 Why = 'Claude Code hooks and the Bash tool run through Git Bash' },
@@ -189,30 +191,43 @@ if ($pathChanged -and -not $DryRun) {
 # for the team: Parker, 2026-10-02). It is a credential, so it is never in this script or the
 # repo: the person running the bootstrap pastes it when asked (Parker supplies it), and it is
 # saved to the user environment like CLAUDE_CODE_GIT_BASH_PATH above. Input is hidden and the
-# value is never printed. Enter skips; rerun the script later to add it. Its expiry date is in
-# bbs-foundations canonical-facts.md, "Federal codes"; to replace it, clear the variable and rerun.
+# value is never printed. Only the people who use SAM.gov need it, so the prompt is opt-in:
+# run with -SamGov to be asked. Its expiry date is in bbs-foundations canonical-facts.md,
+# "Federal codes"; to replace it, clear the variable and rerun with -SamGov.
+# Read-Host needs a person at a console: it throws under -NonInteractive or redirected input,
+# so both are checked first and the step is skipped quietly instead.
+$noConsole = [Console]::IsInputRedirected -or -not [Environment]::UserInteractive -or
+  ([Environment]::GetCommandLineArgs() | Where-Object { $_ -match '^-NonI' })
 if ([Environment]::GetEnvironmentVariable('SAM_GOV_API_KEY', 'User')) {
   Write-Host "[ok]      SAM_GOV_API_KEY              set (value not shown)"
+} elseif (-not $SamGov) {
+  Write-Host "[skip]    SAM_GOV_API_KEY              only for SAM.gov users; rerun with -SamGov to add it"
 } elseif ($DryRun) {
   Write-Host "[would]   SAM_GOV_API_KEY              ask for the BBS SAM.gov key from Parker"
-} elseif (-not [Environment]::UserInteractive) {
-  $deferred += 'SAM_GOV_API_KEY (rerun this script in a window and paste the key from Parker)'
+} elseif ($noConsole) {
+  $deferred += 'SAM_GOV_API_KEY (rerun with -SamGov in a PowerShell window and paste the key from Parker)'
 } else {
-  $secure = Read-Host -AsSecureString "Paste the BBS SAM.gov API key from Parker (input hidden; press Enter to skip)"
-  $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
-  try { $samKey = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr).Trim() }
-  finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
-  if (-not $samKey) {
-    Write-Host "[skip]    SAM_GOV_API_KEY              not set; rerun this script to add it"
-    $deferred += 'SAM_GOV_API_KEY (rerun and paste the key from Parker)'
-  } elseif ($samKey -match '\s') {
-    Write-Host "[skip]    SAM_GOV_API_KEY              that paste had spaces in it; rerun and paste the key alone"
-    $deferred += 'SAM_GOV_API_KEY (rerun and paste the key alone)'
+  $secure = $null
+  try {
+    $secure = Read-Host -AsSecureString "Paste the BBS SAM.gov API key from Parker (input hidden; press Enter to skip)"
+  } catch { $secure = $null }
+  if (-not $secure -or $secure.Length -eq 0) {
+    Write-Host "[skip]    SAM_GOV_API_KEY              not set; rerun with -SamGov to add it"
+    $deferred += 'SAM_GOV_API_KEY (rerun with -SamGov and paste the key from Parker)'
   } else {
-    [Environment]::SetEnvironmentVariable('SAM_GOV_API_KEY', $samKey, 'User')
-    Write-Host "[install] SAM_GOV_API_KEY              saved to your user environment (value not shown)"
+    $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+    try { $samKey = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr).Trim() }
+    finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
+    if (-not $samKey -or $samKey -match '\s') {
+      Write-Host "[skip]    SAM_GOV_API_KEY              that paste was empty or had spaces; rerun with -SamGov and paste the key alone"
+      $deferred += 'SAM_GOV_API_KEY (rerun with -SamGov and paste the key alone)'
+    } else {
+      [Environment]::SetEnvironmentVariable('SAM_GOV_API_KEY', $samKey, 'User')
+      Write-Host "[install] SAM_GOV_API_KEY              saved to your user environment (value not shown)"
+    }
+    Remove-Variable samKey -ErrorAction SilentlyContinue
   }
-  Remove-Variable samKey -ErrorAction SilentlyContinue
+  $secure = $null
 }
 
 # Some skills need npm libraries, not winget packages: bbs-quote-builder builds the quote
