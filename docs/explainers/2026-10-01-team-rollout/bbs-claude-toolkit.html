@@ -363,7 +363,7 @@ footer.end { border-top: 1px solid var(--line); padding-top: 20px; color: var(--
     <div class="rules">
       <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H5.5L4 17.5z"/><path d="M8 9h8M8 12h5"/></svg><h3>In Claude Code, it drafts and never sends.</h3><p>In Claude Code, sending, forwarding and Teams messages are switched off for Claude. It can put a draft in your Outlook Drafts; you press send. The ordinary Claude chat window does not have these switches, so use Claude Code for this work.</p></div>
       <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg><h3>Reads Business Central, never changes it.</h3><p>Business Central and Grainger are read-only for Claude. It cannot post, edit or delete a record.</p></div>
-      <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 16c2-4 4-7 5.5-7S11 15 13 15s2.5-4 4-4 1.5 3 2 5"/></svg><h3>The right signer on the right line.</h3><p>Signatures go only on the lines of the people allowed to sign them. Outside sales, Claude never signs for you. In sales, a packet is signed only for the delegates counsel approved and only under the limit Parker set; otherwise the lines stay blank and flagged.</p></div>
+      <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 16c2-4 4-7 5.5-7S11 15 13 15s2.5-4 4-4 1.5 3 2 5"/></svg><h3>The right signer on the right line.</h3><p>Signatures go only on the lines of the people allowed to sign them. Outside sales, Claude never signs for you. In sales, a packet is signed only for the delegates counsel approved, only under counsel's limit, and only once Parker has that person's signature image on file; otherwise the lines stay blank and flagged.</p></div>
       <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg><h3>Your mailbox is yours.</h3><p>Claude reads your mail only when you connect it and ask. It never reads anyone else's. <code>/bbs-my-voice</code> learns from your own Sent Items and stops if the mailbox isn't yours.</p></div>
       <div class="rulecard quiet"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg><h3>Rules built in.</h3><p>No invented numbers: if Claude doesn't know, it flags it. Certification wording follows the channel: DVBE for California state work, SDVOSB for federal.</p></div>
     </div>
@@ -423,7 +423,7 @@ const CARDS = {
     rows: [
       { title: "An RFQ, start to packet", status: "ready",
         today: "An agency sends an RFQ. You file it, price every line, build the quote and fill the state forms by hand.",
-        claude: "Type /ca-rfq and hand Claude the RFQ. It files it first, prices it, builds the quote and fills the packet, then hands you the files and every judgment call it made. Signatures go on only within the delegation Parker recorded; past the limit the lines stay blank and flagged. You check it and you send.",
+        claude: "Type /ca-rfq and hand Claude the RFQ. It files it first, prices it, builds the quote and fills the packet, then hands you the files and every judgment call it made. Signatures go on only within counsel's delegation and only once Parker has your signature image on file; otherwise the lines stay blank and flagged. You check it and you send.",
         say: "/ca-rfq This RFQ just came in from ____. File it, price it and complete the packet.",
         hood: "Shortcut /ca-rfq, in the sales binder. It runs ca-rfq-intake, naspo-quote and the form playbooks in order and stops at any gate it cannot meet. It has no send step." },
       { title: "Grainger and NASPO pricing", status: "ready",
@@ -436,11 +436,16 @@ const CARDS = {
         claude: "Ask for a visit brief, an agency primer or a handover call list. Claude reads Business Central and gives you a call plan and a pocket card, or a dated list of who to call first.",
         say: "Prep me for a site visit at ____ on ____.",
         hood: "Playbooks: ca-site-visit-brief, ca-agency-primer and ca-territory-handoff, in the sales binder. They read Business Central and never change it." },
-      { title: "The week, and the follow-up", status: "ready",
-        today: "You rebuild your week for the sales report and write the same follow-up emails by hand.",
-        claude: "Ask what you quoted this week and Claude reads the Sales CRM for the weekly report. Ask for a follow-up and it drafts it into your Outlook Drafts, in your voice once you run /bbs-my-voice. You check it and send it.",
+      { title: "The follow-up email", status: "ready",
+        today: "You write the same follow-up emails by hand.",
+        claude: "Ask for a follow-up and Claude drafts it into your Outlook Drafts, in your voice once you run /bbs-my-voice. You check it and send it.",
         say: "Draft a follow-up to ____ about quote ____ into my Outlook Drafts.",
-        hood: "Playbook: bbs-weekly-sales-report, in the sales binder, reads the Sales CRM. The Outlook window can create a draft. In Claude Code it cannot send." },
+        hood: "The Outlook window can create a draft. In Claude Code it cannot send." },
+      { title: "What you quoted this week", status: "ready", for: ["kim", "aanya"],
+        today: "You rebuild your week from memory and the CRM when Parker writes up the weekly sales report.",
+        claude: "Ask what you quoted this week. Claude reads the Sales CRM the way Parker's weekly sales report does and lists your quotes, RFQs and orders.",
+        say: "What did I quote this week?",
+        hood: "Playbook: bbs-weekly-sales-report, in the sales binder. It covers Parker, Kim and Aanya on the CA state book and reads the Sales CRM." },
       { title: "Supplier options for an unknown item", status: "ready",
         today: "A line comes in for an item we have never sold, and you search the web part by part for who makes and sells it.",
         claude: "Ask for supplier options. A scout agent searches the web on its own, with no window to switch on, and comes back with makers, distributors and alternates. A price counts only from a page it actually opened, with the link and the date. Grainger prices still come from Grainger.",

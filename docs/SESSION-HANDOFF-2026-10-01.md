@@ -44,11 +44,16 @@ Acceptance results for all 14 checks are in the PR description and its two updat
 
 ## 3. Needs Parker (no repo change does these)
 
-1. **Confirm the signature tile wording** (register: "signature tile wording — OPEN") before
-   the link is shared. It restates R1, R1a, R1b and R5 for the four Sales delegates.
-2. **Confirm or replace Joey's picker line** ("Customer accounts and quotes").
-3. **Share the page** from its Share menu when ready; the build session cannot share it.
-4. The build prompt's open questions, still unanswered:
+1. **Merge PR #46.** Rex reviewed it from this session, which wrote it, so per the register
+   ("The reviewer's GitHub identity") Parker merges it, or dispatches Rex from a session that
+   did not write it. Rex's four findings are fixed on the branch.
+2. **Confirm the signature tile wording** (register: "signature tile wording — OPEN") before
+   the link is shared. It restates R1, R1a, R1b, R2 and R5 for the four Sales delegates.
+   Kim, Aanya, Joey and Griffin have no signature PNG on file yet, so their own lines stay
+   blank and flagged until they do.
+3. **Confirm or replace Joey's picker line** ("Customer accounts and quotes").
+4. **Share the page** from its Share menu when ready; the build session cannot share it.
+5. The build prompt's open questions, still unanswered:
    - Include Joyce Newell?
    - `/bbs-checkup` check 6 (desk folder) fails for the non-quote-desk readers; make it role-aware or warn them.
    - Confirm each reader has Business Central, Microsoft 365 and Grainger assigned, and the customer folders synced.
@@ -85,7 +90,8 @@ Deferred by Parker ("we will do that separately"):
   cloud session", has the three commands.
 - **Its static `detect` reports false low-contrast hits on a two-theme page.** Measured in a
   real browser, the page's lowest text contrast is 6.4:1 (light) and 7.68:1 (dark).
-- **Rex (`.claude/agents/rex.md`) reviews and merges;** the build session never does. Rex
+- **Rex (`.claude/agents/rex.md`) reviews and merges, but only when dispatched from a session that did not write the PR;** the build session never merges.
+- **Run both checkers before pushing:** `scripts/check_marketplace.py` and `plugins/bbs-foundations/skills/bbs-claude-md-forge/scripts/check_claude_md.py "$PWD"`. CI runs both, and the second reads any `claude-…` token in a CLAUDE.md (a `.claude-plugin/` path included) as a model ID. Rex
   checks rulings against the register in `docs/STEWARD.md`, so record an in-session ruling
   there in the same PR that relies on it.
 

@@ -32,11 +32,13 @@ outranks a plugin agent of the same name.
 
 ## Design work in a cloud session
 
-`impeccable` is pinned in `.claude-plugin/marketplace.json` but a fresh cloud container does
+`impeccable` is pinned in the marketplace file (`marketplace.json`), but a fresh cloud container does
 not have it installed. When a task names it (the explainer prompts do), fetch only the skill
 folder from the fork and load it into the session:
 
 ```bash
+SCRATCH="$(mktemp -d)"
+mkdir -p ~/.claude/skills
 git clone --depth 1 --filter=blob:none --sparse https://github.com/Black-Box-Safety/impeccable.git "$SCRATCH/impeccable"
 git -C "$SCRATCH/impeccable" sparse-checkout set plugin
 cp -r "$SCRATCH/impeccable/plugin/skills/impeccable" ~/.claude/skills/impeccable

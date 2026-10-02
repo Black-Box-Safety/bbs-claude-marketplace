@@ -609,8 +609,9 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **Team-rollout page, signature tile wording — OPEN (2026-10-01).** All four Sales readers
   are R1a delegates, so the prompt's "Claude never signs for you" was false for them. The
   page now says Claude never signs outside sales, and that a sales packet is signed only for
-  the delegates counsel approved and only under the limit Parker set, otherwise the lines
-  stay blank and flagged. It restates R1, R1a, R1b and R5 and makes no new rule; no amount is
+  the delegates counsel approved, only under counsel's limit, and only once Parker has that
+  person's signature image on file (all four Sales readers' `signature_image` is null today),
+  otherwise the lines stay blank and flagged. It restates R1, R1a, R1b and R5 and makes no new rule; no amount is
   on the page. **Ask:** Parker confirms the wording before the link is shared.
 - **Team-rollout page, Joey Magliato's picker line — OPEN (2026-10-01).** Canon records only
   his title, so "Customer accounts and quotes" is the build session's wording. **Ask:**
