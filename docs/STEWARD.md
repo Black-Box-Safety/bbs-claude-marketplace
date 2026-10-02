@@ -606,13 +606,18 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **Team-rollout page: impeccable's product interview skipped — RULED 2026-10-01.** Parker,
   in session, chose "Build, infer from brief": product context comes from the build prompt
   and `brief.md`; no PRODUCT.md or DESIGN.md is committed.
-- **Team-rollout page, signature tile wording — OPEN (2026-10-01).** All four Sales readers
-  are R1a delegates, so the prompt's "Claude never signs for you" was false for them. The
-  page now says Claude never signs outside sales, and that a sales packet is signed only for
-  the delegates counsel approved, only under counsel's limit, and only once Parker has that
-  person's signature image on file (all four Sales readers' `signature_image` is null today),
-  otherwise the lines stay blank and flagged. It restates R1, R1a, R1b and R5 and makes no new rule; no amount is
-  on the page. **Ask:** Parker confirms the wording before the link is shared.
+- **Team-rollout page, signature wording — RULED 2026-10-02.** Parker, in session: "Claude
+  can sign it for outside sales, that is the point. They do not need to know about counsel,
+  just that claude can sign the packets for them. make it more direct and simpler." Tile 3
+  is seen by every reader, so it is scoped to Sales (PR #50 review): "If you're in Sales,
+  Claude signs your packets once Parker has your signature on file. It signs each line as
+  the right person, and never for a customer. Anything it can't sign comes back flagged.
+  Outside Sales, it doesn't sign for you." "Each line as the right person" covers Jackson's
+  owner lines (R3, R5); "Outside Sales" keeps the six non-delegates out (R1a).
+  The RFQ row says it signs the packet and flags what it can't sign. Page copy only: the
+  signing rules themselves stay R1, R1a, R1b, R2 and R5, unchanged. All four Sales readers'
+  `signature_image` is null today, so until their PNGs are filed their lines come back
+  flagged, which the "once Parker has your signature on file" clause covers.
 - **Team-rollout page, Joey Magliato's picker line — OPEN (2026-10-01).** Canon records only
   his title, so "Customer accounts and quotes" is the build session's wording. **Ask:**
   Parker confirms or replaces it (one string in `PEOPLE`).
