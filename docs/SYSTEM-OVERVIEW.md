@@ -1,6 +1,6 @@
-# The BBS Claude system: what it is, and how we automate with it
+# A primer on the BBS Claude system
 
-For: Jackson, Griffin and the team leads. From: Parker (written as the system's owner).
+For everyone at BBS who works with Claude. Owner: Parker.
 As of 2 October 2026. Every capability below points at the file it rests on; status comes
 from that skill's `requires:` line (`python3 scripts/check_marketplace.py --requirements`).
 
@@ -14,8 +14,8 @@ filled bid packet, a call list, a reminder email. **A person checks it and a per
 it.** On Claude Code, managed settings switch sending off for everyone, and Business
 Central and Grainger are read-only to Claude.
 
-What we are buying: faster RFQ turnaround and more quotes per rep, without adding headcount
-and without a second source of truth. That is the aim, not yet a measured result:
+What it is for: faster RFQ turnaround and less time on lookups and first drafts, with one
+source of truth for every fact. That is the aim, not yet a measured result:
 `docs/MEASUREMENT.md` holds the measures and has no baseline yet, and none is invented here. What it does not do: decide, send, post, or invent a
 number. An unknown value comes back flagged, never guessed.
 
@@ -122,7 +122,7 @@ where the output lands (a SharePoint folder or Drafts, never an outbound message
 - **Numbers without a source.** A price, stock level, spend figure, cert or form ID comes from a tool result or a named file, or it is flagged.
 - **A second copy of a fact.** One home per fact; playbooks point at it.
 
-## 6. Risks and how we handle them
+## 6. How we keep it safe
 
 | Risk | Control |
 |---|---|
@@ -133,11 +133,15 @@ where the output lands (a SharePoint folder or Drafts, never an outbound message
 | CRM writes go wrong at scale | No playbook writes today; Tier 2 item 1 proposes per record and asks before each write |
 | A scheduled run acts without a person | Routines produce files and drafts only; Parker approves each before it is turned on |
 
-## 7. Decisions needed from Jackson and Griffin
+## 7. Where to start
 
-1. Approve Tier 2 item 1 (quote outcome write-back) as the first build, and the definition of "Won".
-2. Allow CRM updates with a per-record ask, or keep CRM read-only for now.
-3. Approve scheduling (Tier 3) for the Monday call list and the weekly report, once the three Tier 3 checks pass.
+1. **Open Claude Code and type `/bbs-what-can-i-do`.** Tell it what you are working on; it
+   points you at the right playbook.
+2. **Ask in plain words.** You do not need to name a skill or a connector. Claude picks the
+   playbook that matches.
+3. **Check what comes back, then you send.** Every result says where its numbers came from.
+4. **Want one of the Tier 2 items, or something missing?** Tell Parker in one line what you
+   asked and what you needed. A missing tool is a request, not a dead end.
 
 ---
 
