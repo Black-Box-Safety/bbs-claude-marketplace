@@ -612,10 +612,13 @@ const CARDS = {
       { title: "A Point Blank price sheet", status: "list", reason: "Needs one piece of software and the website folder set up",
         today: "You key price-list rows into a template by hand.",
         claude: "Soon: hand Claude the sheet. It cleans it into the BBS import template and tells you what it could not match. Loading it into the catalog stays with Parker.",
-        hood: "Playbook: price-list-cleaner, in the website binder." }
+        hood: "Playbook: price-list-cleaner, in the website binder." },
+      { title: "An order still in Shopify", status: "list", reason: "Waiting on Parker to switch on Shopify reading",
+        today: "An order that has not reached Business Central yet means opening Shopify and searching for it.",
+        claude: "Soon: give Claude the order and it reads the order, its products and size options from Shopify. Changing anything in Shopify stays with the people Parker has given write access.",
+        hood: "The Shopify window. Everyone can use it once Parker switches on a connection that can only read; changing the storefront is by request." }
     ],
     next: [
-      "Shopify lookups: orders, products and size options.",
       "One view of an officer's order from Shopify to Business Central to Point Blank.",
       "A check that every agency's size options are complete.",
       "The agency carrier procedure, brought into the toolkit."
@@ -635,20 +638,23 @@ const CARDS = {
         claude: "Tell Claude what it is for and who will read it, or hand it an old one to follow. It builds the Word, Excel or PDF file for you to check and finish. Sending it stays with you.",
         say: "Draft a one-page memo to the team about ____, as a Word document.",
         hood: "document-skills, Anthropic's Excel, Word and PDF playbooks, pinned in the toolkit." },
-      { title: "The inbox, sorted", status: "list", reason: "Needs Microsoft 365 switched on for you",
+      { title: "The inbox, sorted", status: "ready",
         today: "You read every message to find the few that need an answer today, then write the replies one by one.",
-        claude: "Soon: Claude reads your inbox, lists what needs you and why, and writes replies into your Outlook Drafts, in your voice once you run /bbs-my-voice. You read each one and press send. Until then, paste an email in and ask for a reply to copy into Outlook yourself.",
+        claude: "Claude reads your inbox, lists what needs you and why, and writes replies into your Outlook Drafts, in your voice once you run /bbs-my-voice. You read each one and press send.",
+        say: "Go through my inbox from today, list what needs an answer from me and why, and draft the replies into my Outlook Drafts.",
         hood: "The Microsoft 365 window can search your mail and create drafts. In Claude Code it cannot send or forward. /bbs-my-voice, in the foundations binder, learns only from your own Sent Items." },
-      { title: "A meeting time that works", status: "list", reason: "Needs Microsoft 365 switched on for you",
+      { title: "A meeting time that works", status: "ready",
         today: "You go back and forth on email and check calendars to land one meeting, then move it when plans change.",
-        claude: "Soon: Claude finds open times on your calendar and sets up the meeting. Because an invite emails everyone on it, Claude Code asks you first before it creates, moves or cancels one.",
+        say: "Find a time next week on my calendar for a meeting with ____ about ____, and set it up.",
+        claude: "Claude finds open times on your calendar and sets up the meeting. Because an invite emails everyone on it, Claude Code asks you first before it creates, moves or cancels one.",
         hood: "The Microsoft 365 window: calendar search and events." },
-      { title: "A brief before a meeting", status: "list", reason: "Needs Microsoft 365 switched on for you",
+      { title: "A brief before a meeting", status: "ready",
         today: "Before a meeting you search your email and SharePoint for the thread, the attachment and what is still open.",
-        claude: "Soon: name a meeting on your calendar and Claude pulls the emails and SharePoint files behind it into one page: who is coming, what was said, what is still open. You decide what goes to Jackson.",
+        say: "Brief me for my meeting about ____: who is coming, what was said, and what is still open.",
+        claude: "Name a meeting on your calendar and Claude pulls the emails and SharePoint files behind it into one page: who is coming, what was said, what is still open. You decide what goes to Jackson.",
         hood: "The Microsoft 365 window: calendar, mail search and SharePoint search." }
     ],
-    note: "When Microsoft 365 is switched on for you, it is for your own mailbox and calendar only. Working in Jackson's is under Coming next.",
+    note: "Microsoft 365 is for your own mailbox and calendar only. Working in Jackson's is under Coming next.",
     next: [
       "Claude working in Jackson's mailbox and calendar alongside you.",
       "Drafts in Jackson's voice."

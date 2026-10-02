@@ -19,7 +19,7 @@ when that file changes, change the block.
 | _(no `mcpServers`)_ | Grainger, BC, SCPRS, CRM, M365 are all claude.ai connectors (ruled 2026-09-13) | Connectors are assigned in the admin console, never configured per machine. The local `grainger-api` stdio server stays on admin machines only; a `mcpServers` entry here would show red in `/mcp` on every rep machine that lacks it |
 | `permissions.allow` | Read-only git/gh and file tools without prompts + the superpowers-chrome browser tool (full browser access is a ruling; prompts per click would defeat it). Since 2026-10-01 (R4): `Bash(bbs-fill *)` — the vetted form and quote scripts, through the `bbs-tools` launcher, which runs only allow-listed scripts; the read-only Grainger MCP and BC MCP Custom API tools; Outlook **draft** creation and editing. Bare `Read` "matches all file reads" (permissions docs, *Match all uses of a tool*; checked 2026-10-02): Claude Code reads any file the person can open without a prompt, the synced MASTER library included, and also `~/.ssh`, browser profiles and other projects. Whether to narrow it is OPEN (`docs/STEWARD.md`, 2026-10-02). **Never** `Bash(python:*)` or a path-pattern rule: a `*` matches anything, so such a rule would let a crafted command run arbitrary Python past auto mode | Fewer prompts on the actions that cannot break anything, and auto mode no longer stops a rep mid-packet (Kim, 2026-10-01) |
 | `permissions.ask` | Push, PR create/merge, Vercel deploy, Shopify theme push; Outlook calendar event create/update/delete, which email invites, updates and cancellations to attendees (Parker, 2026-10-01) | Plan → approve → execute is doctrine; this makes the tool enforce it |
-| `permissions.deny` | `rm -rf`, force-push, hard reset, `gh repo delete`, reading `.env` files: `Read(**/.env)` and siblings cover the session folder and below, and since 2026-10-02 `Read(~/**/.env)` and siblings cover the whole home folder (Parker, ruling (c)); a `.env` outside both (elsewhere on `C:\` outside the home folder, or on another drive) is not covered | The irreversible actions and the secret files + send-class tools (draft-first): Outlook send/forward, meeting responses, inbox rules (a rule can auto-forward mail) and auto-replies (Parker, 2026-10-01), Teams messages, SignNow invites, QuickBooks estimate/invoice/payment-link sends. Deny rules apply in auto mode too, before its classifier. `Read(**/.env)` does not block `.env.example` |
+| `permissions.deny` | `rm -rf`, force-push, hard reset, `gh repo delete`, reading `.env` files: `Read(**/.env)` and siblings cover the session folder and below, and since 2026-10-02 `Read(~/**/.env)` and siblings cover the whole home folder (Parker, ruling (c)); a `.env` outside both (elsewhere on `C:\` outside the home folder, or on another drive) is not covered | The irreversible actions and the secret files + send-class tools (draft-first): Outlook send/forward, meeting responses, inbox rules (a rule can auto-forward mail) and auto-replies (Parker, 2026-10-01), Teams messages, SignNow invites, QuickBooks estimate/invoice/payment-link sends. Since 2026-10-02 (Parker, connector access): every QuickBooks `qbo_payroll_*` tool, and Vercel's purchase tools (`buy_*`, `create_or_transfer_domain`) and `delete_project`, for everyone. Deny rules apply in auto mode too, before its classifier. `Read(**/.env)` does not block `.env.example` |
 | `env.CAVEMAN_DEFAULT_MODE=off` | Caveman stays off until a rep types `/caveman` | The plugin's own default is `full`; without this every rep session — including customer-email drafting — would start terse |
 | `env.CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS=600000` | Plugin and marketplace clones get ten minutes, not the 120 s default | A large plugin overran 120 s on a laptop whose antivirus scans every file. Moved here from the bootstrap's saved copy (2026-10-01) so it lives in one place; the bootstrap still sets it for its own install run |
 | `env.CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE=1` | A winget- or Homebrew-installed Claude Code updates itself | A native install ignores it. Moved from the Windows bootstrap's saved copy (2026-10-01) |
@@ -80,17 +80,55 @@ useful error.
 `mcpServers` here covers only local stdio servers. The connectors the team reaches through
 claude.ai (Claude Code, Desktop, and the web app all share them) are enabled per user or
 per organization in **claude.ai → Settings → Connectors**, and that is where the alignment
-Parker asked for actually happens. Of the connectors on Parker's account today:
+Parker asked for actually happens.
 
-| Connector | Who should have it | Why |
-|---|---|---|
-| Business Central — BC MCP (Custom API) (read-only: `bc_customer_snapshot`, `bc_find_item`, …) | **Everyone** | Quote of record, AR, open orders. Read-only, so no approval risk. Replaced the retired `bbs-bc-mcp-proxy`. **Interim** until Microsoft's official BC MCP works in Claude Code; tool names change at the swap (grep list in the v1.1 backlog). BC Chat Connector retired 2026-09-13 |
-| BBS Sales CRM MCP | **Everyone** | Pipeline of record (ruled 2026-09-13) |
-| Microsoft 365 (Outlook, SharePoint, Teams search) | **Everyone** | RFQ intake, bid history in `MASTER/Customers`, sent-mail sampling for `/bbs-my-voice` |
-| Grainger (`grainger_search` / `grainger_price` / `grainger_availability`) | **Everyone who quotes** | Per-account pricing is doctrine; this is how they get it without the open web |
-| ca-procurement-intel / SCPRS (`explore_sql`, `play_*`) | **Reps on the CA state book** | Competitive intelligence and buyer segments for promo pages |
-| Supabase | **Site maintainers only**, read-only where possible | The catalog is the source of truth; a mass UPDATE from a rep's session is the failure mode |
-| Shopify admin, Vercel, Firecrawl, Dataverse, QuickBooks, SignNow, Adobe | **Parker / Griffin only** | Admin, deploy, finance, or single-purpose. Not team tools |
+**Everyone reads every connector; writing to a shared space is by request** (Parker, in
+session, 2026-10-02; `docs/STEWARD.md`, "Connector access"). The team is small, so no
+information is walled off by role. What is held back is the ability to *change* a space the
+whole company relies on: the catalog, the storefront, the site, the books, the pipeline,
+SharePoint, signing. A person who needs to write to one asks Parker, and Parker grants it to
+that person. Two things are blocked for everyone, admins included: QuickBooks payroll, and
+Vercel purchases and project deletion (managed `permissions.deny` plus the console `blocked`
+control, `docs/ADMIN-RUNBOOK.md` §3). A person's own Outlook drafts and own calendar are not
+shared spaces: drafts stay allowed, invites stay `ask`.
+
+Of the connectors on Parker's account today:
+
+| Connector | Read | Write to the shared space | Why |
+|---|---|---|---|
+| Business Central — BC MCP (Custom API) (read-only: `bc_customer_snapshot`, `bc_find_item`, …) | **Everyone** | None: the connector has no write tools | Quote of record, AR, open orders. **Interim** until Microsoft's official BC MCP works in Claude Code; tool names change at the swap (grep list in the v1.1 backlog), and the new tools must be re-checked for writes. BC Chat Connector retired 2026-09-13 |
+| Grainger (`grainger_search` / `grainger_price` / `grainger_availability`) | **Everyone** | None: read tools only | Per-account pricing is doctrine; this is how it is read without the open web |
+| ca-procurement-intel / SCPRS (`explore_sql`, `play_*`) | **Everyone** | By request | Competitive intelligence and buyer segments |
+| Microsoft 365 (Outlook, SharePoint, Teams search) | **Everyone** | Own Outlook drafts: everyone. SharePoint writes: by request, through the person's SharePoint permissions | It signs in as the person (it reads their own mailbox), so SharePoint's own permissions decide who can write. Send, forward and Teams messages stay denied |
+| BBS Sales CRM MCP | **Everyone** | By request | Pipeline of record (ruled 2026-09-13). It exposes `crm_update_record`; see "Enforcing write by request" |
+| Supabase | **Everyone**, through a read-only connection | By request | The catalog is the source of truth; a mass UPDATE from a quote session is the failure mode |
+| Shopify admin, Vercel, Firecrawl, Dataverse, SignNow, Adobe | **Everyone** | By request | Storefront, site, crawl, data, signing and design. Vercel purchases and project deletion are blocked for everyone |
+| QuickBooks | **Everyone**, payroll excluded | By request | The books. Every `qbo_payroll_*` tool is denied and blocked for everyone, admins included: payroll is personnel data |
+
+### Enforcing write by request
+
+Managed settings and the console `blocked` control are **org-wide**: they cannot give one
+person write access and withhold it from another. So the per-person switch lives in one of
+two places, and which one depends on how the connector signs in.
+
+1. **The connector signs in as the person.** That system's own permissions decide, and
+   Parker grants write there (a SharePoint site permission, a staff role). Microsoft 365
+   works this way.
+2. **The connector signs in with one shared credential.** Everyone assigned to it can do
+   whatever that credential can. Read for everyone then needs a **read-only connection**
+   (a read-only key, role or mode) assigned to everyone, with the write-capable connection
+   assigned only to the people approved for write. Until a connector's read-only path is
+   confirmed, its write-capable connection goes only to approved writers and its read for
+   everyone waits.
+
+Which way each connector signs in is not recorded in this repo. **Parker confirms it per
+connector** (Supabase, Shopify admin, Vercel, Sales CRM, SCPRS, QuickBooks, SignNow,
+Dataverse, Adobe, Firecrawl) before assigning it to everyone. The Sales CRM is already on
+everyone's account and exposes `crm_update_record`; no skill in this repo writes to the CRM.
+
+The ruling covers claude.ai connectors. **Cursor plugins are unchanged**: Outlook and Teams
+there are send-capable with no org-wide deny, so they stay off rep machines
+(`AGENTS.md` invariant 5, `docs/CURSOR-SETUP.md`).
 
 The `claudeMd` block already tells every session which system of record answers which
 question, so a teammate with the right connectors gets routed correctly without reading this.
