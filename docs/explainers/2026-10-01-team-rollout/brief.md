@@ -1,5 +1,13 @@
 # Team rollout explainer: design brief
 
+> **Superseded 2026-10-02 for four rows.** `so-search` and `bbs-po-status` now run on the
+> Business Central connector (`requires: [business-central]`), and their page rows are Ready
+> today: Berenice's and Bella and Annette's "What vendors still owe us", Joyce's "Which order
+> is this customer PO?", and Summer's "Which invoices sit under a customer PO". Where this
+> file says those are On Parker's list, waiting on a Business Central link fix, or require
+> `bc-mcp-proxy`, the register entry "`so-search` and `bbs-po-status` move onto the Business
+> Central connector" (`docs/STEWARD.md`) and the page source win.
+
 **For:** Parker Marshall, Sales Manager, who runs the rollout.
 **Audience of the finished page:** Berenice and Joyce Newell (purchasing), Summer (accounts
 receivable), Bella and Annette Somers (accounting), Emily (body armor administration and

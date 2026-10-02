@@ -69,13 +69,15 @@ Text filters are case-sensitive; dates are bare `yyyy-mm-dd`.
    ```
    entitySet: purchaseOrders
    filter:    vendorNumber eq '<V#####>' and orderDate ge <yyyy-mm-dd>   (or number eq 'PO-########')
-   select:    id, number, orderDate, vendorNumber, vendorName
+   select:    id, number, orderDate, vendorNumber, vendorName, fullyReceived
    expand:    purchaseOrderLines($select=description,quantity,directUnitCost,receivedQuantity,invoiceQuantity,invoicedQuantity,amountExcludingTax)
    top:       200   (page with skip while has_more)
    ```
 
-   Use the header only for `number`, `orderDate`, `vendorName`, `vendorNumber` and `id`.
-   **Do not select or use `fullyReceived` or `status` for receipt determination.** Do NOT skip
+   Use the header for `number`, `orderDate`, `vendorName`, `vendorNumber` and `id`.
+   `fullyReceived` is read **only** to raise the data-quality flag below (header says fully
+   received while the lines say otherwise). **Do not use `fullyReceived` or `status` to
+   decide what was received.** Do NOT skip
    any PO based on the header: every PO in scope is inspected at the line level.
    `purchaseOrderLines` cannot be queried on its own (Business Central requires the parent
    document); it only comes back through `expand` on `purchaseOrders`.
