@@ -50,8 +50,9 @@ without the rep touching a settings file. Nothing is merged into a rep's own
 3. On ONE machine: restart Claude Code, run `/status` (managed source should win), `/mcp`
    (Grainger, BC, SCPRS, CRM, M365 connectors all listed — they come from the admin console, not
    from settings), then `/plugin marketplace update` and `/bbs-checkup`. **Live-fire the
-   send rail:** ask Claude to send you a test email — expect an Allow prompt, not a silent
-   send; approve it and check it arrives (`/permissions` should list the send tools under
+   send rail:** ask Claude to send you a test email with a long body — expect an Allow prompt,
+   not a silent send, and check that the prompt shows the recipients, subject and the whole
+   body; approve it and check it arrives (`/permissions` should list the send tools under
    Ask). Rules on wrong tool names fail silently, so this test is not optional. Repeat it once on the pilot rep's machine. The Desktop
    app's **Code** tab is tested after the console blocks in §3, not here: there connectors
    arrive from the app and our ask and deny rules are not documented to match. **Cursor Agent chat is not covered by managed settings.** The stamped
@@ -107,8 +108,11 @@ console's connector tool controls (per-tool "Tool permission restrictions"):
 - set to **`ask`** every Microsoft 365 tool that `permissions.ask` names (the Outlook and
   Teams sends, meeting responses, inbox rules, auto-replies). Org `ask` makes Claude Code
   prompt on every call, even in auto mode, and no allow rule or remembered answer skips it.
-  For Microsoft 365, first turn on its write actions, and make sure the Teams send tools
-  are not left at a default `blocked`, or Claude has no tool to send with.
+  For Microsoft 365, first make sure the tenant has approved the connector's write
+  permissions: if it was approved before those were added, an Entra Global Administrator or
+  Application Administrator approves them once (reconnecting does not add them). Then turn
+  on its write actions, and make sure the Teams send tools are not left at a default
+  `blocked`, or Claude has no tool to send with.
 
 A connector the org has not connected has nothing to set yet; when one is connected, set
 its send tools here before assigning it to anyone. When a deny or ask entry is added in the

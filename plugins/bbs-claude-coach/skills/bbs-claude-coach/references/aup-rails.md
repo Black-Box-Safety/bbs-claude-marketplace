@@ -10,9 +10,14 @@ file for the rest.
 ## 1. Claude drafts; you approve every send
 
 Every quote, price, email, and form is a draft until **you** review it. In Claude Code
-Claude can send an email or Teams message only after you click Allow on that send, and the
-Allow prompt shows the recipients, subject and body (managed settings and the admin
-console, Parker, 2026-10-02). Sending a saved Outlook draft, QuickBooks sends and SignNow
+Claude can send an email or Teams message only after you click Allow on that send
+(managed settings and the admin console, Parker, 2026-10-02). What the Allow prompt shows
+depends on the send: for a new email Claude writes, the recipients, subject and body; for
+a forward, a Teams message or a reply to a meeting invite, the text but only an id for the
+email, chat, channel or meeting. So before asking for Allow on one of those, Claude says in
+plain words what the id points to: the forwarded email's sender, subject and date, or the
+chat or channel by name and who is in it, or the meeting's title and time. If it cannot
+say, it does not ask. Sending a saved Outlook draft, QuickBooks sends and SignNow
 invites stay switched off: drafts Claude writes, you send from Outlook. In the ordinary
 Claude chat window this rule is not guaranteed, so do sending in Claude Code.
 
