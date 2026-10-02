@@ -631,6 +631,17 @@ EXTERNAL_SYSTEMS = {
         # a real credential or URL.
         "signals": [r"\bSIRV_[A-Z_]+\b", r"\bsirv\.com\b"],
     },
+    # SAM.gov's public Get Opportunities API, read by sam-gov-opportunities through a
+    # bundled stdlib script; no MCP server (README connector table). "service" because
+    # what a rep has to install is a key, not a server. Signals are the credential name
+    # and the API host only: the bare words "SAM.gov" name the registration that carries
+    # BBS's UEI (CLAIMS.md, canon's certification table) far more often than they name
+    # this API, and a skill quoting the UEI opens nothing. canon is None: SAM.gov is a
+    # public data source, not a BBS system of record, and adding a row is Parker's call.
+    "sam-gov": {
+        "kind": "service", "canon": None,
+        "signals": [r"\bSAM_GOV_API_KEY\b", r"\bapi\.sam\.gov\b"],
+    },
 
     # --- command-line tools ------------------------------------------------
     "python3": {
