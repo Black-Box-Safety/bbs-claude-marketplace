@@ -28,7 +28,6 @@
       "Read",
       "Glob",
       "Grep",
-      "Read(~/**/*Black Box Safety - MASTER/**)",
       "Bash(ls:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",

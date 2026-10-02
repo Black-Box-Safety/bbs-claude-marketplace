@@ -144,10 +144,12 @@ checkup means the document-producing skills will run.
 - **Cursor** is not part of rep setup; see [`CURSOR-SETUP.md`](CURSOR-SETUP.md) for the maintainer guide.
 - **Desktop app**: everything else, or if VS Code is ever broken. Same Claude.
 
-**Files.** In VS Code or the Desktop app's **Code** tab, Claude reads anything in the synced
-`Black Box Safety - MASTER` library (customer folders, RFQs, bid history) without asking;
-it still asks before changing a file. In the Desktop **chat** window, give Claude a file
-with the paperclip or by dragging it in; for a whole folder, use the Code tab.
+**Files.** In VS Code or the Desktop app's **Code** tab, Claude can read any file you can,
+including the synced `Black Box Safety - MASTER` library, without asking. The first time it
+reads outside the folder you opened, it may ask whether to keep allowing that: answer
+**Yes**. "No" switches those reads off for good, and then it cannot open customer folders.
+It can also change files in the folder you opened without asking, so check what it changed.
+In the Desktop **chat** window, give Claude a file with the paperclip or by dragging it in.
 
 ## Want an agency storefront?
 

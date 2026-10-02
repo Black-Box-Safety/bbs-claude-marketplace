@@ -616,21 +616,20 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **Team-rollout page, Joey Magliato's picker line — OPEN (2026-10-01).** Canon records only
   his title, so "Customer accounts and quotes" is the build session's wording. **Ask:**
   Parker confirms or replaces it (one string in `PEOPLE`).
-- **Claude reads the synced MASTER library without asking — RULED 2026-10-02.** Parker, in
-  session, asked for a setting "so that users can read files in claude desktop", chose
-  "Both" (the Code tab and the chat window) and approved the rule. Managed settings allow
-  `Read(~/**/*Black Box Safety - MASTER/**)`: the library sits somewhere different on every
-  machine, and the wildcards find it under the home folder (Teams-site prefix and the comma
-  in "OneDrive - Black Box Safety, Inc" included) without writing anything per machine, so
-  R4 holds. Reads only: `additionalDirectories` was rejected because it would make the
-  company library a working folder where edits can be auto-accepted; a per-machine rule
-  written by the bootstrap was built and reverted for breaking R4. The chat window has no
-  org setting on our side: people attach files there, and use the Code tab for folders
-  (`docs/REP-SETUP.md`). Home: `bbs-managed-settings.json`; explained in
-  `MANAGED-SETTINGS.md`; `/bbs-checkup` check 12 confirms the rule reached the machine.
-  Not yet seen matching on a real Windows machine; the first checkup after the re-paste is
-  the test.
-
+- **Reading files in Claude Desktop — 2026-10-02: no new rule; four questions OPEN.**
+  Parker, in session, asked for a setting "so that users can read files in claude desktop",
+  chose "Both" (the Code tab and the chat window) and approved a managed allow rule
+  `Read(~/**/*Black Box Safety - MASTER/**)`. Rex's review of PR #47 found the premise wrong:
+  the managed settings already allow bare `Read`, which "matches all file reads", so Claude
+  Code already reads MASTER, and every other file the person can open, without a prompt.
+  The rule was dropped and the docs corrected; nothing about reads changed. The chat window
+  and Cowork never receive managed settings. **Ask (each changes what reps can do):**
+  (a) keep bare `Read`, or narrow it to the working folder plus MASTER; (b) an `Edit` ask
+  rule on MASTER so edits there always prompt (the quote desk writes packets inside MASTER,
+  so this adds prompts to it); (c) widen the `.env` denies from the session folder to the
+  whole home folder (`Read(~/**/.env)` and the two siblings); (d) set the send-class
+  connector tools to `blocked` in the claude.ai admin console, so "humans send" (invariant
+  5) also holds in the chat window and Cowork.
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.
