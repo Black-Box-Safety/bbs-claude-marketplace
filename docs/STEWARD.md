@@ -722,6 +722,15 @@ Write it up with evidence and move to the next slice. Do not idle.
     line reads "Eligible" and also carries a flag to confirm BBS is small under that NAICS
     size standard, because all three are small-business programs. This is not a new ruling:
     it is the stricter reading of (e) and of canon. **Ask:** Parker confirms the flag stays.
+  - **(l) The key reaches machines through the bootstrap, not the repo.** Parker, in
+    session: "Add the api to the GitHub repo so it's accessible through there. I haven't run
+    the install yet." The value is not committed (AGENTS.md, credentials). Instead,
+    `bbs-setup.ps1` and `bbs-setup.sh` ask for the key with hidden input, never print it, and
+    save it as `SAM_GOV_API_KEY`: the user environment on Windows, `~/.zprofile` on a Mac. Enter
+    skips. The Mac script refuses anything but letters, digits, `-` and `_`, so a paste cannot
+    break out of the profile line.
+    - **A GitHub Actions secret would not do this job.** Only workflows can read one; an
+      install cannot.
   - **`bbs-tools` 0.2.0.** The two scripts reach installed machines only through the
     version bump, so `bbs-tools` moves to 0.2.0 with the allow-list change.
 ---

@@ -185,6 +185,36 @@ if ($pathChanged -and -not $DryRun) {
   }
 }
 
+# The shared BBS SAM.gov API key, for the sam-gov-opportunities skill (one account, one key
+# for the team: Parker, 2026-10-02). It is a credential, so it is never in this script or the
+# repo: the person running the bootstrap pastes it when asked (Parker supplies it), and it is
+# saved to the user environment like CLAUDE_CODE_GIT_BASH_PATH above. Input is hidden and the
+# value is never printed. Enter skips; rerun the script later to add it. Its expiry date is in
+# bbs-foundations canonical-facts.md, "Federal codes"; to replace it, clear the variable and rerun.
+if ([Environment]::GetEnvironmentVariable('SAM_GOV_API_KEY', 'User')) {
+  Write-Host "[ok]      SAM_GOV_API_KEY              set (value not shown)"
+} elseif ($DryRun) {
+  Write-Host "[would]   SAM_GOV_API_KEY              ask for the BBS SAM.gov key from Parker"
+} elseif (-not [Environment]::UserInteractive) {
+  $deferred += 'SAM_GOV_API_KEY (rerun this script in a window and paste the key from Parker)'
+} else {
+  $secure = Read-Host -AsSecureString "Paste the BBS SAM.gov API key from Parker (input hidden; press Enter to skip)"
+  $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+  try { $samKey = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr).Trim() }
+  finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) }
+  if (-not $samKey) {
+    Write-Host "[skip]    SAM_GOV_API_KEY              not set; rerun this script to add it"
+    $deferred += 'SAM_GOV_API_KEY (rerun and paste the key from Parker)'
+  } elseif ($samKey -match '\s') {
+    Write-Host "[skip]    SAM_GOV_API_KEY              that paste had spaces in it; rerun and paste the key alone"
+    $deferred += 'SAM_GOV_API_KEY (rerun and paste the key alone)'
+  } else {
+    [Environment]::SetEnvironmentVariable('SAM_GOV_API_KEY', $samKey, 'User')
+    Write-Host "[install] SAM_GOV_API_KEY              saved to your user environment (value not shown)"
+  }
+  Remove-Variable samKey -ErrorAction SilentlyContinue
+}
+
 # Some skills need npm libraries, not winget packages: bbs-quote-builder builds the quote
 # .docx with `docx`, and the pptx skill builds decks with `pptxgenjs`. If npm still does not
 # resolve, these finish on the rerun the closing line asks for.
