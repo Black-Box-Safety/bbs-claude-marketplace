@@ -93,15 +93,21 @@ Add the monthly reading to the metrics review (MEASUREMENT.md).
 
 ## 3. Connector assignments (one-time, then per new hire)
 
-Per the matrix in MANAGED-SETTINGS.md: everyone gets BC MCP (Custom API, read-only, interim),
-M365, Grainger, Sales CRM; CA-book reps add SCPRS; BC Chat Connector is retired — unassign it;
-Supabase/Shopify/Vercel/QuickBooks stay admin-only.
+Per the matrix in MANAGED-SETTINGS.md (ruled 2026-10-02): **everyone reads every
+connector; writing to a shared space is granted per person, on request.** BC Chat Connector
+is retired — unassign it. Before assigning a write-capable connector to everyone, confirm
+how it signs in ("Enforcing write by request" in MANAGED-SETTINGS.md): if it uses one
+shared credential, everyone gets a read-only connection and only approved writers get the
+write-capable one. When someone asks for write access, grant it in that system (or assign
+them the write-capable connection) and note who and when in the deployment note.
 
 **Block the send tools in the console too (ruled 2026-10-02).** In the claude.ai admin
 console's connector tool controls, set to `blocked` every connector tool that
 `plugins/bbs-foundations/docs/bbs-managed-settings.json` `permissions.deny` names (its
 `mcp__claude_ai_<connector>__<tool>` entries; currently Microsoft 365, Teams, SignNow and
-QuickBooks send-class tools). A connector the org has not connected has nothing to block yet; when one is connected,
+QuickBooks send-class tools, every QuickBooks `qbo_payroll_*` tool, Vercel's purchase
+tools and `delete_project`, and Supabase's `create_project`, `create_branch` and
+`restore_project`, ruled 2026-10-02). A connector the org has not connected has nothing to block yet; when one is connected,
 block its send tools here before assigning it to anyone.
 Why: the managed deny's connector entries are not documented to match in the Desktop app's
 Code tab, and managed settings do not reach Desktop chat or Cowork. The docs say the desktop

@@ -738,6 +738,39 @@ Write it up with evidence and move to the next slice. Do not idle.
       install cannot.
   - **`bbs-tools` 0.2.0.** The two scripts reach installed machines only through the
     version bump, so `bbs-tools` moves to 0.2.0 with the allow-list change.
+- **Connector access: everyone reads, writing to a shared space is by request — RULED
+  2026-10-02.** Parker, in session: "I want everyone to have access to all of the
+  connectors and items provided in BBS Claude Marketplace. Our team is small enough that
+  there is no reason to isolate the information." Asked how live writes should behave:
+  "everyone should have read access, but not write access. They have to request write
+  access to anything that acts as a shared information space, or canonical space, for the
+  company." QuickBooks payroll: "Everyone, block payroll" (every `qbo_payroll_*` tool
+  denied and console-blocked, admins included). Vercel: block purchases (`buy_*`,
+  `create_or_transfer_domain`) and `delete_project`, admins included. Supabase spending,
+  asked the same day ("block Supabase spending too"): `create_project`, `create_branch`
+  and `restore_project` (each adds billing), denied and console-blocked, admins included;
+  no skill uses them. Team-rollout page: flip connector rows to Ready today now. Every
+  plugin was already enabled for everyone (`enabledPlugins`). Homes:
+  `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md` (matrix and "Enforcing write by
+  request"), `bbs-managed-settings.json` `permissions.deny`, `docs/ADMIN-RUNBOOK.md` §3.
+  Managed settings and console blocks are org-wide, so write-by-request is enforced in
+  each system or by a read-only connection; **OPEN for Parker:** how each connector signs
+  in, the CRM's `crm_update_record` (already on everyone's account), and the new deny
+  names' live-fire check (`mcp__claude_ai_Vercel__` and `mcp__claude_ai_Supabase__` are
+  inferred from the naming of the others). Cursor plugins are unchanged (invariant 5).
+  **Signing is excluded** (Rex, PR #53 review): the ruling is about information and
+  shared-space writes, so who signs stays R1 and R1a and no connector grant changes it;
+  SignNow grants no one signing by request. **Closed** (Parker, in session): QuickBooks is
+  hardly used, so no further QuickBooks denies. **Signed off** (Parker, in session,
+  2026-10-02): "I approve the deny list changes" (payroll, Vercel, Supabase; Rex E1), and
+  Microsoft 365 is assigned to Rachelle ("yes it is assigned").
+- **Rachelle does not sign through Claude — RULED 2026-10-02.** Parker, in session, in the
+  brief for her team-rollout card: "Signing stays off her page. Rachelle does not sign
+  through Claude. Leave out packets, signing and form filling." She is not one of the R1a
+  delegates, so this matches R1a; her card and jobs-map rows carry no signing, packet or
+  form-filling job, and tile 3 ("Outside Sales, it doesn't sign for you") covers her.
+  `/bbs-my-voice` learns only from her own Sent Items, so drafting in Jackson's voice is
+  shown as Not built yet.
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.
