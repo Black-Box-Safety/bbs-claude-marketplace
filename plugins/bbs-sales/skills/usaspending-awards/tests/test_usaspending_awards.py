@@ -161,7 +161,7 @@ def test_other_api_messages_are_shown():
 
 def test_subawards_mode_and_empty_result_caveat():
     op = Opener({"spending_by_award": awards_body()})
-    code, out, _ = run(["subawards", "--recipient", "FRK5MJD35GN5"], op)
+    code, out, _ = run(["subawards", "--recipient", "TESTUEI00001"], op)
     p = payload(op.requests[0])
     assert "subawards" not in p and p["spending_level"] == "subawards"
     assert p["sort"] == "Sub-Award Amount"
@@ -181,8 +181,8 @@ def test_top_recipients_amount_is_labelled_as_window_obligations():
 
 def test_recipient_is_one_string():
     op = Opener({"spending_by_award": awards_body()})
-    run(["awards", "--recipient", "  FRK5MJD35GN5 "], op)
-    assert payload(op.requests[0])["filters"]["recipient_search_text"] == ["FRK5MJD35GN5"]
+    run(["awards", "--recipient", "  TESTUEI00001 "], op)
+    assert payload(op.requests[0])["filters"]["recipient_search_text"] == ["TESTUEI00001"]
 
 
 def test_new_only_sets_date_type():

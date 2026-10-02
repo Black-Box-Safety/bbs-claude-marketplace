@@ -72,9 +72,13 @@ bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/sam-gov-opportunities/scripts/sam_opportu
 
 At least one of `--naics`, `--agency`, `--solnum` or `--keyword` is required.
 
-**"Our NAICS codes"** means the list in canon, "Federal codes". All of them is thirteen
-requests, over the default cap of 4. Ask which codes matter, or start with the primary
-one; for all thirteen, pass `--max-requests 13`. Never supply a
+If `bbs-fill` is not found, the `bbs-tools` plugin is missing; rerun the bootstrap, and
+meanwhile run the same path with `python` in its place, which asks for permission.
+
+**"Our NAICS codes"** means the list in canon, "Federal codes". Each code is one request,
+so the whole list is over the default cap of 4. Ask which codes matter, or start with the
+primary one; for the whole list, pass `--max-requests` equal to the number of codes in canon
+(the script refuses anything over 20). Never supply a
 code from memory.
 
 ## What comes back, and how to present it
@@ -94,9 +98,11 @@ Present the table as it came back. Rules:
   way.
 - **BBS fit is the script's column, unedited.** It is computed from the set-aside code against
   canon:
-  - SDVOSB set-asides are eligible.
-  - Small-business set-asides carry a FLAG to confirm the size standard for that NAICS.
-  - VA veteran-owned set-asides are eligible: BBS is VOSB (canon, ruled 2026-10-02).
+  - SDVOSB set-asides are eligible, with a FLAG to confirm BBS is small under that NAICS
+    size standard (every SDVOSB, VOSB and small-business set-aside carries it).
+  - Small-business set-asides carry the same FLAG.
+  - VA veteran-owned set-asides are eligible: BBS is VOSB (canon, ruled 2026-10-02), with
+    the same size-standard FLAG.
   - Set-asides for certifications BBS does not hold say so.
   - An unknown code is flagged.
   

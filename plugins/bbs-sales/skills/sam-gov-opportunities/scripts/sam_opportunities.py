@@ -68,6 +68,9 @@ TYPE_CODES = {
     "g": "Sale of Surplus Property",
 }
 DEFAULT_TYPES = "o,k,p,r"
+# A hard ceiling on one run's requests, whatever --max-requests says. The team shares one
+# daily budget, and a planted instruction must not be able to spend it in a single run.
+MAX_REQUESTS_CEILING = 20
 
 # What a set-aside code means for BBS. The certification facts behind each
 # answer live in canon, plugins/bbs-foundations/skills/bbs-claude-md-forge/
@@ -76,18 +79,19 @@ DEFAULT_TYPES = "o,k,p,r"
 # small business, and VOSB (ruled 2026-10-02). Nothing here restates a number. Every code not backed by a
 # certification in canon says so rather than guessing, and the API's own
 # documented codes are the only keys (an unknown code is flagged, not mapped).
-FIT_SDVOSB = "Eligible: SDVOSB set-aside (BBS is SDVOSB federally, per canon)"
-FIT_SB = ("Eligible if BBS is small under this NAICS size standard: BBS is a federal "
-          "small business under its own NAICS codes (canon); [FLAG: confirm the size "
-          "standard for NAICS {naics}]")
+SIZE_FLAG = "[FLAG: confirm BBS is small under the size standard for NAICS {naics}]"
+FIT_SDVOSB = "Eligible: SDVOSB set-aside (BBS is SDVOSB, per canon); " + SIZE_FLAG
+FIT_VOSB = "Eligible: VA veteran-owned {kind} (BBS is VOSB, per canon); " + SIZE_FLAG
+FIT_SB = ("Eligible: small-business set-aside (BBS is a small business under SBA size "
+          "standards, per canon); " + SIZE_FLAG)
 FIT_OPEN = "Full and open: no set-aside"
 SET_ASIDE_FIT = {
     "SDVOSBC": FIT_SDVOSB,
-    "SDVOSBS": FIT_SDVOSB + ", sole source",
+    "SDVOSBS": FIT_SDVOSB.replace("set-aside", "sole source", 1),
     "SBA": FIT_SB,
     "SBP": FIT_SB,
-    "VSA": "Eligible: VA veteran-owned set-aside (BBS is VOSB, per canon)",
-    "VSS": "Eligible: VA veteran-owned sole source (BBS is VOSB, per canon)",
+    "VSA": FIT_VOSB.replace("{kind}", "set-aside"),
+    "VSS": FIT_VOSB.replace("{kind}", "sole source"),
     "LAS": "[FLAG: local area set-aside. Eligibility depends on the declared area; read the notice]",
 }
 NO_CERT = {
@@ -365,6 +369,10 @@ def main(argv=None, opener=None, today=None, now=None):
               "key into a chat.", file=sys.stderr)
         return 2
 
+    if not 1 <= args.max_requests <= MAX_REQUESTS_CEILING:
+        print(f"--max-requests must be between 1 and {MAX_REQUESTS_CEILING}: the team shares one "
+              "daily request budget.", file=sys.stderr)
+        return 2
     qs = queries(args)
     if len(qs) > args.max_requests:
         print(f"{len(qs)} NAICS codes need at least {len(qs)} requests, over the cap of "

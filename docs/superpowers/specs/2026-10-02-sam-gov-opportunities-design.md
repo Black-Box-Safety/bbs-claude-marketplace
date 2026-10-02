@@ -23,8 +23,8 @@ registration, no CRM write.
 | Notice types | Filtered client-side by `type` text, default solicitation, combined synopsis/solicitation, presolicitation and sources sought | Filtering with `ptype` on the request would cost one request per type. Every excluded notice is counted by type, so a type string that does not match is visible. |
 | Open | `active` is Yes, and the response deadline has not passed or none is given | The API's `status` filter is documented "Coming Soon". Undated notices are kept and counted. |
 | 404 | A failure (exit 1), not an empty result | The docs say 404 is "No Data found". On 2026-10-02 every request from a cloud container got an empty 404, with or without a key. Calling that "nothing open" would be a plausible wrong answer. |
-| Set-aside fit | A code table in the script; each answer points at canon's certification sections | Canon: federally BBS is SDVOSB and a small business. SDVOSB set-asides are eligible. SB set-asides carry a flag to confirm the size standard. VA VOSB set-asides are eligible: BBS is VOSB (ruled 2026-10-02). A code for a certification BBS does not hold says so. An unknown code is flagged. |
-| BBS NAICS codes | Read from canon, "Federal codes" (supplied by Parker 2026-10-02) | All thirteen exceed the default request cap, so the skill asks which matter. |
+| Set-aside fit | A code table in the script; each answer points at canon's certification sections | Canon: federally BBS is SDVOSB and a small business. SDVOSB, VA VOSB and SB set-asides read Eligible, and every one carries a flag to confirm BBS is small under that NAICS size standard, since all three are small-business programs (Rex, PR #52 review). A code for a certification BBS does not hold says so. An unknown code is flagged. |
+| BBS NAICS codes | Read from canon, "Federal codes" (supplied by Parker 2026-10-02) | The whole list exceeds the default request cap, so the skill asks which matter; a hard ceiling of 20 requests per run protects the shared budget. |
 | Permission | Run through `bbs-fill`, no prompt (ruled 2026-10-02) | The scripts write no file. |
 | Points of contact | Not printed | They are on the sam.gov page. Leaving them out keeps the output from becoming an outreach list. |
 
@@ -61,4 +61,6 @@ review-side PR, [Black-Box-Safety/bbs-claude-marketplace#51](https://github.com/
   a reported subaward on Bechtel's Sentinel work: subaward `5300017317` is Bechtel's own,
   under Northrop.
 - **Live checks.** BBS's own awards came back by UEI, the VA market query returned rows for
-  NAICS `423450`, and a Bechtel subaward search returned Bechtel's subawards.
+  NAICS `423450`, and a subaward search with `--recipient Bechtel` returned rows where Bechtel
+  is the **sub-awardee** under other primes. That is the only direction the API filters, so
+  the skill does not offer "who does this prime subcontract to" (Rex, PR #52 review).

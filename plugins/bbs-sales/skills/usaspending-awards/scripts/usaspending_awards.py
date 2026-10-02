@@ -6,13 +6,14 @@ Three questions, one request each (plus one to check an agency name):
 
     awards          which prime contracts match (who won, how much, when)
     top-recipients  who holds the most obligations in a market
-    subawards       first-tier subcontracts primes have reported
+    subawards       which primes a company was a reported first-tier sub under
+                    (--recipient matches the SUB-awardee, never the prime)
 
 Usage:
     python usaspending_awards.py awards --naics 423450 --agency VA
-    python usaspending_awards.py awards --recipient FRK5MJD35GN5 --start 2022-10-01
+    python usaspending_awards.py awards --recipient <BBS's UEI, from canon> --start 2022-10-01
     python usaspending_awards.py top-recipients --naics 423450 --agency "Department of Veterans Affairs"
-    python usaspending_awards.py subawards --recipient "Bechtel" --naics 3329
+    python usaspending_awards.py subawards --recipient "Bechtel"   # primes Bechtel was a sub under
     python usaspending_awards.py awards --naics 423450 --set-aside SDVOSBC --json
 
 No key: the API is public. It is searched with POST requests, but only the

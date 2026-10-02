@@ -3,11 +3,11 @@ name: usaspending-awards
 description: >-
   Look up past federal contract awards on USAspending.gov: who won contracts under a NAICS
   code or at an agency, how much, and when; who the biggest vendors are in a federal market;
-  what first-tier subcontracts a prime has reported; and BBS's own federal award history by
+  which primes a company has been a reported first-tier subcontractor under; and BBS's own federal award history by
   its UEI. Read-only search of the public USAspending API, no key. Use when Kim, Griffin or
   any rep asks "who won the last VA award for NAICS …", "who's the incumbent", "what has
   DoD bought under 339113", "top vendors for body armor at DHS", "what federal awards has
-  BBS won", or "who does Bechtel subcontract to". Do NOT use for open solicitations that can
+  BBS won", or "which primes has this company subcontracted under". Do NOT use for open solicitations that can
   still be bid (sam-gov-opportunities), California state purchasing (SCPRS,
   ca-procurement-intel), BBS's own books (Business Central), or drafting a pursuit or deck
   (bbs-deck-voice). It only reads.
@@ -38,13 +38,13 @@ bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/usaspending-awards/scripts/usaspending_aw
 |---|---|---|
 | `awards` | Which prime contracts match, largest first | USAspending's Award Amount for the whole award, all years |
 | `top-recipients` | Who holds the most obligations in that market | Obligations on transactions dated in the window, not contract value |
-| `subawards` | First-tier subcontracts primes reported (`--recipient` is the sub-awardee) | As the prime reported it |
+| `subawards` | Which primes a company was a reported first-tier sub under (`--recipient` is the sub-awardee) | As the prime reported it |
 
 | Flag | What it does |
 |---|---|
 | `--naics 339113,4234` | Codes or prefixes, all in one request. "Our NAICS" means canon's list; pass it. |
 | `--agency VA` | Awarding toptier agency, by its exact USAspending name or abbreviation. A near miss is refused with suggestions, because USAspending answers a wrong name with zero rows and no error. |
-| `--recipient FRK5MJD35GN5` | One recipient name or UEI. BBS's UEI comes from canon. |
+| `--recipient <name or UEI>` | One recipient name or UEI. For BBS, pass the UEI from canon. In `subawards` it matches the **sub-awardee**, never the prime. |
 | `--keyword`, `--set-aside SDVOSBC`, `--state CA` | Keyword, set-aside codes, place of performance. |
 | `--start / --end` | YYYY-MM-DD, default the last three years; nothing before 2007-10-01. |
 | `--new-only` | Only awards first signed inside the window. |
@@ -52,6 +52,15 @@ bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/usaspending-awards/scripts/usaspending_aw
 | `--json` | Machine-readable. |
 
 At least one of `--naics`, `--agency`, `--recipient` or `--keyword` is required.
+
+If `bbs-fill` is not found, the `bbs-tools` plugin is missing; rerun the bootstrap, and
+meanwhile run the same path with `python` in its place, which asks for permission.
+
+**It cannot answer "who does this prime subcontract to".** USAspending's subaward search
+matches the sub-awardee only, so `--recipient Bechtel` lists the primes Bechtel worked
+*under*, not Bechtel's own subs. If someone asks the prime-to-sub question, say so plainly
+and point them to the prime award's page on usaspending.gov (its Sub-Awards tab); never
+present the reverse list as the answer.
 
 ## Presenting the result
 

@@ -160,6 +160,12 @@ def test_request_cap_refuses_before_spending():
     assert code == 2 and op.requests == []
 
 
+def test_request_ceiling_cannot_be_raised_past_twenty():
+    op = Opener([body()])
+    code, _, err = run(["--naics", "1", "--max-requests", "1000"], op)
+    assert code == 2 and op.requests == [] and "20" in err
+
+
 def test_one_request_per_naics_and_dedupe():
     op = Opener([body(notice("a"), notice("b")), body(notice("b"), notice("c"))])
     code, out, _ = run(["--naics", "423450,339113", "--json"], op)
@@ -201,7 +207,8 @@ def test_set_aside_fit_follows_canon_and_flags_the_rest():
     f = so.set_aside_fit
     assert f("SDVOSBC", "423450").startswith("Eligible: SDVOSB")
     assert "sole source" in f("SDVOSBS", "423450")
-    assert "[FLAG: confirm the size standard for NAICS 423450]" in f("SBA", "423450")
+    for code in ("SDVOSBC", "SDVOSBS", "SBA", "SBP", "VSA", "VSS"):
+        assert "[FLAG: confirm BBS is small under the size standard for NAICS 423450]" in f(code, "423450"), code
     assert f("VSA", "1").startswith("Eligible: VA veteran-owned") and "VOSB" in f("VSS", "1")
     assert f("8A", "1").startswith("Not eligible as recorded") and "8(a)" in f("8A", "1")
     assert f("HZC", "1").startswith("Not eligible as recorded")
