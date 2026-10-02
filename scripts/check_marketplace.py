@@ -642,6 +642,15 @@ EXTERNAL_SYSTEMS = {
         "kind": "service", "canon": None,
         "signals": [r"\bSAM_GOV_API_KEY\b", r"\bapi\.sam\.gov\b"],
     },
+    # USAspending's public award API, read by usaspending-awards through a bundled stdlib
+    # script. No key and no server, so the host is the only proof of use. Not the word
+    # "USAspending": the forge's worked example cites it as where a Bechtel subaward
+    # number was found, which opens nothing. Not `usaspending_*` either: those are the
+    # tool names of the separate Cursor MCP (README connector table), a different system.
+    "usaspending": {
+        "kind": "service", "canon": None,
+        "signals": [r"\bapi\.usaspending\.gov\b"],
+    },
 
     # --- command-line tools ------------------------------------------------
     "python3": {
