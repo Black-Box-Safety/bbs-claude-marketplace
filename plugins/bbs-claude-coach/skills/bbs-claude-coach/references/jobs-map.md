@@ -6,8 +6,8 @@ the closer job and say so.
 Everyone can **read** every connector. **Changing** a shared space (the catalog, the
 storefront, the site, the books, the pipeline, SharePoint, signing) needs write access that
 Parker grants to the person, on request. If a job needs a write you don't have, say so and
-tell them to ask Parker; do not look for another way to make the change. QuickBooks payroll
-and Vercel purchases are blocked for everyone.
+tell them to ask Parker; do not look for another way to make the change. QuickBooks payroll,
+Vercel purchases and Supabase spending are blocked for everyone.
 
 | The job | First step | Usually lives in | Needs a live connector? |
 |---|---|---|---|

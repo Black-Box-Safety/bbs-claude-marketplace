@@ -677,14 +677,16 @@ Write it up with evidence and move to the next slice. Do not idle.
   that acts as a shared information space, or canonical space, for the company." QuickBooks
   payroll: "Everyone, block payroll" (every `qbo_payroll_*` tool denied and console-blocked,
   admins included). Vercel: block purchases (`buy_*`, `create_or_transfer_domain`) and
-  `delete_project`, admins included. Team-rollout page: flip connector rows to Ready today
+  `delete_project`, admins included. Supabase spending, asked the same day ("block Supabase
+  spending too"): `create_project`, `create_branch` and `restore_project` (each adds billing),
+  denied and console-blocked, admins included; no skill uses them. Team-rollout page: flip connector rows to Ready today
   now. Every plugin was already enabled for everyone (`enabledPlugins`). Homes:
   `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md` (matrix and "Enforcing write by
   request"), `bbs-managed-settings.json` `permissions.deny`, `docs/ADMIN-RUNBOOK.md` §3.
   Managed settings and console blocks are org-wide, so write-by-request is enforced in each
   system or by a read-only connection; **OPEN for Parker:** how each connector signs in, the
   CRM's `crm_update_record` (already on everyone's account), and the new deny names'
-  live-fire check (`mcp__claude_ai_Vercel__` is inferred from the naming of the others).
+  live-fire check (`mcp__claude_ai_Vercel__` and `mcp__claude_ai_Supabase__` are inferred from the naming of the others).
   Cursor plugins are unchanged (invariant 5).
 ---
 

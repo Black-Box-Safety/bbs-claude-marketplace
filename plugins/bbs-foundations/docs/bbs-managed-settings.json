@@ -135,7 +135,10 @@
       "mcp__claude_ai_Vercel__buy_pro",
       "mcp__claude_ai_Vercel__buy_single_domain",
       "mcp__claude_ai_Vercel__create_or_transfer_domain",
-      "mcp__claude_ai_Vercel__delete_project"
+      "mcp__claude_ai_Vercel__delete_project",
+      "mcp__claude_ai_Supabase__create_project",
+      "mcp__claude_ai_Supabase__create_branch",
+      "mcp__claude_ai_Supabase__restore_project"
     ]
   },
   "disableBypassPermissionsMode": "disable",
