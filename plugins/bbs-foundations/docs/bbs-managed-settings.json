@@ -103,6 +103,7 @@
     ]
   },
   "disableBypassPermissionsMode": "disable",
+  "channelsEnabled": true,
   "pluginConfigs": {
     "cc-plugin-sec-default@builtin": {
       "options": {

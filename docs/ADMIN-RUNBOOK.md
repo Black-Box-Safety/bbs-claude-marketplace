@@ -46,7 +46,9 @@ without the rep touching a settings file. Nothing is merged into a rep's own
 
 1. Open claude.ai → admin settings → Claude Code → managed settings.
 2. Paste `plugins/bbs-foundations/docs/bbs-managed-settings.json` (review MANAGED-SETTINGS.md
-   "Before pasting" first).
+   "Before pasting" first). Replace the whole console file with it; do not edit the console
+   copy by hand. A key set only in the console is lost on the next paste, so add it to the
+   repo file in a PR first.
 3. On ONE machine: restart Claude Code, run `/status` (managed source should win), `/mcp`
    (Grainger, BC, SCPRS, CRM, M365 connectors all listed — they come from the admin console, not
    from settings), then `/plugin marketplace update` and `/bbs-checkup`. **Live-fire the
