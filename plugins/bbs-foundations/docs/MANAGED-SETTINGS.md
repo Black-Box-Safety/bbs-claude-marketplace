@@ -164,11 +164,17 @@ through the managed `env` block; a rep turns it on per session with `/caveman li
   reads the library. Making it a working folder would let edits be auto-accepted across it.
   A `Read(~/**/*Black Box Safety - MASTER/**)` rule was drafted 2026-10-02 and dropped in
   review as redundant (PR #47).
-- **Nothing for the Claude Desktop chat window or Cowork.** Managed settings govern Claude
-  Code only (the VS Code panel, the Desktop app's Code tab, the terminal); Cowork does not
-  fetch them either. So the send-class deny rules above do **not** hold in chat or Cowork.
-  The claude.ai admin console's per-tool connector controls (`blocked`) do reach the
-  desktop app and claude.ai chat; whether BBS uses them for the send tools is OPEN. In the
-  chat window a person gives Claude a file with the paperclip or by dragging it in.
+- **Where the send-class denies do not reach.** The deny rules above name connector tools
+  as `mcp__claude_ai_<server>__<tool>`, which the docs apply to "connectors Claude Code
+  fetches itself": the terminal and the VS Code panel. In the Desktop app's **Code** tab the
+  app hands connectors to Claude Code directly, and "no MCP setting or `managed-mcp.json`
+  reaches them"; the documented control there is the claude.ai admin console's per-tool
+  connector controls (`blocked`) (*mcp*, "How connectors reach Claude Code"; *desktop*,
+  enterprise section; checked 2026-10-02). Server-managed settings do not reach the Desktop
+  **chat** window or **Cowork** at all. So on the Desktop app (Code tab and chat) and in
+  Cowork, "humans send" rests on the console's `blocked` control, which the docs say the
+  desktop app and claude.ai chat apply (Cowork unverified). Whether BBS sets it for the send
+  tools is OPEN (`docs/STEWARD.md`, 2026-10-02). In the chat window a person gives Claude a
+  file with the paperclip or by dragging it in.
 - **No `bbs-bc-mcp-proxy`.** Retired 2026-09-02 in favour of the Business Central claude.ai
   connector.

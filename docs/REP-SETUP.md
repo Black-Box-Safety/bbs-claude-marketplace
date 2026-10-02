@@ -145,10 +145,12 @@ checkup means the document-producing skills will run.
 - **Desktop app**: everything else, or if VS Code is ever broken. Same Claude.
 
 **Files.** In VS Code or the Desktop app's **Code** tab, Claude can read any file you can,
-including the synced `Black Box Safety - MASTER` library, without asking. The first time it
-reads outside the folder you opened, it may ask whether to keep allowing that: answer
-**Yes**. "No" switches those reads off for good, and then it cannot open customer folders.
-It can also change files in the folder you opened without asking, so check what it changed.
+including the synced `Black Box Safety - MASTER` library, without asking. If it ever asks
+about reading outside the folder you opened, pick **"Yes, and keep allowing any reads outside
+the working directories"**. The answer **"No, and block reads outside the working
+directories from now on"** switches those reads off for good, and then Claude cannot open
+customer folders; if you picked it, tell Parker. In auto mode it can also change files in
+the folder you opened without asking, so check what it changed.
 In the Desktop **chat** window, give Claude a file with the paperclip or by dragging it in.
 
 ## Want an agency storefront?
