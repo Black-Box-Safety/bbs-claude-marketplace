@@ -18,7 +18,7 @@ when that file changes, change the block.
 | `enabledPlugins` | `bbs-foundations`, `bbs-claude-coach`, `bbs-sales`, `bbs-marketing`, `bbs-back-office`, `bbs-website`, `bbs-tools`, `claudeforge`, `impeccable`, plus the commons: `superpowers-chrome`, `caveman`, `document-skills` — all on, for everyone | Nine people. The cost of an unused plugin is a few lines of context; the cost of a rep missing the quote-desk skill is a lost bid. Literacy (`bbs-claude-coach`) and post-award (`bbs-back-office`) are company-wide too. `bbs-website` is advisory, so a rep having it costs nothing. `bbs-marketing` added 2026-10-01: it shipped in #39 without a row here, so neither managed settings nor the bootstrap installed it. The bootstraps install every plugin in `marketplace.json` unless this list sets it `false`. `bbs-tools` (2026-10-01) carries only the `bbs-fill` launcher the allow rule below names |
 | _(no `mcpServers`)_ | Grainger, BC, SCPRS, CRM, M365 are all claude.ai connectors (ruled 2026-09-13) | Connectors are assigned in the admin console, never configured per machine. The local `grainger-api` stdio server stays on admin machines only; a `mcpServers` entry here would show red in `/mcp` on every rep machine that lacks it |
 | `permissions.allow` | Read-only git/gh and file tools without prompts + the superpowers-chrome browser tool (full browser access is a ruling; prompts per click would defeat it). Since 2026-10-01 (R4): `Bash(bbs-fill *)` — the vetted form and quote scripts, through the `bbs-tools` launcher, which runs only allow-listed scripts; the read-only Grainger MCP and BC MCP Custom API tools; Outlook **draft** creation and editing. Bare `Read` "matches all file reads" (permissions docs, *Match all uses of a tool*; checked 2026-10-02): Claude Code reads any file the person can open without a prompt, the synced MASTER library included, and also `~/.ssh`, browser profiles and other projects. Whether to narrow it is OPEN (`docs/STEWARD.md`, 2026-10-02). **Never** `Bash(python:*)` or a path-pattern rule: a `*` matches anything, so such a rule would let a crafted command run arbitrary Python past auto mode | Fewer prompts on the actions that cannot break anything, and auto mode no longer stops a rep mid-packet (Kim, 2026-10-01) |
-| `permissions.ask` | Push, PR create/merge, Vercel deploy, Shopify theme push; Outlook calendar event create/update/delete, which email invites, updates and cancellations to attendees (Parker, 2026-10-01) | Plan → approve → execute is doctrine; this makes the tool enforce it |
+| `permissions.ask` | Push, PR create/merge, Vercel deploy, Shopify theme push; Outlook calendar event create/update/delete, which email invites, updates and cancellations to attendees (Parker, 2026-10-01); since 2026-10-02 the Outlook and Teams send-class tools (send, send-draft, forward, meeting responses, inbox rules, auto-replies, the three Teams sends), so Claude can send but every send waits for a person's Allow (Parker, 2026-10-02) | Plan → approve → execute is doctrine; this makes the tool enforce it |
 | `permissions.deny` | `rm -rf`, force-push, hard reset, `gh repo delete`, reading `.env` files: `Read(**/.env)` and siblings cover the session folder and below, and since 2026-10-02 `Read(~/**/.env)` and siblings cover the whole home folder (Parker, ruling (c)); a `.env` outside both (elsewhere on `C:\` outside the home folder, or on another drive) is not covered | The irreversible actions and the secret files + send-class tools (draft-first): Outlook send/forward, meeting responses, inbox rules (a rule can auto-forward mail) and auto-replies (Parker, 2026-10-01), Teams messages, SignNow invites, QuickBooks estimate/invoice/payment-link sends. Deny rules apply in auto mode too, before its classifier. `Read(**/.env)` does not block `.env.example` |
 | `env.CAVEMAN_DEFAULT_MODE=off` | Caveman stays off until a rep types `/caveman` | The plugin's own default is `full`; without this every rep session — including customer-email drafting — would start terse |
 | `env.CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS=600000` | Plugin and marketplace clones get ten minutes, not the 120 s default | A large plugin overran 120 s on a laptop whose antivirus scans every file. Moved here from the bootstrap's saved copy (2026-10-01) so it lives in one place; the bootstrap still sets it for its own install run |
@@ -120,17 +120,19 @@ in this repo, so they can only be removed in claude.ai → Settings → Capabili
 
 ## Draft-first enforcement (2026-09-11)
 
-Doctrine says "humans send quotes." The `permissions.deny` block now enforces it: the
-send-class M365/SignNow tools are denied (including SignNow's embedded-invite tools, which
-mint live signing links), so Claude drafts email and packets but cannot transmit them — the
-rep sends from Outlook/SignNow as always. This was specced as a PreToolUse hook; deny rules
+Doctrine says "humans send quotes." Since 2026-10-02 (Parker) that means a person approves
+every send: the Outlook and Teams send-class tools sit in `permissions.ask`, so Claude can
+send an email or Teams message but each one stops for an Allow click; the SignNow tools
+(including the embedded-invite tools, which mint live signing links) and the QuickBooks
+sends stay in `permissions.deny`. Ask rules hold in auto mode too. Before 2026-10-02 the
+Outlook and Teams tools were denied outright. This was specced as a PreToolUse hook; deny rules
 achieve the same guarantee with nothing to install or debug on rep machines. Caveat: the
 tool-name prefix derives from the connector's name per account, and a deny on a nonexistent
 name is a silent no-op — so deployment verification (ADMIN-RUNBOOK §1) includes asking
-Claude to send a test email and expecting a denial, on the admin machine AND the pilot
-rep's. The same caveat holds for the allow rules: a rule on a wrong connector name only
-means a prompt, never an unwanted action. If a future connector adds a new send-class tool, add it to the deny list in the
-same commit that documents it here. AUP.md is the human-side counterpart, linked from the
+Claude to send a test email and expecting an Allow prompt (not a silent send), on the admin
+machine AND the pilot rep's. The same caveat holds for the allow rules: a rule on a wrong connector name only
+means a prompt, never an unwanted action. If a future connector adds a new send-class tool, add it to the ask or deny list in
+the same commit that documents it here. AUP.md is the human-side counterpart, linked from the
 `claudeMd` block.
 
 ## Empowerment posture (2026-09-11)
@@ -164,19 +166,20 @@ through the managed `env` block; a rep turns it on per session with `/caveman li
   reads the library. Making it a working folder would let edits be auto-accepted across it.
   A `Read(~/**/*Black Box Safety - MASTER/**)` rule was drafted 2026-10-02 and dropped in
   review as redundant (PR #47).
-- **Where the send-class denies do not reach.** The deny rules above name connector tools
+- **Where the send-class ask and deny rules do not reach.** The rules above name connector tools
   as `mcp__claude_ai_<server>__<tool>`, which the docs apply to "connectors Claude Code
   fetches itself": the terminal and the VS Code panel. In the Desktop app's **Code** tab the
   app hands connectors to Claude Code directly, and "no MCP setting or `managed-mcp.json`
   reaches them"; the documented control there is the claude.ai admin console's per-tool
   connector controls (`blocked`) (*mcp*, "How connectors reach Claude Code"; *desktop*,
   enterprise section; checked 2026-10-02). Server-managed settings do not reach the Desktop
-  **chat** window or **Cowork** at all. So on the Desktop app (Code tab and chat) and in
-  Cowork, "humans send" rests on the console's `blocked` control, which the docs say the
-  desktop app and claude.ai chat apply (Cowork unverified). Ruled 2026-10-02 (d): every
-  connector tool this file's `permissions.deny` names is also set to `blocked` in the
-  console (`docs/ADMIN-RUNBOOK.md` §3). Parker's test send from a Desktop Code-tab session
-  was denied the same day; what denied it is not shown, so the console setting stays. In the
-  chat window a person gives Claude a file with the paperclip or by dragging it in.
+  **chat** window or **Cowork** at all. The console's `blocked` control does reach the
+  desktop app and claude.ai chat (Cowork unverified), but it is org-wide and all-or-nothing:
+  it has no "ask" setting, and blocking a tool removes it from Claude Code too. So the
+  denied tools (SignNow, QuickBooks) are also `blocked` in the console
+  (`docs/ADMIN-RUNBOOK.md` §3), while the Outlook and Teams send tools are not, since
+  Parker wants them usable (2026-10-02). On the Desktop app, whether a send stops for an
+  Allow click is therefore not documented; ADMIN-RUNBOOK §3 has the test. In the chat window
+  a person gives Claude a file with the paperclip or by dragging it in.
 - **No `bbs-bc-mcp-proxy`.** Retired 2026-09-02 in favour of the Business Central claude.ai
   connector.

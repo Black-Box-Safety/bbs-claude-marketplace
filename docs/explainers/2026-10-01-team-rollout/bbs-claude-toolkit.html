@@ -361,7 +361,7 @@ footer.end { border-top: 1px solid var(--line); padding-top: 20px; color: var(--
       <li class="final">You check and send</li>
     </ol>
     <div class="rules">
-      <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H5.5L4 17.5z"/><path d="M8 9h8M8 12h5"/></svg><h3>In Claude Code, it drafts and never sends.</h3><p>In Claude Code, sending, forwarding and Teams messages are switched off for Claude. It can put a draft in your Outlook Drafts; you press send. The ordinary Claude chat window does not have these switches, so use Claude Code for this work.</p></div>
+      <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H5.5L4 17.5z"/><path d="M8 9h8M8 12h5"/></svg><h3>In Claude Code, nothing sends without your Allow.</h3><p>In Claude Code, Claude can send an email or Teams message only after you click Allow on that send, or put a draft in your Outlook Drafts for you to send. The ordinary Claude chat window does not have this rule, so use Claude Code for this work.</p></div>
       <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg><h3>Reads Business Central, never changes it.</h3><p>Business Central and Grainger are read-only for Claude. It cannot post, edit or delete a record.</p></div>
       <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 16c2-4 4-7 5.5-7S11 15 13 15s2.5-4 4-4 1.5 3 2 5"/></svg><h3>The right signer on the right line.</h3><p>If you're in Sales, Claude signs your packets once Parker has your signature on file. It signs each line as the right person, and never for a customer. Anything it can't sign comes back flagged. Outside Sales, it doesn't sign for you.</p></div>
       <div class="rulecard"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg><h3>Your mailbox is yours.</h3><p>Claude reads your mail only when you connect it and ask. It never reads anyone else's. <code>/bbs-my-voice</code> learns from your own Sent Items and stops if the mailbox isn't yours.</p></div>
@@ -440,7 +440,7 @@ const CARDS = {
         today: "You write the same follow-up emails by hand.",
         claude: "Ask for a follow-up and Claude drafts it into your Outlook Drafts, in your voice once you run /bbs-my-voice. You check it and send it.",
         say: "Draft a follow-up to ____ about quote ____ into my Outlook Drafts.",
-        hood: "The Outlook window can create a draft. In Claude Code it cannot send." },
+        hood: "The Outlook window can create a draft, and in Claude Code it sends only after you click Allow." },
       { title: "What you quoted this week", status: "ready", for: ["kim", "aanya"],
         today: "You rebuild your week from memory and the CRM when Parker writes up the weekly sales report.",
         claude: "Ask what you quoted this week. Claude reads the Sales CRM the way Parker's weekly sales report does and lists your quotes, RFQs and orders.",
@@ -539,7 +539,7 @@ const CARDS = {
         today: "You write the same past-due reminder again and again.",
         claude: "Claude writes the reminder into your Outlook Drafts. Run /bbs-my-voice once and it sounds like you. You read it and press send.",
         say: "Draft a polite past-due reminder for invoice ____ into my Outlook Drafts.",
-        hood: "The Outlook window can create a draft. In Claude Code it cannot send. /bbs-my-voice, in the foundations binder, learns only from your own Sent Items." },
+        hood: "The Outlook window can create a draft, and in Claude Code it sends only after you click Allow. /bbs-my-voice, in the foundations binder, learns only from your own Sent Items." },
       { title: "A short payment over a price or quantity", status: "ready",
         today: "An agency pays less because they say the price is wrong, and you chase sales to find out why.",
         claude: "Claude lines up what we quoted, what the PO says and what shipped, says which one is wrong, and names who at the agency can approve a corrected PO. Sales decides what goes back to the customer.",
@@ -601,7 +601,7 @@ const CARDS = {
         today: "You answer the same sizing, lead-time and order-status emails over and over.",
         claude: "Tell Claude what you want to say. It drafts the reply into your Outlook Drafts, in your voice once you run /bbs-my-voice. You check it and send it.",
         say: "Draft a reply to this email in my Outlook Drafts. Here's what I want to say: ____",
-        hood: "The Outlook window can create a draft. In Claude Code it cannot send." },
+        hood: "The Outlook window can create a draft, and in Claude Code it sends only after you click Allow." },
       { title: "Where is this order?", status: "ready",
         today: "You look an order up in Business Central screen by screen.",
         claude: "Give Claude the sales order number and it reads the order, every line, from Business Central. Orders still sitting in Shopify are not visible to Claude yet.",

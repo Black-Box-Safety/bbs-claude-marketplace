@@ -669,6 +669,21 @@ Write it up with evidence and move to the next slice. Do not idle.
   merge. The build session still never merges its own PR, and still never edits a PR Rex is
   reviewing. Parker merged PR #50 himself on 2026-10-02, by instruction in session, after
   both reviews' findings were fixed and CI was green.
+- **Claude may send, with a person's Allow on every send — RULED 2026-10-02.** Parker, in
+  session: "I actually want send to be enabled", then chose "Ask each time" over "Fully
+  allowed" and "Only for me", for Outlook email, Teams messages, and calendar and mailbox
+  rules. The nine Microsoft 365 tools (`outlook_send_mail`, `outlook_send_draft`,
+  `outlook_forward_mail`, `outlook_respond_to_event`, `outlook_create_filter`,
+  `outlook_set_vacation`, and the three Teams sends) move from `permissions.deny` to
+  `permissions.ask` in `bbs-managed-settings.json`; the SignNow and QuickBooks sends stay
+  denied (admin-only connectors). This supersedes the 2026-09-11 draft-first deny for those
+  nine tools and rewords `AGENTS.md` invariant 5 to "A person approves every send"; Cursor
+  stays draft-only (`.cursor/rules/bbs-invariants.mdc`). It also narrows ruling (d) above:
+  only the still-denied tools are `blocked` in the console, because `blocked` is org-wide
+  with no ask setting and would remove the Outlook and Teams tools from Claude Code too.
+  Whether the Desktop app's Code tab stops a send for Allow is not documented; ADMIN-RUNBOOK
+  §3 has the test. The team page, the coach rails and `/bbs-checkup` check 12 now say
+  "sends only after you click Allow".
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.

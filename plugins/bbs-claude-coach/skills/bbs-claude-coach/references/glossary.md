@@ -37,8 +37,8 @@ these.
 ## Draft vs send
 
 Everything Claude produces — quotes, emails, filled forms, promo pages — is a **draft**
-until a person reviews it and sends it. Claude cannot send on its own; that rail is on for
-everyone. See `aup-rails.md`.
+until a person reviews it. Claude can send an email or Teams message only after you click
+Allow on that send; it never sends on its own. That rail is on for everyone. See `aup-rails.md`.
 
 ## Related words you will hear
 

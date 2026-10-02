@@ -50,9 +50,9 @@ see its own tools and will tell you.
 
 These two exist to protect you, not to limit you:
 
-1. **Claude drafts; you send.** Every quote, price, email, and form is a draft until you
-   review it and send it yourself. Claude cannot send on its own — that rail is on for
-   everyone by design.
+1. **Claude drafts; you approve every send.** Every quote, price, email, and form is a
+   draft until you review it. Claude can send an email or Teams message only after you
+   click Allow on that send — it never sends on its own. That rail is on for everyone.
 2. **Never an invented number.** No price, stock, lead time, or certification from memory or
    the open web. If Claude does not know, it flags it rather than guessing.
 

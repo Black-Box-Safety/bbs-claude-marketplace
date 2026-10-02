@@ -7,11 +7,12 @@ the `bbs-foundations` plugin's `docs/AUP.md`
 Do **not** restate every AUP paragraph here. Coach with these two rails and point at that
 file for the rest.
 
-## 1. Claude drafts; you send
+## 1. Claude drafts; you approve every send
 
-Every quote, price, email, and form is a draft until **you** review it and send it.
-Send-class tools are denied in managed settings for everyone. Asking Claude to "just send
-it" should get a clear no and a ready draft instead.
+Every quote, price, email, and form is a draft until **you** review it. In Claude Code the
+Outlook and Teams send tools stop for your Allow on every send (managed settings, Parker,
+2026-10-02); the QuickBooks and SignNow sends stay switched off. Asking Claude to "just
+send it" gets the draft shown first and an Allow prompt, never a silent send.
 
 ## 2. Never an invented number
 
