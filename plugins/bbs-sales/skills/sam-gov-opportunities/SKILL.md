@@ -3,12 +3,12 @@ name: sam-gov-opportunities
 description: >-
   Look up open federal solicitations on SAM.gov by NAICS code, agency, solicitation number or
   title words, through the official Get Opportunities API, and say for each one whether BBS can
-  respond to its set-aside as an SDVOSB and federal small business. Read-only: one GET request
-  per NAICS code, key from the SAM_GOV_API_KEY environment variable. Use when Kim, Griffin or
+  respond to its set-aside as an SDVOSB, VOSB and federal small business. Read-only: one GET
+  request per NAICS code, BBS's shared key from the SAM_GOV_API_KEY environment variable. Use when Kim, Griffin or
   any rep asks "what's open on SAM for NAICS …", "any SDVOSB set-asides at the VA", "is this
   solicitation still open", "federal opportunities in California", or wants the current list
-  of open federal notices before a pursuit or a deck. Do NOT use for past federal awards or
-  spend (USAspending, in Cursor), California state bids (ca-rfq-intake, SCPRS), drafting a
+  of open federal notices before a pursuit or a deck. Do NOT use for past federal awards,
+  incumbents or spend (usaspending-awards), California state bids (ca-rfq-intake, SCPRS), drafting a
   response or a deck (bbs-deck-voice), or registering, bidding or submitting anything on
   SAM.gov — this skill only reads.
 requires: [sam-gov, python3]
@@ -20,33 +20,40 @@ A narrow lookup. It answers one question: **which federal notices are open right
 NAICS code or this agency, and can BBS respond to them?** It does not research, bid, register,
 draft or send anything.
 
-**Federal channel.** Every line this skill writes uses **SDVOSB**, and calls BBS a small
-business only federally. It never says DVBE: that is the California state credential and has
+**Federal channel.** Every line this skill writes uses **SDVOSB** (and VOSB for VA
+veteran-owned set-asides), and calls BBS a small business only federally. It never says DVBE: that is the California state credential and has
 no place in a federal answer. The certification facts are in `bbs-foundations`
 `skills/bbs-claude-md-forge/references/canonical-facts.md`, "Certifications, by jurisdiction"
-and "Small-business status is channel-dependent". Point there; never restate a number.
+and "Small-business status is channel-dependent". BBS's NAICS and PSC codes are in the same
+file, "Federal codes". Point there; never restate a number.
 
-## Setup (once per person)
+## Setup (once per machine)
 
-1. **Get a key.** Sign in at sam.gov, open **Account Details**, and request a public API key.
-   SAM.gov shows the key only once, until you leave the page.
-2. **Put it in your environment, outside Claude.** On Windows: Start → "Edit environment
-   variables for your account" → New → name `SAM_GOV_API_KEY`, value the key. On a Mac, add
-   `export SAM_GOV_API_KEY=…` to `~/.zshrc`. Then quit and reopen Claude so the new session
-   can see it.
-3. **Never paste the key into a chat**, a file in a repo, or a customer folder. If someone
-   pastes it into the conversation anyway, do not repeat it, do not save it, and tell them to
-   generate a new key on Account Details.
+BBS uses **one SAM.gov account and one shared key** for everyone (Parker, 2026-10-02: "It
+will all link to the same sam.gov account, we dont need multiple").
 
-**Daily limit.** A personal key on an account with no role on an entity gets **10 requests a
-day**. One whose account has a role on an entity registration gets 1,000. Each NAICS code
-costs one request. If a run comes back with HTTP 429, the day's budget is spent: say so, and
-say that a role on BBS's entity registration raises the limit (Parker arranges that).
+1. **Parker gives you the value.** Do not request your own key.
+2. **Put it in your environment, outside Claude.**
+   - Windows: Start → "Edit environment variables for your account" → New, with the name
+     `SAM_GOV_API_KEY` and the value Parker gave you.
+   - Mac: add `export SAM_GOV_API_KEY=…` to `~/.zshrc`.
+   - Then quit and reopen Claude.
+3. **Never paste the key into a chat**, a repo file or a customer folder. If someone pastes it
+   anyway, do not repeat it or save it, and tell them Parker should generate a new one.
+
+**One daily budget for everyone.** The key is shared, so every person's lookups draw on the
+same daily limit:
+
+- An account with no role on an entity gets **10 requests a day**; one with a role gets 1,000.
+- Each NAICS code costs one request.
+- HTTP 429 means the day's budget is spent for the whole team: say so, and tell Parker.
 
 ## Run it
 
+Through the vetted launcher, which runs it without a permission prompt (Parker, 2026-10-02):
+
 ```bash
-python "${CLAUDE_PLUGIN_ROOT}/skills/sam-gov-opportunities/scripts/sam_opportunities.py" --naics 423450
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/sam-gov-opportunities/scripts/sam_opportunities.py" --naics 339113
 ```
 
 | Flag | What it does |
@@ -63,10 +70,10 @@ python "${CLAUDE_PLUGIN_ROOT}/skills/sam-gov-opportunities/scripts/sam_opportuni
 
 At least one of `--naics`, `--agency`, `--solnum` or `--keyword` is required.
 
-**BBS's own NAICS codes are not on file in this marketplace.** If someone asks for "our
-NAICS codes", do not supply any from memory or from a past document: ask which codes, or
-write `[MISSING — NEEDS INPUT: BBS NAICS codes]`. A plausible code is the failure this rule
-prevents.
+**"Our NAICS codes"** means the list in canon, "Federal codes". All of them is thirteen
+requests, over the default cap of 4 and over the whole day's budget if the shared key has
+no entity role. So ask which codes matter, or start with the primary one. Never supply a
+code from memory.
 
 ## What comes back, and how to present it
 
@@ -87,7 +94,7 @@ Present the table as it came back. Rules:
   canon:
   - SDVOSB set-asides are eligible.
   - Small-business set-asides carry a FLAG to confirm the size standard for that NAICS.
-  - VA veteran-owned set-asides carry a FLAG, because canon records SDVOSB, not VOSB.
+  - VA veteran-owned set-asides are eligible: BBS is VOSB (canon, ruled 2026-10-02).
   - Set-asides for certifications BBS does not hold say so.
   - An unknown code is flagged.
   
@@ -111,7 +118,8 @@ within the next 14 days. Nothing more.
 - **Points of contact.** The script deliberately leaves out the notice's point-of-contact
   emails and phones. They are on the sam.gov page behind the link.
 - **Next steps.** Offer the obvious next ones as suggestions only: a deck for a pursuit is
-  `bbs-deck-voice`; past awards to an agency are USAspending (Cursor, `bbs-usaspending`).
+  `bbs-deck-voice`; who won this kind of work before is `usaspending-awards` (`awards` with the notice's NAICS
+  and agency).
 
 ## Tests
 

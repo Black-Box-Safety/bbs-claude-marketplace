@@ -73,7 +73,7 @@ DEFAULT_TYPES = "o,k,p,r"
 # answer live in canon, plugins/bbs-foundations/skills/bbs-claude-md-forge/
 # references/canonical-facts.md, "Certifications, by jurisdiction" and
 # "Small-business status is channel-dependent": federally BBS is SDVOSB AND a
-# small business. Nothing here restates a number. Every code not backed by a
+# small business, and VOSB (ruled 2026-10-02). Nothing here restates a number. Every code not backed by a
 # certification in canon says so rather than guessing, and the API's own
 # documented codes are the only keys (an unknown code is flagged, not mapped).
 FIT_SDVOSB = "Eligible: SDVOSB set-aside (BBS is SDVOSB federally, per canon)"
@@ -86,8 +86,8 @@ SET_ASIDE_FIT = {
     "SDVOSBS": FIT_SDVOSB + ", sole source",
     "SBA": FIT_SB,
     "SBP": FIT_SB,
-    "VSA": "[FLAG: VA veteran-owned set-aside. Canon records SDVOSB, not VOSB; confirm with Griffin]",
-    "VSS": "[FLAG: VA veteran-owned sole source. Canon records SDVOSB, not VOSB; confirm with Griffin]",
+    "VSA": "Eligible: VA veteran-owned set-aside (BBS is VOSB, per canon)",
+    "VSS": "Eligible: VA veteran-owned sole source (BBS is VOSB, per canon)",
     "LAS": "[FLAG: local area set-aside. Eligibility depends on the declared area; read the notice]",
 }
 NO_CERT = {
@@ -237,9 +237,9 @@ def fetch(params, key, opener=None):
                     "identical, so this is NOT a confirmed empty result. Retry from your own "
                     "machine, or check the same search on sam.gov.")
         elif e.code == 429:
-            hint = (" The key's daily request limit is spent. A personal key with no role on an "
-                    "entity gets 10 requests a day; ask Parker whether your SAM.gov account has a "
-                    "role on BBS's entity registration.")
+            hint = (" The shared BBS key's daily request budget is spent, for everyone, until it "
+                    "resets. A key on an account with no role on an entity gets 10 requests a "
+                    "day; with a role, 1,000. Tell Parker.")
         raise LookupError_(redact(f"SAM.gov returned HTTP {e.code}.{hint} {detail}".strip(), key)) from None
     except urllib.error.URLError as e:
         raise LookupError_(redact(f"could not reach SAM.gov: {e.reason}", key)) from None

@@ -22,10 +22,29 @@ numbers are never committed.
 
 | Channel | Say | Number | Expires |
 |---|---|---|---|
-| Federal, primes (Bechtel, USACE, Centerra, UCOR), DoD | **SDVOSB** (VA CVE / SBA VetCert) **and small business** under SBA size standards | UEI `FRK5MJD35GN5` | 05/16/2028 |
+| Federal, primes (Bechtel, USACE, Centerra, UCOR), DoD | **SDVOSB** (VA CVE / SBA VetCert), **VOSB**, **and small business** under SBA size standards | UEI `FRK5MJD35GN5` | 05/16/2028 |
 | California state agencies | **DVBE** — the OSDS certification carries DVBE only | `2009473` | 12/31/2027 |
 | LA County only | LA County DVBE (local credit only) | `10086` | 11/17/2027 |
 | City of San Diego only | SLBE (local credit only) | `17BB1659` | — |
+
+VOSB: Parker, in session, 2026-10-02 ("yes we are VOSB"); the GSA eLibrary record for
+`47QSWA23D000Y` lists "SBA Certified Veteran Owned Small Business". So VA veteran-owned
+set-asides (VSA/VSS) are claimable federally. The same record also lists "SBA Certified
+Small Disadvantaged Business"; that is **not** ruled here and is not claimed until Parker
+rules it.
+
+### Federal codes
+
+From BBS's SAM.gov entity record and GSA eLibrary, screenshots Parker supplied in session
+2026-10-02. The one home for these; skills read them here.
+
+- **NAICS** (primary first): `339113` (primary), `315210`, `316210`, `332216`, `332510`,
+  `332999`, `339920`, `423440`, `423610`, `423620`, `423690`, `423710`, `423840`.
+- **PSC:** `4210`, `4240`, `5110`, `5120`, `5340`, `5975`, `6135`, `6230`, `6515`, `6545`,
+  `7125`, `7320`, `8415`, `8430`, `8465`, `8470`. The screenshot ends at `8470`; whether the
+  list continues is **[FLAG: confirm with Parker]**.
+- **GSA MAS `47QSWA23D000Y` SINs:** `3152`, `315210`, `316210`, `332216`, `332999`,
+  `332999BMS`, `339113PA`, `OLM`.
 
 ### Small-business status is channel-dependent, and the reason matters
 

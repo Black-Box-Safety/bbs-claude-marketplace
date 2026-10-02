@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-17-b19800" alt="17 skills">
+  <img src="https://img.shields.io/badge/skills-18-b19800" alt="18 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
@@ -51,8 +51,10 @@ California's SB revenue threshold and is not a California small business.
 
 `sam-gov-opportunities` is the other federal exception: a read-only lookup of open SAM.gov
 solicitations by NAICS code or agency, with a column saying whether BBS can respond to each
-set-aside as an SDVOSB and federal small business. It reads only; it never bids, registers or
-writes to the CRM, and it says SDVOSB, never DVBE.
+set-aside as an SDVOSB, VOSB and federal small business. Its partner, `usaspending-awards`,
+reads past federal contract awards: who won under a NAICS code or at an agency, top vendors,
+reported subawards, and BBS's own award history. Both only read; neither bids, registers or
+writes to the CRM, and both say SDVOSB, never DVBE. BBS's federal codes are in canon.
 
 An order that has already been taken is not this plugin's work. A wrong item, a short
 shipment, a price discrepancy on the PO — those go to `bbs-back-office`.
@@ -152,10 +154,11 @@ This skill does not touch the PDF stack or `vendor_profile.json` above: it has i
 
 ### For `sam-gov-opportunities`
 
-Each person needs their own free SAM.gov public API key, in an environment variable named
-`SAM_GOV_API_KEY`, set outside Claude and never committed or pasted into a chat. The skill's
-Setup section has the steps. A personal key with no role on an entity is limited to 10
-requests a day; a role on BBS's entity registration raises it to 1,000.
+BBS uses one SAM.gov account and one shared key (ruled 2026-10-02). Parker gives each person
+the value for an environment variable named `SAM_GOV_API_KEY`, set outside Claude and never
+committed or pasted into a chat. The whole team shares one daily request budget: 10 a day on
+an account with no entity role, 1,000 with one. `usaspending-awards` needs no key. Both run
+through `bbs-fill`, so they need the `bbs-tools` plugin.
 
 ## Commands
 

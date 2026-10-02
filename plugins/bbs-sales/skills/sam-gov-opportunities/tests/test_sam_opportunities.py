@@ -120,7 +120,7 @@ def test_key_redacted_from_api_error():
 def test_rate_limit_hint():
     e = urllib.error.HTTPError(so.API_URL, 429, "Too Many Requests", {}, io.BytesIO(b""))
     code, _, err = run(["--naics", "423450"], Opener(error=e))
-    assert code == 1 and "10 requests a day" in err and "entity" in err
+    assert code == 1 and "shared BBS key" in err and "10 requests a" in err
 
 
 def test_404_is_not_reported_as_an_empty_result():
@@ -202,7 +202,7 @@ def test_set_aside_fit_follows_canon_and_flags_the_rest():
     assert f("SDVOSBC", "423450").startswith("Eligible: SDVOSB")
     assert "sole source" in f("SDVOSBS", "423450")
     assert "[FLAG: confirm the size standard for NAICS 423450]" in f("SBA", "423450")
-    assert f("VSA", "1").startswith("[FLAG:")
+    assert f("VSA", "1").startswith("Eligible: VA veteran-owned") and "VOSB" in f("VSS", "1")
     assert f("8A", "1").startswith("Not eligible as recorded") and "8(a)" in f("8A", "1")
     assert f("HZC", "1").startswith("Not eligible as recorded")
     assert f("BICiv", "1").startswith("Not eligible as recorded")
