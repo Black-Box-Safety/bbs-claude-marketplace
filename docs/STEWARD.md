@@ -718,6 +718,12 @@ Write it up with evidence and move to the next slice. Do not idle.
     - **Not done: a live test.** A one-request live test with the key, from the build
       container, was refused by the auto-mode permission classifier. The SAM.gov script is
       still unverified live.
+  - **Set-aside size flag (Rex, PR #52 review).** Every SDVOSB, VOSB and small-business fit
+    line reads "Eligible" and also carries a flag to confirm BBS is small under that NAICS
+    size standard, because all three are small-business programs. This is not a new ruling:
+    it is the stricter reading of (e) and of canon. **Ask:** Parker confirms the flag stays.
+  - **`bbs-tools` 0.2.0.** The two scripts reach installed machines only through the
+    version bump, so `bbs-tools` moves to 0.2.0 with the allow-list change.
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.

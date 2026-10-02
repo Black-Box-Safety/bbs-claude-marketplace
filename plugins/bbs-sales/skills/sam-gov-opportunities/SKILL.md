@@ -72,8 +72,11 @@ bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/sam-gov-opportunities/scripts/sam_opportu
 
 At least one of `--naics`, `--agency`, `--solnum` or `--keyword` is required.
 
-If `bbs-fill` is not found, the `bbs-tools` plugin is missing; rerun the bootstrap, and
-meanwhile run the same path with `python` in its place, which asks for permission.
+If `bbs-fill` is not found, the `bbs-tools` plugin is missing: tell the rep to rerun the
+bootstrap, and in the meantime run the same line with `python` (Windows) or `python3` (Mac)
+in place of `bbs-fill`, which will ask for permission. If it answers `REFUSED … is not a
+vetted script`, `bbs-tools` is older than 0.2.0: tell the rep to update plugins and start a
+new session. Neither is a SAM.gov failure; never report it as one.
 
 **"Our NAICS codes"** means the list in canon, "Federal codes". Each code is one request,
 so the whole list is over the default cap of 4. Ask which codes matter, or start with the
