@@ -9,6 +9,11 @@
 > federal deck row, and SAM.gov under Coming next for Kim and Griffin. The page source
 > (`bbs-claude-toolkit.html`) is the current truth; what changed and what is still open is in
 > `docs/SESSION-HANDOFF-2026-10-01.md`. Re-running this prompt as written would drop Sales.
+>
+> **2026-10-02:** Rachelle's card (Admin and coordination, `#rachelle`) was added at Parker's
+> direction. Parker's answers: no connectors assigned yet, so her Microsoft 365 rows are On
+> Parker's list; she works in Jackson's mailbox and calendar too, which is Not built yet.
+> Re-running this prompt as written would drop her card as well.
 
 ---
 
