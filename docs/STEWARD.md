@@ -764,7 +764,23 @@ Write it up with evidence and move to the next slice. Do not idle.
   `bbs-grainger` server entry is not carried: it points at a path and gateway on Parker's
   Mac, so on every other machine it fails. Everyone gets Grainger through the BBS Grainger
   MCP connector assigned in the console (ADMIN-RUNBOOK §3); Parker said "I just want it to
-  work for everyone".
+  work for everyone".- **bbs-sales quote-desk hooks run on macOS — RULED 2026-10-05.** Starting Claude Code on
+  Parker's iMac showed `SessionStart:startup hook error ... Executable not found in $PATH:
+  "powershell"`. Both bbs-sales hooks called `powershell` in exec form, so on a Mac the
+  session-start context errored and, worse, the `guard-tree` folder guard (no renames, no
+  near-duplicate buyer folders, `FILLED/` immutable) silently never ran. Parker, in session:
+  "I am on a mac and so is griffin", then "yes, please make the fixes". Chosen: port both
+  scripts to Python with a parity test, the doctrine-hook pattern, over installing PowerShell
+  on every Mac (a Mac that skipped the bootstrap would lose the guard with no sign of it).
+  `hooks.json` now uses the same `pwsh`, `powershell`, `python3` fallback chain as
+  bbs-foundations; with none present the guard prints one stderr line and allows. CI runs
+  `run-tests.ps1` under pwsh and `parity.py` with `BBS_REQUIRE_PS=1`. `bbs-sales` moves to
+  0.6.0 so installed machines receive it.
+  - **Pre-existing gap, not changed here (would break parity if fixed on one side):** an
+    unquoted shell path with escaped spaces (`mkdir All\ RFQ's\ by\ Agency/CalTrans`) evades
+    the near-duplicate check in both halves, because the unquoted fallback splits on
+    whitespace. **Ask:** fix both halves together in a follow-up.
+
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.

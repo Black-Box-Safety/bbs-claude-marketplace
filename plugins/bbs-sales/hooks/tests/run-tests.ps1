@@ -1,18 +1,25 @@
 # Runs the bbs-sales hook scripts against fixture inputs. Exit 0 = all pass.
-# Usage (Git Bash or PowerShell):  powershell -NoProfile -ExecutionPolicy Bypass -File plugins/bbs-sales/hooks/tests/run-tests.ps1
+# Usage (Git Bash or PowerShell):
+#   powershell -NoProfile -ExecutionPolicy Bypass -File plugins/bbs-sales/hooks/tests/run-tests.ps1
+#   pwsh -NoProfile -File plugins/bbs-sales/hooks/tests/run-tests.ps1
+# Runs under whichever PowerShell started it, on Windows, macOS or Linux. tests/parity.py runs
+# the same fixtures through the Python halves and checks the two agree.
 $ErrorActionPreference = 'Stop'
 $here  = Split-Path -Parent $MyInvocation.MyCommand.Path
 $guard = Join-Path (Split-Path -Parent $here) 'guard-tree.ps1'
 $ctx   = Join-Path (Split-Path -Parent $here) 'desk-context.ps1'
+$exe   = (Get-Process -Id $PID).Path
 
-# Fixture tree under %TEMP%
-$root = Join-Path $env:TEMP ("bbs-hook-tests-" + [guid]::NewGuid().ToString('N'))
+# Fixture tree under the temp folder
+$root = Join-Path ([IO.Path]::GetTempPath()) ("bbs-hook-tests-" + [guid]::NewGuid().ToString('N'))
 $tree = Join-Path $root "All RFQ's by Agency"
 $cdcr = Join-Path $tree 'CDCR (ALL)'
 $mcsp = Join-Path $cdcr 'Mule Creek State Prison'
-New-Item -ItemType Directory -Force -Path (Join-Path $mcsp 'FILLED') | Out-Null
+$filled = Join-Path $mcsp 'FILLED'
+$packet = Join-Path $filled 'packet-b.pdf'
+New-Item -ItemType Directory -Force -Path $filled | Out-Null
 New-Item -ItemType Directory -Force -Path (Join-Path $tree 'Cal Trans (ALL)') | Out-Null
-Set-Content -Path (Join-Path $mcsp 'FILLED\packet-b.pdf') -Value 'x'
+Set-Content -Path $packet -Value 'x'
 Set-Content -Path (Join-Path $mcsp 'quote-log.md') -Value @(
   '| Date | Item | Quote# | Vehicle | Value | Outcome |',
   '|---|---|---|---|---|---|',
@@ -31,7 +38,7 @@ Set-Content -Path (Join-Path $outside 'quote-log.md') -Value '| 2026-04-01 | Dec
 
 function Run($script, $obj) {
   $json = $obj | ConvertTo-Json -Compress -Depth 5
-  return ($json | powershell -NoProfile -ExecutionPolicy Bypass -File $script | Out-String).Trim()
+  return ($json | & $exe -NoProfile -ExecutionPolicy Bypass -File $script | Out-String).Trim()
 }
 function Decision($out) {
   if (-not $out) { return 'allow' }
@@ -52,11 +59,11 @@ $o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{
 Check 'bash mv elsewhere allowed' (Decision $o) 'allow'
 
 # 3. Overwrite an existing FILLED file -> deny
-$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Write'; tool_input=@{ file_path = (Join-Path $mcsp 'FILLED\packet-b.pdf'); content='y' } }
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Write'; tool_input=@{ file_path = $packet; content='y' } }
 Check 'overwrite FILLED denied' (Decision $o) 'deny'
 
 # 4. New file in FILLED -> allow
-$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Write'; tool_input=@{ file_path = (Join-Path $mcsp 'FILLED\packet-c.pdf'); content='y' } }
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Write'; tool_input=@{ file_path = (Join-Path $filled 'packet-c.pdf'); content='y' } }
 Check 'new FILLED file allowed' (Decision $o) 'allow'
 
 # 5. Near-duplicate buyer folder via mkdir -> deny (CalTrans vs Cal Trans (ALL))
@@ -64,11 +71,11 @@ $o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{
 Check 'near-duplicate agency folder denied' (Decision $o) 'deny'
 
 # 6. Near-duplicate buyer folder via Write into new folder -> deny (Mule Creek Prison vs Mule Creek State Prison)
-$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Write'; tool_input=@{ file_path = (Join-Path $cdcr 'Mule Creek Prison\CLAUDE.md'); content='x' } }
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Write'; tool_input=@{ file_path = (Join-Path (Join-Path $cdcr 'Mule Creek Prison') 'CLAUDE.md'); content='x' } }
 Check 'near-duplicate buyer via Write denied' (Decision $o) 'deny'
 
 # 7. Genuinely new buyer folder -> allow
-$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Write'; tool_input=@{ file_path = (Join-Path $cdcr 'Folsom State Prison\CLAUDE.md'); content='x' } }
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Write'; tool_input=@{ file_path = (Join-Path (Join-Path $cdcr 'Folsom State Prison') 'CLAUDE.md'); content='x' } }
 Check 'new distinct buyer allowed' (Decision $o) 'allow'
 
 # 8. Edit of an ordinary file in the tree -> allow
@@ -89,29 +96,29 @@ $o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='PowerShell'; tool_in
 Check 'powershell rename inside tree denied' (Decision $o) 'deny'
 
 # 12. Deleting a submitted packet through the shell -> deny
-$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "rm `"$mcsp\FILLED\packet-b.pdf`"" } }
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "rm `"$packet`"" } }
 Check 'bash rm of FILLED packet denied' (Decision $o) 'deny'
 
 # 13. Reading a submitted packet through the shell -> allow (immutable, not unreadable)
-$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "cat `"$mcsp\FILLED\packet-b.pdf`"" } }
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "cat `"$packet`"" } }
 Check 'bash cat of FILLED packet allowed' (Decision $o) 'allow'
 
-$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "pdftotext `"$mcsp\FILLED\packet-b.pdf`" > `"$root\out.txt`"" } }
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "pdftotext `"$packet`" > `"$root\out.txt`"" } }
 Check 'bash redirect FROM FILLED elsewhere allowed' (Decision $o) 'allow'
 
-$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "echo y > `"$mcsp\FILLED\packet-b.pdf`"" } }
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "echo y > `"$packet`"" } }
 Check 'bash redirect INTO FILLED denied' (Decision $o) 'deny'
 
-$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "cp `"$root\new.pdf`" `"$mcsp\FILLED\packet-b.pdf`"" } }
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "cp `"$root\new.pdf`" `"$packet`"" } }
 Check 'bash cp ONTO FILLED packet denied' (Decision $o) 'deny'
 
-$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "cp `"$mcsp\FILLED\packet-b.pdf`" `"$root\copy.pdf`"" } }
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "cp `"$packet`" `"$root\copy.pdf`"" } }
 Check 'bash cp OUT of FILLED allowed' (Decision $o) 'allow'
 
-$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='PowerShell'; tool_input=@{ command = "Set-Content -Path `"$mcsp\FILLED\packet-b.pdf`" -Value y" } }
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='PowerShell'; tool_input=@{ command = "Set-Content -Path `"$packet`" -Value y" } }
 Check 'powershell Set-Content onto FILLED denied' (Decision $o) 'deny'
 
-$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "echo y | tee `"$mcsp\FILLED\packet-b.pdf`"" } }
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "echo y | tee `"$packet`"" } }
 Check 'bash tee onto FILLED denied' (Decision $o) 'deny'
 
 # 14. Acronym typo folder via mkdir -> deny (CDRC vs CDCR)
