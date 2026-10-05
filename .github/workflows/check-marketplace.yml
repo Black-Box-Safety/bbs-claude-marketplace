@@ -73,6 +73,18 @@ jobs:
             test "${PIPESTATUS[0]}" = "0"
           done
 
+      # The quote-desk guards ship as guard-tree.ps1/.py and desk-context.ps1/.py, and the two
+      # halves must decide identically: a Mac runs the Python half, Windows the PowerShell half.
+      # BBS_REQUIRE_PS=1 makes a missing pwsh a failure, so this proves parity rather than
+      # skipping it; run-tests.ps1 is the PowerShell suite on its own.
+      - name: Quote-desk guard parity (guard-tree, desk-context)
+        env:
+          BBS_REQUIRE_PS: "1"
+        run: |
+          pwsh -NoProfile -File plugins/bbs-sales/hooks/tests/run-tests.ps1
+          python3 plugins/bbs-sales/hooks/tests/parity.py | tail -3
+          test "${PIPESTATUS[0]}" = "0"
+
       # bbs-fill is allowed by managed settings as `Bash(bbs-fill *)`, so its refusals are the
       # control: every way past them is a way past auto mode. The tests also fail when a
       # skill line or packet profile names a script that is not on its allow-list.
