@@ -1,6 +1,6 @@
 {
   "name": "bbs-foundations",
-  "description": "Company-wide AI foundations for Black Box Safety: the BBS way to write CLAUDE.md files (BBSClaudeMDForge), the doctrine every skill inherits, the shared company facts, systems of record, and certification rules that keep every repo and customer folder consistent, and order reconciliation for problems on orders already placed. Carries bbs-claude-md-forge and bbs-order-reconciliation.",
+  "description": "Company-wide AI foundations for Black Box Safety: the BBS way to write CLAUDE.md files (BBSClaudeMDForge), the doctrine every skill inherits, the shared company facts, systems of record, and certification rules that keep every repo and customer folder consistent. Carries bbs-claude-md-forge, bbs-deck-voice and bbs-voice-template; order reconciliation lives in bbs-back-office.",
   "version": "0.3.0",
   "author": {
     "name": "Black Box Safety, Inc."
@@ -13,7 +13,6 @@
     "doctrine",
     "foundations",
     "onboarding",
-    "order-reconciliation",
     "post-award",
     "purchasing",
     "standards"
