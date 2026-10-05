@@ -73,6 +73,7 @@ def main():
         filled = os.path.join(mcsp, "FILLED")
         os.makedirs(filled)
         os.makedirs(os.path.join(tree, "Cal Trans (ALL)"))
+        os.makedirs(os.path.join(tree, ".CDTFA"))   # hidden: not a sibling to either half
         write(os.path.join(filled, "packet-b.pdf"), ["x"])
         write(os.path.join(mcsp, "quote-log.md"), [
             "| Date | Item | Quote# | Vehicle | Value | Outcome |",
@@ -116,6 +117,7 @@ def main():
             ("powershell Set-Content onto FILLED denied", pre("PowerShell", command=f'Set-Content -Path "{packet}" -Value y'), "deny"),
             ("bash tee onto FILLED denied", pre("Bash", command=f'echo y | tee "{packet}"'), "deny"),
             ("acronym typo agency folder denied", pre("Bash", command=f'mkdir "{tree}{sep}CDRC (ALL)"'), "deny"),
+            ("hidden folder is not a sibling", pre("Bash", command=f'mkdir "{tree}{sep}CDTFA"'), "allow"),
             ("lower-case tool name still guarded", pre("bash", command=f'mv "{cdcr}" "{tree}{sep}CDCR"'), "deny"),
             ("notebook path under FILLED denied", pre("NotebookEdit", notebook_path=packet), "deny"),
             ("empty tool_input allowed", {"hook_event_name": "PreToolUse", "tool_name": "Bash"}, "allow"),

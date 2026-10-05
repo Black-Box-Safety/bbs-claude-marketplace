@@ -199,8 +199,8 @@ Deterministic guards shipped with the plugin. Each ships twice, as a PowerShell 
 Python script that decide identically (`hooks/tests/parity.py` proves it, and CI runs it), so
 they fire on Windows and on Mac rep machines without any per-machine setup. The shell Claude
 Code runs hooks through picks the interpreter: `pwsh` 7, else Windows PowerShell, else
-`python3`. A machine with none of the three sees one warning line saying the guard did not
-run, instead of looking guarded.
+`python3`. A machine with none of the three sees a message saying the guard did not run and the
+call went ahead unguarded, instead of looking guarded.
 
 | Hook | When | What it does |
 |---|---|---|
