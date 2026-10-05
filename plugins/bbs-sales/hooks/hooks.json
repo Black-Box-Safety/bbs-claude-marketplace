@@ -1,5 +1,5 @@
 {
-  "description": "bbs-sales quote-desk guards: no renames inside the tree, no near-duplicate buyer folders, FILLED/ is immutable; buyer precedent and open FLAGS injected at session start. Each hook ships as a PowerShell script and a Python script with identical behaviour (hooks/tests/parity.py, run in CI). Interpreter chosen by the shell Claude Code runs hooks through (Git Bash on Windows, sh on macOS): pwsh 7, else Windows PowerShell 5.1, else python3. With none of the three, the guard prints one warning line to stderr and allows, so a machine without a guard says so instead of looking guarded.",
+  "description": "bbs-sales quote-desk guards: no renames inside the tree, no near-duplicate buyer folders, FILLED/ is immutable; buyer precedent and open FLAGS injected at session start. Each hook ships as a PowerShell script and a Python script with identical behaviour (hooks/tests/parity.py, run in CI). Interpreter chosen by the shell Claude Code runs hooks through (Git Bash on Windows, sh on macOS): pwsh 7, else Windows PowerShell 5.1, else python3. With none of the three, the guard allows and returns a systemMessage the rep sees (stderr from a hook that exits 0 is shown nowhere), so a machine without a guard says so instead of looking guarded.",
   "hooks": {
     "PreToolUse": [
       {
@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "command -v pwsh >/dev/null 2>&1 && exec pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-tree.ps1\"; command -v powershell >/dev/null 2>&1 && exec powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-tree.ps1\"; command -v python3 >/dev/null 2>&1 && exec python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-tree.py\"; echo \"bbs-sales: the quote-desk folder guard did not run (no pwsh, powershell or python3 on PATH); rerun the bootstrap\" >&2; exit 0",
+            "command": "command -v pwsh >/dev/null 2>&1 && exec pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-tree.ps1\"; command -v powershell >/dev/null 2>&1 && exec powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-tree.ps1\"; command -v python3 >/dev/null 2>&1 && exec python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-tree.py\"; printf '%s\\n' '{\"systemMessage\":\"bbs-sales: the quote-desk folder guard did not run (no pwsh, powershell or python3 on PATH). This tool call went ahead unguarded. Rerun the bootstrap.\"}'; exit 0",
             "timeout": 15,
             "statusMessage": "bbs-sales: checking quote-desk folder rules"
           }

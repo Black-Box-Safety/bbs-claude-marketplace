@@ -119,7 +119,9 @@ def near_duplicate(path):
         if not os.path.exists(parent):
             return None
         try:
-            sibs = [e for e in os.scandir(parent) if e.is_dir()]
+            # Get-ChildItem without -Force skips hidden entries, which on macOS and Linux means
+            # dot-prefixed names; skip them here too so the halves agree.
+            sibs = [e for e in os.scandir(parent) if e.is_dir() and not e.name.startswith(".")]
         except OSError:
             return None
         for sib in sibs:

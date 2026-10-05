@@ -764,7 +764,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   `bbs-grainger` server entry is not carried: it points at a path and gateway on Parker's
   Mac, so on every other machine it fails. Everyone gets Grainger through the BBS Grainger
   MCP connector assigned in the console (ADMIN-RUNBOOK §3); Parker said "I just want it to
-  work for everyone".- **bbs-sales quote-desk hooks run on macOS — RULED 2026-10-05.** Starting Claude Code on
+  work for everyone".
+- **bbs-sales quote-desk hooks run on macOS — RULED 2026-10-05.** Starting Claude Code on
   Parker's iMac showed `SessionStart:startup hook error ... Executable not found in $PATH:
   "powershell"`. Both bbs-sales hooks called `powershell` in exec form, so on a Mac the
   session-start context errored and, worse, the `guard-tree` folder guard (no renames, no
@@ -780,6 +781,16 @@ Write it up with evidence and move to the next slice. Do not idle.
     unquoted shell path with escaped spaces (`mkdir All\ RFQ's\ by\ Agency/CalTrans`) evades
     the near-duplicate check in both halves, because the unquoted fallback splits on
     whitespace. **Ask:** fix both halves together in a follow-up.
+  - **Rex's PR #61 review, fixed in the follow-up PR:** the "guard did not run" line went to
+    stderr, which Claude Code shows nowhere for a hook that exits 0, so it now goes out as a
+    `systemMessage` the rep sees; the Python half counted hidden (dot) folders as siblings
+    where PowerShell's `Get-ChildItem` does not; this entry had been fused onto the previous
+    ruling's last line.
+  - **More pre-existing gaps Rex found, identical in both halves, for the same follow-up:** a
+    quoted `mkdir` whose tree name differs in case; a single-quoted path; `cd <tree> &&
+    mkdir X`; an unquoted `>>` into a FILLED path containing spaces. **Ask (Parker's call):**
+    `Caltrans District 8` is refused as a near-duplicate of `Caltrans District 7`, because the
+    two share every word but one. Is a numbered-district sibling a different buyer?
 
 ---
 
