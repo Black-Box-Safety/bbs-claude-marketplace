@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Black Box Safety internal Claude plugins — site operations, state sales, marketing, and AI foundations.",
-    "version": "0.5.0"
+    "version": "0.6.0"
   },
   "plugins": [
     {
@@ -142,6 +142,14 @@
       "description": "Claude Code only: the bbs-fill launcher, the one way Claude runs BBS's vetted form and quote scripts without auto mode stopping it. Managed settings allow Bash(bbs-fill *); the launcher runs only allow-listed scripts from the installed bbs-sales plugin, with a fixed interpreter.",
       "author": { "name": "Black Box Safety, Inc." },
       "keywords": ["bbs", "permissions", "auto-mode", "forms", "launcher"],
+      "category": "foundations"
+    },
+    {
+      "name": "agent-team",
+      "source": "./plugins/agent-team",
+      "description": "Run a long program with a team of Claude agents. roster-builder charters named, lane-owned agents grounded in the real repos; project-steward is the one planner that sequences work, writes fenced session charters, runs a bounded review loop, keeps the decision and carry-forward ledgers, and hands off. Company-neutral: every program noun lives in the adopter's docs/pm/PROGRAM-PROFILE.md.",
+      "author": { "name": "Black Box Safety, Inc." },
+      "keywords": ["agents", "roster", "steward", "program-management", "charters", "review-loop", "harness"],
       "category": "foundations"
     },
     {
