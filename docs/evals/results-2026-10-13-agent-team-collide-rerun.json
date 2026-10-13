@@ -1,0 +1,37 @@
+{
+  "model": "default",
+  "anonymized": true,
+  "runs_per_query": 3,
+  "pass_threshold": 0.8,
+  "summary": {
+    "queries": 2,
+    "passed": 0,
+    "failed": 2
+  },
+  "results": [
+    {
+      "id": "at-collide-handover",
+      "query": "Kim is leaving. Write the handover of her CDCR and Caltrans accounts so Aanya can start calling Monday.",
+      "expect": "ca-territory-handoff",
+      "runs": 3,
+      "correct": 0,
+      "accuracy": 0.0,
+      "pass": false,
+      "distribution": {
+        "__none__": 3
+      }
+    },
+    {
+      "id": "at-collide-handoff2",
+      "query": "Hand off the Northern California state book to the new rep with a prioritized call list.",
+      "expect": "ca-territory-handoff",
+      "runs": 3,
+      "correct": 0,
+      "accuracy": 0.0,
+      "pass": false,
+      "distribution": {
+        "__none__": 3
+      }
+    }
+  ]
+}
