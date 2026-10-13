@@ -33,7 +33,8 @@ considered.
 - **Gate 3 — <name>:** <e.g. publishing to a public channel> · lifted only by: <…>
 - *Lifted is not crossed.* Code never decides to skip a gate; a ruling moves the rung.
 
-## Model tiers (current IDs only — the retired-ID list is a lint, not a memory)
+## Model tiers (current IDs only — the retired-ID list is a lint, not a memory; if the
+## program already keeps a generated model list, point at that file here instead of re-keying IDs)
 - Steward / hardest long-horizon seat: `<id>`
 - Every other teammate: `<id>`
 - Retired IDs that must not appear anywhere: `<id>`, `<id>`

@@ -221,6 +221,21 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
+- **`agent-team` plugin (PR #63), 2026-10-13.** Three rulings in session, one still open.
+  - *Enable for everyone* — **RULED 2026-10-13:** on in `enabledPlugins`. Routine.
+  - *Company memory line* — **RULED 2026-10-13, narrowed after Rex's review:** the
+    `claudeMd` entry is a pointer only; the steward's rules (gates, merge delegation) live in
+    the skill and the adopter's profile, not restated in memory.
+  - *Session-tool allow-list* — **OPEN.** Parker ruled the steward must launch and monitor
+    sessions without prompts. An allow rule cannot be scoped to one skill, so `Agent`,
+    `create_session`, `send_message`, the session reads and the PR subscriptions are allowed
+    for **every** session on a rep machine, including a quote-desk session reading an agency
+    PDF. `interrupt_session`, `send_later`, `list_triggers` and `delete_trigger` moved to
+    `ask` on Rex's finding (irreversible, or able to rebuild an unattended loop). Parker
+    decides whether the remaining allow set stands or the whole set goes to `ask`.
+  - *Provenance* — Rex asks Parker to confirm the plugin content is BBS's own; the patch
+    carried a placeholder author.
+
 - **Re-paste managed settings** — the model-ID and Grainger changes reach no machine from
   the repo alone, and neither does the slice-2 command line. The repo copy's `claudeMd`
   block is corrected to `/ca-rfq` (it named the two retired commands), but the correction

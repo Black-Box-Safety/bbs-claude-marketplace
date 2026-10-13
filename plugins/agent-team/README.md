@@ -1,7 +1,7 @@
 # Two skills for running a long program with a team of Claude agents
 
-Two companion skills, company-neutral, distilled from a working multi-repo program. Drop both into
-a repo's `.claude/skills/` and fill in one profile file. Nothing to install.
+Two companion skills, company-neutral, distilled from a working multi-repo program. Install the
+plugin from the marketplace and fill in one profile file.
 
 **Runtime assumption.** Written for Claude Code sessions that can spawn child sessions and be woken
 by pull-request events (the web or remote product). On a local terminal a "child session" is a
@@ -28,16 +28,14 @@ not apply.
 
 ## Install
 
-From a marketplace that lists this plugin (one step, Claude Code 2.1.275 or later):
-
 ```
-/plugin install agent-team --marketplace Black-Box-Safety/bbs-claude-marketplace
+/plugin marketplace add Black-Box-Safety/bbs-claude-marketplace
+/plugin install agent-team@bbs-claude-marketplace
 ```
 
-Or in two steps: `/plugin marketplace add Black-Box-Safety/bbs-claude-marketplace` then `/plugin install agent-team@bbs-claude-marketplace`.
-Without a marketplace: `claude --plugin-dir ./agent-team` (this session only). The skills then
-answer to `/agent-team:roster-builder` and `/agent-team:project-steward`. Plain skills with no
-plugin: copy the two folders into a repo's `.claude/skills/`.
+To try it before installing: `claude --plugin-dir ./agent-team` (this session only). The skills
+answer to `/agent-team:roster-builder` and `/agent-team:project-steward`. Do not copy the skill
+folders into a repo's `.claude/skills/`: a copy stops receiving fixes.
 
 ## Adopt
 

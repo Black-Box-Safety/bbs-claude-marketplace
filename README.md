@@ -2,7 +2,7 @@
   <img src="https://img.shields.io/badge/company-Black%20Box%20Safety%2C%20Inc.-051c2c" alt="Black Box Safety, Inc.">
   <img src="https://img.shields.io/badge/certs-channel%20split%20%C2%B7%20see%20canonical--facts-b19800" alt="Certification language follows the channel; the numbers live in canonical-facts">
   <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20Cursor%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, Cursor, VS Code, and Desktop">
-  <img src="https://img.shields.io/badge/plugins-7%20BBS%20%2B%205%20pinned-2dd4bf" alt="Seven BBS plugins plus five pinned external">
+  <img src="https://img.shields.io/badge/plugins-8%20BBS%20%2B%205%20pinned-2dd4bf" alt="Eight BBS plugins plus five pinned external">
 </p>
 
 # Black Box Safety — Claude Marketplace
@@ -105,7 +105,7 @@ flowchart LR
 
 ## Pinned externals
 
-These ship with the six BBS plugins. They are pinned so a third-party update does not move on its own.
+These ship with the eight BBS plugins. They are pinned so a third-party update does not move on its own.
 
 | Plugin | For |
 |---|---|
@@ -178,7 +178,7 @@ Either script installs the tools the document skills use (Git, Node, Chrome, Lib
 the PDF/OCR tools, and the Python and Node libraries) and puts each one on PATH. Python
 itself comes from the Windows script, or on a Mac from Apple's command-line tools, which the
 Mac script asks for if they are missing. It installs Claude Code's `claude` command if it is missing, then installs **every
-plugin in this marketplace**: six BBS plugins and five pinned externals. If a plugin fails,
+plugin in this marketplace**: eight BBS plugins and five pinned externals. If a plugin fails,
 it prints Claude Code's own error. Add `-DryRun` (Windows) or `--dry-run` (Mac) to preview
 without installing anything. A good run ends with `Done.` Anything else, send the window to
 Parker. Step by step: [`docs/REP-SETUP.md`](docs/REP-SETUP.md).
@@ -253,7 +253,7 @@ bbs-claude-marketplace/
 
 ## How we keep it honest
 
-- **Version policy.** The seven BBS plugins carry no version pin. A set `version` freezes updates until someone bumps it. Anthropic's default is that pin. We leave it off so a push to `main` updates every machine. Freeze only for a pilot, then unfreeze. The five externals stay pinned.
+- **Version policy.** Each BBS plugin carries a `version` in its `plugin.json`, and an installed machine picks up merged changes only when that version is bumped (#60). Bump it in the PR that needs to reach reps. The five externals stay pinned.
 - **Registry.** [`REGISTRY.md`](REGISTRY.md) gives every repo and asset exactly one status. Change the status in the same commit as the change.
 - **Measurement.** [`docs/MEASUREMENT.md`](docs/MEASUREMENT.md). Draft-fix rate is counted from `FLAGS.md`. No baseline number is invented here.
 - **Acceptance.** A rep who is not the admin runs a real RFQ end to end, unaided. Result recorded in [`docs/acceptance/`](docs/acceptance/README.md).

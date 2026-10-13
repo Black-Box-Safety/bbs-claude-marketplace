@@ -8,7 +8,9 @@ description: >-
   who owns X", "charter an agent for Y", "set up a team of agents", "add a teammate", "our
   subagents are generic and nobody knows who does what", "bring in expertise from a catalog", or
   asks to review or refresh an existing agent's charter. Company-neutral; every program-specific
-  noun comes from docs/pm/PROGRAM-PROFILE.md, never from this skill.
+  noun comes from docs/pm/PROGRAM-PROFILE.md, never from this skill. Do NOT use to run the
+  program once the roster exists (that is project-steward), to hand a sales territory or
+  account book between people, or to write a CLAUDE.md.
 requires: []
 ---
 
@@ -37,8 +39,8 @@ the slots you cannot infer from the repos, and do not guess the gates.
 
 1. Fill the program profile in the home repo.
 2. Create the three ledgers there with their rules blocks: `DECISIONS.md`, `carry-forward-register.md`,
-   `LEARNINGS.md` (schemas: `project-steward/references/decision-ledger.md`, `carry-forward-register.md`,
-   `learnings-ledger.md`). Start the roster from [references/roster-template.md](references/roster-template.md).
+   `LEARNINGS.md` (schemas in `${CLAUDE_PLUGIN_ROOT}/skills/project-steward/references/`:
+   `decision-ledger.md`, `carry-forward-register.md`, `learnings-ledger.md`). Start the roster from [references/roster-template.md](references/roster-template.md).
 3. Commit [references/role-doc-spec.md](references/role-doc-spec.md) as `<roles-dir>/_ROLE-STYLE.md`.
 4. Charter the minimum viable roster below.
 5. Launch the first steward session from the `project-steward` launch template with an empty handoff.

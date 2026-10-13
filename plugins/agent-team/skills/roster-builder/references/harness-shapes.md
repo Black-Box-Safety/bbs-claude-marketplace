@@ -10,11 +10,11 @@ Skill ids below are illustrative; substitute the skills you actually have instal
 repo = "<repo>"
 description = "Build or change an app feature"
 steps = [
-  "skill: brainstorming",
-  "skill: writing-plans",
-  "skill: test-driven-development",
+  "skill: <planning skill id>",
+  "skill: <plan-writing skill id>",
+  "skill: <test-first skill id>",
   "check: <repo verify command>",
-  "skill: code-review",
+  "skill: <review skill id>",
   "do: update docs in the SAME PR",
   "do: draft PR (Conventional Commit title)",
 ]
@@ -22,7 +22,7 @@ steps = [
 [chains.session-close]
 repo = "any"
 steps = [
-  "skill: verification-before-completion",
+  "skill: <verify-before-done skill id>",
   "do: append the learnings-ledger entry for your lane",
   "do: write the handoff if work continues next session",
 ]
@@ -35,8 +35,9 @@ continue only if green; DO a `do:` step. Never substitute a skill because it is 
 skip a check and claim done. Write only the repo you are in. After the last step, walk `session-close`."
 
 ## Rules that keep it honest
-- Every skill a chain names is committed in the repo's `.claude/skills/`, so any machine and any
-  surface has it with nothing to install.
+- Every skill a chain names must resolve on every machine: installed from a pinned marketplace
+  entry, or a skill the program's own plugin ships. Never copy a third-party skill into the
+  repo; a vendored copy stops receiving upstream fixes.
 - A tool counts as adopted only when it has been chartered and piloted on one contract; a name in a
   TOML is not a decision. Anything unused 30+ days is marked UNUSED or deleted.
 - The repo's own `CLAUDE.md` wins over the chain file if they disagree; fix the chain in the same PR.

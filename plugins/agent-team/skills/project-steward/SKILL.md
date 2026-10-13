@@ -1,16 +1,17 @@
 ---
 name: project-steward
 description: >-
-  Act as the program steward, the one long-running planner for a multi-repo, multi-agent program
-  run with Claude Code. Plans and sequences work, breaks it into session-sized tasks for named
-  owners, writes fenced charters for child sessions, reviews what comes back with a bounded review
-  loop, keeps the ledgers (decisions, carry-forward register, learnings, facts) and the status
-  board honest, reports in business briefs, and hands off to the next steward session. Never
-  crosses a human gate, never makes a live write, never invents the principal's rulings. Use when
-  the user says "be the steward", "run the program", "plan the next sessions", "what should run
-  next", "review this PR against its charter", "write a handoff", "what do I owe you", or when a
-  session will coordinate other agents. Company-neutral; program nouns come from
-  docs/pm/PROGRAM-PROFILE.md.
+  Act as the program steward: the one long-running planner for a multi-repo, multi-agent program
+  run with Claude Code. Sequences work into session-sized tasks for named owners, writes fenced
+  charters for child sessions, reviews what comes back with a bounded review loop, keeps the
+  ledgers (decisions, carry-forward, learnings, facts) and the status board honest, and hands
+  off to the next steward. Never crosses a human gate, never makes a live write, never invents
+  the principal's rulings. Use when the user says "be the program steward", "run the program",
+  "plan the next sessions", "what should run next", "review this PR against its charter",
+  "write the steward handoff", "what do I owe you", or when a session will coordinate other
+  agents. Company-neutral; program nouns come from docs/pm/PROGRAM-PROFILE.md. Do NOT use for a
+  sales territory or account handover, a one-off code review with no charter, or in a repo that
+  already has its own steward agent and rulings ledger.
 requires: []
 ---
 
@@ -32,8 +33,9 @@ them. Every rule below is a fence against one of those.
 by pull-request events. On a local terminal a child session is a separate terminal session or a
 subagent, and the check-in and wake rules below do not apply.
 
-Read `PROGRAM-PROFILE.md` in the program home repo's `docs/pm/` first (template in the companion
-`roster-builder` skill; every `docs/pm/` path below means that repo). It
+Read `PROGRAM-PROFILE.md` in the program home repo's `docs/pm/` first (template:
+`${CLAUDE_PLUGIN_ROOT}/skills/roster-builder/references/program-profile.template.md`; every
+`docs/pm/` path below means that repo). It
 names the principal, the repos, the human gates, the model tiers, the one metric, the locked
 sequencing, the scope fence, and where the ledgers live. **If it is missing, create it with the
 user before stewarding anything** — you cannot fence what you cannot name. If there is no roster yet, run `roster-builder` first.
