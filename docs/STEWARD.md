@@ -221,20 +221,22 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
-- **`agent-team` plugin (PR #63), 2026-10-13.** Three rulings in session, one still open.
+- **`agent-team` plugin (PR #63), 2026-10-13.** Four rulings in session, all closed.
   - *Enable for everyone* — **RULED 2026-10-13:** on in `enabledPlugins`. Routine.
   - *Company memory line* — **RULED 2026-10-13, narrowed after Rex's review:** the
     `claudeMd` entry is a pointer only; the steward's rules (gates, merge delegation) live in
     the skill and the adopter's profile, not restated in memory.
-  - *Session-tool allow-list* — **OPEN.** Parker ruled the steward must launch and monitor
-    sessions without prompts. An allow rule cannot be scoped to one skill, so `Agent`,
-    `create_session`, `send_message`, the session reads and the PR subscriptions are allowed
-    for **every** session on a rep machine, including a quote-desk session reading an agency
-    PDF. `interrupt_session`, `send_later`, `list_triggers` and `delete_trigger` moved to
-    `ask` on Rex's finding (irreversible, or able to rebuild an unattended loop). Parker
-    decides whether the remaining allow set stands or the whole set goes to `ask`.
-  - *Provenance* — Rex asks Parker to confirm the plugin content is BBS's own; the patch
-    carried a placeholder author.
+  - *Session-tool allow-list* — **RULED 2026-10-13, Parker in session, after Rex's
+    scope finding:** the launch-and-monitor set (`Agent`, `create_session`, `send_message`,
+    the session reads, the PR subscriptions) stays allowed for **every** session on a rep
+    machine, a quote-desk session reading an agency PDF included. Parker accepted the risk
+    on the stated basis that these tools cannot send mail, place an order, or write to a
+    system of record, all of which stay gated separately. `interrupt_session`, `send_later`,
+    `list_triggers` and `delete_trigger` are `ask` (irreversible, or able to rebuild an
+    unattended loop). Revisit if a rep machine ever shows an unexpected spawned session.
+  - *Provenance* — **RULED 2026-10-13, Parker in session:** the plugin content is BBS's own
+    work; the placeholder author in the patch was a stand-in. Author stays
+    Black Box Safety, Inc.
 
 - **Re-paste managed settings** — the model-ID and Grainger changes reach no machine from
   the repo alone, and neither does the slice-2 command line. The repo copy's `claudeMd`
