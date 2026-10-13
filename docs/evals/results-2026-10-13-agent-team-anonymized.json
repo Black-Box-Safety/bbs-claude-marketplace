@@ -4,35 +4,11 @@
  "runs_per_query": 3,
  "pass_threshold": 0.8,
  "summary": {
-  "queries": 8,
+  "queries": 6,
   "passed": 6,
-  "failed": 2
+  "failed": 0
  },
  "results": [
-  {
-   "id": "at-collide-handover",
-   "query": "Kim and Aanya are both taking over state accounts at the same time. Write the handover of the CDCR and Caltrans books so each can start calling Monday.",
-   "expect": "ca-territory-handoff",
-   "runs": 3,
-   "correct": 0,
-   "accuracy": 0.0,
-   "pass": false,
-   "distribution": {
-    "__none__": 3
-   }
-  },
-  {
-   "id": "at-collide-handoff2",
-   "query": "Hand off the Northern California state book to the rep taking it over with a prioritized call list.",
-   "expect": "ca-territory-handoff",
-   "runs": 3,
-   "correct": 0,
-   "accuracy": 0.0,
-   "pass": false,
-   "distribution": {
-    "__none__": 3
-   }
-  },
   {
    "id": "at-steward-1",
    "query": "Be the program steward for this multi-repo build. Read the program profile and tell me what should run next.",

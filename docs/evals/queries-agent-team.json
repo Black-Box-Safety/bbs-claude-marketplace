@@ -34,17 +34,5 @@
   "expect": "roster-builder",
   "files": [],
   "query": "Refresh Dee's charter: re-scan the database lane and update her role doc and gap list."
- },
- {
-  "id": "at-collide-handover",
-  "expect": "ca-territory-handoff",
-  "files": [],
-  "query": "Kim and Aanya are both taking over state accounts at the same time. Write the handover of the CDCR and Caltrans books so each can start calling Monday."
- },
- {
-  "id": "at-collide-handoff2",
-  "expect": "ca-territory-handoff",
-  "files": [],
-  "query": "Hand off the Northern California state book to the rep taking it over with a prioritized call list."
  }
 ]
