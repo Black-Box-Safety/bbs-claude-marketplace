@@ -39,12 +39,12 @@
   "id": "at-collide-handover",
   "expect": "ca-territory-handoff",
   "files": [],
-  "query": "Kim is leaving. Write the handover of her CDCR and Caltrans accounts so Aanya can start calling Monday."
+  "query": "Kim and Aanya are both taking over state accounts at the same time. Write the handover of the CDCR and Caltrans books so each can start calling Monday."
  },
  {
   "id": "at-collide-handoff2",
   "expect": "ca-territory-handoff",
   "files": [],
-  "query": "Hand off the Northern California state book to the new rep with a prioritized call list."
+  "query": "Hand off the Northern California state book to the rep taking it over with a prioritized call list."
  }
 ]
