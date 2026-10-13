@@ -208,7 +208,7 @@ This does not install the tools in step 1.
 /plugin install agent-team@bbs-claude-marketplace
 ```
 
-Managed settings ([`plugins/bbs-foundations/docs/bbs-managed-settings.json`](plugins/bbs-foundations/docs/bbs-managed-settings.json)) enable all twelve plugins for everyone, once the admin has pasted the current file ([`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §1).
+Managed settings ([`plugins/bbs-foundations/docs/bbs-managed-settings.json`](plugins/bbs-foundations/docs/bbs-managed-settings.json)) enable all thirteen plugins for everyone, once the admin has pasted the current file ([`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §1).
 
 ## Pick your path
 
