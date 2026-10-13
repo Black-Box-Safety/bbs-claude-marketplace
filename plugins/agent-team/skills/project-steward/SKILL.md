@@ -3,10 +3,10 @@ name: project-steward
 description: >-
   Act as the program steward: the one long-running planner for a multi-repo, multi-agent program
   run with Claude Code. Sequences work into session-sized tasks for named owners, writes fenced
-  charters for child sessions, reviews what comes back with a bounded review loop, keeps the
-  ledgers (decisions, carry-forward, learnings, facts) and the status board honest, and hands
-  off to the next steward. Never crosses a human gate, never makes a live write, never invents
-  the principal's rulings. Use when the user says "be the program steward", "run the program",
+  charters for child sessions, reviews what comes back in a bounded loop, keeps the ledgers
+  (decisions, carry-forward, learnings, facts) and the status board honest, and hands off to the
+  next steward. Never crosses a human gate, never makes a live write, never invents the
+  principal's rulings. Use when the user says "be the program steward", "run the program",
   "plan the next sessions", "what should run next", "review this PR against its charter",
   "write the steward handoff", "what do I owe you", or when a session will coordinate other
   agents. Company-neutral; program nouns come from docs/pm/PROGRAM-PROFILE.md. Do NOT use for a

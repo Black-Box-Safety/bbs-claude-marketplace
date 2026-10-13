@@ -227,7 +227,7 @@ Managed settings ([`plugins/bbs-foundations/docs/bbs-managed-settings.json`](plu
 
 ```text
 bbs-claude-marketplace/
-├── .claude-plugin/marketplace.json     # manifest: 6 BBS plugins (unpinned) + 5 external (pinned)
+├── .claude-plugin/marketplace.json     # manifest: 8 BBS plugins + 5 external (pinned)
 ├── .cursor/rules/bbs-invariants.mdc    # always-on Cursor doctrine; stamp onto the desk too
 ├── README.md                           # this file
 ├── REGISTRY.md                         # every BBS repo and asset: canon, harvest, parked, archived
