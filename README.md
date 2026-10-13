@@ -2,7 +2,7 @@
   <img src="https://img.shields.io/badge/company-Black%20Box%20Safety%2C%20Inc.-051c2c" alt="Black Box Safety, Inc.">
   <img src="https://img.shields.io/badge/certs-channel%20split%20%C2%B7%20see%20canonical--facts-b19800" alt="Certification language follows the channel; the numbers live in canonical-facts">
   <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20Cursor%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, Cursor, VS Code, and Desktop">
-  <img src="https://img.shields.io/badge/plugins-6%20BBS%20%2B%205%20pinned-2dd4bf" alt="Six BBS plugins plus five pinned external">
+  <img src="https://img.shields.io/badge/plugins-7%20BBS%20%2B%205%20pinned-2dd4bf" alt="Seven BBS plugins plus five pinned external">
 </p>
 
 # Black Box Safety — Claude Marketplace
@@ -205,6 +205,7 @@ This does not install the tools in step 1.
 /plugin install bbs-back-office@bbs-claude-marketplace
 /plugin install bbs-website@bbs-claude-marketplace
 /plugin install bbs-tools@bbs-claude-marketplace
+/plugin install agent-team@bbs-claude-marketplace
 ```
 
 Managed settings ([`plugins/bbs-foundations/docs/bbs-managed-settings.json`](plugins/bbs-foundations/docs/bbs-managed-settings.json)) enable all twelve plugins for everyone, once the admin has pasted the current file ([`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §1).
@@ -246,12 +247,13 @@ bbs-claude-marketplace/
     ├── bbs-marketing/                  # claims registry, one-pagers, email, logos, decks
     ├── bbs-back-office/                # Business Central after the win, read-only
     ├── bbs-website/                    # price list to product page
-    └── bbs-tools/                      # bbs-fill: the one way Claude runs the vetted form scripts
+    ├── bbs-tools/                      # bbs-fill: the one way Claude runs the vetted form scripts
+    └── agent-team/                     # roster-builder + project-steward: run a program with named agents
 ```
 
 ## How we keep it honest
 
-- **Version policy.** The six BBS plugins carry no version pin. A set `version` freezes updates until someone bumps it. Anthropic's default is that pin. We leave it off so a push to `main` updates every machine. Freeze only for a pilot, then unfreeze. The five externals stay pinned.
+- **Version policy.** The seven BBS plugins carry no version pin. A set `version` freezes updates until someone bumps it. Anthropic's default is that pin. We leave it off so a push to `main` updates every machine. Freeze only for a pilot, then unfreeze. The five externals stay pinned.
 - **Registry.** [`REGISTRY.md`](REGISTRY.md) gives every repo and asset exactly one status. Change the status in the same commit as the change.
 - **Measurement.** [`docs/MEASUREMENT.md`](docs/MEASUREMENT.md). Draft-fix rate is counted from `FLAGS.md`. No baseline number is invented here.
 - **Acceptance.** A rep who is not the admin runs a real RFQ end to end, unaided. Result recorded in [`docs/acceptance/`](docs/acceptance/README.md).

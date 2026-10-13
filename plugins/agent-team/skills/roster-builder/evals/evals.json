@@ -1,0 +1,29 @@
+{
+  "skill_name": "roster-builder",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We have four repos and a dozen generic subagents nobody uses. Set up a proper team.",
+      "expected_output": "Creates or asks for the program profile first (principal, repos, gates, model tiers, metric). Proposes a minimum viable roster (one steward + 3–5 slice owners + at most two cross-cutting) sized to the actual backlog, not the org chart. Pins each lane via Step 1 before writing anything. Does not charter twelve agents.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "There's a popular catalog with a 'data-engineer' agent. Bring that expertise onto our team.",
+      "expected_output": "Distills, never installs: reads the catalog agent for topic coverage only, runs the binding overlap check against existing charters, and if ≥50% overlaps an existing owner recommends extending that owner and stops unless overruled.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "We need someone who owns observability across our deployments. Charter them.",
+      "expected_output": "Step 1 lane pin (shape: cross-cutting; overlap check; autonomy: read-diagnose, fixes route to owners), read-only grounding scans returning real paths, a role doc passing the checklist with a dated opening gap list, roster row in the cross-cutting section, wrappers only in repos it edits, one draft PR per repo, shakedown offered not run.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Refresh the checkout owner's charter; the doc predates the payments work.",
+      "expected_output": "Takes the refresh path: re-scan the lane, diff doc facts and register against reality, re-verify skill ids in both directions, re-stamp dates, one draft PR.",
+      "files": []
+    }
+  ]
+}
