@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-10-b19800" alt="10 skills">
+  <img src="https://img.shields.io/badge/skills-11-b19800" alt="11 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
@@ -48,6 +48,11 @@ certification language leak into a state bid. On California competitive solicita
 discipline is different in both halves — OSDS 2009473 carries **DVBE only**, so claim the
 DVBE incentive (SCM §1202) and **never** the 5% SB preference (SCM §1204): BBS passed
 California's SB revenue threshold and is not a California small business.
+
+Items that BC does not have yet are `bc-item-entry`: one spec per vendor quote, every row
+with a vendor that already exists in BC and a cost with its source, a review sheet the rep
+reads, and a commit that needs the rep's name and the sheet's token. The script never
+creates a vendor and never patches an existing card; reps sign in as themselves.
 
 An order that has already been taken is not this plugin's work. A wrong item, a short
 shipment, a price discrepancy on the PO — those go to `bbs-back-office`.

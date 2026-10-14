@@ -1,17 +1,19 @@
 {
   "name": "bbs-sales",
-  "description": "The California state quote desk, end to end: log an inbound RFQ, pull items out of whatever the agency sent (DWR RFQ PDF, Grainger cart, or a screenshot), check DGS BPO eligibility, price it through the Grainger MCP or vendor sourcing, build the customer quote on BBS letterhead, and fill the CDCR and CA compliance packets. Plus Grainger promo pages.",
-  "version": "0.3.0",
+  "description": "The California state quote desk, end to end: log an inbound RFQ, pull items out of whatever the agency sent (DWR RFQ PDF, Grainger cart, or a screenshot), check DGS BPO eligibility, price it through the Grainger MCP or vendor sourcing, build the customer quote on BBS letterhead, and fill the CDCR and CA compliance packets. Plus Grainger promo pages. Plus entering new product items into Business Central with a vendor, a cost and a named review.",
+  "version": "0.4.0",
   "author": {
     "name": "Black Box Safety, Inc."
   },
   "keywords": [
     "bbs",
     "bid-forms",
+    "business-central",
     "cdcr",
     "compliance-forms",
     "dvbe",
     "grainger",
+    "items",
     "naspo",
     "quoting",
     "rfq",

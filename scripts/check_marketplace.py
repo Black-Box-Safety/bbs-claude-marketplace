@@ -636,6 +636,11 @@ EXTERNAL_SYSTEMS = {
                   "signals": [r"^\s*(?:import|from) anthropic\b"]},
     "openpyxl": {"kind": "python-package", "canon": None,
                  "signals": [r"^\s*(?:import|from) openpyxl\b"]},
+    # Microsoft's auth library: bc-item-entry signs the rep in with a device code
+    # (delegated), so writes carry the rep's own BC user. The import sits inside
+    # a function in the script, hence the leading-whitespace tolerance.
+    "msal": {"kind": "python-package", "canon": None,
+             "signals": [r"^\s*(?:import|from) msal\b", r"\bpip install msal\b"]},
     # Not an import line: price-list-cleaner tells Claude to write the script
     # rather than shipping one, so the dependency is stated as prose and the
     # brand has no other sense in this domain.
