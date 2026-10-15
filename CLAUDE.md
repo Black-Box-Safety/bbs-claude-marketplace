@@ -30,6 +30,27 @@ Agents shipped inside `plugins/*/agents/` silently ignore `hooks`, `mcpServers` 
 `permissionMode`. Anything needing those must live in `.claude/agents/`, which also
 outranks a plugin agent of the same name.
 
+## Design work in a cloud session
+
+`impeccable` is pinned in the marketplace file (`marketplace.json`), but a fresh cloud container does
+not have it installed. When a task names it (the explainer prompts do), fetch only the skill
+folder from the fork and load it into the session:
+
+```bash
+SCRATCH="$(mktemp -d)"
+mkdir -p ~/.claude/skills
+git clone --depth 1 --filter=blob:none --sparse https://github.com/Black-Box-Safety/impeccable.git "$SCRATCH/impeccable"
+git -C "$SCRATCH/impeccable" sparse-checkout set plugin
+cp -r "$SCRATCH/impeccable/plugin/skills/impeccable" ~/.claude/skills/impeccable
+```
+
+That copies the skill only, so the plugin's edit hooks stay off, as the marketplace entry
+intends. Its static `detect` reports false low-contrast hits on a two-theme page (it pairs
+one theme's text with the other's surface); measure contrast in a real browser before acting
+on them. Explainer pages live in `docs/explainers/<date>-<topic>/`, one HTML source each,
+published privately with the Artifact tool; the page source in git is the truth, not the
+published copy.
+
 ## Model IDs
 
 Read them from `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/models.json`.
@@ -39,4 +60,4 @@ superseded IDs — treat every one as stale until checked against that file.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-09-16.
+Owner: Parker Marshall. Last verified 2026-10-01.

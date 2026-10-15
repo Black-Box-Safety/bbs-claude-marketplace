@@ -5,6 +5,12 @@ Fill a CDCR OBS 4007(B) RFQ Packet-B for Black Box Safety.
 Usage:
     python fill_obs_packet.py <blank_packet.pdf> <inputs.json> <output.pdf>
 
+STABLE INTERFACE — keep this file's name, location and arguments. The managed
+settings allow it by path (the `ca-form-filler/scripts/` rule in
+plugins/bbs-foundations/docs/bbs-managed-settings.json); a rename or a new
+argument stops matching, and a rep in auto mode is stopped mid-packet. New
+inputs go in inputs.json, never on the command line.
+
 The script:
   1. Loads BBS's vendor facts from the plugin's canonical profile
      (../references/vendor_profile.json), shared with ca-form-filler.
@@ -15,11 +21,24 @@ The script:
      CalRecycle 74 Contractor/Company Name, STD 204 Section 1 NAME).
 
 Design notes (why it's built this way):
-  - The bidder/rep is a *variable* (a different sales rep may sign each time),
-    so rep name/title/email/signature come from inputs.json.
+  - The rep (contact person) and the SIGNER are separate inputs. The rep names
+    a signer on every run (`signer{name,title,email}`); there is no default.
+    The signer signs every rep-signed line this script fills -- OBS 4007(B)
+    Bidder Signature, Darfur OBS 1500, CalRecycle 74, OBS 1000 -- and may be
+    any BBS employee. A signature is applied only for one of the six signature
+    delegates (counsel, Parker 2026-10-01), as that delegate's own PNG of
+    record from vendor_profile.json, never typed text and never a path from
+    the inputs; any other signer's lines are left blank to sign by hand and
+    flagged. A non-BBS signer stops the run. Rules: ca-form-rules.md,
+    "Delegated signatures".
   - Jackson Dalton is the DV owner and ALWAYS signs the DVBE owner lines
-    (DGS PD 843) and is the STD 204 authorized payee representative, because
-    those certifications are tied to ownership, not to whoever quoted the job.
+    (DGS PD 843) and is the STD 204 authorized payee representative, whoever
+    runs the packet, because those certifications are tied to ownership.
+  - "Complete the packet" is the approval to sign. Signatures are applied only
+    when `quote_total_incl_tax` (the quote of record's grand total, tax
+    included) is strictly under vendor_profile.json signature_delegation
+    limit_usd; otherwise every signature line and its date stay blank and are
+    flagged, and the packet is written unsigned.
   - Agency-side fields (method of award details the State fills, SCPRS ref,
     PO#, paying-agency block) are left blank on purpose.
   - Signature DATES are filled if provided; if the rep wants to date at the
@@ -39,6 +58,17 @@ SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PLUGIN_ROOT = os.environ.get(
     "CLAUDE_PLUGIN_ROOT", os.path.dirname(os.path.dirname(SKILL_DIR)))
 VENDOR_PROFILE = os.path.join(PLUGIN_ROOT, "references", "vendor_profile.json")
+# The signing rules (limit, delegates, PNG checks, stamping, the form table) are
+# implemented once, in naspo-quote's vetted fill_ca_forms.py; this script calls
+# it rather than keeping a second copy.
+SIGNING_SCRIPTS = os.path.join(PLUGIN_ROOT, "skills", "naspo-quote", "scripts")
+
+
+def _signing():
+    if SIGNING_SCRIPTS not in sys.path:
+        sys.path.insert(0, SIGNING_SCRIPTS)
+    import fill_ca_forms
+    return fill_ca_forms
 
 
 def _rep(profile, role):
@@ -87,17 +117,226 @@ def load_profile():
         "product_type": vp["product_type"],
         "dvbe_owner": {k: owner[k] for k in ("name", "title", "email")},
         "accounting_contact": {k: acct[k] for k in ("name", "title", "phone", "email")},
+        # Whose signature a skill may apply (counsel, Parker 2026-10-01: the
+        # six). Everyone else signs by hand. signature_delegation lists roles; each resolves to its
+        # authorized_representatives entry, so identity is written once.
+        "signature_delegates": [
+            {"role": d["role"], "name": d["name"], "email": d["email"],
+             "aliases": list(d.get("aliases") or []),
+             "signature_image": d.get("signature_image")}
+            for d in (_rep(vp, role) for role in vp["signature_delegation"]["delegates"])],
+        # A BBS employee has an address on this domain. Derived from the
+        # profile's own contact address so the domain is never re-keyed here.
+        "employee_domain": contact["email"].rsplit("@", 1)[1].lower(),
         "_notes": vp["_meta"]["notes"],
     }
 
 
-def build_field_values(profile, inp):
-    """Return the list of {field_id, page, value} dicts for the AcroForm fill."""
+def _norm(s):
+    return " ".join(str(s or "").split()).lower()
+
+
+# The rep-signed lines this script fills. One signer covers all of them.
+SIGNER_LINES = ("CalRecycle 74", "OBS 4007(B) Bidder", "Darfur OBS 1500", "OBS 1000")
+
+# Every signature line in Packet B: (label, field ID, page, whose line, date field,
+# the form the page must read as). OBS 1000's signature field ID has not been read
+# off a live Packet B, so it is found as the one signature widget on its page.
+SIGNATURE_LINES = (
+    ("OBS 4007(B) Bidder", "OBS RFQ 4007(B) - Bidder Signature", 2, "rep",
+     "OBS RFQ 4007(B) - Bidder Sig Date", "OBS4007B"),
+    ("Darfur OBS 1500", "Darfur OBS 1500 - By Authorized Signature", 15, "rep",
+     "Darfur OBS 1500 - Date", "Darfur"),
+    ("CalRecycle 74", "DORRR CalRec 74 - Signature", 16, "rep",
+     "DORRR CalRec 74 - Date", "CalRecycle74"),
+    ("OBS 1000", None, 19, "rep", "OBS 1000 - Date", "OBS1000"),
+    ("DGS PD 843 DV owner", "DGS PD 843 - DVBE Owner/ Signature 1", 21, "dv_owner",
+     "DVBE Dec. DGS PD 843 - Date Signed 1", "PD843"),
+    ("STD 204 authorized payee", "Payee Data Record STD 204 - Auth Rep. Signature", 24,
+     "dv_owner", "Payee Data Record STD 204 - Auth Rep Sign Date", "STD204"),
+)
+
+
+def _missing(what):
+    sys.exit(f"[MISSING — NEEDS INPUT] {what}. No packet written.")
+
+
+def resolve_signer(profile, inp):
+    """Who signs the rep-signed lines, and whether a signature may be applied.
+
+    Rulings (Parker, 2026-09-28): any BBS employee may sign -- "anyone is
+    permitted to sign"; "whomever the rep says, they can sign it with anyone".
+    The rep names the signer on every run; nothing defaults. The lines are
+    sworn, so:
+
+      - The signer must be a BBS employee: exactly one "@" and a domain equal
+        to the vendor profile's own contact domain. Checked before anything
+        else; a non-BBS signer stops the run and no packet is written.
+      - A signature is applied only for a signature delegate (matched on the
+        recorded email or an alias, AND the recorded name), and what is applied
+        is the delegate's PNG of record, never text from the inputs.
+      - Any other signer gets print name and title; signature and date are left
+        blank for a hand signature and flagged.
+
+    Returns {name, title, email, apply, flag}. Exits on missing or non-BBS.
+    """
+    signer = inp.get("signer") or {}
+    name = " ".join(str(signer.get("name", "")).split())
+    title = " ".join(str(signer.get("title", "")).split())
+    raw_email = str(signer.get("email", "")).strip()
+    # ASCII only, checked BEFORE lower-casing: str.lower() folds look-alikes
+    # such as the Kelvin sign (U+212A) into "k", which would pass the domain.
+    ascii_ok = raw_email.isascii()
+    email = raw_email.lower()
+    if not name and not email:
+        _missing("Signer: the rep names who signs CalRecycle 74, the OBS 4007(B) "
+                 "bidder line, Darfur OBS 1500 and OBS 1000 (`signer{name,title,email}`)")
+    if not email:
+        _missing(f"Signer email for {name or 'the signer'}: it is how the signer is "
+                 f"confirmed as a BBS employee.")
+    domain = profile["employee_domain"]
+    if not ascii_ok or email.count("@") != 1 or email.split("@")[1] != domain:
+        sys.exit(f"REFUSED: the signer must be a BBS employee (an @{domain} address). "
+                 f"{signer.get('name') or '(no name)'} <{signer.get('email')}> is not. "
+                 f"Customers, agencies and third parties never sign BBS's lines. "
+                 f"No packet written.")
+    if not name:
+        _missing(f"Signer name for {email}")
+
+    by_email = next((d for d in profile["signature_delegates"]
+                     if email in {_norm(d["email"]), *map(_norm, d["aliases"])}), None)
+    by_name = next((d for d in profile["signature_delegates"]
+                    if _norm(name) == _norm(d["name"])), None)
+    if by_email and by_email is by_name:
+        return {"name": by_email["name"], "title": title, "email": email,
+                "apply": True, "flag": None, "delegate": by_email}
+    if by_name:
+        why = (f"email does not match the delegate's recorded address "
+               f"({by_name['email']})")
+    elif by_email:
+        why = (f"name does not match the delegate recorded for that address "
+               f"({by_email['name']})")
+    else:
+        why = "not a signature delegate in vendor_profile.json signature_delegation"
+    who = f"{name}, {title}" if title else name
+    return {"name": name, "title": title, "email": email, "apply": False,
+            "delegate": None, "flag": (f"⚑ SIGNATURE REQUIRED — {who} — {', '.join(SIGNER_LINES)}: "
+                     f"sign and date by hand (sworn). Left blank: {why}.")}
+
+
+def signing_plan(profile, inp):
+    """Which signature lines get whose PNG on this run, and which stay blank.
+
+    Returns {allowed, why, signer, lines}. Each line: label, field, page, line
+    (rep / dv_owner), date field, expected form, delegate (or None) and flag.
+    Nothing here touches a file; images are checked in check_images().
+    """
+    fcf = _signing()
+    signer = resolve_signer(profile, inp)
+    limit = fcf.load_limit(VENDOR_PROFILE)
+    allowed, why = fcf.signing_allowed(inp, limit)
+    if allowed:
+        # The packet prints its own Grand Total; it must not contradict the quote of
+        # record. A printed total at or over the limit, or above the typed total incl.
+        # tax (a total incl. tax is never below the pre-tax worksheet), withholds.
+        printed = worksheet_total(inp)
+        typed = fcf.parse_total(inp.get("quote_total_incl_tax"))
+        if printed >= limit:
+            allowed, why = False, (f"the worksheet's Grand Total, ${printed:,.2f}, is not under "
+                                   f"the ${limit:,.0f} delegation limit")
+        elif printed > typed + 0.005:
+            allowed, why = False, (f"the worksheet's Grand Total, ${printed:,.2f}, is more than "
+                                   f"the quote total incl. tax given (${typed:,.2f}); the two "
+                                   f"must agree with the quote of record")
+    owner = next(d for d in profile["signature_delegates"] if d["role"] == "dvbe_owner")
+    lines = []
+    for label, field, page, line, date_field, kind in SIGNATURE_LINES:
+        who = owner if line == "dv_owner" else signer["delegate"]
+        flag = None
+        if not allowed:
+            name = owner["name"] if line == "dv_owner" else signer["name"]
+            flag = (f"⚑ SIGNATURE REQUIRED — {label} ({name}): left blank because {why}. "
+                    f"Sign and date by hand.")
+            who = None
+        elif who is None:
+            flag = None  # the non-delegate signer's flag covers every rep line at once
+        lines.append({"label": label, "field": field, "page": page, "line": line,
+                      "date_field": date_field, "kind": kind, "delegate": who,
+                      "flag": flag})
+    return {"allowed": allowed, "why": why, "signer": signer, "lines": lines}
+
+
+def check_images(plan, inp):
+    """Resolve every PNG this run will stamp.
+
+    A delegate with no image on file yet gets a blank, flagged line; an image
+    path that is set but unusable stops the run with no packet.
+    """
+    fcf = _signing()
+    problems = []
+    for ln in plan["lines"]:
+        d = ln["delegate"]
+        if d is None:
+            continue
+        if not d.get("signature_image"):
+            # Not sent yet (ADMIN-RUNBOOK §3b): a hand signature, as for anyone else.
+            ln["delegate"] = None
+            ln["flag"] = (f"⚑ SIGNATURE REQUIRED — {ln['label']} ({d['name']}): no signature "
+                          f"image on file yet (MASTER/Signatures/); sign and date by hand.")
+            continue
+        try:
+            path = fcf.resolve_sig_path(d["signature_image"], inp.get("master_root"))
+        except ValueError as e:
+            problems.append(f"{d['name']}: {e} — set `master_root` in inputs.json to the "
+                            f"synced 'Black Box Safety - MASTER' folder")
+            continue
+        bad = fcf._png_problem(path)
+        if bad:
+            problems.append(f"{d['name']}'s signature image at {path} {bad}")
+            continue
+        ln["image"] = path
+    if problems:
+        sys.exit("STOP: ⚑ SIGNATURE REQUIRED — " + "\n⚑ SIGNATURE REQUIRED — ".join(
+            dict.fromkeys(problems)) + "\nNo packet written. Fix the image, or have the "
+            "rep name a signer whose PNG is on file.")
+
+
+def signer_confirmation(profile, inp, plan=None):
+    """The block printed on every run, so the rep checks it before sending."""
+    plan = plan or signing_plan(profile, inp)
+    sg = plan["signer"]
+    if not plan["allowed"]:
+        how = "NOT applied — over the limit or no quote total"
+    elif sg["apply"]:
+        how = "delegated signature applied"
+    else:
+        how = "blank for hand signature"
+    lines = [f"Signer: {sg['name']} <{sg['email']}> — applied to: "
+             f"{', '.join(SIGNER_LINES)} ({how}). CalRecycle 74 PCRC/SABRC = "
+             f"{inp.get('calrecycle_pcrc', 'NA')}/{inp.get('calrecycle_sabrc', 'NA')}"
+             f" — confirm before sending.",
+             f"Quote total incl. tax: {inp.get('quote_total_incl_tax', '[MISSING]')} "
+             f"({inp.get('quote_ref', 'no quote ref')})."]
+    if sg["flag"] and plan["allowed"]:
+        lines.append(sg["flag"])
+    lines += [ln["flag"] for ln in plan["lines"] if ln["flag"]]
+    return lines
+
+
+def build_field_values(profile, inp, plan=None):
+    """Return the list of {field_id, page, value} dicts for the AcroForm fill.
+
+    Signature fields are never written as text: stamp_signatures() draws the
+    PNG of record over them. A line's date is filled only if that line will be
+    signed on this run.
+    """
     rep = inp_rep = inp.get("rep", {})
     rep_name = rep.get("name", "")
     rep_title = rep.get("title", "Sales Manager")
     rep_email = rep.get("email", "")
-    rep_sig = rep.get("signature", rep_name)  # signature text defaults to name
+    plan = plan or signing_plan(profile, inp)
+    signer = plan["signer"]
+    signed = {ln["date_field"] for ln in plan["lines"] if ln["delegate"] is not None}
 
     owner = profile["dvbe_owner"]
     acct = profile["accounting_contact"]
@@ -106,6 +345,9 @@ def build_field_values(profile, inp):
     release = inp.get("release_date", "")
     due = inp.get("due_date", "")
     sig_date = inp.get("signature_date", "")  # may be "" to hand-date
+
+    def date_for(field):  # hand-signed means hand-dated
+        return sig_date if field in signed else ""
     delivery_days = str(inp.get("delivery_days_aro", "30"))
 
     agency = inp.get("agency", {})
@@ -144,8 +386,7 @@ def build_field_values(profile, inp):
     add("OBS RFQ 4007(B) - Manufacturer No Checkbox", 2, "/Yes")
     add("OBS RFQ 4007(B) - SB Sub Preference Yes", 2, "/Off")
     add("OBS RFQ 4007(B) - SB Sub Preference No", 2, "/Yes")
-    add("OBS RFQ 4007(B) - Bidder Signature", 2, rep_sig)
-    add("OBS RFQ 4007(B) - Bidder Sig Date", 2, sig_date)
+    add("OBS RFQ 4007(B) - Bidder Sig Date", 2, date_for("OBS RFQ 4007(B) - Bidder Sig Date"))
 
     # ---------- OBS 4007(B) additional details (page 3) ----------
     add("OBS RFQ 4007(B) - Deliver Completion Requirement", 3, delivery_days)
@@ -177,20 +418,7 @@ def build_field_values(profile, inp):
         desc = item.get("description", "")
         part = item.get("part_number", "")
         pcrc = item.get("pcrc", "n/a")
-        unit_price = item.get("unit_price", 0.0)
-        ext_price = item.get("ext_price")
-        try:
-            up = float(str(unit_price).replace("$", "").replace(",", ""))
-        except (ValueError, TypeError):
-            up = 0.0
-        try:
-            q = float(qty)
-        except (ValueError, TypeError):
-            q = 0.0
-        if ext_price is None:
-            ext = up * q
-        else:
-            ext = float(str(ext_price).replace("$", "").replace(",", ""))
+        up, ext = _line_amounts(item)
         subtotal += ext
 
         # Field IDs are not perfectly regular in the source PDF; resolve per-row.
@@ -204,11 +432,7 @@ def build_field_values(profile, inp):
         add(line_field_map["unit_price"], 12, _money(up))
         add(line_field_map["ext_price"], 12, _money(ext))
 
-    sh = inp.get("shipping_handling", 0.0)
-    try:
-        sh_val = float(str(sh).replace("$", "").replace(",", ""))
-    except (ValueError, TypeError):
-        sh_val = 0.0
+    sh_val = _shipping(inp)
     total = subtotal + sh_val
     add("OBS Line-Item Cost Wrksht - Subtotal", 12, _money(subtotal))
     add("OBS Line-Item Cost Wrksht - S&H", 12, _money(sh_val))
@@ -228,9 +452,9 @@ def build_field_values(profile, inp):
     add("GSPD-05-105 Bidder Dec. Written - Pg 1 - #of pgs", 13, "1")
 
     # ---------- Darfur OBS 1500 (page 15) — Option 1, no activities outside US ----------
-    add("Darfur OBS 1500 - CompanyVendor Name Printed", 15, profile["short_name"])
-    add("Darfur OBS 1500 - Date", 15, sig_date)
-    add("Darfur OBS 1500 - By Authorized Signature", 15, rep_sig)
+    # Company name: legal name (Parker 2026-09-28, "they can match legal name").
+    add("Darfur OBS 1500 - CompanyVendor Name Printed", 15, profile["legal_name"])
+    add("Darfur OBS 1500 - Date", 15, date_for("Darfur OBS 1500 - Date"))
 
     # ---------- CalRecycle 74 (page 16) ----------
     add("DORRR CalRec 74 - Address", 16,
@@ -243,13 +467,13 @@ def build_field_values(profile, inp):
         inp.get("calrecycle_pcrc", "NA"))
     add("DORRR CalRec 74 - 2SABRC Product Category CodeRow1", 16,
         inp.get("calrecycle_sabrc", "NA"))
-    add("DORRR CalRec 74 - Print Name", 16, rep_name)
-    add("DORRR CalRec 74 - Signature", 16, rep_sig)
-    add("DORRR CalRec 74 - Title", 16, rep_title)
-    add("DORRR CalRec 74 - Date", 16, sig_date)
+    # Signed by the named signer -- see resolve_signer(); the PNG is stamped later.
+    add("DORRR CalRec 74 - Print Name", 16, signer["name"])
+    add("DORRR CalRec 74 - Title", 16, signer["title"])
+    add("DORRR CalRec 74 - Date", 16, date_for("DORRR CalRec 74 - Date"))
 
     # ---------- OBS 1000 GenAI (pages 18-19) ----------
-    add("OBS 1000 - Business Name", 18, profile["short_name"])
+    add("OBS 1000 - Business Name", 18, profile["legal_name"])
     add("OBS 1000 - Business Telephone Number", 18, profile["phone"])
     add("OBS 1000 - Business Address", 18, profile["address_line"])
     add("OBS 1000 - City", 18, profile["city"])
@@ -258,18 +482,19 @@ def build_field_values(profile, inp):
     add("OBS 1000 - Contract  Description of Purchase", 18, desc_short)
     add("OBS 1000 - Was GenAI used - Yes", 18, "/Off")
     add("OBS 1000 - Was GenAI used - No", 18, "/Yes")
-    add("OBS 1000 - Date", 19, sig_date)
+    add("OBS 1000 - Date", 19, date_for("OBS 1000 - Date"))
 
     # ---------- DGS PD 843 DVBE Declarations (page 21) ----------
     # Jackson Dalton ALWAYS signs as DV owner — certification is tied to ownership.
-    add("DVBE Dec. DGS PD 843 - Name of DVBE", 21, profile["legal_name"])  # ruled 2026-09-18: legal name, matches the filed corpus
+    # "Name of DVBE" is the legal name, never the short name: ruled 2026-09-18,
+    # confirmed by Parker 2026-09-28 ("do legal name"). ca-form-rules.md.
+    add("DVBE Dec. DGS PD 843 - Name of DVBE", 21, profile["legal_name"])
     add("DVBE Dec. DGS PD 843 - DVBE Ref #", 21, profile["dvbe_cert"])
     add("DVBE Dec. DGS PD 843 - Desc", 21, desc_short)
     add("DVBE Dec. DGS PD 843 - DVBE not Broker", 21, "/Yes")
     add("DVBE Dec. DGS PD 843 - DVBE is Broker", 21, "/Off")
     add("DVBE Dec. DGS PD 843 -  Owner/Mngr. Print Nmae 1", 21, owner["name"])
-    add("DGS PD 843 - DVBE Owner/ Signature 1", 21, owner["name"])
-    add("DVBE Dec. DGS PD 843 - Date Signed 1", 21, sig_date)
+    add("DVBE Dec. DGS PD 843 - Date Signed 1", 21, date_for("DVBE Dec. DGS PD 843 - Date Signed 1"))
     add("DVBE Dec. DGS PD 843 -  Page 1 of #", 21, "1")
     add("DVBE Dec. DGS PD 843 -  Total Pg.#s", 21, "1")
 
@@ -321,8 +546,7 @@ def build_field_values(profile, inp):
     add("Payee Data Record STD 204 - Auth Rep TITLE", 24, owner["title"])
     add("Payee Data Record STD 204 - Auth Rep EMAIL ADDRESS_2", 24, owner["email"])
     add("Payee Data Record STD 204 - Auth Rep Phone#", 24, profile["phone"])
-    add("Payee Data Record STD 204 - Auth Rep Sign Date", 24, sig_date)
-    add("Payee Data Record STD 204 - Auth Rep. Signature", 24, owner["name"])
+    add("Payee Data Record STD 204 - Auth Rep Sign Date", 24, date_for("Payee Data Record STD 204 - Auth Rep Sign Date"))
 
     # Drop empty-string values so we don't write blank-but-present fields
     # needlessly. Checkbox "/Off" values are not empty, so they survive this.
@@ -331,6 +555,33 @@ def build_field_values(profile, inp):
 
 
 MAX_LINE_ITEMS = 23
+
+
+def _line_amounts(item):
+    """(unit price, extended price) for one worksheet line, as the worksheet prints them."""
+    try:
+        up = float(str(item.get("unit_price", 0.0)).replace("$", "").replace(",", ""))
+    except (ValueError, TypeError):
+        up = 0.0
+    try:
+        q = float(str(item.get("qty", "")))
+    except (ValueError, TypeError):
+        q = 0.0
+    ext_price = item.get("ext_price")
+    ext = up * q if ext_price is None else float(str(ext_price).replace("$", "").replace(",", ""))
+    return up, ext
+
+
+def _shipping(inp):
+    try:
+        return float(str(inp.get("shipping_handling", 0.0)).replace("$", "").replace(",", ""))
+    except (ValueError, TypeError):
+        return 0.0
+
+
+def worksheet_total(inp):
+    """The Grand Total the worksheet will print: line items plus S&H (no tax)."""
+    return sum(_line_amounts(i)[1] for i in inp.get("line_items", [])) + _shipping(inp)
 
 
 def _money(x):
@@ -439,9 +690,10 @@ ANNOTATIONS = [
     # OBS 4007(B) front page Business Name line
     {"page": 1, "x": 155, "y": 223, "key": "legal_name"},
     # Line-Item Worksheet "BUSINESS NAME:" header
+    # (short name: NOT covered by the 2026-09-28 legal-name ruling -- open)
     {"page": 11, "x": 105, "y": 101, "key": "short_name"},
-    # CalRecycle 74 "Contractor/Company Name"
-    {"page": 15, "x": 145, "y": 296, "key": "short_name"},
+    # CalRecycle 74 "Contractor/Company Name" -- legal name (Parker, 2026-09-28)
+    {"page": 15, "x": 145, "y": 296, "key": "legal_name"},
     # STD 204 Section 1 NAME line
     {"page": 23, "x": 22, "y": 97, "key": "legal_name"},
 ]
@@ -631,6 +883,63 @@ def add_annotations(pdf_path, profile):
     os.replace(tmp, pdf_path)
 
 
+def stamp_signatures(pdf_path, plan):
+    """Draw each delegate's PNG over its signature line. Returns ⚑ lines.
+
+    A named field that is missing, or a page that reads as a different form
+    than the profile says, stops the run (no packet). OBS 1000's field is found
+    as the single signature widget on its page; if that is not exactly one, the
+    line is left blank and flagged rather than guessed.
+    """
+    import fitz
+    fcf = _signing()
+    fcf.fitz = fitz
+    table = fcf.load_form_table()
+    doc = fitz.open(pdf_path)
+    flags, errors = [], []
+    for ln in plan["lines"]:
+        if ln["delegate"] is None or "image" not in ln:
+            continue
+        page = doc[ln["page"] - 1]
+        hits = fcf.classify_page(page.get_text(), table)
+        if hits and hits != [ln["kind"]]:
+            errors.append(f"page {ln['page']} reads as {', '.join(hits)}, not {ln['kind']} — "
+                          f"the packet revision has changed; nothing signed")
+            continue
+        if not hits:
+            flags.append(f"⚑ SIGNATURE REQUIRED — {ln['label']}: page {ln['page']} is not "
+                         f"identified as {ln['kind']} by the form table, so nothing was "
+                         f"signed on it. Sign and date by hand, and check the packet revision.")
+            continue
+        widgets = list(page.widgets() or [])
+        if ln["field"]:
+            targets = [w for w in widgets if w.field_name == ln["field"]]
+            if not targets:
+                errors.append(f"`{ln['field']}` is not on page {ln['page']} — run --inspect "
+                              f"and reconcile SIGNATURE_LINES")
+                continue
+        else:
+            targets = [w for w in widgets if w.field_type_string == "Signature"]
+            if len(targets) != 1:
+                flags.append(f"⚑ SIGNATURE REQUIRED — {ln['label']}: found {len(targets)} "
+                             f"signature fields on page {ln['page']}, expected one; left "
+                             f"blank. Sign and date by hand, and record the field ID in "
+                             f"SIGNATURE_LINES.")
+                continue
+        for w in targets:
+            rect = w.rect
+            page.delete_widget(w)
+            fcf._stamp(page, rect, ln["image"], 2, 0)
+    if errors:
+        doc.close()
+        sys.exit("STOP: " + "\n".join(errors) + "\nNo packet written.")
+    tmp = pdf_path + ".sig.pdf"
+    doc.save(tmp)
+    doc.close()
+    os.replace(tmp, pdf_path)
+    return flags
+
+
 def inspect(blank_pdf):
     """Print every field with its type, page and on-states.
 
@@ -682,7 +991,10 @@ def main():
     with open(inputs_path) as f:
         inp = json.load(f)
 
-    field_values = build_field_values(profile, inp)
+    plan = signing_plan(profile, inp)
+    check_images(plan, inp)
+    field_values = build_field_values(profile, inp, plan)
+    confirmation = signer_confirmation(profile, inp, plan)
 
     # Fill and annotate a scratch copy, then move it into place, so a failure
     # part-way through never leaves a half-filled packet looking finished.
@@ -690,6 +1002,7 @@ def main():
     try:
         fill_acroform(blank_pdf, field_values, partial)
         add_annotations(partial, profile)
+        confirmation += stamp_signatures(partial, plan)
         os.replace(partial, output_pdf)
     finally:
         if os.path.exists(partial):
@@ -697,6 +1010,15 @@ def main():
 
     print(f"Filled packet written to: {output_pdf}")
     print(f"Fields written: {len(field_values)}")
+    print(f"Signatures stamped: "
+          f"{sum(1 for ln in plan['lines'] if ln['delegate'] is not None and 'image' in ln)}"
+          + ("" if plan["allowed"] else " — SIGNATURES WITHHELD, the packet is UNSIGNED"))
+
+    # Who signs, how, and the CalRecycle values -- every run, loud. An unsigned
+    # CalRecycle 74 can disqualify the bid; repeat any flag in the cover summary.
+    print()
+    for line in confirmation:
+        print(line)
 
     # The certification rules are the expensive thing to get wrong on a bid, and
     # they change without the packet changing. Put them in front of the rep.

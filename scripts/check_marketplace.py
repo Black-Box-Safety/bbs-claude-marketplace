@@ -75,9 +75,9 @@ def is_narrative(path):
 # value beside it. "do not" / "don't" now have to be negating a verb of *use*
 # ("do not write", "don't copy"), which is what a real counter-example says.
 COUNTER_EXAMPLE = re.compile(
-    r"\b(never|no longer|stale|superseded|retired|deprecated|counter-example|"
+    r"\b(never|no longer|stale|superseded|retired?|deprecated|counter-example|"
     r"earlier revisions?|used to|rather than|instead of|which is how|avoid|became|"
-    r"flag it|wrong|replaced?|exists only|exists to prevent|prevent|"
+    r"flag it|wrong|replaced?|exists only|exists to prevent|prevent|uninstall|"
     # Vocabulary this repo's own cutover records use to name a dead thing.
     r"merged (?:away|into)|orphans?|contradictions?|contradictory|"
     r"(?:do not|don't|does not|doesn't|cannot|can't)\s+"
@@ -141,6 +141,39 @@ def is_counter_example(text, pos):
     return False
 
 
+def is_counter_example_in_sentence(text, pos):
+    """Stricter form: the qualifying phrase must sit in the same sentence as the match.
+
+    The proximity test above lets "Never guess a price. Then run /<retired>:onboard to
+    finish." pass, because "Never" is within 200 characters. For a scan whose whole job
+    is to stop a retired name creeping back into an instruction, the warning has to be
+    the sentence the name is in. A sentence ends at . ! or ? followed by whitespace or
+    the end of the text — the dot inside `skill-bus.json` or `~/.claude/` is not a
+    full stop. A heading with no full stop runs into the sentence after it, which is
+    the known cost of not parsing markdown.
+    """
+    return _sentence_matches(text, pos, COUNTER_EXAMPLE)
+
+
+def _sentence_matches(text, pos, pattern):
+    """True if pattern occurs in the sentence holding text[pos]."""
+    lines = text.splitlines(keepends=True)
+    idx = text[:pos].count("\n")
+    lo = max(0, idx - CONTEXT_LINES)
+    hi = min(len(lines), idx + CONTEXT_LINES + 1)
+    start = sum(len(ln) for ln in lines[:lo])
+    window = text[start:start + sum(len(ln) for ln in lines[lo:hi])]
+    collapsed, cmap = _collapse(window)
+    here = cmap[min(max(pos - start, 0), len(window))]
+    bounds = [m.end() for m in SENTENCE_END.finditer(collapsed)]
+    s_start = max([b for b in bounds if b <= here], default=0)
+    s_end = min([b for b in bounds if b > here], default=len(collapsed))
+    return bool(pattern.search(collapsed[s_start:s_end]))
+
+
+SENTENCE_END = re.compile(r"[.!?](?=\s|$)")
+
+
 def rel(path):
     return os.path.relpath(path, ROOT).replace(os.sep, "/")
 
@@ -162,7 +195,8 @@ def walk(root, suffixes):
 def load_skills():
     """Return ({name: {plugin, dir, meta, body}}, duplicates) for every SKILL.md.
 
-    Keyed on the bare folder name because that is what skill-bus subscriptions and
+    Keyed on the bare folder name because that is what the doctrine subscription
+    tables (hooks/doctrine/subscriptions.json, matched on plugin:skill) and
     cross-references use. That makes a name reused in two plugins a silent data
     loss — the second load overwrote the first and the first vanished from every
     check — so collisions are collected and reported rather than swallowed.
@@ -218,7 +252,7 @@ def check(findings):
     for name, first, second in dupes:
         F("duplicate_skill_name", f"plugins/{second}/skills/{name}/SKILL.md",
           f"skill folder {name!r} also exists in {first!r}. Skills are keyed on the bare "
-          f"name — skill-bus matches on plugin:skill and cross-references name it — so one "
+          f"name — the doctrine hooks match on plugin:skill and cross-references name it — so one "
           f"of the two disappears from every check. Rename one, or finish the move")
     if not skills:
         F("no_skills", "plugins/", "no SKILL.md found; is this the marketplace root?")
@@ -244,7 +278,7 @@ def check(findings):
         elif meta["name"] != s["folder"]:
             F("name_folder_mismatch", where,
               f"frontmatter name {meta['name']!r} != folder {s['folder']!r}; "
-              f"skill-bus matches subscriptions on plugin:skill, so this silently "
+              f"the doctrine hooks match subscriptions on plugin:skill, so this silently "
               f"stops doctrine firing")
         desc = " ".join((meta.get("description") or "").split())
         if not desc:
@@ -345,8 +379,14 @@ def check(findings):
     # --- 7. Every skill declares the external systems it needs ----------------
     check_dependencies(findings, skills)
 
-    # --- 8. skill-bus subscriptions resolve to a real plugin:skill ------------
-    check_skill_bus(findings, skills)
+    # --- 8. Doctrine hooks: subscriptions resolve, files exist, hooks parse -----
+    check_doctrine_hooks(findings, skills)
+
+    # --- 8b. The retired injection plugin has not crept back ------------------
+    check_retired_plugin_refs(findings)
+
+    # --- 8c. Nothing read mid-run points at a file that does not ship ---------
+    check_repo_only_pointers(findings)
 
     # --- 9. marketplace.json lists the plugins that exist ---------------------
     check_marketplace_manifest(findings)
@@ -549,6 +589,19 @@ EXTERNAL_SYSTEMS = {
         "signals": [r"\b(?:outlook|sharepoint|teams)_[a-z_]+\b",
                     r"\bchat_message_search\b", r"\bM365 tools\b"],
     },
+    # The BBS Sales CRM MCP connector — Dataverse `bbs_rfqs`, the pipeline of record
+    # (REGISTRY.md, ruled 2026-09-13). The five tool names, written out, exactly as the
+    # Business Central entry does: a `crm_*` prefix would do, today, but an enumerated
+    # list is the doctrine and it cannot be tripped by a column or file named crm_x.
+    # Not the words "Sales CRM" or "Dataverse": skills name both as the place a number
+    # comes from far more often than they open it. canon is None because canon's
+    # Systems-of-record row says "Dynamics 365 Sales", and whether that row names this
+    # connector is Parker's call, not a checker's — system_not_in_canon says so.
+    "sales-crm": {
+        "kind": "connector", "canon": None,
+        "signals": [r"\bcrm_(?:get_record|list_attributes|list_records|update_record|"
+                    r"whoami)\b"],
+    },
     "ca-procurement-intel": {
         "kind": "mcp", "canon": "ca-procurement-intel",
         "signals": [r"\b(?:explore_sql|market_spend_summary|market_purchase_lines|"
@@ -578,13 +631,38 @@ EXTERNAL_SYSTEMS = {
         # a real credential or URL.
         "signals": [r"\bSIRV_[A-Z_]+\b", r"\bsirv\.com\b"],
     },
+    # SAM.gov's public Get Opportunities API, read by sam-gov-opportunities through a
+    # bundled stdlib script; no MCP server (README connector table). "service" because
+    # what a rep has to install is a key, not a server. Signals are the credential name
+    # and the API host only: the bare words "SAM.gov" name the registration that carries
+    # BBS's UEI (CLAIMS.md, canon's certification table) far more often than they name
+    # this API, and a skill quoting the UEI opens nothing. canon is None: SAM.gov is a
+    # public data source, not a BBS system of record, and adding a row is Parker's call.
+    "sam-gov": {
+        "kind": "service", "canon": None,
+        "signals": [r"\bSAM_GOV_API_KEY\b", r"\bapi\.sam\.gov\b"],
+    },
+    # USAspending's public award API, read by usaspending-awards through a bundled stdlib
+    # script. No key and no server, so the host is the only proof of use. Not the word
+    # "USAspending": the forge's worked example cites it as where a Bechtel subaward
+    # number was found, which opens nothing. Not `usaspending_*` either: those are the
+    # tool names of the separate Cursor MCP (README connector table), a different system.
+    "usaspending": {
+        "kind": "service", "canon": None,
+        "signals": [r"\bapi\.usaspending\.gov\b"],
+    },
 
     # --- command-line tools ------------------------------------------------
     "python3": {
-        "kind": "cli", "canon": None, "bootstrap": "astral-sh.uv",
-        "caveat": "winget-installing 'astral-sh.uv' puts `uv` on PATH, not `python3`. "
-                  "Every skill here invokes the interpreter directly (`python3 x.py`), "
-                  "so a rep who ran only the bootstrap still has no `python3` to run",
+        # Was 'astral-sh.uv', which put `uv` on PATH and no interpreter at all. The
+        # python.org build installs `python` and the `py` launcher, never `python3.exe`
+        # (on Windows that name is the Microsoft Store stub), so the caveat narrows to
+        # the spelling rather than going away.
+        "kind": "cli", "canon": None, "bootstrap": "Python.Python.3.12",
+        "caveat": "winget-installing 'Python.Python.3.12' puts `python` and `py` on PATH, "
+                  "not `python3` \u2014 on Windows `python3` is the Microsoft Store stub. "
+                  "A skill that tells a rep to run `python3 x.py` fails on a bootstrapped "
+                  "Windows machine; rep-facing invocations should say `python`",
         # The trailing class carries `-` so the heredoc form matches. Without it
         # `python3 - <<'EOF'` — a whole runnable script, imports and all — read
         # as no dependency at all, and bbs-order-reconciliation's cross-project
@@ -597,12 +675,11 @@ EXTERNAL_SYSTEMS = {
         "kind": "cli", "canon": None, "bootstrap": "OpenJS.NodeJS.LTS",
         "signals": [r"\bnode\s+\S*\.(?:js|mjs)\b", r"\bnpm (?:install|run|ci)\b"],
     },
-    # Not in bbs-setup.ps1. bbs-quote-builder converts its docx to the PDF it
-    # promises to deliver with `soffice --headless`, so a rep who ran the
-    # bootstrap and nothing else cannot finish a quote. cli_not_bootstrapped
-    # exists to say so out loud.
+    # bbs-quote-builder converts its docx to the PDF it promises to deliver with
+    # `soffice --headless`. bbs-setup.ps1 has installed it since #27; the registry
+    # said None until it was told, so cli_not_bootstrapped warned on a solved problem.
     "libreoffice": {
-        "kind": "cli", "canon": None, "bootstrap": None,
+        "kind": "cli", "canon": None, "bootstrap": "TheDocumentFoundation.LibreOffice",
         "signals": [r"\bsoffice\b", r"\blibreoffice\b"],
     },
     "shopify-cli": {
@@ -1171,43 +1248,294 @@ def requirements_table(skills):
     return sorted(rows)
 
 
-def check_skill_bus(findings, skills):
-    """Every skill-bus subscription must name a skill that exists."""
-    for path in walk(PLUGINS, ("skill-bus.json", "hooks.json")):
+# The name of the retired third-party injection plugin, assembled so this file is not
+# itself a hit for the scan below. Parker ruled it out 2026-09-28: it kept a
+# per-machine copy of the doctrine tables and needed a manual onboarding step, so the
+# truth lived in three places. The doctrine now rides the plugins' own hooks.
+RETIRED_PLUGIN = "skill-" + "bus"
+
+# Where a doctrine hook keeps its subscriptions, relative to the plugin root. The
+# hook script reads this same file; the checker never carries a copy of the table.
+DOCTRINE_TABLE = os.path.join("hooks", "doctrine", "subscriptions.json")
+# The same logic twice, for a machine with PowerShell and one with only python3. Each
+# ships in every plugin that carries a table, and every copy must be byte-identical.
+DOCTRINE_SCRIPTS = (os.path.join("hooks", "doctrine.ps1"), os.path.join("hooks", "doctrine.py"))
+
+
+def _hook_command_paths(data):
+    """Every ${CLAUDE_PLUGIN_ROOT}/... path a hooks.json names, in command or args."""
+    out = []
+    pat = re.compile(r"\$\{CLAUDE_PLUGIN_ROOT\}/([^\s\"']+)")
+    for event, groups in (data.get("hooks") or {}).items():
+        for group in groups or []:
+            for hook in (group.get("hooks") or []):
+                strings = [hook.get("command") or ""] + list(hook.get("args") or [])
+                for s in strings:
+                    out += pat.findall(s)
+    return out
+
+
+def check_doctrine_hooks(findings, skills):
+    """Doctrine rides native plugin hooks; prove every piece of that wiring exists.
+
+    A subscription naming a skill that does not exist, an insert whose file is not
+    on disk, a hooks.json that does not parse, or a script path that resolves only
+    on the author's machine all fail the same way: the doctrine silently never
+    fires, and the skill runs without its guardrail text. This is the replacement
+    for the old subscription check, plus the file-level facts the old plugin used
+    to own. Counter-example awareness is not needed here: these are structured
+    files, not prose.
+    """
+    def F(code, where, msg):
+        findings.append({"level": "FAIL", "code": code, "where": where, "msg": msg})
+
+    local_plugins = {d for d in os.listdir(PLUGINS)
+                     if os.path.isdir(os.path.join(PLUGINS, d))}
+
+    # Every hooks.json parses and its script paths exist under the plugin.
+    for plugin in sorted(local_plugins):
+        hooks = os.path.join(PLUGINS, plugin, "hooks", "hooks.json")
+        if not os.path.isfile(hooks):
+            continue
         try:
-            with open(path, encoding="utf-8") as fh:
+            with open(hooks, encoding="utf-8") as fh:
                 data = json.load(fh)
         except (OSError, ValueError) as exc:
-            findings.append({"level": "FAIL", "code": "hook_unparseable",
-                             "where": rel(path), "msg": str(exc)})
+            F("hook_unparseable", rel(hooks), f"{exc}; no hook in this plugin fires")
             continue
+        for p in _hook_command_paths(data):
+            if not os.path.isfile(os.path.join(PLUGINS, plugin, p)):
+                F("hook_script_missing", rel(hooks),
+                  f"names ${{CLAUDE_PLUGIN_ROOT}}/{p}, which does not exist in "
+                  f"plugins/{plugin}; the hook errors on every call")
+
+    # Every doctrine table resolves.
+    scripts = {}
+    for plugin in sorted(local_plugins):
+        table = os.path.join(PLUGINS, plugin, DOCTRINE_TABLE)
+        if not os.path.isfile(table):
+            continue
+        where = rel(table)
+        for script_rel in DOCTRINE_SCRIPTS:
+            script = os.path.join(PLUGINS, plugin, script_rel)
+            if os.path.isfile(script):
+                with open(script, "rb") as fh:
+                    scripts.setdefault(script_rel, {})[plugin] = fh.read()
+            else:
+                F("doctrine_script_missing", where,
+                  f"plugins/{plugin}/{script_rel} is missing; the table is never read "
+                  f"on a machine whose only interpreter is that one")
+        hooks = os.path.join(PLUGINS, plugin, "hooks", "hooks.json")
+        if not os.path.isfile(hooks):
+            F("doctrine_hook_unwired", where,
+              f"plugins/{plugin}/hooks/hooks.json is missing; nothing runs the script")
+        try:
+            with open(table, encoding="utf-8") as fh:
+                data = json.load(fh)
+        except (OSError, ValueError) as exc:
+            F("doctrine_table_unparseable", where, str(exc))
+            continue
+        inserts = data.get("inserts") or {}
+        if not isinstance(inserts, dict) or not inserts:
+            F("doctrine_table_empty", where, "no inserts defined")
+            continue
+        for name, spec in inserts.items():
+            fn = (spec or {}).get("file") if isinstance(spec, dict) else None
+            if not fn:
+                F("doctrine_file_unnamed", where, f"insert {name!r} names no file")
+                continue
+            path = os.path.join(os.path.dirname(table), fn)
+            if not os.path.isfile(path):
+                F("doctrine_file_missing", where,
+                  f"insert {name!r} points at {fn!r}, which does not exist beside the table")
+            elif os.path.getsize(path) == 0:
+                F("doctrine_file_empty", where, f"insert {name!r}'s file {fn!r} is empty")
+        used = set()
         for sub in (data.get("subscriptions") or []):
-            target = sub.get("on", "")
-            if ":" not in target:
+            insert, target = sub.get("insert"), sub.get("on", "")
+            if insert not in inserts:
+                F("doctrine_sub_unknown_insert", where,
+                  f"subscription on {target!r} names insert {insert!r}, which the table "
+                  f"does not define")
+            used.add(insert)
+            if not target:
+                F("doctrine_sub_no_target", where, f"subscription for {insert!r} has no on:")
                 continue
-            plugin, _, skill = target.partition(":")
-            if skill in ("*", ""):
-                continue
-            local_plugins = {d for d in os.listdir(PLUGINS)
-                             if os.path.isdir(os.path.join(PLUGINS, d))}
-            if plugin not in local_plugins:
+            if ":" not in target or "*" in target:
+                continue          # bare or wildcard pattern; nothing to resolve
+            tplugin, _, skill = target.partition(":")
+            if tplugin not in local_plugins:
                 continue          # pinned external plugin; not ours to resolve
             s = skills.get(skill)
             if s is None:
-                # A subscription may legitimately target a command rather than a skill.
-                cmd = os.path.join(PLUGINS, plugin, "commands", f"{skill}.md")
+                cmd = os.path.join(PLUGINS, tplugin, "commands", f"{skill}.md")
                 if os.path.isfile(cmd):
                     continue
-                findings.append({"level": "FAIL", "code": "skill_bus_dangling",
-                                 "where": rel(path),
-                                 "msg": f"subscribes to {target!r}, but {plugin!r} has no "
-                                        f"skill or command named {skill!r}; doctrine "
-                                        f"silently never fires"})
-            elif s["plugin"] != plugin:
-                findings.append({"level": "FAIL", "code": "skill_bus_wrong_plugin",
-                                 "where": rel(path),
-                                 "msg": f"subscribes to {target!r}, but {skill!r} lives in "
-                                        f"{s['plugin']!r}; the match is on plugin:skill"})
+                F("doctrine_sub_dangling", where,
+                  f"subscribes to {target!r}, but {tplugin!r} has no skill or command "
+                  f"named {skill!r}; doctrine silently never fires")
+            elif s["plugin"] != tplugin:
+                F("doctrine_sub_wrong_plugin", where,
+                  f"subscribes to {target!r}, but {skill!r} lives in {s['plugin']!r}; "
+                  f"the match is on plugin:skill")
+        for name in sorted(set(inserts) - used):
+            findings.append({"level": "WARN", "code": "doctrine_insert_unused",
+                             "where": where,
+                             "msg": f"insert {name!r} has no subscription; it never fires"})
+
+    # The script is the same code in every plugin that carries it. Two copies of a
+    # matcher is a drift risk; a checker that fails on the drift makes it a fact.
+    for script_rel, copies in scripts.items():
+        if len(copies) < 2:
+            continue
+        first = sorted(copies)[0]
+        for plugin in sorted(copies)[1:]:
+            if copies[plugin] != copies[first]:
+                F("doctrine_hook_drift", rel(os.path.join(PLUGINS, plugin, script_rel)),
+                  f"differs from plugins/{first}/{script_rel}; the copies must be "
+                  f"byte-identical, fix one and copy it")
+
+
+def check_retired_plugin_refs(findings):
+    """The retired injection plugin must not creep back into anything live.
+
+    Scanned repo-wide with the usual exemptions: the archive dirs and the session
+    records are history and may name it; this file assembles the name from parts.
+    Prose naming it in order to say it is gone — the runbook telling Parker to
+    uninstall it, the steward log recording the ruling — is correct content. The
+    exemption here is the same-sentence form, not the proximity form: an
+    instruction to run it two sentences after an unrelated "never" is still an
+    instruction to run it.
+    """
+    pat = re.compile(re.escape(RETIRED_PLUGIN), re.I)
+    for path in walk(ROOT, (".md", ".json", ".py", ".ps1", ".mdc", ".yml", ".yaml",
+                            ".txt", ".js", ".mjs")):
+        r = rel(path)
+        if is_archive(path) or is_narrative(path) or r == "scripts/check_marketplace.py":
+            continue
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            text = fh.read()
+        for m in pat.finditer(text):
+            if is_counter_example_in_sentence(text, m.start()):
+                continue
+            line = text[:m.start()].count("\n") + 1
+            findings.append({"level": "FAIL", "code": "retired_plugin_ref",
+                             "where": f"{r}:{line}",
+                             "msg": f"names {m.group(0)!r}, which is retired (Parker, "
+                                    f"2026-09-28); doctrine rides the plugins' own "
+                                    f"hooks/hooks.json now"})
+    # .gitignore is not in the suffix list above and is the one place it hid.
+    gi = os.path.join(ROOT, ".gitignore")
+    if os.path.isfile(gi):
+        with open(gi, encoding="utf-8", errors="replace") as fh:
+            for n, line in enumerate(fh, 1):
+                if pat.search(line):
+                    findings.append({"level": "FAIL", "code": "retired_plugin_ref",
+                                     "where": f".gitignore:{n}",
+                                     "msg": f"ignores a {RETIRED_PLUGIN} artifact; the "
+                                            f"plugin is retired and writes nothing"})
+
+
+# What Claude loads while a skill or command runs on a rep's machine. A plugin's
+# README.md and docs/ ship too, but nothing reads them mid-run unless a runtime
+# file sends Claude there with ${CLAUDE_PLUGIN_ROOT}/..., and those targets are
+# added to the scan (the coach skill reads its docs/TOOLKIT.md that way).
+RUNTIME_DIRS = ("skills", "commands", "agents", "hooks", "references")
+
+# Files at the repo root that do not ship. Written as a code span they are a
+# pointer to this repo's file. Bare, "an AGENTS.md" is a kind of file the forge
+# writes and audits, so only the code-span form counts.
+REPO_ROOT_FILES = ("AGENTS.md", "HANDOFF.md", "REGISTRY.md")
+REPO_ONLY_TOKEN = re.compile(
+    r"(?<![\w/.$}-])(docs/[\w./-]+?\.md)(?!\w)|`(%s)`" % "|".join(re.escape(f) for f in REPO_ROOT_FILES))
+
+# A sentence that says the file is not on this machine is correct content.
+REPO_ONLY_MARK = re.compile(
+    r"marketplace repo|not on (?:your|this|a rep'?s?) machine|"
+    r"maintainers?(?: only|'? record)|(?:does not|doesn't|do not|don't) ship|"
+    r"not in (?:this|the) plugin", re.I)
+
+# Runtime files written to run inside a clone of this repo, where docs/ and the
+# root files are present. Each entry says why.
+RUNS_IN_REPO = {
+    "plugins/bbs-foundations/commands/bbs-commons-add.md":
+        "pins an external plugin into this repo and opens a PR; it says to run in the "
+        "bbs-claude-marketplace repo",
+}
+
+# ${CLAUDE_PLUGIN_ROOT} is the plugin's own folder in the plugin cache. The cache
+# holds plugin folders only, so a path that climbs out of it finds nothing.
+ESCAPES_PLUGIN_ROOT = re.compile(r"\$\{?CLAUDE_PLUGIN_ROOT\}?[\\/]\.\.")
+
+
+def _runtime_files():
+    """Yield (path, plugin_root) for every file Claude reads during a run."""
+    seen = set()
+    for plugin in sorted(os.listdir(PLUGINS)):
+        proot = os.path.join(PLUGINS, plugin)
+        if not os.path.isdir(proot):
+            continue
+        for sub in RUNTIME_DIRS:
+            for path in walk(os.path.join(proot, sub), (".md", ".mdc")):
+                seen.add(path)
+                yield path, proot
+    # A plugin doc becomes runtime content when a runtime file points Claude at it.
+    for path, proot in [(p, os.path.join(PLUGINS, rel(p).split("/")[1])) for p in list(seen)]:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            for m in re.finditer(r"\$\{CLAUDE_PLUGIN_ROOT\}/([\w./-]+\.mdc?)", fh.read()):
+                target = os.path.normpath(os.path.join(proot, m.group(1)))
+                if (target.startswith(proot + os.sep) and os.path.isfile(target)
+                        and target not in seen):
+                    seen.add(target)
+                    yield target, proot
+
+
+def check_repo_only_pointers(findings):
+    """Nothing a rep's Claude reads mid-run may send it to a file that does not ship.
+
+    The plugins reach a rep's machine; this repo's docs/ and its root files do not.
+    Aanya's run reported "STEWARD.md was not available on this machine": canon,
+    which /ca-rfq reads on every run, and the DSH packet stub both named
+    docs/STEWARD.md as where the answer was. The quote builder did the same with
+    AGENTS.md on every quote. A pointer is flagged only when its path exists at
+    this repo's root and not inside the plugin making it, so a plugin's own
+    docs/TOOLKIT.md passes and another repo's docs/ is not this check's business.
+    Exempt only when the sentence naming the file says it does not ship. The general
+    counter-example words are not enough here (see the comment at the exemption).
+    """
+    for path, proot in _runtime_files():
+        r = rel(path)
+        if r in RUNS_IN_REPO:
+            continue
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            text = fh.read()
+        for m in REPO_ONLY_TOKEN.finditer(text):
+            target = m.group(1) or m.group(2)
+            if os.path.exists(os.path.join(proot, target)):
+                continue
+            if not os.path.exists(os.path.join(ROOT, target)):
+                continue
+            # Only an explicit "not on this machine" sentence exempts. The general
+            # counter-example words do not: "Do not guess the signer; the answer is in
+            # docs/STEWARD.md" is a pointer, and "never" let TOOLKIT.md:15 through.
+            if _sentence_matches(text, m.start(), REPO_ONLY_MARK):
+                continue
+            line = text[:m.start()].count("\n") + 1
+            findings.append({"level": "FAIL", "code": "repo_only_pointer",
+                             "where": f"{r}:{line}",
+                             "msg": f"sends Claude to {target}, which is in this repo and "
+                                    f"not in the plugin, so on a rep's machine it does not "
+                                    f"exist and the run reports a missing file. Put the "
+                                    f"fact in a file that ships and point there, or say in "
+                                    f"the same sentence that it is in the marketplace repo"})
+        for m in ESCAPES_PLUGIN_ROOT.finditer(text):
+            line = text[:m.start()].count("\n") + 1
+            findings.append({"level": "FAIL", "code": "path_escapes_plugin_root",
+                             "where": f"{r}:{line}",
+                             "msg": "climbs out of ${CLAUDE_PLUGIN_ROOT}. An installed "
+                                    "plugin lives alone in the plugin cache, so nothing "
+                                    "beside or above it is this repo; the path never "
+                                    "resolves on a rep's machine"})
 
 
 def check_counts(findings, skills):
@@ -1280,12 +1608,10 @@ def main():
             print(f"  {name:<{w}}  requires: {req}")
             if opt != "nothing":
                 print(f"  {'':<{w}}  degrades without: {opt}")
-        # This footer used to say cli AND python-package were installed by
-        # scripts/bbs-setup.ps1. That script is winget-only and installs no pip
-        # package at all, so the line told a rep the one thing they still had to
-        # do was already done for them. What saves them is not the bootstrap: it
-        # is that every python import in the tree is guarded and dies with an
-        # explicit `pip install ...` instead of a traceback.
+        # This footer once said python-package was installed by bbs-setup.ps1 when
+        # the script installed no pip package at all, and later that macOS got none
+        # after bbs-setup.sh had started installing them. It names the packages
+        # rather than claiming the kind. Change it with either script.
         bootstrapped = sorted(k for k, v in EXTERNAL_SYSTEMS.items()
                               if v["kind"] == "cli" and v.get("bootstrap"))
         byhand = sorted(k for k, v in EXTERNAL_SYSTEMS.items()
@@ -1296,14 +1622,18 @@ def main():
         print("        Installed per account, not per machine. Nothing in this repo"
               + pad + "installs them.")
         print("  cli")
-        print(f"        scripts/bbs-setup.ps1 (winget, Windows only) covers: "
+        print(f"        scripts/bbs-setup.ps1 (winget, Windows) covers: "
               f"{', '.join(bootstrapped)}." + pad
+              + "scripts/bbs-setup.sh (Homebrew, Mac) installs the same; its python3 is"
+              + pad + "the Xcode command-line tools', which it asks for when missing." + pad
               + f"On the rep to install by hand: {', '.join(byhand)}.")
         print("  python-package, npm-package")
-        print("        NOT bootstrapped. bbs-setup.ps1 is winget-only: it installs no pip"
-              + pad + "package, no npm package, and no pip. What saves a rep here is not"
-              + pad + "the bootstrap \u2014 it is that every import in the tree is guarded and"
-              + pad + "fails with the install command to run rather than a traceback.")
+        print("        Both bootstraps install pypdf, pymupdf, openpyxl (pip) and docx and"
+              + pad + "pptxgenjs (npm, with NODE_PATH set: the Windows user environment, or"
+              + pad + "~/.zprofile on a Mac) \u2014 on Windows often only after the rerun it asks"
+              + pad + "for. Anything else is on the rep; what saves them is that every import"
+              + pad + "in the tree is guarded and fails with the install command to run"
+              + pad + "rather than a traceback.")
         for sid, spec in sorted(EXTERNAL_SYSTEMS.items()):
             if spec.get("caveat"):
                 print(f"\n  caveat \u00b7 {sid}: {spec['caveat']}.")

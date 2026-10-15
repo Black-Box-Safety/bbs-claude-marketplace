@@ -40,8 +40,9 @@ or a signer invented here would reach a binding bid.
 
 ## Who it is waiting on
 
-Aanya's DSH iterations, which `docs/STEWARD.md` §4 folds in. Those live outside this
-repo today. Until one of them arrives with a real packet attached, this stays a stub.
+Aanya's DSH iterations, which the maintainers are folding in. They are not in this plugin
+and there is nothing on this machine to look up for them. Until one of them arrives with a
+real packet attached, this stays a stub, and DSH packets go to Path B, as above.
 
 ## Before setting `status: active`
 

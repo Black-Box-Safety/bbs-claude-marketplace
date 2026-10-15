@@ -13,7 +13,7 @@ description: >-
   fill anything. Do NOT use for a competitive SB/DVBE bid needing vendor sourcing
   (use bbs-sourcing), or when the rep wants the forms alone with no pricing
   (use ca-form-filler).
-requires: [grainger, python3, pypdf, pymupdf]
+requires: [grainger, business-central, python3, pypdf, pymupdf]
 ---
 
 # NASPO quote — CA state agency RFQ
@@ -68,15 +68,20 @@ Use the **bbs-quote-builder** skill. NASPO-specific spec values:
 
 | Field | Value |
 |---|---|
-| `pricing` | `{"method": "markup", "rate": 0}` — at-cost, no markup |
+| `pricing` | `{"method": "at-cost", "graingerAtCost": true}` — CA state schedule, no markup |
 | `taxRate` | `0` — the worksheet prints "Do not include sales tax" |
 | `solicitation` | the number off the worksheet header |
-| `shipmentMethod` | `FOB Destination` |
+| `certChannel` | `"california"` — prints DVBE on the header |
+| `shipmentMethod`, `paymentTerms` | from the BC quote read-back (`bbs-quote-builder` step 2). The worksheet expects FOB Destination; if BC says otherwise, flag it |
 | `unitCost` | the Grainger `unitPrice` |
+| `items[].source` | `"grainger"` on every Grainger-priced line |
 
-Quote number comes from the rep — the 900001 series. Check what's already used
-(`find "Customers" -iname "*Quote_9000*"`) and propose the next one rather than
-assigning silently.
+The quote number is the Business Central `SQ-######` number of the sales quote this
+response represents. The rep creates that quote in BC; `bbs-quote-builder` step 2 reads
+it back (`bc_get_sales_document`) and fills `bcQuote`. Follow that step — do not propose
+a number, and do not look for one in the Customers folder. The local 900001 series is
+retired (ruling 2026-09-28). No SQ number to read back means `[MISSING — NEEDS INPUT]`
+and the quote waits.
 
 ## 4. Fill the compliance packet
 
@@ -86,13 +91,19 @@ not match the visible captions (`Text1` is the DVBE certification line,
 For a form revision you haven't seen, run:
 
 ```bash
-python scripts/inspect_form.py "<blank form>.pdf"
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/naspo-quote/scripts/inspect_form.py" "<blank form>.pdf"
 ```
+
+Run every script through `bbs-fill`, exactly as written: the managed settings allow
+`Bash(bbs-fill *)` and nothing broader, and `bbs-fill` (the `bbs-tools` plugin) runs only the
+vetted scripts with the right interpreter for the machine. No `cd`, nothing chained. If
+`bbs-fill` is not found, `bbs-tools` is missing — rerun the bootstrap; meanwhile use
+`python` (Windows) or `python3` (Mac) in its place, which asks for permission.
 
 Then write one JSON spec covering every form and run:
 
 ```bash
-python scripts/fill_ca_forms.py spec.json
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/naspo-quote/scripts/fill_ca_forms.py" spec.json
 ```
 
 The script handles text, checkboxes, radio groups, and signature stamping. Its
@@ -133,27 +144,54 @@ summary rather than inventing a figure.
 
 ## 5. Signatures
 
-`Customers/State of CA Agencies/_README.md` carries standing authorization: Parker
-and Jackson each approve their signature being applied to state requests, on the
-understanding that the rep has reviewed the items with the buyer. Confirm that
-review has happened for this RFQ, then apply:
+Counsel has authorized the team to sign for each other on the quoting forms when the
+quote total including tax is under the delegation limit, and a rep asking to complete
+the packet is the approval (Parker, 2026-10-01): `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md`,
+"Delegated signatures". Confirm the rep has reviewed the items with the buyer, then
+apply:
 
-- **The rep who quoted the job** — CalRecycle 74. Ruled by Parker 2026-09-18, matching
-  `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md`. The corpus shows Griffin on most
-  historical packets; that is history, not the rule. Never default it to last time's signer.
-- **Parker Marshall, Sales Manager** — Darfur OBS 1500, OBS 1000, and CalRecycle 74 on
-  RFQs he quoted himself.
+- **The signer the rep names** — CalRecycle 74, Darfur OBS 1500 and OBS 1000. Who may
+  sign and when a signature image may be stamped: `${CLAUDE_PLUGIN_ROOT}/references/ca-form-rules.md`,
+  "Delegated signatures". The corpus shows Griffin on most historical CalRecycle 74s; that is
+  history, not the rule. Never default the signer to last time's.
 - **Jackson Dalton, President (DV Owner)** — DGS PD 843 and CV 012, the
   disabled-veteran declarations, and STD 204 as payee representative
   (`jackson@blackboxsafety.com`). These are his to sign, not Parker's.
 - GSPD-05-105 has no signature block; the signed quote covers its certification.
 
-Ask who quoted the job rather than defaulting to last time's answer.
+Ask the rep who signs rather than defaulting to last time's answer.
 `references/filled-form-precedents.md` has the split with counts.
 
-Signature images:
-- Parker — `.../Customers/Bechtel/sentinel/vandenburg-sentinel-rfps/RFP-741986-vlc-tempest-filters/signature/parker-signature.png`
-- Jackson — `.../Black Box Safety - MASTER/Jackson Dalton Signature/Copy of JACKSON_SIG.png`
+The spec names the signer as `signer{name,title,email}` — the person the rep named,
+every run — and every form entry says what it is in `form` (PD843, CV012, STD204,
+STD205, CalRecycle74, Darfur, OBS1000, OBS4007B, OBS4007C, Supplement, GSPD05105,
+other, or `packet` for a bound PDF). The spec also carries `quote_total_incl_tax` from
+the quote of record (the BC sales quote / SQ sent) — never an estimate; at or over the
+limit, or missing, nothing is stamped and every line is flagged. `fill_ca_forms.py`
+refuses: a spec with no signer or a signer who is not a BBS employee; a form with no
+valid `form`; on PD843/CV012/STD204/STD205, any stamp but Jackson's marked
+`"line": "dv_owner"`; `dv_owner` on any other form; a delegate's image on a
+rep-signed line whose signer is not that delegate; a stamp on a page that reads as a
+different form (ca-form-rules.md form table); an unknown field ID; and a value that
+would overwrite one the agency already filled.
+Give each form's print-name and title fields as `signer_fields`; they are filled from
+the signer. The script's docstring has the shape.
+
+Signature images: each delegate's PNG location is `signature_image` on that person in
+`${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` `authorized_representatives` — the
+roles `signature_delegation.delegates` lists — the six (Parker, 2026-10-01); an
+image is `null` until that person's PNG is in `MASTER/Signatures/`. The script reads it from there itself; the spec has no `signatures` map to
+fill (an old-style entry is refused unless it names the same file), so one person's
+signature can never be stamped under another's name. Set `master_root` to the synced
+`Black Box Safety - MASTER` folder; the script joins the `MASTER/` path itself, so never
+build an absolute path by hand. `fill_ca_forms.py` checks every signer's image and every
+blank form before it opens a PDF, and writes nothing unless every form filled and every
+`sign` entry stamped. On a `⚑ SIGNATURE REQUIRED` or `⚑ SIGNATURE NOT APPLIED` stop, fix
+the path or field name, or drop that `sign` entry and leave the line unsigned for the
+rep. Never work around the stop.
+
+No one outside the six has an image, by design; `ca-form-rules.md` says what happens
+to their lines. Never stamp one delegate's image for anyone else.
 
 If the rep hasn't reviewed the items, fill everything and leave the signature
 lines blank with a note — an unsigned packet is fixable in a minute; a wrongly
@@ -168,7 +206,7 @@ These forms clip overflowing text silently and radio groups can render with two
 options filled. Render every page and actually look at it:
 
 ```bash
-python -c "import fitz; [p.get_pixmap(dpi=110).save(f'/tmp/v{i}.png') for i,p in enumerate(fitz.open('filled.pdf'))]"
+python -c "import fitz, os, tempfile; [p.get_pixmap(dpi=110).save(os.path.join(tempfile.gettempdir(), f'v{i}.png')) for i,p in enumerate(fitz.open('filled.pdf'))]"
 ```
 
 Check: no clipped values, one radio selected per group, signatures on the line
@@ -224,8 +262,12 @@ copy a certification value from the corpus; take it from
 To refresh the precedent tables after a batch of new RFQs:
 
 ```bash
-python scripts/mine_precedents.py "<path to State of CA Agencies>" --out /tmp/mine.json
+python "${CLAUDE_PLUGIN_ROOT}/skills/naspo-quote/scripts/mine_precedents.py" "<path to State of CA Agencies>" --out /tmp/mine.json
 ```
+
+This one is a maintainer's analysis tool, not part of filling a packet, so it is not on
+`bbs-fill`'s list: run it with `python` (Windows) or `python3` (Mac), and expect a
+permission prompt.
 
 It classifies every PDF, pulls the filled AcroForm values, and reports
 solicitation numbers, account numbers, and anything it couldn't classify — that

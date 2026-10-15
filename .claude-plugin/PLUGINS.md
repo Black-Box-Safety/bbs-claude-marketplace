@@ -4,6 +4,12 @@
   becomes a live product page. Catalog import (`bbs-pricelist-import` runs the five
   stages, `price-list-cleaner` is its first), contract pricing, variant families,
   enrichment, storefront pages, and quote-bot lane tuning. `plugins/bbs-website`.
+- **bbs-marketing** (live) — rep marketing material. Intake, one-page sales pieces,
+  campaign-email drafts, the logo rights ledger, and an index of prior brochures
+  and decks. The claims registry and `brand_check.py` live here. Image files and
+  finished programs stay on the SharePoint desk `MARKETING/bbs-marketing/`.
+  `grainger-promo-page` stays in `bbs-sales` until a later move. Plan:
+  `docs/superpowers/plans/2026-09-29-bbs-marketing-plugin.md`. `plugins/bbs-marketing`.
 - **bbs-sales** (live) — the California state quote desk, end to end. An inbound RFQ is
   logged, its items are pulled out of whatever the agency sent by `rfq-item-extract`
   (DWR RFQ PDF, Grainger cart PDF, or a screenshot — one skill, three front doors),
@@ -27,10 +33,30 @@
   `docs/superpowers/specs/2026-09-02-bbs-foundations-claude-md-forge-design.md`.
   `bbs-grounding-doctrine` lives here and only here; `bbs-website` no longer carries a copy,
   and its two lane-tuning skills receive it from this plugin.
-  Still planned, each its own spec: the MCP connector roster (ca-procurement-intel,
-  Grainger, BBS KIt, Microsoft 365, Shopify, Supabase) with a degrade-gracefully contract,
-  and AI-literacy onboarding. `bbs-order-reconciliation` moved out to `bbs-back-office`,
-  where the rest of the post-award work lives.
+  Still planned, its own spec: the MCP connector roster (ca-procurement-intel,
+  Grainger, BBS KIt, Microsoft 365, Shopify, Supabase) with a degrade-gracefully contract.
+  AI-literacy onboarding shipped as **`bbs-claude-coach`** (below).
+  `bbs-order-reconciliation` moved out to `bbs-back-office`, where the rest of the
+  post-award work lives.
+- **bbs-claude-coach** (live) — empowerment / AI literacy for the whole team. Teaches
+  what skills, commands, plugins, connectors, and hooks are; routes any overlapping job
+  to a first step; shows how to extend the toolkit (voice skill, FLAGS, propose shared
+  tools) without desk silos or control tone. Commands: `/bbs-what-can-i-do`, `/bbs-start`,
+  `/bbs-explain-claude`. `plugins/bbs-claude-coach`. Spec:
+  `docs/superpowers/specs/2026-09-17-bbs-claude-coach-design.md`.
+- **bbs-tools** (live, 2026-10-01) — Claude Code only. Ships `bin/bbs-fill`, the launcher
+  the managed settings allow (`Bash(bbs-fill *)`) so auto mode lets the vetted form and
+  quote scripts run without stopping a rep mid-packet. It runs only the scripts on its
+  allow-list, from the installed `bbs-sales`, with a fixed interpreter — a path-pattern
+  rule would have let a crafted command run arbitrary Python. Its own plugin because
+  claude.ai and Cowork do not install a plugin with a `bin/` folder. `plugins/bbs-tools`.
+- **agent-team** (live, 2026-10-13) — two company-neutral skills for running a long,
+  multi-session program with a team of named agents. `roster-builder` charters one owner per
+  lane, grounded in real repo scans, with a dated opening gap list; `project-steward` is the
+  one planner that sequences session-sized tasks, writes fenced charters, runs a bounded
+  review loop, keeps the decisions and carry-forward ledgers, and hands off. Every program
+  noun comes from the adopter's `docs/pm/PROGRAM-PROFILE.md` (template in `roster-builder`);
+  the steward refuses to run without it. Nothing BBS-specific inside. `plugins/agent-team`.
 - **claudeforge** (pinned external) — the generic CLAUDE.md engine `bbs-foundations`
   depends on, pinned to the BBS fork `Black-Box-Safety/ClaudeForge` at `dev` so it updates
   through git and never gets hand-copied. Install it for `/sync-claude-md` and the
@@ -82,6 +108,6 @@ the form merge surfaced two wrong form IDs and seven vendor-profile keys that do
 ## Adding a skill
 
 Drop it in `plugins/<plugin>/skills/<name>/`, with `name:` in the SKILL.md frontmatter
-matching the folder exactly — the skill-bus matches subscriptions on `plugin:skill`, so a
-mismatch silently stops doctrine from firing. Quote the `description:` if it contains a
+matching the folder exactly — the doctrine hooks (`hooks/doctrine/subscriptions.json`)
+match on `plugin:skill`, so a mismatch silently stops doctrine from firing. Quote the `description:` if it contains a
 colon, or the frontmatter will not parse and the skill will not load at all.

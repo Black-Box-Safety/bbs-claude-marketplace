@@ -14,8 +14,9 @@ The steps below are the shape of the run; the skill carries the rules.
 
 2. **Check what is already there.**
    ```bash
-   python3 "${CLAUDE_PLUGIN_ROOT}/skills/bbs-claude-md-forge/scripts/check_claude_md.py" "${1:-.}"
+   python "${CLAUDE_PLUGIN_ROOT}/skills/bbs-claude-md-forge/scripts/check_claude_md.py" "${1:-.}"
    ```
+   `python` is what `scripts/bbs-setup.ps1` installs on Windows; Mac: type `python3` instead.
    Report every FAIL with its file:line before touching anything. A FAIL on canonical
    facts (LPA number, SB claim, DVBE in a federal file) is a fact error, not a style
    error; fix the fact.

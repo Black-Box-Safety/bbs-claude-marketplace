@@ -7,11 +7,16 @@ not hold review posture or build posture; those differ by tool and live in
 `.cursor/rules/` and `.claude/agents/` respectively. Two agents that share a stance share
 blind spots, and then review is theatre.
 
+`.cursor/rules/bbs-invariants.mdc` is the short always-on injection of the five
+invariants for Cursor sessions that do not load this file (the quote-desk workspace).
+Keep it a pointer, not a second fact base. Stamp the same file onto the desk root;
+do not rewrite it per machine.
+
 ---
 
 ## What this repo is
 
-The BBS Claude marketplace: four local plugins and a pinned commons, distributing the way
+The BBS Claude marketplace: five local plugins and a pinned commons, distributing the way
 Black Box Safety works to a small team that is not technical. Its output is quotes and
 bids sent to California public agencies under a DVBE certification.
 
@@ -30,8 +35,15 @@ that sentence.
    `claude-opus-4-8` survived being superseded because the checker still enforced it.
 4. **Fail loudly on a binding document.** A skill that guesses a checkbox, a signer, or a
    form ID is the failure mode this repo exists to prevent.
-5. **Humans send.** Managed settings deny the send-class tools. Documents are produced
-   ready; a person transmits them.
+5. **A person approves every send.** On Claude Code, managed settings put the Outlook and
+   Teams send-class tools behind an `ask` rule, so each send waits for a person's Allow,
+   allow only the organization's own mods (a user's mod could otherwise approve past an
+   `ask`), and deny send-draft and the QuickBooks and SignNow sends outright; the admin
+   console sets the same Outlook and Teams tools to `ask` too (Parker, 2026-10-02). On
+   Cursor, `.cursor/rules/bbs-invariants.mdc` is the control and it stays draft-only —
+   Cursor does not inherit managed settings. Documents are produced ready; no send happens
+   without a person approving that send. Do not add other send-capable MCP servers, such as
+   local ones, to a rep machine.
 
 ## Where the load-bearing facts live
 
@@ -59,11 +71,15 @@ in one direction or the other. Ruling and reasoning:
 "Small-business status is channel-dependent" (Parker, in session, 2026-09-22, superseding
 the 2026-09-02 ruling).
 
-**Signatures.** Parker and Jackson have each delegated signing authority for the forms the
-skills fill (counsel confirmed 2026-09-16), so packets are produced signed. The rule is
-**the right signer on the right line** — never a customer's or a third party's signature,
-and never a line whose signer you cannot determine. The customer-facing storefront bot is
-*not* covered by that delegation and signs nothing.
+**Signatures.** Counsel has given the team broad discretion to sign for each other on any
+form in the quoting process when the quote is under $250,000 (Parker, in session,
+2026-10-01, superseding the Parker-and-Jackson delegation of 2026-09-16), so packets are
+produced signed. Who the team is, how the limit is measured and which lines stay Jackson's
+are recorded once, in `plugins/bbs-sales/references/ca-form-rules.md`, "Delegated
+signatures", and `vendor_profile.json` `signature_delegation`. The rule is **the right
+signer on the right line** — never a customer's or a third party's signature, and never a
+line whose signer you cannot determine. The customer-facing storefront bot is *not* covered
+by that delegation and signs nothing.
 
 ## Terms that mean two things
 
@@ -83,7 +99,9 @@ its own "do NOT use" clause, a pointer to a merged-away skill or a retired slash
 command, a path that resolves only
 on the author's machine, a stale model ID, a form ID that is not in the rules, a
 vendor-profile key that does not exist, an external system a skill uses without declaring,
-a drifted README badge count.
+a drifted README badge count, and a file read mid-run that points at something only this repo
+has (`docs/`, `AGENTS.md`, or a path above `${CLAUDE_PLUGIN_ROOT}`), which on a rep's machine
+reads as a missing file.
 
 It runs on every pull request via `.github/workflows/check-marketplace.yml` and **a FAIL
 fails the check** (ruled 2026-09-18). Require the `invariants` job in branch protection so
@@ -134,4 +152,4 @@ and answer different questions, so they stay apart.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-09-16.
+Owner: Parker Marshall. Last verified 2026-10-01.

@@ -1,13 +1,13 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-11-b19800" alt="11 skills">
+  <img src="https://img.shields.io/badge/skills-18-b19800" alt="18 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
 # bbs-sales
 
-The plugin for California state business, both directions: the request that comes in, and the
-campaign that goes out. A buyer emails an RFQ and this plugin takes it from the inbox to a signed
+The plugin for California state business, end to end: the territory work that creates the
+demand, the request that comes in, and the campaign that goes out. A buyer emails an RFQ and this plugin takes it from the inbox to a signed
 packet in the buyer's folder. A Grainger rep sends a negotiated price sheet and this plugin turns
 it into a landing page an agency buyer can order from, sent to the segment of buyers most likely
 to act on it.
@@ -19,7 +19,7 @@ automatic so the rep spends their time on the buyer. The same discipline applies
 promo page that overstates a discount or implies an agency's endorsement is a compliance problem,
 not a marketing win, so every page runs through the same brand gate as any printed piece.
 
-**Jump to:** [The desk, end to end](#the-desk-end-to-end) · [Setup](#one-time-setup) · [Commands](#commands) · [The rules that don't bend](#the-rules-that-dont-bend) · [Rollout guide](#rollout-guide)
+**Jump to:** [The desk, end to end](#the-desk-end-to-end) · [The territory, before the RFQ](#the-territory-before-the-rfq) · [Setup](#one-time-setup) · [Commands](#commands) · [The rules that don't bend](#the-rules-that-dont-bend) · [Rollout guide](#rollout-guide)
 
 ## The desk, end to end
 
@@ -33,7 +33,7 @@ between two of these.
 | 2 | Get the items out of whatever they sent | `rfq-item-extract` — one skill for a DWR RFQ PDF, a saved Grainger cart PDF, or a screenshot of a cart or table |
 | 3 | Can we even sell it on this vehicle? | `dgs-bpo-item-check` — is the Grainger part on the active DGS BPO |
 | 4 | Price it | `grainger-pricing` (the authorized path — the Grainger MCP) · `bbs-sourcing` (competitive bids needing real vendor outreach, dispatching `supplier-scout` for items BBS has never sourced) · `vendor-quote-email` (one vendor, one ask) |
-| 5 | Build the customer's quote | `bbs-quote-builder` — BBS letterhead, SQ-104032 format, as a PDF |
+| 5 | Build the customer's quote | `bbs-quote-builder` — Business Central quote layout, numbered with the BC SQ number, as a PDF |
 | 6 | Fill the compliance packet | `ca-form-filler` — every CA form, with the CDCR OBS 4007(B) Packet-B as its scripted path · `naspo-quote` runs a whole NASPO response and calls it for the paperwork |
 | 7 | Go find the next one | `grainger-promo-page` (outbound campaign). Federal deck copy is `bbs-deck-voice`, in `bbs-foundations` |
 
@@ -49,10 +49,12 @@ discipline is different in both halves — OSDS 2009473 carries **DVBE only**, s
 DVBE incentive (SCM §1202) and **never** the 5% SB preference (SCM §1204): BBS passed
 California's SB revenue threshold and is not a California small business.
 
-Items that BC does not have yet are `bc-item-entry`: one spec per vendor quote, every row
-with a vendor that already exists in BC and a cost with its source, a review sheet the rep
-reads, and a commit that needs the rep's name and the sheet's token. The script never
-creates a vendor and never patches an existing card; reps sign in as themselves.
+`sam-gov-opportunities` is the other federal exception: a read-only lookup of open SAM.gov
+solicitations by NAICS code or agency, with a column saying whether BBS can respond to each
+set-aside as an SDVOSB, VOSB and federal small business. Its partner, `usaspending-awards`,
+reads past federal contract awards: who won under a NAICS code or at an agency, top vendors,
+reported subawards, and BBS's own award history. Both only read; neither bids, registers or
+writes to the CRM, and both say SDVOSB, never DVBE. BBS's federal codes are in canon.
 
 An order that has already been taken is not this plugin's work. A wrong item, a short
 shipment, a price discrepancy on the PO — those go to `bbs-back-office`.
@@ -77,6 +79,39 @@ Creating a second folder for a buyer who already has one is the expensive mistak
 
 Both `ca-rfq-intake` and `naspo-quote` fire on their own when the conversation matches an inbound request; `grainger-promo-page` fires the same way when the conversation matches an outbound campaign build. You do not have to name any of them.
 
+## The territory, before the RFQ
+
+Sales drives requests. A rep works a book, a buyer at a facility gets a call, and the call
+produces an RFQ or a NASPO order — which is what the desk above exists to process. These six
+skills are the front of that pipeline. None of them writes outreach, prices anything or sends
+anything; each stops at a document a rep works from.
+
+| Skill | Job | Stops at |
+|---|---|---|
+| `ca-territory-handoff` | Band a book by relationship state (recover, defend, watch, provisioned whitespace, cold start), rank by dollars at risk, size the pond, and write the dated call list with the opening words per band | The call list. A request it produces goes to `/ca-rfq` |
+| `ca-budget-timing` | When an agency has money, by when it must encumber it, and which deadline governs a deal | The dated answer, with its source. The other territory skills call it for every date they print |
+| `ca-agency-primer` | A multi-site department as a system: what each site does, how each buys, where BBS stands, public and internal figures kept visibly apart | The internal primer |
+| `ca-site-visit-brief` | One booked meeting: the long call plan for the night before and the one-screen pocket card for the parking lot | The two documents |
+| `ca-visit-readiness-review` | Pressure-test a finished brief from the side of the person who has to say it in the room | An ordered list of changes, applied back to the brief |
+| `bbs-weekly-sales-report` | Parker's weekly summary of his, Kim's and Aanya's week — pipeline from the Sales CRM, bookings from Business Central | The markdown report he writes the weekly form from. A human submits the form |
+
+What each one needs installed is in its own `requires:` and `degrades-without:`; run
+`python3 scripts/check_marketplace.py --requirements` for the table. Several of them lean on
+account-synced skills and agents that are not in this marketplace (`ca-state-sales-grounding`,
+the `sales-*` craft skills, and personal agents such as Callie and Nell) and on the synced
+`Customers/State of CA Agencies/.sales-team/` folder. Each says so when one is missing rather
+than working around it.
+
+On certifications the territory skills follow the same channel rule as the desk: in
+California BBS is **DVBE only** and not a California small business; federally it is SDVOSB
+and a small business. They point at `bbs-foundations` `canonical-facts.md` rather than
+restating the ruling.
+
+`docs/TRIGGER-CHECK.md` is a desk read of these descriptions against the desk's existing
+skills — one reader's judgement of which skill each phrasing should reach, aimed at a
+territory question not stealing an RFQ intake. It is not a measurement of triggering; that
+needs `docs/evals/` with Claude auth, and has not been run for these skills.
+
 ## One-time setup
 
 Do these once per machine. Skipping any one of them shows up as a confusing failure halfway through a packet or a page, not as a clear error at the start.
@@ -99,14 +134,11 @@ Earlier revisions told you to copy it to `~/.bbs/vendor_profile.json` first. Do 
 
 If an RFQ arrives pre-filled with a BBS field that disagrees with this file, the RFQ is wrong: flag it, don't adopt it.
 
-TODO: the CUF statement (the "distinct element of work" on GSPD-05-105) is **not** in the profile — `ca-form-filler` currently asks the rep for it. Decide whether it belongs in the profile, and whether signature paths should too rather than being passed per-run.
+TODO: the CUF statement (the "distinct element of work" on GSPD-05-105) is **not** in the profile — `ca-form-filler` currently asks the rep for it. Decide whether it belongs in the profile.
 
-**3. Point at the signature images.** Both PNGs live in OneDrive, not in this repo:
+**3. Check the signature images are synced.** The PNGs live in OneDrive, in `MASTER/Signatures/<first>-<last>.png`, not in this repo. Where each one lives is recorded once, as `signature_image` on that person in `references/vendor_profile.json` — look there, not here. Make sure the files are on this device ("Always keep on this device"); The paths start `MASTER/`, meaning your synced `Black Box Safety - MASTER` folder; `fill_ca_forms.py` joins them onto the spec's `master_root`. It stops with the signer's name and the path if a signature file is missing, empty, or not a PNG, and writes nothing rather than a packet that looks signed.
 
-- Parker: `.../Customers/Bechtel/sentinel/vandenburg-sentinel-rfps/RFP-741986-vlc-tempest-filters/signature/parker-signature.png`
-- Jackson: `.../Black Box Safety - MASTER/Jackson Dalton Signature/Copy of JACKSON_SIG.png`
-
-The CalRecycle 74 is certified by the rep who quoted the job (ruled 2026-09-18; `references/ca-form-rules.md`). TODO: record a signature PNG path for each rep who quotes, not only Parker.
+Who signs the rep-signed lines (CalRecycle 74, Darfur, OBS 1000, the OBS 4007(B)/(C) bidder line), and when a skill may apply a signature — the six delegates, the limit (`vendor_profile.json` `signature_delegation.limit_usd`, quote total including tax), "complete the packet" as the approval — is in `references/ca-form-rules.md`, "Delegated signatures" (ruled 2026-10-01). A delegate's `signature_image` is `null` until their PNG is in `MASTER/Signatures/`; adding a person to `signature_delegation` is Parker's call.
 
 **4. Make sure OneDrive is actually synced.** This skill reads and writes the `Customers/State of CA Agencies/` tree on disk. A folder that is online-only looks empty to Claude, so a precedent search comes back with nothing and the answer is a guess instead of a lookup. Right-click the `State of CA Agencies` folder and choose "Always keep on this device."
 
@@ -120,13 +152,28 @@ This skill does not touch the PDF stack or `vendor_profile.json` above: it has i
 - **Chrome installed locally**, for `scripts/make_og.py` to render the 1200x630 Open Graph preview card in the real brand typeface. Without a preview card the link renders as a bare URL in Outlook.
 - **The Vercel CLI**, for deploy: `vercel deploy --prod --yes --scope <team>`. The Vercel MCP deploy tool fails on payloads over about 100KB, which a page with product photography routinely exceeds, so use the CLI.
 
+### For `sam-gov-opportunities`
+
+BBS uses one SAM.gov account and one shared key (ruled 2026-10-02). Parker gives each person
+the value, and the bootstrap asks for it with hidden input when run with the SAM.gov flag
+(`bbs-setup.ps1 -SamGov` / `bbs-setup.sh --sam-gov`) and saves it as `SAM_GOV_API_KEY`. It is never committed or pasted into a chat. The key is the entity account's, so the whole team shares one
+budget of 1,000 requests a day; its expiry date is in canon. `usaspending-awards` needs no key. Both run
+through `bbs-fill`, so they need the `bbs-tools` plugin.
+
 ## Commands
 
 | Command | Does |
 |---|---|
 | `/ca-rfq` | The whole desk order under one contract: intake gate, recognition, extraction, eligibility, pricing, quote, packet and signature, visual verification, delivery. It carries order and gates only — every step runs the skill that owns it, so the command cannot drift away from the skills it invokes. |
+| `/ca-territory-handoff` | Segment a book and turn it into a dated, prioritized call list. Runs `ca-territory-handoff`; stops before any outreach is written. |
 
-Agent: `supplier-scout` — supplier options for an item BBS has never sourced; dispatched by `bbs-sourcing` step 5c or directly ("find supplier options for MSA 10082709").
+Agents:
+
+- `supplier-scout` — supplier options for an item BBS has never sourced; dispatched by `bbs-sourcing` step 5c or directly ("find supplier options for MSA 10082709").
+- `sal` — territory launch and account expansion: tiered launches, displacement and win-back campaigns, multi-threading, and reviewing rep-facing playbooks for whether a rep could execute them.
+- `brenda` — DGS blanket purchase orders end to end: intake, the consolidated BPO tracker, pace against expiry, and the follow-ups that get a facility to spend before its BPO lapses.
+
+Agents shipped in a plugin ignore `hooks`, `mcpServers` and `permissionMode`; none of these three sets them.
 
 Intake is an **explicit first gate**, not an unconditional first step: an already-logged RFQ enters at recognition, and an unlogged one that arrives as a request to price puts the order to the rep rather than assuming it. Whether a fresh "the agency emailed asking us to quote these" is filed first or priced first is an open ruling for Parker, and the command is built so either answer lands without a rebuild.
 
@@ -148,16 +195,21 @@ One more that is not a rule but behaves like one: the `Customers/State of CA Age
 
 ## Hooks (v1.1)
 
-Deterministic guards, PowerShell, shipped with the plugin. They fire on Windows rep machines
-without any per-machine setup.
+Deterministic guards shipped with the plugin. Each ships twice, as a PowerShell script and a
+Python script that decide identically (`hooks/tests/parity.py` proves it, and CI runs it), so
+they fire on Windows and on Mac rep machines without any per-machine setup. The shell Claude
+Code runs hooks through picks the interpreter: `pwsh` 7, else Windows PowerShell, else
+`python3`. A machine with none of the three sees a message saying the guard did not run and the
+call went ahead unguarded, instead of looking guarded.
 
 | Hook | When | What it does |
 |---|---|---|
-| `guard-tree.ps1` | Before Bash / PowerShell / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/`, including a shell delete or a redirect into a submitted packet (reading one stays allowed) |
-| `desk-context.ps1` | Session start inside a buyer folder | Puts the last rows of `quote-log.md` and the latest `FLAGS.md` entries in front of Claude before the first prompt |
+| `guard-tree.ps1` / `.py` | Before Bash / PowerShell / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/`, including a shell delete or a redirect into a submitted packet (reading one stays allowed) |
+| `desk-context.ps1` / `.py` | Session start inside a buyer folder | Puts the last rows of `quote-log.md` and the latest `FLAGS.md` entries in front of Claude before the first prompt |
 
 A denial shows up as a permission refusal with a one-line reason Claude relays. Test locally:
-`powershell -File plugins/bbs-sales/hooks/tests/run-tests.ps1`.
+`python3 plugins/bbs-sales/hooks/tests/parity.py` (both halves, when PowerShell is present),
+or `pwsh -File plugins/bbs-sales/hooks/tests/run-tests.ps1` for the PowerShell half alone.
 
 ## Rollout guide
 

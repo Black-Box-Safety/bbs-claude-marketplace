@@ -3,7 +3,7 @@ name: Marketplace invariants
 # The repo's structural invariants have had a checker since PR #12 and no gate: it ran
 # when an agent remembered to run it. `refresh-models.yml` is a scheduled model-ID refresh,
 # not a PR check. So nothing mechanically stopped a stale model ID, an unquoted
-# `description:` colon, a dangling skill-bus subscription, a drifted README badge count or
+# `description:` colon, a dangling doctrine subscription, a drifted README badge count or
 # — as of this PR — an undeclared connector from reaching `main`.
 #
 # THIS BLOCKS. Ruled by Parker 2026-09-18 (PR #21): a FAIL from either checker fails the
@@ -56,6 +56,50 @@ jobs:
           echo "code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
           set -e
         continue-on-error: true
+
+      # The doctrine hook ships twice, as doctrine.ps1 and doctrine.py, and the two must
+      # emit identical bytes for identical input. ubuntu-latest carries pwsh, and
+      # BBS_REQUIRE_PS=1 turns the test's "no PowerShell, skip" into a failure, so this
+      # step proves parity rather than quietly skipping it. It fails the job directly.
+      - name: Doctrine hook parity (doctrine.ps1 == doctrine.py)
+        env:
+          BBS_REQUIRE_PS: "1"
+        run: |
+          pwsh -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
+          for p in plugins/bbs-foundations plugins/bbs-website; do
+            echo "== $p"
+            pwsh -NoProfile -File "$p/hooks/tests/run-tests.ps1"
+            python3 "$p/hooks/tests/parity.py" | tail -3
+            test "${PIPESTATUS[0]}" = "0"
+          done
+
+      # The quote-desk guards ship as guard-tree.ps1/.py and desk-context.ps1/.py, and the two
+      # halves must decide identically: a Mac runs the Python half, Windows the PowerShell half.
+      # BBS_REQUIRE_PS=1 makes a missing pwsh a failure, so this proves parity rather than
+      # skipping it; run-tests.ps1 is the PowerShell suite on its own.
+      - name: Quote-desk guard parity (guard-tree, desk-context)
+        env:
+          BBS_REQUIRE_PS: "1"
+        run: |
+          pwsh -NoProfile -File plugins/bbs-sales/hooks/tests/run-tests.ps1
+          python3 plugins/bbs-sales/hooks/tests/parity.py | tail -3
+          test "${PIPESTATUS[0]}" = "0"
+
+      # bbs-fill is allowed by managed settings as `Bash(bbs-fill *)`, so its refusals are the
+      # control: every way past them is a way past auto mode. The tests also fail when a
+      # skill line or packet profile names a script that is not on its allow-list.
+      - name: bbs-fill launcher tests
+        run: python3 plugins/bbs-tools/tests/test_bbs_fill.py
+
+      # The Windows bootstrap cannot be run here, but it can be parsed: a syntax error in it
+      # stops every new Windows rep at step 1.
+      - name: Parse the Windows bootstrap
+        run: |
+          pwsh -NoProfile -Command '
+            $e = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile("scripts/bbs-setup.ps1", [ref]$null, [ref]$e)
+            if ($e.Count) { $e | ForEach-Object { Write-Error $_.Message }; exit 1 }
+            "bbs-setup.ps1 parses"'
 
       # What each skill needs installed, printed on every run, so the "will this run on my
       # machine?" answer is in the PR rather than in someone's head.

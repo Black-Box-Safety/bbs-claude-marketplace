@@ -28,7 +28,7 @@ do not paraphrase it weaker.
 5. **Never fabricate.** "Never fabricate compliance, contract, spend, or pricing facts.
    Unknown → `null`/`[]` with a note. This is the repo's credibility contract, especially
    for federal/SLED bids." (`bbs-suppliers`). "NEVER an invented price, stock, lead time,
-   or brand fact." (skill-bus grounding doctrine).
+   or brand fact." (bbs-foundations grounding doctrine, `hooks/doctrine/`).
 6. **One source of truth per fact; point, never copy.** "Spend → BC. SKUs/specs/prices →
    Supabase. Tier/battlecard/relationship → the brief." (`bbs-suppliers`). "Don't re-type
    DB facts. Point to Supabase; state truth once." (`bbs-database`). "git = the brain;
@@ -61,7 +61,8 @@ do not paraphrase it weaker.
     time." (`bbs-sales-vault`). "Do not use DVBE certification language for
     non-California-state contacts (Bechtel, USACE, LA County, federal) — use SDVOSB."
     (`bbs-agent`). "No cross-jurisdiction cert credit: San Diego SLBE 17BB1659 and LA
-    County DVBE 10086 are LOCAL only; statewide credit = OSDS DVBE 2009473." (skill-bus).
+    County DVBE 10086 are LOCAL only; statewide credit = OSDS DVBE 2009473." (bbs-website
+    storefront doctrine, `hooks/doctrine/`).
 13. **Preferences are bid-evaluation mechanisms, not marketing claims — and BBS holds
     only one of them in California.** On California competitive solicitations, informal
     included, BBS claims the **DVBE incentive** (SCM §1202) under OSDS `2009473`. BBS does
@@ -97,8 +98,9 @@ do not paraphrase it weaker.
     Grainger pricing via open web search — under any circumstance." (Bechtel Sentinel
     tree). The MCP replaced the `b2b.blackboxsafety.com` punch-out. Price against the
     account that will actually buy: the discount is per-account, so the wrong account
-    returns a wrong price that still looks valid. BBS sells Grainger at cost — the
-    returned `unitPrice` is the customer price, never marked up.
+    returns a wrong price that still looks valid. Whether a Grainger line may carry
+    markup depends on the channel; the rule is `canonical-facts.md`, "Grainger sell
+    rule, by channel" — point at it, never restate it.
 20. **All-Grainger requests route to NASPO / Provision Connect.** "If all the items are on
     grainger.com, it's a NASPO request and goes through Provision Connect — not this
     skill." (`bbs-sourcing`). Two lanes, LPA/NASPO vs competitive; do not conflate.
@@ -113,11 +115,12 @@ do not paraphrase it weaker.
     NEVER run crossover." (`ca-quote-hub`). Federal primes: substitutions need written
     approval before quoting; no "or equal" unless the solicitation says so.
 23. **Signatures split by form and owner.** "Jackson Dalton ALWAYS signs as DV owner —
-    certification is tied to ownership." Parker Marshall signs bidder and cert lines as
-    authorized representative; Griffin Forsyth signs federal / Sourcewell and most
-    CalRecycle 74s. The skills apply these signatures under delegated authority (counsel
-    confirmed 2026-09-16); getting the **signer right per line** is the rule, and signing
-    for a customer or any third party is never one of them.
+    certification is tied to ownership." The signer the rep names — any of the six
+    delegates (Griffin, Parker, Joey, Kim, Aanya, Jackson) — signs the bidder and cert lines;
+    Griffin Forsyth also signs federal / Sourcewell. Under counsel's authorization (Parker,
+    2026-10-01) the skills apply each person's own PNG of record when the quote total incl.
+    tax is under the limit (bbs-sales `ca-form-rules.md`); getting the **signer right per
+    line** is the rule, and signing for a customer or any third party is never one of them.
 
 ## Structure and maintenance (every type)
 

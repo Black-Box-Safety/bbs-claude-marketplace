@@ -4,8 +4,8 @@
     "name": "Black Box Safety, Inc."
   },
   "metadata": {
-    "description": "Black Box Safety internal Claude plugins — site operations, state sales, and AI foundations.",
-    "version": "0.5.0"
+    "description": "Black Box Safety internal Claude plugins — site operations, state sales, marketing, and AI foundations.",
+    "version": "0.6.0"
   },
   "plugins": [
     {
@@ -29,13 +29,17 @@
     {
       "name": "bbs-sales",
       "source": "./plugins/bbs-sales",
-      "description": "The California state quote desk, end to end: log an inbound RFQ, pull items out of whatever the agency sent (DWR RFQ PDF, Grainger cart, or a screenshot), check DGS BPO eligibility, price it through the Grainger MCP or vendor sourcing, build the customer quote on BBS letterhead, and fill the CDCR and CA compliance packets. Plus Grainger promo pages.",
+      "description": "The California state book, end to end: work the territory that creates the demand, then run the quote desk it feeds. Territory: segment a book into a dated call list, time it to the state budget calendar, brief an agency and a site visit, pressure-test the brief, and write the weekly sales report; Sal plans territory launches and Brenda runs DGS blanket purchase orders. Quote desk: log an inbound RFQ, pull items out of whatever the agency sent (DWR RFQ PDF, Grainger cart, or a screenshot), check DGS BPO eligibility, price it through the Grainger MCP or vendor sourcing, build the customer quote in the Business Central print layout, and fill the CDCR and CA compliance packets. Plus Grainger promo pages.",
       "author": {
         "name": "Black Box Safety, Inc."
       },
       "keywords": [
+        "account-planning",
         "bbs",
         "bid-forms",
+        "bpo",
+        "budget-calendar",
+        "call-plan",
         "cdcr",
         "compliance-forms",
         "dvbe",
@@ -45,8 +49,31 @@
         "rfq",
         "sales",
         "sb-dvbe",
+        "site-visit",
         "sourcing",
-        "state-of-california"
+        "state-of-california",
+        "territory",
+        "weekly-report"
+      ],
+      "category": "sales"
+    },
+    {
+      "name": "bbs-marketing",
+      "source": "./plugins/bbs-marketing",
+      "description": "Marketing material for reps: open a piece, draft a one-page sales document, draft a campaign email, check a logo against the rights ledger, and find a prior brochure or deck. Approved wording lives in the claims registry. A human sends.",
+      "author": {
+        "name": "Black Box Safety, Inc."
+      },
+      "keywords": [
+        "bbs",
+        "brand",
+        "brochures",
+        "decks",
+        "dvbe",
+        "email",
+        "logos",
+        "marketing",
+        "one-pager"
       ],
       "category": "sales"
     },
@@ -92,6 +119,40 @@
       "category": "foundations"
     },
     {
+      "name": "bbs-claude-coach",
+      "source": "./plugins/bbs-claude-coach",
+      "description": "Teaches BBS teammates how Claude works here and helps them start any overlapping job confidently \u2014 what skills, commands, plugins, and connectors are; how to extend the toolkit; the two safety rails without control culture. Commands: /bbs-what-can-i-do, /bbs-start, /bbs-explain-claude.",
+      "author": {
+        "name": "Black Box Safety, Inc."
+      },
+      "keywords": [
+        "bbs",
+        "coach",
+        "empowerment",
+        "foundations",
+        "literacy",
+        "onboarding",
+        "toolkit"
+      ],
+      "category": "foundations"
+    },
+    {
+      "name": "bbs-tools",
+      "source": "./plugins/bbs-tools",
+      "description": "Claude Code only: the bbs-fill launcher, the one way Claude runs BBS's vetted form and quote scripts without auto mode stopping it. Managed settings allow Bash(bbs-fill *); the launcher runs only allow-listed scripts from the installed bbs-sales plugin, with a fixed interpreter.",
+      "author": { "name": "Black Box Safety, Inc." },
+      "keywords": ["bbs", "permissions", "auto-mode", "forms", "launcher"],
+      "category": "foundations"
+    },
+    {
+      "name": "agent-team",
+      "source": "./plugins/agent-team",
+      "description": "Run a long program with a team of Claude agents. roster-builder charters named, lane-owned agents grounded in the real repos; project-steward is the one planner that sequences work, writes fenced session charters, runs a bounded review loop, keeps the decision and carry-forward ledgers, and hands off. Company-neutral: every program noun lives in the adopter's docs/pm/PROGRAM-PROFILE.md.",
+      "author": { "name": "Black Box Safety, Inc." },
+      "keywords": ["agents", "roster", "steward", "program-management", "charters", "review-loop", "harness"],
+      "category": "foundations"
+    },
+    {
       "name": "claudeforge",
       "source": {
         "source": "url",
@@ -115,12 +176,25 @@
     {
       "name": "impeccable",
       "source": {
-        "source": "url",
+        "source": "git-subdir",
         "url": "https://github.com/Black-Box-Safety/impeccable.git",
         "ref": "main",
         "path": "plugin"
       },
-      "description": "Pinned external design skill for anything with a frontend: /impeccable polish, audit, critique, typeset, layout, and 61 deterministic anti-pattern detector rules. Used on customer-facing HTML (dossiers, landing pages, quote bot, storefront). BBS fork of pbakaus/impeccable (v4.3.1); update by syncing the fork from upstream.",
+      "hooks": {
+        "PostToolUse": [
+          {
+            "matcher": "bbs-impeccable-hooks-off",
+            "hooks": [{ "type": "command", "command": "exit 0" }]
+          }
+        ],
+        "Stop": [
+          {
+            "hooks": [{ "type": "command", "command": "exit 0" }]
+          }
+        ]
+      },
+      "description": "Pinned external design skill for anything with a frontend: /impeccable polish, audit, critique, typeset, layout, and 61 deterministic anti-pattern detector rules. Used on customer-facing HTML (dossiers, landing pages, quote bot, storefront). BBS fork of pbakaus/impeccable (v4.3.1); update by syncing the fork from upstream. git-subdir fetches only the fork's plugin/ folder (2.2 MB; the whole repo plus its Node install was 639 MB and failed on rep laptops). The hooks block replaces the plugin's own PostToolUse and Stop hooks with no-ops: those run the impeccable engine on every edit, and the engine's launcher downloads its binary from upstream pbakaus/impeccable releases on first run, outside this pin. The skill itself still runs the engine when a rep invokes /impeccable, as it did before.",
       "version": "4.3.1",
       "author": {
         "name": "Paul Bakaus"

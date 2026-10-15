@@ -43,7 +43,7 @@ nothing.
 
 | Date | Item | Quote # | Vehicle | Value | Outcome |
 |---|---|---|---|---|---|
-| 8.27.26 | Metal detectors ×15 | 900008 | NASPO | $2,630.40 | sent |
+| 8.27.26 | Metal detectors ×15 | SQ-###### | NASPO | $2,630.40 | sent |
 ```
 
 One row per request, oldest last. Outcome is `sent`, `won`, `lost`, or `no answer` —

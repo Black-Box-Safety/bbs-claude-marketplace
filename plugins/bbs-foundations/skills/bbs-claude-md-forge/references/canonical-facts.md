@@ -22,10 +22,34 @@ numbers are never committed.
 
 | Channel | Say | Number | Expires |
 |---|---|---|---|
-| Federal, primes (Bechtel, USACE, Centerra, UCOR), DoD | **SDVOSB** (VA CVE / SBA VetCert) **and small business** under SBA size standards | UEI `FRK5MJD35GN5` | 05/16/2028 |
+| Federal, primes (Bechtel, USACE, Centerra, UCOR), DoD | **SDVOSB** (VA CVE / SBA VetCert), **VOSB**, **and small business** under SBA size standards | UEI `FRK5MJD35GN5` | 05/16/2028 |
 | California state agencies | **DVBE** — the OSDS certification carries DVBE only | `2009473` | 12/31/2027 |
 | LA County only | LA County DVBE (local credit only) | `10086` | 11/17/2027 |
 | City of San Diego only | SLBE (local credit only) | `17BB1659` | — |
+
+VOSB: Parker, in session, 2026-10-02 ("yes we are VOSB"); the GSA eLibrary record for
+`47QSWA23D000Y` lists "SBA Certified Veteran Owned Small Business". So VA veteran-owned
+set-asides (VSA/VSS) are claimable federally. The same record also lists "SBA Certified
+Small Disadvantaged Business"; Parker ruled 2026-10-02 "dont do small disadvantaged
+business": BBS **never** claims SDB, whatever that record lists.
+
+### Federal codes
+
+From BBS's SAM.gov entity record and GSA eLibrary, screenshots Parker supplied in session
+2026-10-02. The one home for these; skills read them here.
+
+- **NAICS** (primary first): `339113` (primary), `315210`, `316210`, `332216`, `332510`,
+  `332999`, `339920`, `423440`, `423610`, `423620`, `423690`, `423710`, `423840`.
+- **PSC:** `4210`, `4240`, `5110`, `5120`, `5340`, `5975`, `6135`, `6230`, `6515`, `6545`,
+  `7125`, `7320`, `8415`, `8430`, `8465`, `8470`. Complete (Parker, 2026-10-02).
+- **SAM.gov entity and API key.** BBS's entity registration is held by the
+  `parker@blackboxsafety.com` SAM.gov account, and the team's one shared public API key is
+  that account's, so it is entity-associated (the 1,000-requests-a-day tier, per the
+  SAM.gov System Account User Guide). The current key was issued 2026-10-02 and is valid
+  89 days, **through 2026-12-30**. The key's value is a credential: it is never written in
+  this repo; each machine holds it in `SAM_GOV_API_KEY`.
+- **GSA MAS `47QSWA23D000Y` SINs:** `3152`, `315210`, `316210`, `332216`, `332999`,
+  `332999BMS`, `339113PA`, `OLM`.
 
 ### Small-business status is channel-dependent, and the reason matters
 
@@ -71,22 +95,26 @@ cost); federal and prime bids (SDVOSB there, never DVBE); and storefront or mark
 where an evaluation incentive is not a customer benefit.
 
 The `bbs-shopify` canonical-facts line "BBS is NOT SB-certified" (2026-07-10) and the
-storefront skill-bus doctrine that carries it are **correct for California** and need no
-change on that point. They are, however, written channel-neutrally, and read federally they
-are false. **Reword** (recorded as outstanding for Parker by PR #29): name the channel —
+storefront doctrine that carries it are **correct for California** and need no change on
+that point. They are, however, written channel-neutrally, and read federally they are
+false. **Reword** (recorded as outstanding for Parker by PR #29): name the channel —
 "BBS is not a California small business; no SB or DVBE preference language in storefront
 copy" — so they cannot be read as denying BBS's federal small-business status. **Applied
-to `plugins/bbs-website/hooks/skill-bus.json` 2026-09-22, PR #30.** The `bbs-shopify`
-line is in another repo and still outstanding there.
+to the storefront doctrine 2026-09-22, PR #30** (then in the website plugin's hook file;
+since 2026-09-28 the same text, byte for byte, lives in
+`plugins/bbs-website/hooks/doctrine/bbs-storefront-doctrine.md`). The `bbs-shopify` line is
+in another repo and still outstanding there.
 
-**There are two `hooks/skill-bus.json` files and they carried different problems. Both
-were RESOLVED 2026-09-22 in PR #30.** Record kept in `docs/STEWARD.md` (the resolved
-entry under *Already open for Parker*).
+**The two injected doctrine sets carried different problems. Both were RESOLVED
+2026-09-22 in PR #30.** The maintainers keep the full record in the marketplace repo; it
+does not ship with the plugins and nothing here depends on it. The files named below are where the text lives today; on
+2026-09-22 it lived in each plugin's `hooks/` config for the since-retired injection plugin,
+and the 2026-09-28 move carried it over unchanged.
 
 | File | What it carried | Status |
 |---|---|---|
-| `plugins/bbs-foundations/hooks/skill-bus.json` | The **affirmative false claim**: "OSDS SB/DVBE 2009473 for California state, where the 5% SB preference (SCM §1204) … apply on competitive solicitations incl. informal." Injected into **every CLAUDE.md-writing skill run** | **RESOLVED 2026-09-22, PR #30** — now the channel split above |
-| `plugins/bbs-website/hooks/skill-bus.json` | "BBS is NOT SB-certified — never claim 'SB credit'." Correct for California, but channel-neutral | **RESOLVED 2026-09-22, PR #30** — reworded as above |
+| `plugins/bbs-foundations/hooks/doctrine/bbs-claude-md-doctrine.md` | The **affirmative false claim**: "OSDS SB/DVBE 2009473 for California state, where the 5% SB preference (SCM §1204) … apply on competitive solicitations incl. informal." Injected into **every CLAUDE.md-writing skill run** | **RESOLVED 2026-09-22, PR #30** — now the channel split above |
+| `plugins/bbs-website/hooks/doctrine/bbs-storefront-doctrine.md` | "BBS is NOT SB-certified — never claim 'SB credit'." Correct for California, but channel-neutral | **RESOLVED 2026-09-22, PR #30** — reworded as above |
 
 ## Contract vehicles (canonical count: 8)
 
@@ -95,7 +123,7 @@ entry under *Already open for Parker*).
 | NASPO ValuePoint CA MRO Statewide LPA | `7-25-51-02.03` | Grainger-fulfilled. **Not** `7-25-52-02.03` (a typo that spread to `bbs-agent`), not legacy `7-18-51-02.18` |
 | CA Body Armor LPA | `1-23-84-07` | Point Blank, sole-source |
 | Sourcewell Body Armor | `091924-BBS` | |
-| GSA MAS | `47QSWA23D000Y` | 11/15/2022–11/14/2027. No "ult. 2042" |
+| GSA MAS | `47QSWA23D000Y` | Current option period ends 11/14/2027; ultimate contract end 11/14/2042 (GSA eLibrary; Parker, in session, 2026-10-02: "for GSA use 2042", superseding the old "no ult. 2042" line) |
 | NPPGov | `PS25650` | LE; BBS is the awarded vendor |
 | UC / OMNIA | `2018-000207` | |
 | CSU | — | |
@@ -113,28 +141,115 @@ to fulfill unless BBS is a named reseller.
 | Procurement intelligence (SCPRS) | Supabase `jsrcrprxoxlnphhcpnbu` via ca-procurement-intel MCP | |
 | Revenue dashboard | Supabase `hkogytbgmaucjjaeqrgd` | |
 | Customer documents (RFQs, POs, packets) | **SharePoint** `Black Box Safety - MASTER/Customers/…` | Repos hold pointers and lessons, not the documents |
-| Grainger pricing | **Grainger MCP** — per buying account. The `b2b.blackboxsafety.com` punch-out it replaced is retired | Never the open web; never from memory |
+| Grainger pricing | **Grainger MCP** — per buying account. The `b2b.blackboxsafety.com` punch-out it replaced is retired | Never the open web; never from memory. Whether a Grainger line is sold at cost depends on the channel — "Grainger sell rule, by channel" below is the one home |
 | Pipeline / outreach | Dynamics 365 Sales | |
 | Storefront | Shopify `bbs-supabase-test.myshopify.com`, theme "BBS — Field Manual" | Verify the live theme id with `shopify theme list` before pushing |
 | BBS form values (FEIN, permit, certs) | `plugins/bbs-sales/references/vendor_profile.json` | Skills resolve it as `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` and never re-key it |
+
+### Grainger sell rule, by channel
+
+The single home for whether a Grainger line may carry markup. Skills point here.
+
+| Channel | Rule | Ruling |
+|---|---|---|
+| California state agencies — CA state schedules, including the NASPO ValuePoint CA MRO Statewide LPA (number in *Contract vehicles*, above) | **At cost.** The Grainger MCP's `unitPrice` is BBS's cost *and* the customer price, never marked up; BBS is paid through the contract rebate | Parker, ruled 2026-09-18; "confirmed" in session 2026-09-28 |
+| Prime contractors (e.g. Bechtel) | **Grainger lines may be marked up.** Before pricing, the rep asks BBS's Grainger account manager for a discount on the items, prices from that discounted cost, then applies whatever markup the rep chooses. No markup figure is set — never invent one — and never invent a discount | Parker, in session, 2026-09-28: "For primes, grainger products can be increased. reps should ask for a discount from our grainger account manager first." |
+| National and local cooperative contracts (Sourcewell, NPPGov, UC/OMNIA, local co-ops), direct federal, private | **Open for Parker.** Do not infer a rule from the rows above; ask the rep | — |
+
+Where a quote spec records which rule applied (the quote builder's per-quote
+`pricing.graingerAtCost`), it is `true` on a California state-schedule / NASPO LPA quote
+and `false` on a prime quote. On an open channel it is not set by inference.
+
+**Customer quote numbers are the Business Central SQ number** (Parker, in session,
+2026-09-28: "use BC SQ number"). The local `900001` series is retired.
+
+### What counts as a win
+
+- **A win is confirmed by Business Central** — a sales quote with an `acceptedDate`, or a
+  quote converted to a sales order — **or by a quote-log Outcome of *won* that the rep has
+  confirmed.** Nothing else is a win.
+- **`bbs_accepted` on a Sales CRM `bbs_rfqs` record: Parker's stated intent is
+  "converted" ("I believe").** Parker, in session, 2026-09-28: "I believe [it] is in State
+  of CA Agencies and means the quote has converted" — his own hedge, kept. Confirm the
+  meaning before relying on it.
+- **In practice it has never been set.** Checked live in the production CRM on 2026-09-28:
+  across 2,550 `bbs_rfqs` records created since 2026-01-01, `bbs_accepted` is never true,
+  `bbs_orderfinalized` is never true, and no record has `bbs_ponumber` set.
+- **So no skill counts a win from it today**, and a report that would show it says
+  "not recorded in CRM" — never zero, which would read as "we won nothing". When reps start
+  setting it, confirm with Parker what `true` means and re-check the field before relying
+  on it, then change this section, not the skills that point here.
 
 ## People and signatures
 
 | Person | Role | Signs |
 |---|---|---|
-| Jackson Dalton | President, DV owner | Ownership lines: DGS PD 843, STD 204, CV 012. Always. |
-| Griffin Forsyth | Vice President | Federal / Sourcewell contracts; most CalRecycle 74s |
-| Parker Marshall | Sales Manager, primary responder | Bidder and cert lines: Darfur, OBS 1000, reps & certs; CalRecycle 74 on his own RFQs |
+| Jackson Dalton | President, DV owner | Ownership lines: DGS PD 843, CV 012, STD 204, STD 205 — always his, whoever runs the packet. Also a delegate for rep-signed lines |
+| Griffin Forsyth | Vice President | Federal / Sourcewell contracts. Delegate for rep-signed lines. Signed most historical CalRecycle 74s — history, not the rule |
+| Parker Marshall | Sales Manager, primary responder | Delegate for rep-signed lines |
+| Joey Magliato | Account Manager | Delegate for rep-signed lines |
+| Kim Quezon (he/him) | Account Manager | Delegate for rep-signed lines |
+| Aanya Samarasinghe | Account Manager | Delegate for rep-signed lines |
 
-Signatures are applied by the form skills: Parker and Jackson have each delegated
-authority for the forms those skills fill, confirmed with counsel 2026-09-16. The rule
-is **whose signature goes on which line** (above) — never a third party's, never a
-customer's. Signature images are credentials: they live outside git, like the Grainger
-`.env`, and are referenced at run time. Sending stays human: the managed settings deny
-the send-class tools.
+The rep-signed lines are the OBS 4007(B)/(C) bidder signature, Darfur, CalRecycle 74 and
+OBS 1000; the rep names who signs them. These six are the whole team counsel's
+authorization covers — Joyce Newell, Jeff Azar and Amy Leath are not delegates (Parker, in
+session, 2026-10-01). Emails, signature images and the counsel record live once, in
+`plugins/bbs-sales/references/vendor_profile.json`; who may sign which line, and when a
+skill may apply a signature, lives once in `plugins/bbs-sales/references/ca-form-rules.md`,
+"Rep-signed lines and delegated signatures".
+
+Signatures are applied by the form skills: counsel has given the team broad discretion to
+sign for each other on any form in the quoting process when the quote total including tax
+is under the limit in `vendor_profile.json` `signature_delegation.limit_usd` (Parker, in
+session, 2026-10-01); at or over it, or with no total, the lines stay blank and flagged. A
+rep asking to "complete the packet" is the approval to sign. The rule is **whose signature
+goes on which line** — never a third party's, never a customer's. Signature images are
+credentials: they live outside git, at each delegate's `signature_image`, and are
+referenced at run time. Sending
+stays human: in Claude Code each Outlook or Teams send waits for a person's Allow and the
+other send-class tools are denied (`bbs-managed-settings.json`; AGENTS.md invariant 5).
 
 Quote desk (2026-07): Aanya Samarasinghe (quotes/crossovers), Kim Quezon (door/tactical),
 Joyce Newell (POs), Jeff Azar (body armor), Griffin (federal). Accounting: Amy Leath.
+
+## Rulings on binding documents — what `/ca-rfq` checks
+
+`/ca-rfq` (bbs-sales) stops on an open ruling. This is where it looks, because this file
+ships to reps and the marketplace repo's `docs/` does not. Each row names a question and
+where its answer lives; the answer itself is not restated here. This section is complete
+for a run: do not look for another file. The maintainers keep the history in the
+marketplace repo, which does not ship to rep machines.
+
+**Ruled**
+
+| Question | Ruled | The rule lives in |
+|---|---|---|
+| Fresh "please quote" request: file or price first | 2026-09-24 | `/ca-rfq` Gate 0 (c) |
+| CDCR Packet B SB checkbox | 2026-09-22 | "Small-business status is channel-dependent", above |
+| DGS PD 843 "Name of DVBE" | 2026-09-18, confirmed 2026-09-28 | `ca-form-rules.md`, DGS PD 843 row |
+| Company name on CalRecycle 74, OBS 1000, Darfur OBS 1500 | 2026-09-28 | `ca-form-rules.md`, "Company name" |
+| Who signs the rep-signed lines (OBS 4007(B)/(C) bidder, Darfur, CalRecycle 74, OBS 1000) | 2026-09-28, widened 2026-10-01 | `ca-form-rules.md`, "Rep-signed lines and delegated signatures" |
+| Grainger sell rule — California state schedules (incl. the NASPO LPA); primes | 2026-09-18 / 2026-09-28 | "Grainger sell rule, by channel", above |
+| Customer quote number | 2026-09-28 | Systems of record, above |
+| Delegated signatures: the six, the limit incl. tax, PNG of record, "complete the packet" is the approval | 2026-10-01 | `ca-form-rules.md`, "Rep-signed lines and delegated signatures" |
+| Owner declarations (PD 843, CV 012, STD 204, STD 205) stay Jackson's whoever runs the packet | 2026-10-01 | `ca-form-rules.md`, "Who signs what" |
+| Who signs OBS 1000 (GenAI factsheet): rep-signed | 2026-10-01 | `ca-form-rules.md`, "Who signs what" |
+| OBS 4007(C) front page on an LPA order: DVBE box and cert number | 2026-10-01 | `ca-form-rules.md`, "Certification language" |
+
+**Open — awaiting Parker**
+
+- Grainger sell rule for national and local cooperative contracts (Sourcewell, NPPGov,
+  UC/OMNIA, local co-ops), direct federal and private buyers — including whether national
+  cooperative contracts are at cost. A run that needs it stops and tells the rep.
+- The OBS Line-Item Cost Worksheet "BUSINESS NAME:" header. The 2026-09-28 legal-name
+  ruling did not cover it; it keeps the short name `fill_obs_packet.py` writes today until
+  Parker rules, and does not stop a run.
+
+## CA state book scope
+
+Body armor (contract codes `BA-CA`, `BODYARMOR`, `BA-SRCWL`) and CSU/UC are **out** of the
+Kim/Aanya CA state book. Ruling: Parker, in session, 2026-09-28.
 
 ## Model IDs
 
@@ -174,4 +289,4 @@ Archivo, JetBrains Mono. Quote SLA 48 hours. CA sales tax ~7.75%, F.O.B. Destina
 | Line caps "~120" vs "~200" | 150, hard |
 | Same skill, two names (`bbs-price-list-cleaner` / `price-list-cleaner`; two different `ca-rfq-intake`) | One name per behaviour. Two skills with one name is worse than a missing skill: it fails silently with a plausible answer |
 | Two things named `bbs-ops`: the org repo `Black-Box-Safety/bbs-ops` and the website plugin | Resolved 2026-09-02: the plugin is now `bbs-website` (install `bbs-website@bbs-claude-marketplace`); `bbs-ops` names only the repo |
-| Griffin: "VP" / "Vice President" / "federal signer" / "CalRecycle 74" | Vice President; signs federal, Sourcewell, and most CalRecycle 74s |
+| Griffin: "VP" / "Vice President" / "federal signer" / "CalRecycle 74" | Vice President; signs federal and Sourcewell. He signed most historical CalRecycle 74s — history, not the rule; who signs it now is in "People and signatures" |

@@ -21,14 +21,16 @@ python3 plugins/bbs-foundations/skills/bbs-claude-md-forge/scripts/check_claude_
 | Check | The silent failure it catches |
 |---|---|
 | `frontmatter_unparseable` | An unquoted colon in `description:` — the skill never loads at all |
-| `name_folder_mismatch` | skill-bus matches on `plugin:skill`; a mismatch stops doctrine firing |
+| `name_folder_mismatch` | The doctrine hooks match on `plugin:skill`; a mismatch stops doctrine firing |
 | `description_truncated` | Over 1,024 chars, the tail is dropped at selection time — usually the "Do NOT use for" clause |
 | `dangling_skill_ref` | A skill points at one that was merged away; a rep follows a dead pointer |
 | `nonportable_path` | `/mnt/skills/`, `/Users/<someone>/`, `~/.bbs/` — works for the author, fails for everyone |
 | `stale_model_id` | Read from `models.json`, so the checker cannot itself go stale |
 | `unknown_form_id` | A form ID not in `ca-form-rules.md` — this is the one that reaches a bid |
 | `vendor_profile_key_missing` | A field map reading a key that does not exist, so the field fills with nothing |
-| `skill_bus_dangling` | A subscription naming a skill or command that is gone |
+| `doctrine_sub_dangling` | A doctrine subscription (`hooks/doctrine/subscriptions.json`) naming a skill or command that is gone — the doctrine silently never fires |
+| `doctrine_hook_drift` | The two plugins' copies of `hooks/doctrine.ps1` or `hooks/doctrine.py` differ — one matcher was fixed and the other was not |
+| `retired_plugin_ref` | A live file names the retired injection plugin outside a sentence saying it is retired — an instruction to run something that no longer exists |
 
 It is **counter-example aware**: prose that names a bad value in order to warn about it
 ("earlier revisions said GSPD-05-106, which is not a form BBS files") is correct content,
@@ -101,7 +103,7 @@ failure mode to review for. The questions that pay:
    `claude-opus-4-8` stayed enforced after it was superseded.
 
 4. **Did a fix reach its propagation sites?** Fixing `canonical-facts.md` is the easy half.
-   The value also lives in `hooks/skill-bus.json` (injected into every skill run) and
+   The value also lives in `plugins/*/hooks/doctrine/*.md` (injected into every subscribed skill run) and
    `docs/bbs-managed-settings.json` (the CLAUDE.md pushed to every machine). Grep the whole
    repo for the old value before accepting "fixed".
 
@@ -160,10 +162,13 @@ Picked up by whoever works here next.
   `grainger_price` call was ever executed against a real account. Verify `account.sellRule`
   really comes back, and that the account-resolution step behaves as written, before a rep
   relies on it.
-- **`bbs-quote-builder` still documents markup math**, while `grainger-pricing` says BBS
-  sells Grainger at cost. The guard is written into `grainger-pricing`; the quote builder
-  was deliberately not changed, because whether markup applies to non-Grainger lines is
-  Parker's call, not an inference to make silently.
+- **`bbs-quote-builder` prices a line tagged `source: "grainger"` at cost only when the
+  spec says so** (`pricing.graingerAtCost: true`, or method `at-cost`); `false` sends it
+  through the method; saying neither is an error. Which channel is at cost is canon's
+  "Grainger sell rule, by channel" (`canonical-facts.md`). The rule only reaches tagged lines: an
+  untagged Grainger line is priced by the method. The mitigation is prose —
+  `grainger-pricing` names the tag, and the builder's step 9 checks the echoed Grainger
+  count against the lines priced through `grainger-pricing`.
 - **`ca-form-filler` Path B claims the OBS inspector reads any CA form PDF.** Inherited
   from the pre-merge skill and never tested against a non-OBS packet.
 - **The OBS 4007(B) path has never been run against a real Rev. 08/2025 packet** —

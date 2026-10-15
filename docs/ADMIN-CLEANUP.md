@@ -18,14 +18,15 @@ Execute deliberately, one block at a time. Nothing here touches rep machines.
       a week of prompts beats a standing contradiction of your own guardrails
 - [ ] Delete `~/.claude.json.backup` (51 KB, stale, may hold old keys)
 
-## Marketplaces (11 → keep 5)
+## Marketplaces (11 → keep 4)
 
 - [ ] Keep: claude-plugins-official, bbs-claude-marketplace (register it here — this
-      machine never had it), superpowers-marketplace, skill-bus-marketplace (if the
-      doctrine-injection stays in use), caveman (ruled in 2026-09-13; becomes a
+      machine never had it), superpowers-marketplace, caveman (ruled in 2026-09-13; becomes a
       `bbs-commons` pin in v1.1, then this direct registration goes)
 - [ ] Remove: ecc, n8n-mcp-skills, alation-plugins (already disabled), ui-ux-pro-max-skill,
-      impeccable (external — comes via bbs marketplace pin), humanizer, buildwithclaude
+      impeccable (external — comes via bbs marketplace pin), humanizer, buildwithclaude,
+      and skill-bus-marketplace (retired 2026-09-28 — the doctrine rides the plugins' own
+      hooks now; steps in ADMIN-RUNBOOK.md §1a)
 - [ ] `bbs-shopify/.claude/settings.json` registers a 12th (secondsky/claude-skills) —
       review, likely remove
 

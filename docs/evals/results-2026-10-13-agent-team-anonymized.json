@@ -1,0 +1,85 @@
+{
+ "model": "default",
+ "anonymized": true,
+ "runs_per_query": 3,
+ "pass_threshold": 0.8,
+ "summary": {
+  "queries": 6,
+  "passed": 6,
+  "failed": 0
+ },
+ "results": [
+  {
+   "id": "at-steward-1",
+   "query": "Be the program steward for this multi-repo build. Read the program profile and tell me what should run next.",
+   "expect": "project-steward",
+   "runs": 3,
+   "correct": 3,
+   "accuracy": 1.0,
+   "pass": true,
+   "distribution": {
+    "project-steward": 3
+   }
+  },
+  {
+   "id": "at-steward-2",
+   "query": "Review PR 41 against the charter you wrote for the database owner's session and tell me whether it can merge.",
+   "expect": "project-steward",
+   "runs": 3,
+   "correct": 3,
+   "accuracy": 1.0,
+   "pass": true,
+   "distribution": {
+    "project-steward": 3
+   }
+  },
+  {
+   "id": "at-steward-3",
+   "query": "Write the steward handoff for the next session: what landed, what is in flight, what I owe you.",
+   "expect": "project-steward",
+   "runs": 3,
+   "correct": 3,
+   "accuracy": 1.0,
+   "pass": true,
+   "distribution": {
+    "project-steward": 3
+   }
+  },
+  {
+   "id": "at-roster-1",
+   "query": "We need someone who owns the Shopify storefront pages end to end. Charter an agent for that lane.",
+   "expect": "roster-builder",
+   "runs": 3,
+   "correct": 3,
+   "accuracy": 1.0,
+   "pass": true,
+   "distribution": {
+    "roster-builder": 3
+   }
+  },
+  {
+   "id": "at-roster-2",
+   "query": "Our subagents are generic and nobody knows who does what. Set up a team of named agents for this program.",
+   "expect": "roster-builder",
+   "runs": 3,
+   "correct": 3,
+   "accuracy": 1.0,
+   "pass": true,
+   "distribution": {
+    "roster-builder": 3
+   }
+  },
+  {
+   "id": "at-roster-3",
+   "query": "Refresh Dee's charter: re-scan the database lane and update her role doc and gap list.",
+   "expect": "roster-builder",
+   "runs": 3,
+   "correct": 3,
+   "accuracy": 1.0,
+   "pass": true,
+   "distribution": {
+    "roster-builder": 3
+   }
+  }
+ ]
+}

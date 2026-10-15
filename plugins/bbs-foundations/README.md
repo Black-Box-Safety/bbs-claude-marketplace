@@ -44,9 +44,14 @@ explains every block. Optional, and worth it:
 /plugin install claudeforge@bbs-claude-marketplace   # cap enforcement, chain repair, /sync-claude-md
 ```
 
-The skill-bus subscriptions in `hooks/skill-bus.json` inject the BBS doctrine whenever
-this skill, any `claudeforge` skill, or Anthropic's `claude-md-improver` runs. Wire them
-once with `/skill-bus:onboard`, or let `/bbs-onboard` do it.
+The plugin's own hook (`hooks/hooks.json`, a `PreToolUse` hook on the Skill tool) injects
+the BBS doctrine whenever this skill, any `claudeforge` skill, or Anthropic's
+`claude-md-improver` runs, and the grounding doctrine whenever a `bbs-foundations`,
+`bbs-sales`, `bbs-claude-coach` or quote-bot lane-tuning skill runs. The text lives in
+`hooks/doctrine/*.md` and the subscriptions in `hooks/doctrine/subscriptions.json`; nothing
+to wire — it is active the moment the plugin is installed. Interpreter: pwsh 7 if present,
+else Windows PowerShell 5.1, else python3 (`hooks/doctrine.py`, same logic). A Mac needs
+nothing beyond the Xcode command-line tools.
 
 ## Command
 
@@ -54,6 +59,7 @@ once with `/skill-bus:onboard`, or let `/bbs-onboard` do it.
 |---|---|
 | `/bbs-claude-md [init\|audit\|sync] [path]` | Runs the checker, decides the kind of place, drafts or repairs from the matching template, hands cap and chain repair to `claudeforge` if present. Nothing is written until you say go; nothing is committed. |
 | `/bbs-my-voice [first-name]` | Samples your real Sent Items, fills the voice profile with you, and writes a personal `<first>-voice` skill into your own `~/.claude/skills/`. Never touches a repo. |
+| `/bbs-workspaces [discover\|request\|custom]` | Finds BBS folders on **this** computer and writes VS Code workspaces for them (quote desk, web, admin, or a custom set of folders you already have). Puts a logo'd launcher on the Desktop. |
 
 ## The rules that don't bend
 

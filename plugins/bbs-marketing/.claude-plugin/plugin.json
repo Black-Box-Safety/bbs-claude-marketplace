@@ -1,0 +1,20 @@
+{
+  "name": "bbs-marketing",
+  "description": "Marketing material for Black Box Safety reps: open a piece, draft a one-page sales document, draft a campaign email, check a logo against the rights ledger, and find a prior brochure or deck. Approved wording lives in the claims registry. A human sends.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Black Box Safety, Inc."
+  },
+  "keywords": [
+    "bbs",
+    "brand",
+    "brochures",
+    "decks",
+    "dvbe",
+    "email",
+    "logos",
+    "marketing",
+    "one-pager"
+  ],
+  "skills": "./skills/"
+}

@@ -24,7 +24,8 @@ contact.{phone, email, website}
 certifications.sb_dvbe.{osds_ref_number, expiration, scope, carries}
 certifications.local_only[].{name, number, scope}
 certifications.federal.{designation, gsa_mas}
-authorized_representatives[].{role, name, title, email, phone, signs}   # role, not index
+authorized_representatives[].{role, name, title, email, phone, aliases, signs, signature_image}   # role, not index
+signature_delegation.delegates[]   # roles in authorized_representatives, not people
 default_rep.{role, name, title, email, signs}
 ```
 
@@ -89,10 +90,10 @@ not a form BBS files.
 |---|---|---|
 | Company name | VP | `business_identity.legal_name` |
 | FEIN | VP | `business_identity.fein` |
-| Paragraph 1 initials | REP | the signing rep's initials — BBS has no foreign operations |
-| Printed name + title | REP | the signing rep (`default_rep` only as a fallback) |
+| Paragraph 1 initials | REP | the signer's initials — BBS has no foreign operations |
+| Printed name + title | REP | the signer the rep names — no default |
 | County and State | DERIVED | "San Diego County, California" |
-| Signature, date | SIGN | **The rep** who quoted the job — Darfur is a bidder certification (`ca-form-rules.md`: DGS PD 1 is the standalone OBS 1500) |
+| Signature, date | SIGN | **The signer the rep names** — Darfur is a rep-signed line (`ca-form-rules.md`, "Rep-signed lines"; DGS PD 1 is the standalone OBS 1500) |
 
 ## OBS 1000 — GenAI Disclosure
 
@@ -107,7 +108,7 @@ Form ID is **OBS 1000**. Earlier revisions of this file said STD 1000.
 | Uses GenAI? | DERIVED | "No" — BBS resells finished goods; the products contain no GenAI |
 | Conditional GenAI fields | — | skip, they depend on "Yes" |
 | Rep name | REP | the signing rep |
-| Signature, date | ⚑ SIG | **Signer not determined.** `ca-form-rules.md` assigns no signer for OBS 1000, and Path A's OBS profile fills the date only. Fill the date, leave the signature, flag `⚑ SIGNATURE REQUIRED`. Do not infer one from the neighbouring forms |
+| Signature, date | SIGN | **The signer the rep names** — OBS 1000 is a rep-signed line (ruled 2026-10-01; `ca-form-rules.md`, "Delegated signatures"). On the standalone Rev. 10/2025 blank the signature is a `/Sig` field named `Signature` on page 2, with `Date` beside it: a signature field holds no text, so it is stamped with the PNG |
 
 ## CalRecycle 74 — Recycled Content Certification
 
@@ -121,8 +122,8 @@ Never left blank — a missing CalRecycle 74 can disqualify the bid. See `ca-for
 | Item # / description | RFQ | from the line items |
 | Postconsumer recycled % | REP | BBS resells finished goods and rarely certifies a percentage; "NA" is the normal answer. Only a real percentage from the rep overrides it |
 | SABRC category code | REP | as above |
-| Print name, title | REP | the signing rep |
-| Signature, date | SIGN | **The rep** who quoted the job — CalRecycle 74 is a bidder certification. It is a perjury certification, so the rep signs it personally and never on another's behalf |
+| Print name, title | REP | the signer the rep names |
+| Signature, date | SIGN | **The signer the rep names.** When it may be applied and when it is left blank and flagged: `ca-form-rules.md`, "Rep-signed lines" |
 
 ## Form detection
 

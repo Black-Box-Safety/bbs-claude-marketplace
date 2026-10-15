@@ -41,8 +41,8 @@ first.** Run `ca-rfq-intake`, then Gate 1. Ruled by Parker 2026-09-24: a fresh *
 emailed asking us to quote these"* is filed before it is priced, always. Filing first is what
 finds the precedent and prevents the duplicate buyer folder; pricing first and filing later
 is how a quote goes out with no record behind it. Say in one line that you are filing it
-first, and do not ask the rep which order they want. The ruling is recorded in the
-marketplace repo's `docs/PRODUCT.md` §9.
+first, and do not ask the rep which order they want. The ruling is listed in
+`bbs-foundations` `references/canonical-facts.md`, "Rulings on binding documents".
 
 ## Gate 1 — Recognize the customer and the packet
 
@@ -68,12 +68,10 @@ it runs at Gate 8. A price-first run is not an unrouted run.
   to read a flag out of, this gate is not satisfied by default: unknown is still unknown,
   and it still stops here.
 - **An open ruling stops the run.** Rulings on binding-document facts (a signer, a form
-  ID, a certification checkbox, a price rule) live in the marketplace repo's
-  `docs/PRODUCT.md` §9, in a *Ruled* table and an *Open* list. The two `ca-form-filler`
-  questions this gate used to stop on (the DVBE-declaration name and the CDCR Packet B SB
-  checkbox) were ruled 2026-09-18 and are applied in the skill; the run proceeds through
-  them. If a skill marks a field **Escalated** and that question is not in the *Ruled*
-  table, stop here and tell the rep it is awaiting Parker. This command does not resolve,
+  ID, a certification checkbox, a price rule) are listed in `bbs-foundations`
+  `references/canonical-facts.md`, "Rulings on binding documents", in a *Ruled* table and
+  an *Open* list. If a skill marks a field **Escalated** and that question is not in the
+  *Ruled* table, stop here and tell the rep it is awaiting Parker. This command does not resolve,
   restate, or route around an open ruling. A packet is not delivered on a guessed answer.
 
 ## Gate 2 — Extract the line items
@@ -142,17 +140,18 @@ Otherwise:
 
 **On the state path this gate is already inside the `naspo-quote` run you entered at Gate
 4.** Its §3 is what hands `bbs-quote-builder` the spec a state worksheet needs, and that
-spec — not the builder's own defaults — is what makes the document right. Do not run the
-builder yourself here: its defaults are written for commercial work, and it will ask the rep
-for values the worksheet has already settled. Answering those questions a second time, off
-the builder's commercial defaults, is how a state quote reaches the agency with the wrong
-tax treatment, the wrong margin, or an empty solicitation line.
+spec is what makes the document right. Do not run the builder yourself here: it will ask the
+rep for values the worksheet has already settled, and answering those questions a second
+time is how a state quote reaches the agency with the wrong tax treatment, a margin on an
+at-cost line, or an empty solicitation line.
 
 Off the state path, run `bbs-quote-builder` directly and confirm its inputs with the rep.
 
-**Gate.** The rep confirms the quote number before it reaches a document. Nothing is
-assigned silently, and nothing is confirmed twice — if Gate 4 entered `naspo-quote`, the
-number it proposed and the rep confirmed is the number.
+**Gate.** The quote number is the Business Central SQ number of a sales quote the rep
+created, read back from BC before it reaches a document (`bbs-quote-builder` step 2).
+Nothing is generated or predicted, and nothing is confirmed twice — if Gate 4 entered
+`naspo-quote`, the SQ number that run read back is the number. No SQ number is
+`[MISSING — NEEDS INPUT]`.
 
 ## Gate 6 — Fill and sign the packet
 
@@ -193,8 +192,8 @@ RFQ that was never filed is the one that misses its next deadline.
 Write the files where the skill says, hand the rep the file list, and state in the reply
 itself every judgment call made on their behalf. Those are the ones that come back.
 
-**Gate. The run ends with a person.** This command has no send step and never will. The
-send-class tools are denied by managed settings. Do not draft-and-send, do not queue, do
+**Gate. The run ends with a person.** This command has no send step and never will; any send
+is the rep's, outside this command. Do not draft-and-send, do not queue, do
 not offer to transmit. The rep reviews and the rep sends.
 
 ---
@@ -203,8 +202,8 @@ not offer to transmit. The rep reviews and the rep sends.
 
 - It does not restate any skill's steps. If a reviewer can diff this file against the skills
   it names and find a restated procedure, that is a defect in this file.
-- It does not decide the open routing ruling at Gate 0 (c).
-- It does not resolve an open ruling; it checks `docs/PRODUCT.md` §9 and stops if one is missing.
+- It does not resolve an open ruling; it checks `canonical-facts.md`, "Rulings on binding
+  documents", and stops if the question is not in the *Ruled* table.
 - It does not price, sign, or send anything on its own authority.
 
 **Replaces** `/ca-rfq-log` and `/ca-rfq-quote`, now retired: they paraphrased the bodies of

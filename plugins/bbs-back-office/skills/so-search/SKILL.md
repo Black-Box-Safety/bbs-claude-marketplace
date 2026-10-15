@@ -1,12 +1,12 @@
 ---
 name: so-search
-description: Looks up a Black Box Safety Sales Order (SO) by customer PO number using the BBS Business Central MCP. Searches Posted Sales Invoices by customerPurchaseOrderReference. Returns a summary of all invoices tied to that PO and their associated SO number. If no invoices are found (PO not yet invoiced), prompts the rep for agency name, approximate dollar value, and date range, then searches open Sales Orders and returns the best match with a BC deep link. Trigger immediately whenever a rep types "SOSearch [PO#]", "/SOSearch [PO#]", "SO search [PO#]", "look up PO [PO#]", "find SO for PO [PO#]", or any similar request to locate a Sales Order by a customer PO number. Always use this skill for that request — never attempt to search BC manually without it.
-requires: [bc-mcp-proxy]
+description: Looks up a Black Box Safety Sales Order (SO) by customer PO number using the Business Central connector. Searches Posted Sales Invoices by customerPurchaseOrderReference. Returns a summary of all invoices tied to that PO and their associated SO number. If no invoices are found (PO not yet invoiced), prompts the rep for agency name, approximate dollar value, and date range, then searches open Sales Orders and returns the best match with a BC deep link. Trigger immediately whenever a rep types "SOSearch [PO#]", "/SOSearch [PO#]", "SO search [PO#]", "look up PO [PO#]", "find SO for PO [PO#]", or any similar request to locate a Sales Order by a customer PO number. Always use this skill for that request — never attempt to search BC manually without it.
+requires: [business-central]
 ---
 
 # SOSearch Skill
 
-Looks up a BBS Sales Order by customer PO number via the BC MCP. Searches `ListSalesInvoices` by `customerPurchaseOrderReference` and returns the linked SO and invoice summary. If nothing is found (not yet invoiced), prompts for agency name, dollar value, and date range, then searches open Sales Orders and returns the best match with a BC deep link.
+Looks up a BBS Sales Order by customer PO number through the Business Central connector (`bc_query_entity`, read-only). Searches posted sales invoices by `customerPurchaseOrderReference` and returns the linked SO and invoice summary. If nothing is found (not yet invoiced), prompts for agency name, dollar value, and date range, then searches open Sales Orders and returns the best match with a BC deep link.
 
 ## Trigger
 
@@ -22,20 +22,24 @@ The PO number is always the argument following the command. Extract it exactly a
 
 ## Steps
 
-### 1. Load the BC MCP tool
+### 1. Search posted invoices by PO number
 
-Call `tool_search` with query `"ListSalesInvoices customerPurchaseOrderReference"` to load the `bc-mcp-proxy:ListSalesInvoices_PAG30012` tool. Do this silently — do not narrate it to the rep.
-
-### 2. Search by PO number
-
-Call `bc-mcp-proxy:ListSalesInvoices_PAG30012` with:
+Call `bc_query_entity` with:
 
 ```
+entitySet: salesInvoices
 filter: customerPurchaseOrderReference eq '[PO#]'
 select: number, customerName, customerPurchaseOrderReference, orderNumber, invoiceDate, totalAmountIncludingTax, status, remainingAmount
+top: 200
 ```
 
-Use `eq` (exact match), not `contains`, since PO numbers are always exact.
+Use `eq` (exact match), not `contains`, since PO numbers are always exact. If the result
+says `has_more`, page with `skip` until it does not.
+
+### 2. Lines, when the rep asks what was on the order
+
+`bc_get_sales_document` with the `orderNumber` (or an invoice `number`) returns the header
+and every line. Use it only when the rep wants the lines; the summary below does not need it.
 
 ### 3a. Results found — format the response
 
@@ -48,7 +52,7 @@ If one or more invoices are returned, output:
 **PO #:** `[customerPurchaseOrderReference]`
 
 The SO Found line must be a clickable markdown hyperlink. Construct it by substituting the actual `orderNumber` value (e.g. `SO-10010115`) into both the display text and the filter parameter of the URL. The URL template is:
-`https://businesscental.dynamics.com/fea7ae2d-abd8-495f-8001-60dab26c261f/Production?company=Black%20Box%20Safety&page=42&filter='No.'%20IS%20'[orderNumber]'`
+`https://businesscentral.dynamics.com/fea7ae2d-abd8-495f-8001-60dab26c261f/Production?company=Black%20Box%20Safety&page=42&filter='No.'%20IS%20'[orderNumber]'`
 
 | Invoice # | Invoice Date | Amount | Status |
 |---|---|---|---|
@@ -84,14 +88,18 @@ Once the rep provides all three, proceed to **Step 4**.
 
 ### Step 4. Search Sales Orders by agency + amount + date
 
-**4a. Load the Sales Orders tool**
+**4a. Query open sales orders**
 
-Call `tool_search` with query `"List_SalesOrders_PAG30028 number customerName orderDate totalAmountExcludingTax"` to load `bc-mcp-proxy:List_SalesOrders_PAG30028`. Do this silently.
+Call `bc_query_entity` with `entitySet: salesOrders` and the filter below.
 
 **4b. Build the filter**
 
-- Agency: use `contains(tolower(customerName),'[lowercase keyword]')` — use the shortest reliable keyword (e.g. "metro", "mule creek", "atascadero")
-- Date range: convert the month/range to `orderDate ge YYYY-MM-01 and orderDate le YYYY-MM-30` (use last day of the final month)
+- Agency: use `contains(customerName,'[Keyword]')` with the keyword **as the customer name
+  spells it** (e.g. "Metro", "Mule Creek", "Atascadero"). Business Central text search is
+  case-sensitive and does not support `tolower()`: `contains(tolower(customerName),'metro')`
+  returns nothing, silently. If one casing returns nothing, try the other likely casing
+  before reporting no match.
+- Date range: convert the month/range to `orderDate ge YYYY-MM-01 and orderDate le YYYY-MM-DD`, where DD is the real last day of the final month. Dates are bare `yyyy-mm-dd`, unquoted.
 - Amount: set `totalAmountExcludingTax ge [lower bound]` where lower bound = stated amount × 0.7 (to allow for ~30% variance either direction)
 
 Select fields: `number, customerName, orderDate, totalAmountExcludingTax, totalAmountIncludingTax, status, externalDocumentNumber`
@@ -120,6 +128,6 @@ If only one result exists, skip the additional options entirely.
 
 ## Error handling
 
-- If the BC MCP tool call fails or throws an error, tell the rep: "BC MCP returned an error — you may need to reconnect the connector and try again."
+- If the Business Central call fails, tell the rep: "Business Central returned an error. You may need to reconnect the Business Central connector and try again." Quote the error's first line.
 - If the PO number was not clearly provided, ask: "Please provide the PO number you'd like to search."
 - Never fabricate SO numbers or invoice data.

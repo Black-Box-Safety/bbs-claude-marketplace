@@ -1,0 +1,42 @@
+{
+  "folders": [
+    {
+      "name": "Document store",
+      "path": "REPLACE-ONEDRIVE-ROOT"
+    },
+    {
+      "name": "Marketplace (git)",
+      "path": ".."
+    },
+    {
+      "name": "Sales vault",
+      "path": "REPLACE-REPOS-ROOT/bbs-sales-vault"
+    },
+    {
+      "name": "Suppliers",
+      "path": "REPLACE-REPOS-ROOT/bbs-suppliers"
+    }
+  ],
+  "settings": {
+    "window.title": "BBS Admin — ${activeEditorShort}",
+    "workbench.sideBar.location": "left",
+    "workbench.activityBar.location": "default",
+    "files.autoSave": "afterDelay",
+    "editor.minimap.enabled": false,
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/FILLED": false
+    },
+    "files.exclude": {
+      "**/.tmp*": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "anthropic.claude-code",
+      "tomoki1207.pdf",
+      "grapecity.gc-excelviewer",
+      "pkief.material-icon-theme"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+[
+ {
+  "id": "at-steward-1",
+  "expect": "project-steward",
+  "files": [],
+  "query": "Be the program steward for this multi-repo build. Read the program profile and tell me what should run next."
+ },
+ {
+  "id": "at-steward-2",
+  "expect": "project-steward",
+  "files": [],
+  "query": "Review PR 41 against the charter you wrote for the database owner's session and tell me whether it can merge."
+ },
+ {
+  "id": "at-steward-3",
+  "expect": "project-steward",
+  "files": [],
+  "query": "Write the steward handoff for the next session: what landed, what is in flight, what I owe you."
+ },
+ {
+  "id": "at-roster-1",
+  "expect": "roster-builder",
+  "files": [],
+  "query": "We need someone who owns the Shopify storefront pages end to end. Charter an agent for that lane."
+ },
+ {
+  "id": "at-roster-2",
+  "expect": "roster-builder",
+  "files": [],
+  "query": "Our subagents are generic and nobody knows who does what. Set up a team of named agents for this program."
+ },
+ {
+  "id": "at-roster-3",
+  "expect": "roster-builder",
+  "files": [],
+  "query": "Refresh Dee's charter: re-scan the database lane and update her role doc and gap list."
+ }
+]
