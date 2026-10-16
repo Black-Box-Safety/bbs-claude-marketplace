@@ -160,6 +160,12 @@ On the state path `naspo-quote` §3 supplies the line values (Grainger at cost, 
 worksheet, the solicitation number as the external document number); the mechanics above are
 the same.
 
+**Salesperson follows the account split, quote by quote** (Parker, in session, 2026-10-16): on a
+California state quote the BC salesperson is `KQUEZON` for Kim Quezon's agencies (CDCR, CHP, CAL FIRE,
+CMD, CDFW, Cal OES, DOJ, DPR, DWR, DCC, CCC, ABC, DOC, State Water Board, OIG, POST, Horse Racing Board,
+Gambling Control Commission) and `AANYA` for every other state agency. `CA STATE TEAM` is not used on
+new quotes, even where the customer card still defaults to it. Body armor and CSU/UC keep their own owners.
+
 **Gates.** The quote number is the SQ number BC assigned on creation, read back from BC;
 nothing is generated or predicted. No item is created as a side effect of quoting. The rep
 releases the quote in BC (that is where tax is calculated) and the customer document is the
