@@ -221,6 +221,44 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
+- **`bc-item-entry`: rep-facing item creation in Business Central (PR #64) — RULED
+  2026-10-14.** Parker, in session. What was ruled, and where each part lives
+  (`plugins/bbs-sales/skills/bc-item-entry/`: `SKILL.md`, `scripts/bc_item_entry.py`,
+  `references/item-rules.md`):
+  - *Vendor.* Every item names a vendor that already exists in BC and is not blocked. The
+    skill never creates a vendor; the rep does, in the BC UI, and the check runs again.
+  - *Cost.* Every item carries a cost greater than zero with a document source (quote number
+    and date, or the Grainger account and date the price was read). A price, when given, is
+    never below cost; a price equal to cost needs an explicit `zeroMarginOk` on the row that
+    the rep has seen on the sheet.
+  - *Named review.* The rep reads the review sheet the check writes; commit needs the current
+    token (a hash of the spec) and the preparer's name, and refuses any other name.
+  - *Sign-in.* Rep-facing writes run under the rep's own delegated sign-in, so BC records the
+    rep as creator (system fields and the skill's log; not a visible field on the Item Card
+    page). App-only (the service principal) is a flagged fallback that runs only with
+    `BBS_BC_AUTH=app-only`. Vendor No. is set through the `Item_Card_Excel` web service, since
+    the v2.0 items entity hides it. Connection values ship in `references/bc-connection.json`
+    (2026-10-15 amendment: the existing app's client id, no separate rep app, no secret).
+  - *Scope note.* This narrows the 2026-10-13 `agent-team` ruling below, which accepted the
+    session-tool allow-list on the basis that writes to a system of record "stay gated
+    separately": for item creation the gate is this skill's three gates plus the Allow click
+    on every run (`bc_item_entry.py` is kept off the `bbs-fill` allow list,
+    `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`, 2026-10-15), not a separate control.
+  - *Partly resolves* "Bechtel's home in this repo, and the BC write-API scripts" below.
+  - *Open edges from the 2026-10-16 BC review of PR #64, for Parker:* (a) SOP
+    `BC-WRITE-SOP-RULES.md` §4.5 still says Vendor No. stays blank on BBS items; §4.6 and
+    this ruling make it mandatory for this skill, so §4.5 needs amending, and
+    `bc_create_items_rfp817007.py` (2026-10-15, written to bypass the vendor gate for a vendor
+    with no card) is either the sanctioned app-only exception or a one-off. (b) The
+    `includedWith` accessory row carries cost 0 by design; confirm the "cost > 0" ruling
+    covers that carve-out. (c) Manufacturer-first descriptions: the 12,000-odd existing
+    Grainger items carry Grainger catalog descriptions, so the house-style gate forces a
+    rewrite on every Grainger SKU; keep as a stop, or make it a warning for Grainger SKUs.
+    (d) Something other than this skill created zero-cost Grainger items on 2026-10-16 (SOP
+    §4.5's open Shopify-sync question); not this PR's to fix, but it is live. (e) Nothing
+    has yet proven a delegated item write under a rep-class permission set; rep-setup 5b
+    records the first one.
+
 - **`agent-team` plugin (PR #63), 2026-10-13.** Four rulings in session, all closed.
   - *Enable for everyone* — **RULED 2026-10-13:** on in `enabledPlugins`. Routine.
   - *Company memory line* — **RULED 2026-10-13, narrowed after Rex's review:** the
@@ -231,7 +269,8 @@ Write it up with evidence and move to the next slice. Do not idle.
     the session reads, the PR subscriptions) stays allowed for **every** session on a rep
     machine, a quote-desk session reading an agency PDF included. Parker accepted the risk
     on the stated basis that these tools cannot send mail, place an order, or write to a
-    system of record, all of which stay gated separately. `interrupt_session`, `send_later`,
+    system of record, all of which stay gated separately (narrowed 2026-10-14: item creation
+    in BC is gated by `bc-item-entry`'s own gates, see the entry above). `interrupt_session`, `send_later`,
     `list_triggers` and `delete_trigger` are `ask` (irreversible, or able to rebuild an
     unattended loop). Revisit if a rep machine ever shows an unexpected spawned session.
   - *Provenance* — **RULED 2026-10-13, Parker in session:** the plugin content is BBS's own
@@ -497,11 +536,13 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **Address spelling in `vendor_profile.json` — OPEN (2026-09-28).** The profile holds
   `1950 Cordell CT Ste 103`, which every filled form prints. **Ask:** confirm the spelling
   and case as registered (e.g. with OSDS), so binding forms match the certification record.
-- **Bechtel's home in this repo, and the BC write-API scripts — OPEN (2026-09-28).**
-  Bechtel is the only customer outside State of CA agencies with the same folder
-  structure (Parker, in session); its desk `CLAUDE.md` lives on SharePoint, not here, and
-  the scripts that write to Business Central have no declared home. **Ask:** where
-  Bechtel's desk context and those scripts are maintained. #35 depends on the answer.
+- **Bechtel's home in this repo, and the BC write-API scripts — OPEN (2026-09-28); PARTLY
+  RESOLVED 2026-10-14.** Bechtel is the only customer outside State of CA agencies with the
+  same folder structure (Parker, in session); its desk `CLAUDE.md` lives on SharePoint, not
+  here. The scripts half now has a declared home: rep-facing item creation lives here as
+  `bc-item-entry` (PR #64, ruling above); the per-PO quote builders and
+  `bc_patch_item_vendor.py` stay in `PM Claude/BC-Write-API` on SharePoint. **Still open:**
+  where Bechtel's desk context is maintained. #35 depends on that answer.
 - **The macOS bootstrap installs no pip or npm libraries — RESOLVED 2026-10-01, this
   session's rep-setup PR** (`bbs-setup.sh` now installs pypdf/pymupdf/openpyxl for `python3`,
   `docx`/`pptxgenjs` with NODE_PATH in `~/.zprofile`, links `soffice`, and installs the

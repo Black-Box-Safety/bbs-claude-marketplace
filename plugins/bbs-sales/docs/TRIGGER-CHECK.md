@@ -95,3 +95,29 @@ The coach overlap is meant as a routing overlap rather than a contest, and the c
 budget timing so that it can route there; whether it does in practice is unmeasured. Skill
 triggering is not machine-checked; `docs/evals/` needs Claude auth to reproduce, and until
 it is run this file is a reasoned expectation, not evidence.
+
+## Adding `bc-item-entry` — 16 October 2026 (bbs-sales 0.7.0)
+
+`bc-item-entry` is the first skill on the desk that writes to Business Central, so the risk
+runs the other way from the territory additions: a pricing or quote-building request must
+not land on a skill that creates item cards, and an item-creation request must not be
+answered by `bbs-quote-builder` building a PDF around numbers BC does not have. Same method
+as before: each phrasing read against every description in `bbs-sales` plus `bbs-deck-voice`.
+
+| Phrasing | Fires | Nearest competitor, and why it loses |
+|---|---|---|
+| "these three SKUs aren't in Business Central yet, add them so I can build the quote" | `bc-item-entry` | `bbs-quote-builder` ("build the quote"). Its description says it does not create or edit records in BC; the item-entry description names "create the items so I can build the quote" verbatim |
+| "set up the item cards in BC for this PO" | `bc-item-entry` | none. "item cards" and "BC" appear in no other description |
+| "enter these products into Business Central with the vendor and cost from the Grainger pricing" | `bc-item-entry` | `grainger-pricing`. Pricing already happened in the sentence; the verb is "enter", and the item-entry description names Grainger pricing as an input |
+| "BC doesn't have an item number for the hoist on this order, create the item" | `bc-item-entry` | `bbs-quote-builder` reads an SQ; it has no verb for creating anything |
+| "the items are all in BC now, build the customer quote PDF from SQ-104999" | `bbs-quote-builder` | `bc-item-entry`. Items already exist and the ask is the PDF; the item-entry description excludes building the quote |
+| "price these Grainger items on the CMC account, just the prices, nothing in BC" | `grainger-pricing` | `bc-item-entry` names Grainger pricing only as a source for a cost; "nothing in BC" is the boundary both descriptions draw |
+| "the vendor isn't in BC, create it from the address on the quote" | none in `bbs-sales` (the rep does it in the BC UI) | `bc-item-entry`, whose description says in so many words that it does not create vendors |
+
+The six phrasings with an expected winner are `item-1` to `item-4`, `item-sib-1` and
+`item-sib-2` in `docs/evals/queries-routing.json`. **Result: still a desk read.**
+`docs/evals/discriminate.py --runs 5 --workers 4 --anonymize` was attempted on
+2026-10-16 and did not run: the `claude` CLI on the machine doing the work had no
+authenticated session (see the PR #64 body). The expectation above stands until a run with
+Claude auth replaces it.
+

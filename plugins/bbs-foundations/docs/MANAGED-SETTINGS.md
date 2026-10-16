@@ -141,6 +141,18 @@ means a prompt, never an unwanted action. If a future connector adds a new send-
 the same commit that documents it here. AUP.md is the human-side counterpart, linked from the
 `claudeMd` block.
 
+## Business Central writes wait for a click (2026-10-15)
+
+Ruling (Parker, 2026-10-15): `bc_item_entry.py`, the one script in the marketplace that
+writes to Business Central (`bbs-sales` / `bc-item-entry`), stays **off** the `bbs-fill`
+`ALLOWED` list. `Bash(bbs-fill *)` is allowed so the vetted form and quote scripts run
+without a prompt; that convenience does not extend to a write against a system of record.
+Every run of the item-entry script, `check` and `whoami` included and `commit` above all,
+goes through the ordinary Bash permission and waits for the person to click Allow. The
+skill's own gates (vendor exists, cost sourced, named approval of the review sheet) sit
+behind that click, not instead of it. Adding the script to `ALLOWED` is a reversal of this
+ruling and needs Parker, in a reviewed PR.
+
 ## Empowerment posture (2026-09-11)
 
 Ruling: reps may install skills, author their own, and experiment. The strict lockdown keys
