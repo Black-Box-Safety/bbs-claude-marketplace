@@ -138,20 +138,39 @@ Otherwise:
 
 ## Gate 5 — Build the customer's quote
 
-**On the state path this gate is already inside the `naspo-quote` run you entered at Gate
-4.** Its §3 is what hands `bbs-quote-builder` the spec a state worksheet needs, and that
-spec is what makes the document right. Do not run the builder yourself here: it will ask the
-rep for values the worksheet has already settled, and answering those questions a second
-time is how a state quote reaches the agency with the wrong tax treatment, a margin on an
-at-cost line, or an empty solicitation line.
+**The customer's quote is a Business Central sales quote, created through the BC write path.
+It is not a PDF generated in Claude.** Ruled by Parker, in session, 2026-10-16, while running
+the CAL FIRE Atwater helmet-cover RFQ; the earlier practice of rendering the customer document
+with `bbs-quote-builder` is retired as the quote desk's path. Two halves, in this order:
 
-Off the state path, run `bbs-quote-builder` directly and confirm its inputs with the rep.
+1. **Items first, and never twice.** Every line's item number is looked up in BC
+   (`bc_find_item`) before anything is written. A number that exists is quoted as it is:
+   never re-created, never patched from here. A number BC does not have is entered through
+   `bc-item-entry` (vendor, sourced cost, named review) before the quote is touched.
+2. **Then the quote.** The header and lines are created in BC through the BC-Write-API quote
+   builder (`PM Claude/BC-Write-API` on SharePoint, one spec-driven script per deal until the
+   quote-entry skill ships), from a spec saved beside the deal as
+   `BC-import/quote-<yyyy-mm-dd>.json` with a review sheet next to it. The script dry-runs
+   first (reads only); the rep reads the sheet and approves it **by name in the chat**; only
+   then does it write. It sets CONTRACT from the vehicle Gate 1 named, gates the header on
+   ship-to by read-back before a single line is added, verifies every line by read-back, and
+   never releases, converts or sends.
 
-**Gate.** The quote number is the Business Central SQ number of a sales quote the rep
-created, read back from BC before it reaches a document (`bbs-quote-builder` step 2).
-Nothing is generated or predicted, and nothing is confirmed twice — if Gate 4 entered
-`naspo-quote`, the SQ number that run read back is the number. No SQ number is
-`[MISSING — NEEDS INPUT]`.
+On the state path `naspo-quote` §3 supplies the line values (Grainger at cost, no tax on the
+worksheet, the solicitation number as the external document number); the mechanics above are
+the same.
+
+**Salesperson follows the account split, quote by quote** (Parker, in session, 2026-10-16): on a
+California state quote the BC salesperson is `KQUEZON` for Kim Quezon's agencies (CDCR, CHP, CAL FIRE,
+CMD, CDFW, Cal OES, DOJ, DPR, DWR, DCC, CCC, ABC, DOC, State Water Board, OIG, POST, Horse Racing Board,
+Gambling Control Commission) and `AANYA` for every other state agency. `CA STATE TEAM` is not used on
+new quotes, even where the customer card still defaults to it. Body armor and CSU/UC keep their own owners.
+
+**Gates.** The quote number is the SQ number BC assigned on creation, read back from BC;
+nothing is generated or predicted. No item is created as a side effect of quoting. The rep
+releases the quote in BC (that is where tax is calculated) and the customer document is the
+PDF BC prints from the released quote. `bbs-quote-builder` runs only when the rep asks for a
+Claude-rendered copy of a quote that already exists in BC.
 
 ## Gate 6 — Fill and sign the packet
 
