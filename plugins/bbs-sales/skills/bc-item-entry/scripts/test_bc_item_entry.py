@@ -33,7 +33,7 @@ class CostSourceWords(unittest.TestCase):
     approx and phone. The stems catch every suffix. A vendor called Usual is not a guess."""
 
     def test_words_the_docs_name_fail(self):
-        for s in ("Dana verbal estimate", "roughly 10/08/2026", "estimate from 2026-10-01",
+        for s in ("Dana verbal estimate", "roughly 10/08/2026", "estimate from 2026-10-01", "about $12 each 2026",
                   "estimated off quote 12345", "approximately quote 12345", "approx. 12345",
                   "Guesstimate 12345", "guessing from 2025 list", "phone quote 12345",
                   "ballpark 12345", "from memory 2026", "about 12345", "last time 2026-01-01",
@@ -42,6 +42,7 @@ class CostSourceWords(unittest.TestCase):
 
     def test_documents_pass(self):
         for s in ("Usual Supply Co quote 10234 2026-10-01", "Carr Lane SQ-000123 10/08/2026",
+                  "Quote 1234 about PO 5678 2026-10-01",
                   "Grainger MCP acct <buying account> 2026-10-14", "Star CSP 0000000000 10/07/2026"):
             self.assertIsNone(m.cost_source_problem(s), s)
 
@@ -56,6 +57,14 @@ class RowRules(unittest.TestCase):
 
     def test_clean_spec_passes(self):
         self.assertEqual(self.errors(spec()), [])
+
+    def test_item_number_charset(self):
+        for bad in ("EX/100", "EX%100", "EX&100", "EX?100"):
+            s = spec(); s["items"][0]["number"] = bad
+            self.assertTrue(any("URL key" in e for e in self.errors(s)), bad)
+        for ok in ("#GK4-M", "BA MALE ADJ", "CL-2500-SHR-1", "O'NEIL.1", "PT(6)"):
+            s = spec(); s["items"][0]["number"] = ok
+            self.assertFalse(any("URL key" in e for e in self.errors(s)), ok)
 
     def test_item_numbers_are_upper_case(self):
         s = spec(); s["items"][0]["number"] = "ex-100"

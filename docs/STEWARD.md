@@ -233,8 +233,9 @@ Write it up with evidence and move to the next slice. Do not idle.
     the rep has seen on the sheet.
   - *Named review.* The rep reads the review sheet the check writes; commit needs the current
     token (a hash of the spec) and the preparer's name, and refuses any other name.
-  - *Sign-in.* Rep-facing writes run under the rep's own delegated sign-in, so the card shows
-    who created it. App-only (the service principal) is a flagged fallback that runs only with
+  - *Sign-in.* Rep-facing writes run under the rep's own delegated sign-in, so BC records the
+    rep as creator (system fields and the skill's log; not a visible field on the Item Card
+    page). App-only (the service principal) is a flagged fallback that runs only with
     `BBS_BC_AUTH=app-only`. Vendor No. is set through the `Item_Card_Excel` web service, since
     the v2.0 items entity hides it. Connection values ship in `references/bc-connection.json`
     (2026-10-15 amendment: the existing app's client id, no separate rep app, no secret).
@@ -244,6 +245,19 @@ Write it up with evidence and move to the next slice. Do not idle.
     on every run (`bc_item_entry.py` is kept off the `bbs-fill` allow list,
     `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`, 2026-10-15), not a separate control.
   - *Partly resolves* "Bechtel's home in this repo, and the BC write-API scripts" below.
+  - *Open edges from the 2026-10-16 BC review of PR #64, for Parker:* (a) SOP
+    `BC-WRITE-SOP-RULES.md` §4.5 still says Vendor No. stays blank on BBS items; §4.6 and
+    this ruling make it mandatory for this skill, so §4.5 needs amending, and
+    `bc_create_items_rfp817007.py` (2026-10-15, written to bypass the vendor gate for a vendor
+    with no card) is either the sanctioned app-only exception or a one-off. (b) The
+    `includedWith` accessory row carries cost 0 by design; confirm the "cost > 0" ruling
+    covers that carve-out. (c) Manufacturer-first descriptions: the 12,000-odd existing
+    Grainger items carry Grainger catalog descriptions, so the house-style gate forces a
+    rewrite on every Grainger SKU; keep as a stop, or make it a warning for Grainger SKUs.
+    (d) Something other than this skill created zero-cost Grainger items on 2026-10-16 (SOP
+    §4.5's open Shopify-sync question); not this PR's to fix, but it is live. (e) Nothing
+    has yet proven a delegated item write under a rep-class permission set; rep-setup 5b
+    records the first one.
 
 - **`agent-team` plugin (PR #63), 2026-10-13.** Four rulings in session, all closed.
   - *Enable for everyone* — **RULED 2026-10-13:** on in `enabledPlugins`. Routine.

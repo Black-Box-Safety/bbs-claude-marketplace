@@ -134,7 +134,10 @@ you and the rep before the spec is written.
   rep is never given a file that carries `BC_CLIENT_SECRET`.
 - `whoami` and `check` read items, vendors and `Item_Card_Excel` (`$top=1` each) before
   anything else. If any of the three fails, nothing is checked or committed: a commit with
-  `Item_Card_Excel` unreachable would create items with no vendor.
+  `Item_Card_Excel` unreachable would create items with no vendor. A read PASS does not
+  prove write rights; `rep-setup.md` section 5b (one delegated commit under a rep-class
+  permission set, once) is what does.
+- An empty units-of-measure list from BC is a stop, not a skipped check.
 - What each sign-in or BC error means for the rep is the table in SKILL.md; the script
   prints the same plain-language line next to the raw code. A 401 on write with a 200 on
   read means the rep's BC user lacks a permission set covering item write. That is a BC

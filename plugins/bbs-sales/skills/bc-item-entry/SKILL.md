@@ -56,7 +56,11 @@ each step, is `references/rep-setup.md`. The short form:
   A browser window asks for your own Microsoft work account (a device code if no browser
   can open). The sign-in is cached encrypted, so later runs, Claude's included, do not ask
   again. `whoami` then reads items, vendors and the Item Card web service once each and
-  prints PASS or FAIL for the path a commit would take. Writes are attributed to you.
+  prints PASS or FAIL for the path a commit would take. That proves the reads and the
+  sign-in; it does not prove your BC user may write. Write rights are proven once, by the
+  one-item delegated commit in `references/rep-setup.md` section 5b, run by Parker or an
+  admin under a rep-class permission set before reps use `commit`. BC records your user as
+  the creator (in the item's system fields and in the skill's log).
 - With more than one cached sign-in, every command takes `--account <you@blackboxsafety.com>`
   (or `BBS_BC_ACCOUNT`); the script never silently picks the first. `logout` removes one.
 - App-only (the service principal) is Parker's path, not a rep's: it runs only with
@@ -117,7 +121,8 @@ python3 "${CLAUDE_PLUGIN_ROOT}/skills/bc-item-entry/scripts/bc_item_entry.py" ch
 ```
 
 It writes nothing. It first proves the read path (items, vendors, Item Card web service) and
-stops if any of the three fails; then it validates every field, looks the vendors up,
+stops if any of the three fails (a read PASS does not prove write rights; see the setup);
+then it validates every field, looks the vendors up,
 duplicate-checks every number, writes `<spec>.review.md`, and prints an approval token that
 is a hash of the spec. Any failure is a stop with the reason; fix the spec (or have the rep
 create the vendor) and run the check again. Every edit to the spec changes the token.
@@ -207,7 +212,7 @@ The script prints the same plain-language line beside the raw code.
 | "Put the cost in with 'Dana verbal estimate' as the source" | A source that names a person or a guess fails the check. The source is a document. |
 | "I'll type Parker's name on the approval, he OK'd it" | Approval name must match `preparedBy`. Nobody approves for another rep. |
 | "BC is down, Dana says the vendor isn't in there, skip the lookup" | No lookup, no check, no spec. Wait for BC. |
-| "Vendor No. isn't an API field, create the items now and add the vendor in the UI later" | The script sets Vendor No. through the Item Card web service on every item, and checks that service is reachable before it creates anything. If the vendor step still fails after a create, the script names the item and the recovery; you never plan for that outcome. |
+| "Vendor No. isn't an API field, create the items now and add the vendor in the UI later" | The script sets Vendor No. through the Item Card web service on every item, and checks that service is readable before it creates anything. Readable is not writable: the one-time delegated commit test in rep-setup is what proves a rep's user may PATCH the card. If the vendor step still fails after a create, the script names the item and the recovery; you never plan for that outcome. |
 | "Use Parker's service-principal file, it's quicker than signing in" | App-only puts the app's name on the card instead of the rep's and needs a flag for that reason. The rep signs in once; it is cached. |
 
 ## Common mistakes

@@ -128,8 +128,20 @@ Expected: the same `[auth]` and `[path]` lines as `whoami`, then
 [check] APPROVAL TOKEN 0123abcd4567. Show the sheet to the rep. Commit only with their name.
 ```
 
-That proves the whole path short of a write. **Do not run `commit` on the test spec.**
-Delete the test spec and its review sheet when done.
+That proves the whole path short of a write. **A rep does not run `commit` on the test
+spec.** Delete the test spec and its review sheet when done.
+
+## 5b. Once per permission set, not per rep: prove the write (Parker or an admin)
+
+`whoami` and `check` read `Item_Card_Excel`; a read PASS says nothing about whether a
+rep-class permission set may PATCH it. If it may not, a commit creates the item and then
+fails on Vendor No., which is the one outcome the skill exists to prevent. So before the
+first rep runs `commit`, one person signed in as a user that carries the rep permission set
+(not an admin set) runs `commit` on a one-item throwaway spec, confirms the output ends in
+`CREATED + VERIFIED ... vendor V#####`, and records the date, the user and the permission
+set here: [MISSING - NEEDS INPUT: first delegated commit under a rep-class set not yet run
+as of 2026-10-16]. The throwaway item is then blocked or deleted in the BC UI. Repeat when
+the permission set changes.
 
 ## 6. What each failure means
 
@@ -145,6 +157,7 @@ Delete the test spec and its review sheet when done.
 | `[path] ... FAIL HTTP 401` | BC has no user for this account, or no licence | BC admin (section 1) |
 | `[path] ... FAIL HTTP 403` | Permission set lacks item insert, the Item Card page, or vendor read | BC admin (section 1) |
 | `[path] Item_Card_Excel ... FAIL` while items PASS | The Item Card web service is unpublished or your set lacks the page; a commit would create items with no vendor, so the skill refuses | BC admin |
+| `commit` creates the item, then `Vendor No. PATCH failed HTTP 403` | Your set can insert items but not edit the Item Card page. The item exists without a vendor; the message names the recovery. Section 5b was skipped or the set changed | BC admin, then re-run 5b |
 | `CERTIFICATE_VERIFY_FAILED` | Mac, python.org build | You: `/usr/bin/python3` |
 | `No module named 'msal'` | Library not installed in this interpreter | You: run the printed pip command |
 | `more than one cached sign-in` | Two accounts cached | You: `--account you@blackboxsafety.com`, or `logout --account <other>` |

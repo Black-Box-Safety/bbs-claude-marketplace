@@ -94,8 +94,9 @@ Three gates, none of them the model's to waive (ruled 2026-10-14, `docs/STEWARD.
 marketplace repo): the vendor already exists in BC and the skill never creates one; the
 cost is greater than zero and names the document it was read from; nothing is written until
 the rep has read the review sheet and the commit carries their name and the token the check
-printed. Writes run under the rep's own Business Central sign-in, so the item card shows who
-created it. Before the first run, work through `skills/bc-item-entry/references/rep-setup.md`.
+printed. Writes run under the rep's own Business Central sign-in, so BC records the rep as
+the creator (system fields and the skill's log), not a shared service account. Before the
+first run, work through `skills/bc-item-entry/references/rep-setup.md`.
 
 ## The territory, before the RFQ
 

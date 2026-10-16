@@ -66,6 +66,12 @@ CONNECTION_FILE = os.path.join(os.path.dirname(HERE), "references", "bc-connecti
 CONNECTION_KEYS = ("tenantId", "clientId", "environment", "companyId")
 ENV_FOR = {"tenantId": "BC_TENANT_ID", "clientId": "BC_CLIENT_ID",
            "environment": "BC_ENVIRONMENT", "companyId": "BC_COMPANY_ID"}
+# Characters an item number may carry. The number becomes the key segment of
+# Item_Card_Excel('...') on the PATCH that sets Vendor No.; only these have been exercised
+# there (existing cards carry #, parentheses, dots, spaces and hyphens). A slash, percent
+# or ampersand in a URL path segment is untested, so the script stops rather than finds
+# out after the item exists.
+ITEM_NO_CHARS = re.compile(r"^[A-Z0-9#()._' -]+$")
 GUID_RE = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 CACHE_DIR = os.path.join(os.path.expanduser("~"), ".bbs")
 PIP_HINT = f"{sys.executable} -m pip install --user msal msal-extensions"
@@ -76,7 +82,7 @@ RECOVERY = ("Recovery: set Vendor No. on the card in the BC UI, or run bc_patch_
 # Words that mean the cost was not read from a document. Stems take any suffix, so
 # "estimate", "estimated", "approximately" and "Guesstimate" all fail; a vendor whose
 # name happens to be "Usual" does not.
-GUESS_WORDS = re.compile(r"(?i)\b(verbal|estimat\w*|approx\w*|roughly|about|ballpark|from memory|"
+GUESS_WORDS = re.compile(r"(?i)\b(verbal|estimat\w*|approx\w*|roughly|about(?=\s*\$?\d)|ballpark|from memory|"
                          r"phone|guess\w*|last time|typical|tbd|later)\b")
 
 # Sign-in and BC errors in plain language. The code is what Entra or BC returns; the text is
@@ -492,7 +498,11 @@ class BC:
         st, body = self.get(f"{self.api}/unitsOfMeasure?$select=code")
         if st != 200:
             http_fail("units of measure", st, body)
-        return {r["code"] for r in body.get("value") or []}
+        codes = {r["code"] for r in body.get("value") or []}
+        if not codes:
+            die("units of measure", "BC returned no units of measure; baseUoM cannot be validated, so nothing "
+                "is checked or committed. A permission set that hides the Units of Measure table is the usual cause.")
+        return codes
 
 
 # ----------------------------------------------------------------------------- spec
@@ -549,6 +559,11 @@ def validate_rows(spec, uoms):
             errs.append(f"{tag}: number is {len(num)} chars, limit {ITEM_NO_MAX}")
         if not is_ascii(num):
             errs.append(f"{tag}: number has non-ASCII characters")
+        elif not ITEM_NO_CHARS.match(num.upper()):
+            bad = sorted({c for c in num if not ITEM_NO_CHARS.match(c.upper())})
+            errs.append(f"{tag}: number carries {bad!r}; item numbers here use letters, digits, # ( ) . _ ' space "
+                        f"and hyphen only, because the number becomes the URL key of the Item Card web service "
+                        f"that sets Vendor No. and other characters are untested there")
         elif num != num.upper():
             errs.append(f"{tag}: item numbers are upper-case in BC (Code field); write it as {num.upper()!r} "
                         f"so the spec, the review sheet and the card agree")
@@ -836,7 +851,7 @@ def cmd_commit(args):
             die("approval", "commit refuses app-only auth unless BBS_BC_AUTH=app-only is set explicitly")
         print("[commit] FLAG: app-only run. The cards will show the service principal as creator, not "
               f"{who}. The log records both.")
-    elif who.split()[0].lower() not in bc.user.lower():
+    elif not any(part.lower() in bc.user.split("@")[0].lower() for part in who.split() if len(part) > 1):
         print(f"[commit] note: approved by {who}, but the sign-in writing is {bc.user}. The log records both; "
               f"this is acceptable only because {who} is in the chat reading the sheet.")
     rows, vendors, warns = run_checks(bc, spec, args.spec)
