@@ -94,7 +94,8 @@ Three gates, none of them the model's to waive (ruled 2026-10-14, `docs/STEWARD.
 marketplace repo): the vendor already exists in BC and the skill never creates one; the
 cost is greater than zero and names the document it was read from; nothing is written until
 the rep has read the review sheet and the commit carries their name and the token the check
-printed. Writes run under the rep's own Business Central sign-in, so BC records the rep as
+printed. The script runs through `bbs-fill` with no Allow prompt (Parker, 2026-10-16): the
+rep's sign-off on the sheet is the approval. Writes run under the rep's own Business Central sign-in, so BC records the rep as
 the creator (system fields and the skill's log), not a shared service account. Before the
 first run, work through `skills/bc-item-entry/references/rep-setup.md`.
 
@@ -185,8 +186,9 @@ The connection values (tenant, client id, environment, company id, no secret) sh
 plugin in `skills/bc-item-entry/references/bc-connection.json`; nothing to copy from the shared
 drive. Per rep, once, in the rep's own terminal rather than inside a Claude session:
 
-1. Install the sign-in libraries into the interpreter the skill runs with.
-   Mac: `/usr/bin/python3 -m pip install --user msal msal-extensions`.
+1. Install the sign-in libraries into the interpreter `bbs-fill` runs (`python3` on PATH
+   on a Mac, `python` on Windows).
+   Mac: `python3 -m pip install --user msal msal-extensions`.
    Windows: `python -m pip install msal msal-extensions`.
    Both setup scripts (`bbs-setup.sh`, `bbs-setup.ps1`) install them too.
 2. Run `whoami` from the skill's script. A browser window asks for your own Microsoft
