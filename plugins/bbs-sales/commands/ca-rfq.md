@@ -147,14 +147,16 @@ with `bbs-quote-builder` is retired as the quote desk's path. Two halves, in thi
    (`bc_find_item`) before anything is written. A number that exists is quoted as it is:
    never re-created, never patched from here. A number BC does not have is entered through
    `bc-item-entry` (vendor, sourced cost, named review) before the quote is touched.
-2. **Then the quote.** The header and lines are created in BC through the BC-Write-API quote
-   builder (`PM Claude/BC-Write-API` on SharePoint, one spec-driven script per deal until the
-   quote-entry skill ships), from a spec saved beside the deal as
-   `BC-import/quote-<yyyy-mm-dd>.json` with a review sheet next to it. The script dry-runs
-   first (reads only); the rep reads the sheet and approves it **by name in the chat**; only
-   then does it write. It sets CONTRACT from the vehicle Gate 1 named, gates the header on
-   ship-to by read-back before a single line is added, verifies every line by read-back, and
-   never releases, converts or sends.
+2. **Then the quote.** The header and lines are created in BC through `bc-quote-entry`, the
+   quote half of `bc-item-entry`, under the rep's own sign-in: a spec saved beside the deal as
+   `BC-import/quote-<yyyy-mm-dd>.json`, a `check` that reads only and writes the review sheet
+   next to it, the rep reading that sheet and approving it **by name in the chat**, and a
+   `commit` that carries their name and the sheet's token. The script sets CONTRACT from the
+   vehicle Gate 1 named, stops on an external document number any quote already carries,
+   gates the header on customer, ship-to, terms, CONTRACT and salesperson by read-back before
+   a single line is added, verifies every line and the total by read-back, and never
+   releases, converts or sends. The per-deal scripts in `PM Claude/BC-Write-API` on SharePoint
+   are its precedent, not the path.
 
 On the state path `naspo-quote` §3 supplies the line values (Grainger at cost, no tax on the
 worksheet, the solicitation number as the external document number); the mechanics above are

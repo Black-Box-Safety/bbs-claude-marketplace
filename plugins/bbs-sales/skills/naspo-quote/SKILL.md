@@ -67,13 +67,14 @@ Record the values you'll need downstream: `unitPrice`, `contractReferencePrice`,
 The quote is created in **Business Central**, not rendered in Claude (Parker, 2026-10-16;
 `/ca-rfq` Gate 5 carries the order of operations). Check every line's item number with
 `bc_find_item` first and quote the existing number as it is; enter a number BC lacks through
-`bc-item-entry` before the quote. Then create the header and lines through the BC-Write-API
-quote builder from a spec saved beside the deal (`BC-import/quote-<yyyy-mm-dd>.json`), after
-the rep has read its review sheet and approved by name. NASPO-specific values on that spec:
+`bc-item-entry` before the quote. Then create the header and lines through `bc-quote-entry`
+from a spec saved beside the deal (`BC-import/quote-<yyyy-mm-dd>.json`): its `check` writes
+the review sheet, the rep reads it and approves by name, and its `commit` writes under the
+rep's own sign-in. NASPO-specific values on that spec:
 
 | Field | Value |
 |---|---|
-| line `unitPrice` | the Grainger `unitPrice` — CA state schedule, at cost, no markup |
+| line `unitPrice` | the Grainger `unitPrice` — CA state schedule, at cost, no markup. `unitCost` is the same number, so the spec carries `zeroMarginOk: true` at the top level and `pricingBasis` says "Grainger at cost on NASPO" |
 | `contract` (CONTRACT, dimension 1) | `NASPO` |
 | `externalDocumentNumber` | the solicitation number off the worksheet header |
 | ship-to | the institution's delivery point from the buyer folder; gated by read-back |

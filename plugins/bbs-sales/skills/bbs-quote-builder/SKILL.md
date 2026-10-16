@@ -5,7 +5,7 @@ description: >-
   already exists in Business Central, in the BC print layout and numbered with that
   quote's SQ number. Since 2026-10-16 this is a fallback, not the quote desk's path:
   the customer quote is created in Business Central (items through bc-item-entry,
-  header and lines through the BC write path; /ca-rfq Gate 5) and the customer
+  header and lines through bc-quote-entry; /ca-rfq Gate 5) and the customer
   document is the PDF BC prints from the released quote. Use this skill only when a
   rep asks for a Claude-rendered copy of an existing BC quote ("render SQ-###### as
   a PDF", "put SQ-###### on our letterhead", "I can't print from BC, build the PDF")

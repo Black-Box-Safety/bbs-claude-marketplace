@@ -228,14 +228,35 @@ Write it up with evidence and move to the next slice. Do not idle.
   Gate 5 (order of operations), `naspo-quote` §3, `bbs-quote-builder` (description and a
   status note: fallback, renders a copy of an existing BC quote only), `bc-item-entry` close
   out, the `bbs-sales` README, `canonical-facts.md` (Systems of record and the Ruled table),
-  and `BC-WRITE-SOP-RULES.md` §4.7 on SharePoint. Until a quote-entry skill ships, the quote
-  half runs through a spec-driven script per deal in `PM Claude/BC-Write-API`
-  (`bc_build_sq_calfire_atwater_helmetcovers.py` is the reference: dry-run, duplicate check on
-  the external document number, read-only item gate, ship-to header gate, read-back, never
-  release). **Follow-up, not ruled:** a `bc-quote-entry` skill, the quote half of
-  `bc-item-entry` (spec, check with review sheet, commit with named approval, rep sign-in), so
-  reps stop copying per-deal scripts. `bbs-quote-builder`'s description changed, so the routing
-  eval is re-run before this lands.
+  and `BC-WRITE-SOP-RULES.md` §4.7 on SharePoint. The quote half is the **`bc-quote-entry`**
+  skill (branch `bc-quote-entry`, stacked on PR #64; `plugins/bbs-sales/skills/bc-quote-entry/`:
+  `SKILL.md`, `scripts/bc_quote_entry.py`, `references/spec-schema.md`, `quote-rules.md`),
+  which replaces the per-deal scripts in `PM Claude/BC-Write-API`
+  (`bc_build_sq_calfire_atwater_helmetcovers.py` was the reference and stays there as
+  precedent). Same shape as `bc-item-entry`: spec beside the deal, `check` reads only and
+  writes the review sheet, `commit` with the rep's name and the sheet's token, the rep's own
+  sign-in. The script imports the sibling's connection loading, sign-in, HTTP helpers and error
+  table rather than copying them, so one connection file and one token cache serve both. Gates:
+  customer exists and unblocked; every line's item exists as Inventory and unblocked and is
+  never created or patched from the quote; price has a cost greater than zero under it with a
+  document source and is never below it (equal needs `zeroMarginOk`, the normal shape on NASPO
+  where Grainger's price is the customer's); one quote per external document number; lines sum
+  to the total; header POSTed, ship-to PATCHed with `If-Match`, read back and gated on customer,
+  ship-to, terms, shipment method, CONTRACT, salesperson and external document number before a
+  line exists; whole quote read back with `$expand=salesQuoteLines` and verified; never
+  `validUntilDate`, never release, convert, send or post. CONTRACT codes are the SOP §1 list,
+  held as a test. **Open for Parker:** (a) `BC-WRITE-SOP-RULES.md` §4.7's "follow-up (open)"
+  line and §4.6 on SharePoint now point at a shipped skill and should say so (SharePoint is
+  not edited from the marketplace). (b) Nothing has yet proven a delegated sales-quote write
+  under a rep-class permission set; `rep-setup.md` 5b covers the item write only, and the
+  first quote commit under a rep-class set should be recorded beside it. (c) The CAL FIRE
+  Atwater spec of 2026-10-16 carries `approvedBy` prose and no `preparedBy`; it passes every
+  other field rule offline, and adding `preparedBy` makes it the worked example. (d)
+  `msal` is not installed in `/usr/bin/python3` on Parker's iMac (2026-10-16), so no live
+  `check` has run; the first live `check` against that spec is the acceptance test. The
+  routing eval: `bbs-quote-builder`'s description changed on this branch's base and
+  `bc-quote-entry` is new, so `docs/evals/skills.json` was regenerated and `queries-routing.json`
+  gained `quote-entry-*` queries; the result artifact and its tally are in the PR.
 
 - **`bc-item-entry`: rep-facing item creation in Business Central (PR #64) — RULED
   2026-10-14.** Parker, in session. What was ruled, and where each part lives

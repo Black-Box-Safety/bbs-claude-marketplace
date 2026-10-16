@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-19-b19800" alt="19 skills">
+  <img src="https://img.shields.io/badge/skills-20-b19800" alt="20 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
@@ -19,7 +19,7 @@ automatic so the rep spends their time on the buyer. The same discipline applies
 promo page that overstates a discount or implies an agency's endorsement is a compliance problem,
 not a marketing win, so every page runs through the same brand gate as any printed piece.
 
-**Jump to:** [The desk, end to end](#the-desk-end-to-end) · [The territory, before the RFQ](#the-territory-before-the-rfq) · [Item cards in Business Central](#item-cards-in-business-central) · [Setup](#one-time-setup) · [Commands](#commands) · [The rules that don't bend](#the-rules-that-dont-bend) · [Rollout guide](#rollout-guide)
+**Jump to:** [The desk, end to end](#the-desk-end-to-end) · [The territory, before the RFQ](#the-territory-before-the-rfq) · [Writes to Business Central](#writes-to-business-central) · [Setup](#one-time-setup) · [Commands](#commands) · [The rules that don't bend](#the-rules-that-dont-bend) · [Rollout guide](#rollout-guide)
 
 ## The desk, end to end
 
@@ -33,7 +33,7 @@ between two of these.
 | 2 | Get the items out of whatever they sent | `rfq-item-extract` — one skill for a DWR RFQ PDF, a saved Grainger cart PDF, or a screenshot of a cart or table |
 | 3 | Can we even sell it on this vehicle? | `dgs-bpo-item-check` — is the Grainger part on the active DGS BPO |
 | 4 | Price it | `grainger-pricing` (the authorized path — the Grainger MCP) · `bbs-sourcing` (competitive bids needing real vendor outreach, dispatching `supplier-scout` for items BBS has never sourced) · `vendor-quote-email` (one vendor, one ask) |
-| 5 | Build the customer's quote | Business Central itself (`/ca-rfq` Gate 5) — item numbers checked with `bc_find_item` and entered through `bc-item-entry` only when missing, then the quote header and lines through the BC write path after the rep approves the review sheet by name; a person releases and prints from BC. `bbs-quote-builder` only renders a copy of an existing BC quote |
+| 5 | Build the customer's quote | Business Central itself (`/ca-rfq` Gate 5) — item numbers checked with `bc_find_item` and entered through `bc-item-entry` only when missing, then the quote header and lines through `bc-quote-entry` after the rep approves its review sheet by name; a person releases and prints from BC. `bbs-quote-builder` only renders a copy of an existing BC quote |
 | 6 | Fill the compliance packet | `ca-form-filler` — every CA form, with the CDCR OBS 4007(B) Packet-B as its scripted path · `naspo-quote` runs a whole NASPO response and calls it for the paperwork |
 | 7 | Go find the next one | `grainger-promo-page` (outbound campaign). Federal deck copy is `bbs-deck-voice`, in `bbs-foundations` |
 
@@ -79,24 +79,32 @@ Creating a second folder for a buyer who already has one is the expensive mistak
 
 Both `ca-rfq-intake` and `naspo-quote` fire on their own when the conversation matches an inbound request; `grainger-promo-page` fires the same way when the conversation matches an outbound campaign build. You do not have to name any of them.
 
-## Item cards in Business Central
+## Writes to Business Central
 
-Step 5 above assumes every line already has an item number in Business Central. When it
-does not (a vendor quote for parts BBS has never stocked, a Grainger SKU on a drop-ship
-buy), `bc-item-entry` creates the item cards, and it is the only skill in this marketplace
-that writes to Business Central.
+Two skills write to Business Central, and they are the only two in this marketplace that do.
+Step 5 above is `bc-quote-entry`: the quote header and lines, created from a spec the rep
+approved by name. It assumes every line already has an item number in Business Central; when
+one does not (a vendor quote for parts BBS has never stocked, a Grainger SKU on a drop-ship
+buy), `bc-item-entry` creates the item card first. The write scope is exactly that: create
+items, patch Vendor No., create sales quotes and their lines. Neither skill releases,
+converts, sends or posts anything.
 
 | Skill | Fires when | Stops at |
 |---|---|---|
 | `bc-item-entry` | A rep says "add these items to BC", "these SKUs aren't in Business Central yet", "set up the item cards for this PO", or hands over a vendor quote or price list and wants the products on file | Item cards created and read back, each with a vendor, a cost, Inventory / PRODUCTS / INVENTORY / TAXABLE, and a log of who approved. No quote, no order, no vendor card |
+| `bc-quote-entry` | A rep has priced an RFQ and says "create the quote in BC", "build the sales quote for this RFQ", "make the SQ", or `/ca-rfq` and `naspo-quote` reach the build-the-quote step | A Draft sales quote in BC with the SQ number BC assigned, header gated on customer, ship-to, terms, CONTRACT and salesperson, every line and the total verified by read-back, and a log of who approved. A person releases, prints and sends from BC |
 
-Three gates, none of them the model's to waive (ruled 2026-10-14, `docs/STEWARD.md` in the
-marketplace repo): the vendor already exists in BC and the skill never creates one; the
-cost is greater than zero and names the document it was read from; nothing is written until
-the rep has read the review sheet and the commit carries their name and the token the check
-printed. Writes run under the rep's own Business Central sign-in, so BC records the rep as
-the creator (system fields and the skill's log), not a shared service account. Before the
-first run, work through `skills/bc-item-entry/references/rep-setup.md`.
+The same shape on both (ruled 2026-10-14 and 2026-10-16, `docs/STEWARD.md` in the
+marketplace repo): a spec beside the deal, a `check` that reads only and writes a review
+sheet, the rep reading that sheet, a `commit` with the rep's name and the sheet's token.
+Items: the vendor already exists in BC and the skill never creates one; the cost is greater
+than zero and names the document it was read from. Quotes: every line's item already exists
+and is never created or patched from the quote; price has a sourced cost under it and is
+never below it; one quote per external document number. Writes run under the rep's own
+Business Central sign-in, so BC records the rep as the creator (system fields and the skills'
+logs), not a shared service account. Both scripts share one connection file, one token cache
+and one error table, so the setup below is done once for both. Before the first run, work
+through `skills/bc-item-entry/references/rep-setup.md`.
 
 ## The territory, before the RFQ
 
@@ -179,7 +187,7 @@ the value, and the bootstrap asks for it with hidden input when run with the SAM
 budget of 1,000 requests a day; its expiry date is in canon. `usaspending-awards` needs no key. Both run
 through `bbs-fill`, so they need the `bbs-tools` plugin.
 
-### For `bc-item-entry`
+### For `bc-item-entry` and `bc-quote-entry`
 
 The connection values (tenant, client id, environment, company id, no secret) ship with the
 plugin in `skills/bc-item-entry/references/bc-connection.json`; nothing to copy from the shared
@@ -189,14 +197,15 @@ drive. Per rep, once, in the rep's own terminal rather than inside a Claude sess
    Mac: `/usr/bin/python3 -m pip install --user msal msal-extensions`.
    Windows: `python -m pip install msal msal-extensions`.
    Both setup scripts (`bbs-setup.sh`, `bbs-setup.ps1`) install them too.
-2. Run `whoami` from the skill's script. A browser window asks for your own Microsoft
-   sign-in; the token is cached encrypted (Keychain on Mac, DPAPI on Windows), so later runs
-   do not ask again. `whoami` then reads items, vendors and the Item Card web service once
-   each and prints PASS or FAIL for the path a commit would use.
+2. Run `whoami` from either skill's script. A browser window asks for your own Microsoft
+   sign-in; the token is cached encrypted (Keychain on Mac, DPAPI on Windows) and shared by
+   both skills, so later runs do not ask again. `whoami` then reads the entities a commit
+   would use (items, vendors and the Item Card web service for item entry; customers, items,
+   sales quotes and units of measure for quote entry) once each and prints PASS or FAIL.
 3. Run `check` on a one-item test spec and read the review sheet it prints. That proves the
    setup end to end and writes nothing.
 
-Your BC user needs a licence and permission sets that can create items; an admin confirms
+Your BC user needs a licence and permission sets that can create items and sales quotes; an admin confirms
 them on the BC Users page. The checklist, the three Entra settings an admin confirms on the
 app registration, the expected output of each step and what each error means are in
 `skills/bc-item-entry/references/rep-setup.md`.

@@ -143,9 +143,10 @@ the same commit that documents it here. AUP.md is the human-side counterpart, li
 
 ## Business Central writes wait for a click (2026-10-15)
 
-Ruling (Parker, 2026-10-15): `bc_item_entry.py`, the one script in the marketplace that
-writes to Business Central (`bbs-sales` / `bc-item-entry`), stays **off** the `bbs-fill`
-`ALLOWED` list. `Bash(bbs-fill *)` is allowed so the vetted form and quote scripts run
+Ruling (Parker, 2026-10-15): `bc_item_entry.py`, the script in the marketplace that
+writes items to Business Central (`bbs-sales` / `bc-item-entry`), stays **off** the `bbs-fill`
+`ALLOWED` list; `bc_quote_entry.py` (`bbs-sales` / `bc-quote-entry`, the sales-quote half,
+2026-10-16) follows the same ruling and stays off it too. `Bash(bbs-fill *)` is allowed so the vetted form and quote scripts run
 without a prompt; that convenience does not extend to a write against a system of record.
 Every run of the item-entry script, `check` and `whoami` included and `commit` above all,
 goes through the ordinary Bash permission and waits for the person to click Allow. The
