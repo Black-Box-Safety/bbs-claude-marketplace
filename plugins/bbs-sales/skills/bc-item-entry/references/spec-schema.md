@@ -8,9 +8,9 @@ the quote it serves as `BC-import/items-<yyyy-mm-dd>.json`. The check writes
 
 | Field | Required | Meaning |
 |---|---|---|
-| `vendorNo` | yes, unless every row carries its own | Default BC vendor number (`V#####`) for rows without one |
-| `vendorName` | recommended | Name as it reads on the vendor quote; the check stops if BC's name for `vendorNo` does not contain it |
-| `preparedBy` | yes | The rep's name; printed on the review sheet |
+| `vendorNo` | yes, unless every row carries its own | Default BC vendor number (`V#####`, upper-case) for rows without one |
+| `vendorName` | yes, whenever `vendorNo` is set | Name as it reads on the vendor quote; the check stops if BC's name for `vendorNo` does not contain it |
+| `preparedBy` | yes | The rep's name; printed on the review sheet and matched against `--approved-by` on commit |
 | `source` | yes | The document the costs came from, with number and date |
 | `items` | yes | One object per item, below |
 
@@ -18,18 +18,18 @@ the quote it serves as `BC-import/items-<yyyy-mm-dd>.json`. The check writes
 
 | Field | Required | Rule |
 |---|---|---|
-| `number` | yes | 1-20 ASCII characters, no leading or trailing spaces, unique in the spec and absent from BC. Grainger SKU on Grainger-filled buys |
+| `number` | yes | 1-20 ASCII characters, upper-case (BC stores Code fields upper-case), no leading or trailing spaces, unique in the spec and absent from BC. Grainger SKU on Grainger-filled buys |
 | `displayName` | yes | 1-100 ASCII characters, starts with the manufacturer. Hyphens and straight quotes only |
 | `displayName2` | no | Up to 50 ASCII characters of overflow (accessories included, size notes) |
 | `manufacturer` | yes | The brand the description must start with (`Carr Lane`, `Harrington`, `3M`) |
 | `baseUoM` | yes | A unit of measure code that exists in BC. `EA` unless the vendor sells a pack, case or box; then the real code (`PK10`, `CS`, `BX`) |
 | `costPer` | yes | What one unit of cost buys. Must equal `baseUoM`; convert before you write the spec |
 | `unitCost` | yes | Greater than zero, the vendor's price to BBS before freight and tax. Zero only with `includedWith` |
-| `costSource` | yes | Where the cost was read, with a number or date: `Carr Lane SQ-122475 10/08/2026`, `Grainger MCP acct 888783805 2026-10-14`, `Star CSP 0052299006 10/07/2026`. Words like verbal, roughly, estimate, approx or phone fail the check |
-| `preparedBy` (top level) | yes | Must equal the `--approved-by` name on commit |
+| `costSource` | yes | Where the cost was read, with a number or date: `<Vendor> quote <number> <date>`, `Grainger MCP acct <buying account> <date>`, `<Distributor> CSP <quote number> <date>`. Any stem of verbal, estimate, approx, roughly, guess, ballpark, phone or "from memory" fails the check, and so does a source with no number or date in it |
 | `unitPrice` | no | Sell price when known. Never below cost; equal to cost needs `zeroMarginOk: true`. Leave off for Grainger items priced at quote time |
 | `zeroMarginOk` | no | `true` only when the rep accepts selling at cost and has seen that on the sheet |
-| `vendorNo` | no | Overrides the top-level vendor for this row (mixed Carr Lane plus Grainger batches) |
+| `vendorNo` | no | Overrides the top-level vendor for this row (a mixed batch: one vendor's parts plus a Grainger hoist). Upper-case |
+| `vendorName` | yes, when the row overrides `vendorNo` | The name for that vendor as it reads on its quote; every distinct vendor in the spec is name-checked against BC. A vendor number with no name anywhere in the spec is an error |
 | `vendorItemNo` | no | The vendor's own part number when it differs from `number`, up to 50 characters. Lands in Vendor Item No. on the card |
 | `includedWith` | no | Another `number` in this spec whose price covers this accessory. Forces cost 0 and price 0 on this row |
 
@@ -39,55 +39,65 @@ the warehouse fields stay at BC defaults, which is how every BBS item is set up.
 
 ## Example
 
+Every value below is synthetic. Vendor numbers are resolved by name through the BC
+connector when the spec is written (`V#####` stands for whatever BC answers); the account
+in a Grainger cost source is the buying institution's own account, read from its folder
+name or the buyer's note, never copied from an example.
+
 ```json
 {
-  "vendorNo": "V11469",
-  "vendorName": "Geisler",
-  "preparedBy": "Parker Marshall",
-  "source": "Carr Lane quote SQ-122475 (10/08/2026) for Bechtel PO 833193",
+  "vendorNo": "V#####",
+  "vendorName": "Example Distributor",
+  "preparedBy": "Rep Name",
+  "source": "Example Distributor quote Q-000001 (01/02/2026) for Customer PO 000000",
   "items": [
     {
-      "number": "CL-10000-SHR-1",
-      "displayName": "Carr Lane CL-10000-SHR-1 Swivel Hoist Ring, 1\"-8, 10,000 lb",
-      "manufacturer": "Carr Lane",
+      "number": "EX-1000-A",
+      "displayName": "Example Mfr EX-1000-A Swivel Hoist Ring, 1\"-8, 10,000 lb",
+      "manufacturer": "Example Mfr",
       "baseUoM": "EA",
       "costPer": "EA",
-      "unitCost": 288.36,
-      "unitPrice": 339.25,
-      "vendorItemNo": "CL-10000-SHR-1",
-      "costSource": "Carr Lane SQ-122475 10/08/2026"
+      "unitCost": 100.00,
+      "unitPrice": 125.00,
+      "vendorItemNo": "EX-1000-A",
+      "costSource": "Example Distributor quote Q-000001 01/02/2026"
     },
     {
-      "number": "1TAJ3",
-      "displayName": "Harrington LB010-10 Lever Chain Hoist, Hook Mount, 2,000 lb, 10 ft Lift",
-      "manufacturer": "Harrington",
+      "number": "1ABC2",
+      "displayName": "Example Mfr LB-010 Lever Chain Hoist, 2,000 lb, 10 ft Lift",
+      "manufacturer": "Example Mfr",
       "baseUoM": "EA",
       "costPer": "EA",
-      "unitCost": 598.97,
-      "vendorNo": "V10017",
-      "costSource": "Star CSP 0052299006 10/07/2026 acct 888783805"
+      "unitCost": 500.00,
+      "vendorNo": "V#####",
+      "vendorName": "Grainger",
+      "costSource": "Grainger MCP acct <buying account> 2026-01-02"
     },
     {
-      "number": "CAB-16AWG-AC",
-      "displayName": "Cisco AC power cord, 16 AWG",
-      "manufacturer": "Cisco",
+      "number": "EX-CORD-AC",
+      "displayName": "Example Mfr AC power cord, 16 AWG",
+      "manufacturer": "Example Mfr",
       "baseUoM": "EA",
       "costPer": "EA",
       "unitCost": 0,
       "unitPrice": 0,
-      "includedWith": "C1300-8FP-2G"
+      "includedWith": "EX-SWITCH-8P"
     }
   ]
 }
 ```
 
-The third row only validates if `C1300-8FP-2G` is also in the spec.
+The second row overrides the vendor, so it carries its own `vendorName`. The third row only
+validates if `EX-SWITCH-8P` is also in the spec.
 
 ## What the review sheet shows
 
 | # | Item No. | Description | UoM | Vendor | Vendor Item | Cost | Price | GM% | Cost source |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | CL-10000-SHR-1 | Carr Lane CL-10000-SHR-1 Swivel Hoist Ring, 1"-8, 10,000 lb | EA | V11469 Geisler | CL-10000-SHR-1 | 288.36 | 339.25 | 15.0 | Carr Lane SQ-122475 10/08/2026 |
+| 1 | EX-1000-A | Example Mfr EX-1000-A Swivel Hoist Ring, 1"-8, 10,000 lb | EA | V##### Example Distributor | EX-1000-A | 100.00 | 125.00 | 20.0 | Example Distributor quote Q-000001 01/02/2026 |
 
-The rep reads this table, not the JSON. The approval token at the top of the sheet is the
-one the commit command needs, and it changes whenever the spec file changes.
+Above the table the sheet names who prepared it, the source document, the sign-in the
+commit would write under (delegated as the rep, or app-only with a flag), where the
+connection values came from, and the approval token. The rep reads this sheet, not the
+JSON. The token is the one the commit command needs, and it changes whenever the spec file
+changes.

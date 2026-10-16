@@ -27,15 +27,22 @@ you and the rep before the spec is written.
   steps; it never creates one. There is no house Vendor Card SOP as of 2026-10-14
   [FLAG: SOP gap], so a rep unsure of payment terms or posting groups asks Parker before
   saving the card.
-- `vendorName` on the spec is a tripwire: the check stops when BC's name for the number
-  does not contain it. `V10017` is Grainger; `V11469` is Geisler, the Carr Lane
-  distributor. Do not carry other numbers in your head; look them up.
-- Mixed batches (Carr Lane rings plus a Grainger hoist) put the vendor on each row.
+- `vendorName` is a tripwire on every vendor number in the spec: the check stops when BC's
+  name for the number does not contain it, and a vendor number with no name anywhere in the
+  spec is an error before BC is even asked. No vendor number is carried in a file or in
+  anyone's head, Grainger's included: every vendor is resolved by name through the BC
+  connector when the spec is written, and the examples here write `V#####`.
+- Mixed batches (one vendor's parts plus a Grainger hoist) put `vendorNo` and `vendorName`
+  on each row that differs from the top-level vendor.
 - A vendor whose BC address does not match the quote's letterhead is worth a question to
   the rep before the check, not after the items exist.
 
 ## Cost
 
+- The source names a document. The script rejects any stem of verbal, estimate, approx,
+  roughly, guess, ballpark, phone, "from memory", "last time", typical, TBD and later, so
+  "estimated", "approximately" and "Guesstimate" all fail; and it rejects a source with no
+  number or date in it. `scripts/test_bc_item_entry.py` holds those words as a test.
 - Cost is the vendor's price to BBS for one base unit, before freight and tax. A quote line
   that bundles freight or adds a card fee is not the cost; note the fee in `source` and
   keep the cost clean.
@@ -57,7 +64,10 @@ you and the rep before the spec is written.
 
 ## Item numbers
 
-- 1-20 ASCII characters. Apostrophes are allowed and escaped by the script.
+- 1-20 ASCII characters, upper-case: BC stores Code fields upper-case, so a lower-case
+  number in the spec would not match the card BC creates, and the duplicate check would
+  miss it. The script stops on lower-case rather than silently converting. Apostrophes are
+  allowed and escaped by the script.
 - Grainger-filled buys use the Grainger SKU as the number, with the customer's tag at the
   front of the quote-line description, not the item description.
 - Bare manufacturer part numbers collide: Ergodyne `3174` was already a Dynarex bandage in
@@ -65,8 +75,13 @@ you and the rep before the spec is written.
   product: quote that number and drop the row. Different product: use a number that cannot
   collide and tell the rep why.
 - The script will not patch an existing card for any reason. Vendor or cost fixes on
-  existing items are a separate, explicit request (`bc_patch_item_vendor.py` in the
-  BC-Write-API folder covers the vendor).
+  existing items are a separate, explicit request (`bc_patch_item_vendor.py` in
+  `PM Claude/BC-Write-API` on SharePoint covers the vendor).
+- If a commit creates an item and then the Vendor No. step fails (the Item Card web service
+  rejects the PATCH, or the read-back disagrees), the item exists in BC without a vendor.
+  The script says so by number, names the recovery (set Vendor No. in the BC UI or run
+  `bc_patch_item_vendor.py`), and stops; re-running commit would stop on the duplicate gate.
+  `whoami` and `check` read `Item_Card_Excel` first so that this is rare, not routine.
 
 ## Units of measure
 
@@ -101,10 +116,27 @@ you and the rep before the spec is written.
 
 ## Authentication
 
-- Default is the rep's own sign-in (device code, `msal`), cached in
-  `~/.bbs/bc_token_cache.json`. The log records the signed-in user.
-- `BBS_BC_ENV_FILE` with `BC_CLIENT_SECRET` present switches to the shared service
-  principal. Parker's connection file for reps (`.env.rep`) carries no secret on purpose.
-- A 401 on write with a 200 on read means the rep's BC user lacks a permission set covering
-  item write. That is a BC admin fix, not a script fix.
+- Connection values ship with the plugin in `references/bc-connection.json`: tenant, client
+  id, environment, company id, and nothing else (the script and the marketplace checker both
+  stop on any other key). The company name is read from BC at run time. `BBS_BC_ENV_FILE`
+  and `BC_*` environment variables override the file; every run prints where each value
+  came from.
+- Default is the rep's own sign-in (delegated): a browser window first, a device code if
+  that cannot open. The token cache is encrypted with `msal-extensions` (Keychain on a Mac,
+  DPAPI on Windows); without that library it is a 0600 file in a 0700 `~/.bbs`. With more
+  than one cached account, `--account` or `BBS_BC_ACCOUNT` picks one; the script never
+  silently takes the first. `logout` removes a cached account. The log and the item card
+  record the signed-in user.
+- App-only (the service principal) runs only with `BBS_BC_AUTH=app-only` and a
+  `BC_CLIENT_SECRET` in `BBS_BC_ENV_FILE` or the environment. A secret without the flag is
+  ignored and said so. Commit refuses app-only without the flag, and the review sheet and
+  log flag an app-only run because the card then shows the app as creator, not the rep. A
+  rep is never given a file that carries `BC_CLIENT_SECRET`.
+- `whoami` and `check` read items, vendors and `Item_Card_Excel` (`$top=1` each) before
+  anything else. If any of the three fails, nothing is checked or committed: a commit with
+  `Item_Card_Excel` unreachable would create items with no vendor.
+- What each sign-in or BC error means for the rep is the table in SKILL.md; the script
+  prints the same plain-language line next to the raw code. A 401 on write with a 200 on
+  read means the rep's BC user lacks a permission set covering item write. That is a BC
+  admin fix, not a script fix.
 - `CERTIFICATE_VERIFY_FAILED` on a Mac means the python.org build; use `/usr/bin/python3`.

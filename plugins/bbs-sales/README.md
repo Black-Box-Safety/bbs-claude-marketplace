@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-18-b19800" alt="18 skills">
+  <img src="https://img.shields.io/badge/skills-19-b19800" alt="19 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
@@ -19,7 +19,7 @@ automatic so the rep spends their time on the buyer. The same discipline applies
 promo page that overstates a discount or implies an agency's endorsement is a compliance problem,
 not a marketing win, so every page runs through the same brand gate as any printed piece.
 
-**Jump to:** [The desk, end to end](#the-desk-end-to-end) · [The territory, before the RFQ](#the-territory-before-the-rfq) · [Setup](#one-time-setup) · [Commands](#commands) · [The rules that don't bend](#the-rules-that-dont-bend) · [Rollout guide](#rollout-guide)
+**Jump to:** [The desk, end to end](#the-desk-end-to-end) · [The territory, before the RFQ](#the-territory-before-the-rfq) · [Item cards in Business Central](#item-cards-in-business-central) · [Setup](#one-time-setup) · [Commands](#commands) · [The rules that don't bend](#the-rules-that-dont-bend) · [Rollout guide](#rollout-guide)
 
 ## The desk, end to end
 
@@ -78,6 +78,24 @@ Creating a second folder for a buyer who already has one is the expensive mistak
 **`grainger-promo-page`** runs the other direction. An agency already buys a given list of items, usually direct or from a competitor. Routing the same items at the same contract price through Black Box Safety turns that spend into reportable DVBE participation, and the skill's job is to make that concrete: real prices, real photos, real availability, and a quote builder a buyer can use without typing an email. The pricing-verification step matters because the sheet a rep sends is not always actually the lowest price: the skill checks every line against the agency's own Grainger account and prints whichever number is lower, because "lowest when you quote" is usually what the rep promised the buyer. SCPRS segmentation is what makes this more than a mailshot: instead of one blast, the skill sizes three buyer segments from the SCPRS warehouse (buys the prime direct, buys the category elsewhere, has BBS history but drifted) so the page goes to the people it can actually move, each with the wedge that fits their situation. And nothing ships before the brand compliance gate runs on the rendered page, same as any other piece, because an implied endorsement or an unregistered discount claim is a compliance problem the gate can catch just as easily on a webpage as on a PDF. The CAL FIRE H2 2026 build is the reference example: it was built once against a real agency hot list, and the errors it turned up (unpriced lines, a sheet that lost to the account price on more than a dozen lines, mismatched item descriptions) are written up in the skill's own worked example rather than repeated here.
 
 Both `ca-rfq-intake` and `naspo-quote` fire on their own when the conversation matches an inbound request; `grainger-promo-page` fires the same way when the conversation matches an outbound campaign build. You do not have to name any of them.
+
+## Item cards in Business Central
+
+Step 5 above assumes every line already has an item number in Business Central. When it
+does not (a vendor quote for parts BBS has never stocked, a Grainger SKU on a drop-ship
+buy), `bc-item-entry` creates the item cards, and it is the only skill in this marketplace
+that writes to Business Central.
+
+| Skill | Fires when | Stops at |
+|---|---|---|
+| `bc-item-entry` | A rep says "add these items to BC", "these SKUs aren't in Business Central yet", "set up the item cards for this PO", or hands over a vendor quote or price list and wants the products on file | Item cards created and read back, each with a vendor, a cost, Inventory / PRODUCTS / INVENTORY / TAXABLE, and a log of who approved. No quote, no order, no vendor card |
+
+Three gates, none of them the model's to waive (ruled 2026-10-14, `docs/STEWARD.md` in the
+marketplace repo): the vendor already exists in BC and the skill never creates one; the
+cost is greater than zero and names the document it was read from; nothing is written until
+the rep has read the review sheet and the commit carries their name and the token the check
+printed. Writes run under the rep's own Business Central sign-in, so the item card shows who
+created it. Before the first run, work through `skills/bc-item-entry/references/rep-setup.md`.
 
 ## The territory, before the RFQ
 
@@ -159,6 +177,28 @@ the value, and the bootstrap asks for it with hidden input when run with the SAM
 (`bbs-setup.ps1 -SamGov` / `bbs-setup.sh --sam-gov`) and saves it as `SAM_GOV_API_KEY`. It is never committed or pasted into a chat. The key is the entity account's, so the whole team shares one
 budget of 1,000 requests a day; its expiry date is in canon. `usaspending-awards` needs no key. Both run
 through `bbs-fill`, so they need the `bbs-tools` plugin.
+
+### For `bc-item-entry`
+
+The connection values (tenant, client id, environment, company id, no secret) ship with the
+plugin in `skills/bc-item-entry/references/bc-connection.json`; nothing to copy from the shared
+drive. Per rep, once, in the rep's own terminal rather than inside a Claude session:
+
+1. Install the sign-in libraries into the interpreter the skill runs with.
+   Mac: `/usr/bin/python3 -m pip install --user msal msal-extensions`.
+   Windows: `python -m pip install msal msal-extensions`.
+   Both setup scripts (`bbs-setup.sh`, `bbs-setup.ps1`) install them too.
+2. Run `whoami` from the skill's script. A browser window asks for your own Microsoft
+   sign-in; the token is cached encrypted (Keychain on Mac, DPAPI on Windows), so later runs
+   do not ask again. `whoami` then reads items, vendors and the Item Card web service once
+   each and prints PASS or FAIL for the path a commit would use.
+3. Run `check` on a one-item test spec and read the review sheet it prints. That proves the
+   setup end to end and writes nothing.
+
+Your BC user needs a licence and permission sets that can create items; an admin confirms
+them on the BC Users page. The checklist, the three Entra settings an admin confirms on the
+app registration, the expected output of each step and what each error means are in
+`skills/bc-item-entry/references/rep-setup.md`.
 
 ## Commands
 
