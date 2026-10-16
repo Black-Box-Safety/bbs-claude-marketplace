@@ -11,7 +11,7 @@ description: >-
   on file. Always use this skill for item creation so every card carries a vendor, a
   sourced cost, the house posting groups, and a named approval. Do NOT use it to edit
   existing items, to create vendors (the rep does that in BC), to build the sales quote
-  (per-PO builders and bbs-quote-builder do that), or to load the website catalog
+  (bc-quote-entry does that, after the items exist), or to load the website catalog
   (bbs-pricelist-import).
 requires: [business-central, python3, msal, msal-extensions]
 ---
@@ -160,9 +160,10 @@ Tell the rep which item numbers now exist and where the log is. If the run stopp
 item was created but before its vendor landed, the script says so by number: that item now
 exists in BC without a vendor, and the recovery is the Vendor No. field in the BC UI or
 `bc_patch_item_vendor.py` in `PM Claude/BC-Write-API` on SharePoint. Tell the rep that
-plainly; do not re-run commit for it. The quote or order is a separate job (per-PO builders
-for Sentinel, `bbs-quote-builder` for the PDF, a human in BC for release). Items that need
-Extended Text or Item References get those in the BC UI.
+plainly; do not re-run commit for it. The quote is a separate job: `bc-quote-entry` creates
+it in BC from its own spec after the rep approves that review sheet by name (`/ca-rfq`
+Gate 5), under the same sign-in, and a human releases it in BC and prints the PDF there.
+Items that need Extended Text or Item References get those in the BC UI.
 
 ## When sign-in or BC says no
 
