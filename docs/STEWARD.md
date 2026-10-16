@@ -256,7 +256,12 @@ Write it up with evidence and move to the next slice. Do not idle.
   `check` has run; the first live `check` against that spec is the acceptance test. The
   routing eval: `bbs-quote-builder`'s description changed on this branch's base and
   `bc-quote-entry` is new, so `docs/evals/skills.json` was regenerated and `queries-routing.json`
-  gained `quote-entry-*` queries; the result artifact and its tally are in the PR.
+  gained `quote-entry-*` queries (three for the new skill, two siblings). **The eval did not
+  run (2026-10-16):** every `claude -p` the harness spawned answered "OAuth session expired
+  and could not be refreshed" and scored `__none__` on all 39 queries, which is the harness
+  signature, not a routing result, so no artifact was kept. Re-login the CLI in a terminal
+  (`claude` then `/login`) and run the command in Commands above before this lands; the
+  pass line to beat is 39/39 anonymized.
 
 - **`bc-item-entry`: rep-facing item creation in Business Central (PR #64) — RULED
   2026-10-14.** Parker, in session. What was ruled, and where each part lives
