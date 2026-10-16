@@ -16,7 +16,14 @@ the spec file). `commit` refuses unless the token still matches the spec and --a
 the rep named on it, re-runs every gate, POSTs the header, PATCHes the ship-to with If-Match,
 reads the header back and gates on it before a single line is added, POSTs the lines, reads the
 whole quote back with $expand=salesQuoteLines and verifies every line and the total, and
-appends to `<spec>.bc-log.jsonl`. It never releases, converts, sends or posts anything; a
+appends to `<spec>.bc-log.jsonl`.
+
+Whose quote it is: a California state quote carries the salesperson code of the Account Manager
+who owns the agency (Kim Quezon's 18 agencies -> KQUEZON; every other state agency -> Aanya
+Samarasinghe, whose code is the CA STATE TEAM bucket until she has her own). Parker holds no
+accounts on the state book (Parker, in session, 2026-10-16), so PMARSHALL never goes on a state
+quote. Body armor is Parker's and higher education is Joey Magliato's; the spec's `book` says
+which rule applies, and the customer card's CUSTOMER dimension is read as a cross-check. It never releases, converts, sends or posts anything; a
 person releases the quote in BC, which is where tax is calculated.
 
 Connection, sign-in, HTTP, the error table and the token cache are IMPORTED from the sibling
@@ -63,8 +70,46 @@ SHIP_TO_KEYS = ("shipToName", "shipToContact", "shipToAddressLine1", "shipToAddr
                 "shipToState", "shipToPostCode", "shipToCountry")
 SHIP_TO_REQUIRED = ("shipToName", "shipToAddressLine1", "shipToCity", "shipToState", "shipToPostCode")
 TOP_REQUIRED = ("customerNumber", "externalDocumentNumber", "contract", "salesperson", "shipTo", "costSource",
-                "pricingBasis", "lines", "quoteTotalExclTax", "preparedBy")
-TOP_KNOWN = TOP_REQUIRED + ("zeroMarginOk", "deal", "approvedBy")
+                "pricingBasis", "lines", "quoteTotalExclTax", "preparedBy", "book")
+TOP_KNOWN = TOP_REQUIRED + ("agency", "zeroMarginOk", "deal", "approvedBy")
+BODY_ARMOR_CONTRACTS = frozenset({"BODYARMOR", "BA-CA", "BA-SRCWL"})
+BOOKS = ("ca-state", "body-armor", "higher-ed", "other")
+
+# Who owns what on the California state book. Authority: canonical-facts.md "CA state book
+# scope" (bbs-foundations) and the ca-state-sales-grounding skill, as of 2026-09-02; Parker, in
+# session, 2026-10-16: Parker holds no accounts on the state book, so every state quote carries
+# Kim's or Aanya's code. Aanya has no personal salesperson code as of 2026-10-16; CA STATE TEAM is
+# her bucket. When BC gains one, change AANYA_CODE, the test and the grounding together.
+KIM_CODE, AANYA_CODE = "KQUEZON", "CA STATE TEAM"
+OWNERS = {"kim": ("Kim Quezon", KIM_CODE), "aanya": ("Aanya Samarasinghe", AANYA_CODE)}
+HIGHER_ED_CODES = frozenset({"JMAGLIATO", "UNIVERSITY"})   # Joey Magliato: CSU and UC
+# Kim Quezon's 18 agencies, keyed by the short name the spec uses, with the spellings a rep
+# writes. Anything else that is a California state agency is Aanya's.
+KIM_AGENCIES = {
+    "CDCR": ("CORRECTIONS", "CORRECTIONS AND REHABILITATION", "DEPARTMENT OF CORRECTIONS AND REHABILITATION"),
+    "CHP": ("HIGHWAY PATROL", "CALIFORNIA HIGHWAY PATROL"),
+    "CAL FIRE": ("CALFIRE", "CDF"),
+    "CMD": ("MILITARY DEPARTMENT", "CALIFORNIA MILITARY DEPARTMENT"),
+    "CDFW": ("DFW", "FISH AND WILDLIFE", "FISH & WILDLIFE"),
+    "CAL OES": ("CALOES", "OES", "EMERGENCY SERVICES", "OFFICE OF EMERGENCY SERVICES"),
+    "DOJ": ("JUSTICE", "DEPARTMENT OF JUSTICE"),
+    "DPR": ("STATE PARKS", "PARKS", "PARKS AND RECREATION", "PARKS & RECREATION"),
+    "DWR": ("WATER RESOURCES", "DEPARTMENT OF WATER RESOURCES"),
+    "DCC": ("CANNABIS CONTROL", "DEPARTMENT OF CANNABIS CONTROL"),
+    "CCC": ("CONSERVATION CORPS", "CALIFORNIA CONSERVATION CORPS"),
+    "ABC": ("ALCOHOLIC BEVERAGE CONTROL",),
+    "DOC": ("CONSERVATION", "DEPARTMENT OF CONSERVATION"),
+    "SWRCB": ("CWB", "STATE WATER BOARD", "WATER BOARD", "STATE WATER RESOURCES CONTROL BOARD"),
+    "OIG": ("INSPECTOR GENERAL", "OFFICE OF THE INSPECTOR GENERAL"),
+    "POST": ("PEACE OFFICER STANDARDS AND TRAINING",),
+    "CHRB": ("HORSE RACING BOARD", "CALIFORNIA HORSE RACING BOARD"),
+    "CGCC": ("GAMBLING CONTROL COMMISSION", "CALIFORNIA GAMBLING CONTROL COMMISSION"),
+}
+HIGHER_ED_AGENCIES = {"CSU": ("CALIFORNIA STATE UNIVERSITY", "CAL STATE"), "UC": ("UNIVERSITY OF CALIFORNIA",)}
+# BC CUSTOMER dimension values that name one agency. AGNCY, MUNC and UNAFLTD do not, so they
+# cannot confirm or deny the spec's agency and the sheet says so.
+DIMENSION_TO_AGENCY = {"CALFIRE": "CAL FIRE", "DCR": "CDCR", "CHP": "CHP", "CMD": "CMD", "DFW": "CDFW", "OES": "CAL OES",
+                       "CWB": "SWRCB", "DSH": "DSH", "DOT": "CALTRANS", "DGS": "DGS", "CSU": "CSU", "UC": "UC"}
 LINE_KNOWN = ("line", "number", "description", "qty", "uom", "unitCost", "unitPrice", "zeroMarginOk")
 HEADER_READBACK = ("customerNumber", "customerName", "billToName", "shipToName", "shipToContact",
                    "shipToAddressLine1", "shipToAddressLine2", "shipToCity", "shipToState", "shipToPostCode",
@@ -80,6 +125,84 @@ def num_or_none(v):
         return float(v) if v not in (None, "") else None
     except (TypeError, ValueError):
         return None
+
+
+def normalize_agency(text):
+    """The short agency name the owner table is keyed by, or the cleaned text when no alias matches."""
+    t = re.sub(r"[^A-Z0-9& ]+", " ", str(text or "").upper()).strip()
+    t = re.sub(r"\s+", " ", t)
+    for table in (KIM_AGENCIES, HIGHER_ED_AGENCIES):
+        for key, aliases in table.items():
+            if t == key or t.replace(" ", "") == key.replace(" ", "") or t in aliases:
+                return key
+    return t
+
+
+def owner_for(book, agency):
+    """(owner key, owner name, expected salesperson codes) for a book and agency, or None when the
+    book has no code rule (body armor is Parker's, 'other' is outside the state book)."""
+    if book == "ca-state":
+        key = "kim" if agency in KIM_AGENCIES else "aanya"
+        name, code = OWNERS[key]
+        return key, name, frozenset({code})
+    if book == "higher-ed":
+        return "joey", "Joey Magliato", HIGHER_ED_CODES
+    return None
+
+
+def owner_gate(header):
+    """Whose quote this is, from book, agency, contract and salesperson. Pure. Returns (text, errors)."""
+    book, agency, contract, sales = header["book"], header["agency"], header["contract"], header["salesperson"]
+    errs = []
+    if book not in BOOKS:
+        return "-", [f"book {book!r} is not one of {', '.join(BOOKS)}"]
+    if book == "body-armor":
+        if contract not in BODY_ARMOR_CONTRACTS:
+            errs.append(f"book body-armor needs a body-armor CONTRACT ({', '.join(sorted(BODY_ARMOR_CONTRACTS))}), not {contract!r}")
+        return f"body armor (Parker Marshall's book; CONTRACT {contract}; salesperson {sales} not gated)", errs
+    if contract in BODY_ARMOR_CONTRACTS:
+        errs.append(f"CONTRACT {contract} is body armor, which is outside the Kim/Aanya state book; set book: body-armor")
+    if book == "other":
+        return f"outside the California state book (salesperson {sales} not gated)", errs
+    if not agency:
+        return "-", errs + [f"book {book} needs agency: the state agency the customer belongs to (CAL FIRE, DSH, DGS ...)"]
+    if book == "ca-state" and agency in HIGHER_ED_AGENCIES:
+        return "-", errs + [f"agency {agency} is higher education, Joey Magliato's book, not Kim's or Aanya's; set book: higher-ed"]
+    if book == "higher-ed" and agency not in HIGHER_ED_AGENCIES:
+        return "-", errs + [f"book higher-ed is CSU or UC only; {agency!r} is not either"]
+    key, name, codes = owner_for(book, agency)
+    text = f"{'CA state' if book == 'ca-state' else 'higher education'} / {agency} -> {name} ({' or '.join(sorted(codes))})"
+    if sales not in codes:
+        why = (f"{agency} is one of Kim Quezon's agencies" if key == "kim" else
+               f"{agency} is not one of Kim Quezon's agencies, so it is Aanya Samarasinghe's" if key == "aanya" else
+               f"{agency} is higher education, Joey Magliato's")
+        errs.append(f"salesperson {sales!r} is not the owner's code: {why}; the header carries "
+                    f"{' or '.join(sorted(codes))}. Parker holds no accounts on the state book, so a state quote never "
+                    f"carries PMARSHALL, and Kim's agencies never carry the CA STATE TEAM bucket")
+    return text, errs
+
+
+def dimension_conflict(dim_value, header):
+    """What the customer card's CUSTOMER dimension says about the spec's agency. Pure.
+    Returns (note, error): error when the card names a different owner, note otherwise."""
+    dim = str(dim_value or "").strip().upper()
+    if not dim:
+        return "[FLAG: the customer card carries no CUSTOMER dimension; the agency on the spec is unconfirmed]", None
+    card_agency = DIMENSION_TO_AGENCY.get(dim)
+    if not card_agency:
+        return f"customer card CUSTOMER dimension {dim} does not name one agency; the agency on the spec is unconfirmed", None
+    if header["book"] in ("body-armor", "other"):
+        return f"customer card CUSTOMER dimension {dim} ({card_agency})", None
+    if card_agency in HIGHER_ED_AGENCIES and header["book"] != "higher-ed":
+        return None, f"the customer card's CUSTOMER dimension is {dim}: higher education, Joey Magliato's book, not the state book"
+    if card_agency not in HIGHER_ED_AGENCIES and header["book"] == "higher-ed":
+        return None, f"the customer card's CUSTOMER dimension is {dim} ({card_agency}), a state agency, not CSU or UC"
+    spec_owner = owner_for(header["book"], header["agency"])
+    card_owner = owner_for(header["book"], card_agency)
+    if spec_owner and card_owner and spec_owner[0] != card_owner[0]:
+        return None, (f"the customer card's CUSTOMER dimension is {dim} ({card_agency}, {card_owner[1]}'s) but the spec says "
+                      f"agency {header['agency']} ({spec_owner[1]}'s); fix the agency or the customer")
+    return f"customer card CUSTOMER dimension {dim} ({card_agency}) agrees with the spec", None
 
 
 # ----------------------------------------------------------------------------- spec
@@ -128,6 +251,14 @@ def validate_spec(spec, uoms):
     if contract and contract not in CONTRACT_CODES:
         errs.append(f"contract {contract!r} is not a CONTRACT code in BC. Known: {', '.join(sorted(CONTRACT_CODES))}. "
                     f"Never invent a code; OPEN is open market")
+
+    book = s("book").lower()
+    if book and book not in BOOKS:
+        errs.append(f"book {book!r} must be one of {', '.join(BOOKS)}: ca-state for Kim's and Aanya's agencies, body-armor "
+                    f"(Parker's), higher-ed (CSU and UC, Joey Magliato's), other for anything outside the state book")
+    agency = normalize_agency(s("agency"))
+    if s("agency") and not is_ascii(s("agency")):
+        errs.append("agency has non-ASCII characters")
 
     sales = s("salesperson")
     if sales and sales != sales.upper():
@@ -253,8 +384,12 @@ def validate_spec(spec, uoms):
             errs.append(f"lines sum to {money(s_lines)} but quoteTotalExclTax is {money(total)}; fix one of them")
 
     header = {"customerNumber": cust, "externalDocumentNumber": ext, "contract": contract, "salesperson": sales,
+              "book": book, "agency": agency, "owner": "-",
               "shipTo": ship_out, "costSource": source, "pricingBasis": s("pricingBasis"), "preparedBy": s("preparedBy"),
               "deal": s("deal"), "total": total, "zeroMarginOk": spec_zero_ok}
+    if book in BOOKS and sales and contract in CONTRACT_CODES:
+        header["owner"], oerrs = owner_gate(header)
+        errs.extend(oerrs)
     return header, lines, errs, warns
 
 
@@ -290,6 +425,18 @@ class QuoteBC(item.BC):
             http_fail("customer lookup", st, body)
         rows = body.get("value") or []
         return rows[0] if rows else None
+
+    def customer_dimension(self, cust, code="CUSTOMER"):
+        """The value of one default dimension on the customer card, '' when unset, None when unreadable."""
+        st, body = self.get(f"{self.api}/customers({cust['id']})/defaultDimensions?"
+                            + qp(select="dimensionCode,dimensionValueCode"))
+        if st != 200 or not isinstance(body, dict):
+            print(f"[customer] CUSTOMER dimension could not be read (HTTP {st}); the agency on the spec is unconfirmed")
+            return None
+        for d in body.get("value") or []:
+            if str(d.get("dimensionCode", "")).upper() == code:
+                return str(d.get("dimensionValueCode") or "")
+        return ""
 
     def quotes_with_ext_doc(self, ext):
         st, body = self.get(f"{self.api}/salesQuotes?" + qp(f"externalDocumentNumber eq '{odq(ext)}'",
@@ -413,6 +560,7 @@ def review_sheet(bc, header, lines, cust, cards, notes, warns, token, spec_path)
                                                f"(inherited; the rep compares with the solicitation)"),
             ("External document no.", header["externalDocumentNumber"]),
             ("CONTRACT (dimension 1)", header["contract"]),
+            ("Book / owner", header["owner"]),
             ("Salesperson", header["salesperson"]),
             ("Ship-to (PATCHed, then gated)", ship_text),
             ("Document date", f"{dt.date.today().isoformat()} (today; validUntilDate is BC's, document date + 60)"),
@@ -432,6 +580,8 @@ def review_sheet(bc, header, lines, cust, cards, notes, warns, token, spec_path)
     out += ["", "The quote is created as a Draft sales quote in Business Central with the header above and the lines "
                 "below. Nothing is written until the rep approves this sheet by name. Nothing here releases, "
                 "converts or sends it.", "",
+            "The salesperson is the Account Manager who owns the agency (Kim Quezon's 18 agencies, or Aanya "
+            "Samarasinghe for every other state agency); Parker holds no accounts on the state book.", "",
             "| # | Item No. | Description | Qty | UoM | Cost | Price | Ext. price | GM% | Card |",
             "|---|---|---|---|---|---|---|---|---|---|"]
     for ln in lines:
@@ -444,7 +594,7 @@ def review_sheet(bc, header, lines, cust, cards, notes, warns, token, spec_path)
                    f"{money(ln['unitCost'])} | {money(ln['unitPrice'])} | {money(ln['extPrice'])} | {gm} | {card_text} |")
     out.append(f"| | | **Total excl. tax** | | | | | **{money(header['total'])}** | | |")
     if notes:
-        out += ["", "Notes from the item gate (not blocking):"] + [f"- {n}" for n in notes]
+        out += ["", "Notes from the owner and item gates (not blocking):"] + [f"- {n}" for n in notes]
     if warns:
         out += ["", "Warnings (not blocking):"] + [f"- {w}" for w in warns]
     if bc.mode == "app-only":
@@ -473,8 +623,21 @@ def run_checks(bc, spec):
         for e in cerrs:
             print("  -", e)
         sys.exit(1)
+    print(f"[owner] {header['owner']}")
+    dim = bc.customer_dimension(cust)
+    if dim is None:
+        notes_pre = ["[FLAG: the customer card's CUSTOMER dimension could not be read; the agency on the spec is unconfirmed]"]
+    else:
+        note, oerr = dimension_conflict(dim, header)
+        if oerr:
+            print("\n[owner gate] FAILED, nothing written:")
+            print("  -", oerr)
+            sys.exit(1)
+        notes_pre = [note] if note else []
+        print(f"[owner] {note}")
     print("[item gate] read-only; every line's item must already exist")
     cards, ierrs, notes = item_gate(bc, lines)
+    notes = notes_pre + notes
     if ierrs:
         print("\n[item gate] FAILED, nothing written:")
         for e in ierrs:
@@ -564,7 +727,8 @@ def cmd_commit(args):
         die(step, msg)
 
     record(event="commit-start", customerNumber=header["customerNumber"], extDoc=header["externalDocumentNumber"],
-           contract=header["contract"], lines=[l["number"] for l in lines], total=header["total"])
+           contract=header["contract"], book=header["book"], agency=header["agency"], owner=header["owner"],
+           salesperson=header["salesperson"], lines=[l["number"] for l in lines], total=header["total"])
 
     # [B] header
     hdr = {"customerNumber": header["customerNumber"], "documentDate": dt.date.today().isoformat(),

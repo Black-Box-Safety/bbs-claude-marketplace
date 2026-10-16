@@ -30,6 +30,8 @@ def spec(**over):
         "customerNumber": "C00000",
         "externalDocumentNumber": "RFQ EX-6001 01-02-26",
         "contract": "OPEN",
+        "book": "ca-state",
+        "agency": "DGS",
         "salesperson": "CA STATE TEAM",
         "shipTo": {"shipToName": "Example Agency Training Center", "shipToContact": "Buyer Name",
                    "shipToAddressLine1": "100 Example Road", "shipToAddressLine2": "", "shipToCity": "Sacramento",
@@ -60,7 +62,8 @@ class ContractList(unittest.TestCase):
 
     def test_every_code_passes(self):
         for code in SOP_CONTRACT_CODES:
-            self.assertEqual(errors(spec(contract=code)), [], code)
+            book = "body-armor" if code in m.BODY_ARMOR_CONTRACTS else "ca-state"
+            self.assertEqual(errors(spec(contract=code, book=book)), [], code)
 
 
 class HeaderRules(unittest.TestCase):
@@ -82,6 +85,16 @@ class HeaderRules(unittest.TestCase):
         self.assertEqual(errors(spec(externalDocumentNumber="X" * 35)), [])
         self.assertTrue(any("is required" in e for e in errors(spec(externalDocumentNumber=""))))
         self.assertTrue(any("trailing spaces" in e for e in errors(spec(externalDocumentNumber="RFQ 1 "))))
+
+    def test_book_values(self):
+        self.assertTrue(any("book 'federal' must be one of" in e for e in errors(spec(book="federal"))))
+        for b in m.BOOKS:
+            s = spec(book=b)
+            if b == "body-armor":
+                s["contract"] = "BA-CA"
+            if b == "higher-ed":
+                s["agency"], s["salesperson"] = "CSU", "JMAGLIATO"
+            self.assertEqual(errors(s), [], b)
 
     def test_codes_are_upper_case(self):
         self.assertTrue(any("upper-case" in e for e in errors(spec(customerNumber="c00000"))))
@@ -172,11 +185,126 @@ class LineRules(unittest.TestCase):
         self.assertEqual(errors(s), [])
 
 
-class FakeBC:
-    """The three reads the gates use, with canned answers."""
+class Owner(unittest.TestCase):
+    """Whose quote it is. Parker, in session, 2026-10-16: Parker holds no accounts on the state book, so a
+    state quote carries Kim's code for her 18 agencies and Aanya's for every other state agency."""
 
-    def __init__(self, customers=None, items=None, quotes=None):
+    KIM_18 = {"CDCR", "CHP", "CAL FIRE", "CMD", "CDFW", "CAL OES", "DOJ", "DPR", "DWR", "DCC", "CCC", "ABC", "DOC",
+              "SWRCB", "OIG", "POST", "CHRB", "CGCC"}
+
+    def owner_errors(self, **over):
+        return [e for e in errors(spec(**over)) if "salesperson" in e or "book" in e or "agency" in e or "CONTRACT" in e]
+
+    def test_kim_has_eighteen_agencies(self):
+        self.assertEqual(set(m.KIM_AGENCIES), self.KIM_18)
+        self.assertEqual(len(m.KIM_AGENCIES), 18)
+
+    def test_codes(self):
+        self.assertEqual(m.KIM_CODE, "KQUEZON")
+        self.assertEqual(m.AANYA_CODE, "CA STATE TEAM")
+        self.assertEqual(m.HIGHER_ED_CODES, {"JMAGLIATO", "UNIVERSITY"})
+
+    def test_kim_agency_needs_kim_code(self):
+        for agency in self.KIM_18:
+            self.assertEqual(self.owner_errors(agency=agency, salesperson="KQUEZON"), [], agency)
+            errs = self.owner_errors(agency=agency, salesperson="CA STATE TEAM")
+            self.assertTrue(any("Kim Quezon's agencies" in e and "KQUEZON" in e for e in errs), agency)
+
+    def test_aliases_resolve(self):
+        for alias, key in (("CalFire", "CAL FIRE"), ("Cal Fire", "CAL FIRE"), ("Fish & Wildlife", "CDFW"),
+                           ("Department of Water Resources", "DWR"), ("State Water Board", "SWRCB"), ("CWB", "SWRCB"),
+                           ("Cal OES", "CAL OES"), ("Highway Patrol", "CHP"), ("dgs", "DGS"), ("Caltrans", "CALTRANS"),
+                           ("California State University", "CSU")):
+            self.assertEqual(m.normalize_agency(alias), key, alias)
+
+    def test_other_state_agency_is_aanya(self):
+        for agency in ("DGS", "Caltrans", "DSH", "CalVet", "DMV", "CDFA", "CARB", "DTSC", "CalRecycle"):
+            self.assertEqual(self.owner_errors(agency=agency, salesperson="CA STATE TEAM"), [], agency)
+            errs = self.owner_errors(agency=agency, salesperson="KQUEZON")
+            self.assertTrue(any("Aanya Samarasinghe's" in e for e in errs), agency)
+
+    def test_parker_never_on_a_state_quote(self):
+        errs = self.owner_errors(agency="DGS", salesperson="PMARSHALL")
+        self.assertTrue(any("Parker holds no accounts on the state book" in e for e in errs))
+        errs = self.owner_errors(agency="CAL FIRE", salesperson="PMARSHALL")
+        self.assertTrue(any("KQUEZON" in e for e in errs))
+
+    def test_atwater_spec_shape_is_the_defect(self):
+        """The CAL FIRE Atwater quote of 2026-10-16 went out as CA STATE TEAM; CAL FIRE is Kim's."""
+        errs = self.owner_errors(agency="CAL FIRE", salesperson="CA STATE TEAM")
+        self.assertTrue(any("never carry the CA STATE TEAM bucket" in e for e in errs))
+
+    def test_agency_required_on_state_book(self):
+        s = spec(); del s["agency"]
+        self.assertTrue(any("needs agency" in e for e in errors(s)))
+
+    def test_higher_ed_is_joey(self):
+        errs = self.owner_errors(agency="CSU", salesperson="CA STATE TEAM")
+        self.assertTrue(any("Joey Magliato's book" in e and "higher-ed" in e for e in errs))
+        self.assertEqual(self.owner_errors(book="higher-ed", agency="UC", salesperson="UNIVERSITY"), [])
+        self.assertEqual(self.owner_errors(book="higher-ed", agency="CSU", salesperson="JMAGLIATO"), [])
+        errs = self.owner_errors(book="higher-ed", agency="CSU", salesperson="KQUEZON")
+        self.assertTrue(any("JMAGLIATO or UNIVERSITY" in e for e in errs))
+        errs = self.owner_errors(book="higher-ed", agency="DGS", salesperson="JMAGLIATO")
+        self.assertTrue(any("CSU or UC only" in e for e in errs))
+
+    def test_body_armor_is_parker_and_outside_the_book(self):
+        errs = self.owner_errors(agency="CHP", contract="BA-CA", salesperson="KQUEZON")
+        self.assertTrue(any("outside the Kim/Aanya state book; set book: body-armor" in e for e in errs))
+        self.assertEqual(self.owner_errors(book="body-armor", contract="BA-CA", salesperson="BA-CF"), [])
+        self.assertEqual(self.owner_errors(book="body-armor", contract="BODYARMOR", salesperson="PMARSHALL"), [])
+        errs = self.owner_errors(book="body-armor", contract="OPEN", salesperson="PMARSHALL")
+        self.assertTrue(any("needs a body-armor CONTRACT" in e for e in errs))
+
+    def test_other_book_is_not_gated(self):
+        s = spec(book="other", salesperson="PMARSHALL"); del s["agency"]
+        self.assertEqual(errors(s), [])
+        header, _, _, _ = m.validate_spec(s, UOMS)
+        self.assertIn("outside the California state book", header["owner"])
+
+    def test_owner_text_on_the_sheet(self):
+        header, _, errs, _ = m.validate_spec(spec(agency="CAL FIRE", salesperson="KQUEZON"), UOMS)
+        self.assertEqual(errs, [])
+        self.assertEqual(header["owner"], "CA state / CAL FIRE -> Kim Quezon (KQUEZON)")
+
+    def header(self, **over):
+        h, _, errs, _ = m.validate_spec(spec(**over), UOMS)
+        self.assertEqual(errs, [])
+        return h
+
+    def test_customer_dimension_cross_check(self):
+        kim = self.header(agency="CAL FIRE", salesperson="KQUEZON")
+        note, err = m.dimension_conflict("CALFIRE", kim)
+        self.assertIsNone(err); self.assertIn("agrees", note)
+        note, err = m.dimension_conflict("DSH", kim)
+        self.assertIn("DSH (DSH, Aanya Samarasinghe's)", err)
+        note, err = m.dimension_conflict("CSU", kim)
+        self.assertIn("Joey Magliato's book", err)
+        note, err = m.dimension_conflict("AGNCY", kim)
+        self.assertIsNone(err); self.assertIn("does not name one agency", note)
+        note, err = m.dimension_conflict("", kim)
+        self.assertIsNone(err); self.assertIn("[FLAG", note)
+        aanya = self.header(agency="DSH", salesperson="CA STATE TEAM")
+        note, err = m.dimension_conflict("DCR", aanya)
+        self.assertIn("Kim Quezon's", err)
+        note, err = m.dimension_conflict("DGS", aanya)   # both Aanya's: a different agency, same owner, passes
+        self.assertIsNone(err)
+        joey = self.header(book="higher-ed", agency="CSU", salesperson="JMAGLIATO")
+        note, err = m.dimension_conflict("DGS", joey)
+        self.assertIn("a state agency, not CSU or UC", err)
+        other = self.header(book="other", salesperson="PMARSHALL")
+        self.assertIsNone(m.dimension_conflict("DCR", other)[1])
+
+
+class FakeBC:
+    """The reads the gates use, with canned answers."""
+
+    def __init__(self, customers=None, items=None, quotes=None, dimension=""):
         self.customers, self.items_, self.quotes = customers or {}, items or {}, quotes or []
+        self.dimension = dimension
+
+    def customer_dimension(self, cust, code="CUSTOMER"):
+        return self.dimension
 
     def customer(self, number):
         return self.customers.get(number)
