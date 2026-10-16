@@ -64,24 +64,28 @@ Record the values you'll need downstream: `unitPrice`, `contractReferencePrice`,
 
 ## 3. Build the quote
 
-Use the **bbs-quote-builder** skill. NASPO-specific spec values:
+The quote is created in **Business Central**, not rendered in Claude (Parker, 2026-10-16;
+`/ca-rfq` Gate 5 carries the order of operations). Check every line's item number with
+`bc_find_item` first and quote the existing number as it is; enter a number BC lacks through
+`bc-item-entry` before the quote. Then create the header and lines through the BC-Write-API
+quote builder from a spec saved beside the deal (`BC-import/quote-<yyyy-mm-dd>.json`), after
+the rep has read its review sheet and approved by name. NASPO-specific values on that spec:
 
 | Field | Value |
 |---|---|
-| `pricing` | `{"method": "at-cost", "graingerAtCost": true}` — CA state schedule, no markup |
-| `taxRate` | `0` — the worksheet prints "Do not include sales tax" |
-| `solicitation` | the number off the worksheet header |
-| `certChannel` | `"california"` — prints DVBE on the header |
-| `shipmentMethod`, `paymentTerms` | from the BC quote read-back (`bbs-quote-builder` step 2). The worksheet expects FOB Destination; if BC says otherwise, flag it |
-| `unitCost` | the Grainger `unitPrice` |
-| `items[].source` | `"grainger"` on every Grainger-priced line |
+| line `unitPrice` | the Grainger `unitPrice` — CA state schedule, at cost, no markup |
+| `contract` (CONTRACT, dimension 1) | `NASPO` |
+| `externalDocumentNumber` | the solicitation number off the worksheet header |
+| ship-to | the institution's delivery point from the buyer folder; gated by read-back |
+| payment terms, shipment method | inherit from the customer card. The worksheet expects FOB Destination; if the card says otherwise, flag it |
+| tax | the worksheet prints "Do not include sales tax"; BC calculates tax on release, so the rep checks the released quote against the worksheet and flags any tax AvaTax adds |
 
-The quote number is the Business Central `SQ-######` number of the sales quote this
-response represents. The rep creates that quote in BC; `bbs-quote-builder` step 2 reads
-it back (`bc_get_sales_document`) and fills `bcQuote`. Follow that step — do not propose
-a number, and do not look for one in the Customers folder. The local 900001 series is
-retired (ruling 2026-09-28). No SQ number to read back means `[MISSING — NEEDS INPUT]`
-and the quote waits.
+The quote number is the `SQ-######` BC assigns when the header is created, read back by the
+script. Never propose a number and never look for one in the Customers folder; the local
+900001 series is retired (ruling 2026-09-28). The rep releases the quote in BC and the customer
+document is BC's own print; the certification line on that print is the rep's to check against
+the channel rule (DVBE on California state business). `bbs-quote-builder` renders a copy of an
+existing BC quote only when the rep asks for one.
 
 ## 4. Fill the compliance packet
 

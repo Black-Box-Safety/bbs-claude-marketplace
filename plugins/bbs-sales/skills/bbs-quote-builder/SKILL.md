@@ -1,23 +1,27 @@
 ---
 name: bbs-quote-builder
 description: >-
-  Build a Black Box Safety, Inc. (BBS) sales quote in the Business Central print
-  layout and deliver it as a PDF, numbered with the Business Central SQ number of
-  the sales quote it represents. Use this skill whenever a
-  BBS rep wants to turn a source document — a vendor cart PDF (Office Depot,
-  Staples, Amazon), an RFQ spreadsheet, a customer item list, Grainger pricing,
-  or pasted SKUs and quantities — into a formatted, customer-ready price quote.
-  Trigger on requests like "make a quote," "build a BBS quote," "quote these
-  items," "put this on our letterhead," "create a sales quote," "turn this cart
-  into a quote," or any time a rep hands over items/prices and wants the branded
-  BBS quote document. Always use this skill for BBS customer-facing quotes so the
-  quote number, pricing math, and layout stay uniform. Do NOT use it to create or
-  edit quote records in Business Central (a rep does that; this skill only reads
-  the quote back), or for vendor sourcing emails (use bbs-sourcing).
+  Render a Claude-built PDF copy of a Black Box Safety, Inc. (BBS) sales quote that
+  already exists in Business Central, in the BC print layout and numbered with that
+  quote's SQ number. Since 2026-10-16 this is a fallback, not the quote desk's path:
+  the customer quote is created in Business Central (items through bc-item-entry,
+  header and lines through the BC write path; /ca-rfq Gate 5) and the customer
+  document is the PDF BC prints from the released quote. Use this skill only when a
+  rep asks for a Claude-rendered copy of an existing BC quote ("render SQ-###### as
+  a PDF", "put SQ-###### on our letterhead", "I can't print from BC, build the PDF")
+  or for a side-by-side proof against the BC print. Do NOT use it to create or edit
+  quote records in Business Central, to price anything, or for vendor sourcing
+  emails (use bbs-sourcing).
 requires: [business-central, node, docx-npm, libreoffice]
 ---
 
 # BBS Quote Builder
+
+> **Fallback path since 2026-10-16.** The quote desk creates the customer quote in Business
+> Central (`/ca-rfq` Gate 5: items checked with `bc_find_item`, missing ones through
+> `bc-item-entry`, header and lines through the BC write path after the rep approves by name)
+> and sends the PDF BC prints from the released quote. This skill only renders a copy of a
+> quote that already exists in BC, when a rep asks for one. Ruled by Parker, in session.
 
 Produces a Black Box Safety sales quote PDF in the layout Business Central prints
 for BBS quotes (reference SQ-104776; Parker chose this layout on 2026-09-28). The

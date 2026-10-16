@@ -160,8 +160,9 @@ Tell the rep which item numbers now exist and where the log is. If the run stopp
 item was created but before its vendor landed, the script says so by number: that item now
 exists in BC without a vendor, and the recovery is the Vendor No. field in the BC UI or
 `bc_patch_item_vendor.py` in `PM Claude/BC-Write-API` on SharePoint. Tell the rep that
-plainly; do not re-run commit for it. The quote or order is a separate job (per-PO builders
-for Sentinel, `bbs-quote-builder` for the PDF, a human in BC for release). Items that need
+plainly; do not re-run commit for it. The quote is a separate job: the BC-Write-API quote
+builder creates it in BC from a spec the rep approved by name (`/ca-rfq` Gate 5), and a human
+releases it in BC and prints the PDF there. Items that need
 Extended Text or Item References get those in the BC UI.
 
 ## When sign-in or BC says no
