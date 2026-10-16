@@ -160,7 +160,7 @@
         "ref": "dev"
       },
       "description": "Pinned external dependency of bbs-foundations: the generic CLAUDE.md engine (150-line cap, @path chaining, /enhance-claude-md, /sync-claude-md, drift/link/dependency audits). BBS fork of alirezarezvani/ClaudeForge; bbs-claude-md-forge supplies the BBS doctrine on top of it.",
-      "version": "2.1.0",
+      "version": "2.1.1",
       "author": {
         "name": "Alireza Rezvani"
       },
