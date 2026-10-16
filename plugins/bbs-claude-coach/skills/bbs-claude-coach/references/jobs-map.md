@@ -13,6 +13,7 @@ the closer job and say so.
 | When does an agency have money / is June 30 the real deadline? | Ask the timing question (`ca-budget-timing`) | `bbs-sales` | none |
 | Price Grainger / NASPO lines | Ask to price the list (Grainger MCP — never memory or the open web) | `bbs-sales` | **Grainger MCP** |
 | Fill CA / CDCR compliance packet | Ask after pricing — `ca-form-filler` / packet path | `bbs-sales` | usually local PDF tools from bootstrap |
+| Items a quote needs that Business Central does not have yet | Ask to add them to BC (`bc-item-entry`): it checks vendor, sourced cost and duplicates, shows you a review sheet, and writes only after you approve it by name under your own BC sign-in. Once per rep: its `references/rep-setup.md` | `bbs-sales` | **Business Central** (your own BC user; `msal` from the bootstrap) |
 | Marketing one-pager, campaign email, logo check, a prior brochure or deck | `/bbs-one-pager`, or ask (`sales-one-pager`, `campaign-email`, `marketing-assets`, `deck-precedent`); approved wording is the claims registry; design polish via `impeccable` | `bbs-marketing` | varies |
 | Brand page on the storefront | Ask; design polish via `impeccable` | `bbs-website` | **Supabase**, **Shopify** |
 | Order / invoice / "what do they owe us?" | Ask about the PO, order, or vendor balance | `bbs-back-office` | **Business Central** |

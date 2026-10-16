@@ -114,10 +114,11 @@ else
 fi
 
 # Python libraries the form-fill, quote and reconciliation scripts import, for the python3 the
-# skills call. Homebrew's Python refuses a plain pip install (PEP 668), so retry the --user
+# skills call, plus msal and msal-extensions, which bc-item-entry needs to sign the rep in to
+# Business Central and keep the token encrypted in the Keychain. Homebrew's Python refuses a plain pip install (PEP 668), so retry the --user
 # install with the flag it names; a --user install never touches Homebrew's own packages. On a
 # Mac without the command-line tools, /usr/bin/python3 is a stub that only offers to install them.
-PY_PACKAGES="pypdf pymupdf openpyxl"
+PY_PACKAGES="pypdf pymupdf openpyxl msal msal-extensions"
 if ! python3 -c 'import sys' >/dev/null 2>&1; then
   if [[ $DRY_RUN -eq 1 ]]; then
     printf '[would]   %-22s %s\n' "python packages" "$PY_PACKAGES after python3 works"
@@ -125,7 +126,7 @@ if ! python3 -c 'import sys' >/dev/null 2>&1; then
     echo "[missing] python3                run: xcode-select --install   then run this script again"
     failed+=("python3")
   fi
-elif python3 -c 'import pypdf, fitz, openpyxl' >/dev/null 2>&1; then
+elif python3 -c 'import pypdf, fitz, openpyxl, msal, msal_extensions' >/dev/null 2>&1; then
   printf '[ok]      %s\n' "$PY_PACKAGES"
 elif [[ $DRY_RUN -eq 1 ]]; then
   printf '[would]   %-22s %s\n' "python packages" "$PY_PACKAGES"

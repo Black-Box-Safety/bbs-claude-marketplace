@@ -20,7 +20,7 @@ $packages = @(
   @{ Id = 'UB-Mannheim.TesseractOCR'; Why = 'OCR for scanned RFQs and faxed worksheets' },
   @{ Id = 'JohnMacFarlane.Pandoc';   Why = 'Word attachments to markdown' },
   @{ Id = 'astral-sh.uv';            Why = 'runs bbs-workspaces.py for the Desktop launchers, and the bbs-website venvs' },
-  @{ Id = 'Python.Python.3.12';      Why = 'the `python` the form-fill, quote and reconciliation scripts run on; pypdf/pymupdf/openpyxl install into it below' },
+  @{ Id = 'Python.Python.3.12';      Why = 'the `python` the form-fill, quote, reconciliation and BC item-entry scripts run on; pypdf/pymupdf/openpyxl/msal/msal-extensions install into it below' },
   @{ Id = 'DuckDB.cli';              Why = 'query price lists and SCPRS exports instead of reading them whole' },
   @{ Id = 'jqlang.jq';               Why = 'JSON plumbing for scripts and hooks' },
   @{ Id = 'TheDocumentFoundation.LibreOffice'; Why = 'soffice: quote-builder PDF export and document-skills conversion' },
@@ -285,15 +285,16 @@ if (Get-Command npm -ErrorAction SilentlyContinue) {
 }
 
 # Python libraries the form-fill (ca-form-filler, naspo-quote), quote and reconciliation
-# (bbs-order-reconciliation) scripts import. They install into the winget Python above. The
+# (bbs-order-reconciliation) scripts import, plus msal and msal-extensions, which bc-item-entry
+# needs to sign the rep in to Business Central and keep the token encrypted with DPAPI. They install into the winget Python above. The
 # Microsoft Store alias under \WindowsApps\ answers to `python` without being one (it exits
 # non-zero without throwing), so it is skipped - install-desktop-launchers.ps1 does the same.
-$pyPackages = @('pypdf', 'pymupdf', 'openpyxl')
+$pyPackages = @('pypdf', 'pymupdf', 'openpyxl', 'msal', 'msal-extensions')
 $realPython = Get-Command python -CommandType Application -All -ErrorAction SilentlyContinue |
   Where-Object { $_.Source -notlike '*\WindowsApps\*' } |
   Select-Object -First 1
 if ($realPython) {
-  & $realPython.Source -c "import pypdf, fitz, openpyxl" > $null 2>&1
+  & $realPython.Source -c "import pypdf, fitz, openpyxl, msal, msal_extensions" > $null 2>&1
   $pyHave = ($LASTEXITCODE -eq 0)
   if ($pyHave) {
     Write-Host ("[ok]      {0}" -f ($pyPackages -join ', '))
@@ -303,15 +304,15 @@ if ($realPython) {
     Write-Host ("[install] {0,-28} {1}" -f 'python packages', ($pyPackages -join ', '))
     & $realPython.Source -m pip install --upgrade --quiet $pyPackages 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) {
-      Write-Warning "python -m pip could not install the PDF/Excel libraries; the form-fill scripts print the exact pip command when first run."
-      $failed += 'python packages (pypdf/pymupdf/openpyxl)'
+      Write-Warning "python -m pip could not install the PDF/Excel/sign-in libraries; the form-fill scripts print the exact pip command when first run."
+      $failed += 'python packages (pypdf/pymupdf/openpyxl/msal/msal-extensions)'
     }
   }
 } elseif ($DryRun) {
   Write-Host ("[would]   {0,-28} {1}" -f 'python packages', (($pyPackages -join ', ') + ' after Python is on PATH'))
 } else {
-  Write-Host "[later]   pypdf/pymupdf/openpyxl need Python on PATH: close this PowerShell window, open a new one, run the script again, then reopen VS Code."
-  $deferred += 'pypdf, pymupdf, openpyxl'
+  Write-Host "[later]   pypdf/pymupdf/openpyxl/msal/msal-extensions need Python on PATH: close this PowerShell window, open a new one, run the script again, then reopen VS Code."
+  $deferred += 'pypdf, pymupdf, openpyxl, msal, msal-extensions'
 }
 
 # The BBS plugins. Managed settings enable them and Claude Code installs them at session start,

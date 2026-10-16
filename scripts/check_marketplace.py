@@ -397,6 +397,12 @@ def check(findings):
     # --- 10. Contracts that ship their own validator get it run here ----------
     check_packet_profiles(findings)
 
+    # --- 11. The shipped BC connection file: four keys, well-formed GUIDs, no secret ---
+    check_bc_connection(findings)
+
+    # --- 12. Nothing shaped like an Entra client secret anywhere in plugins/ ----
+    check_entra_secret_shapes(findings)
+
     return skills
 
 
@@ -717,7 +723,13 @@ EXTERNAL_SYSTEMS = {
     # (delegated), so writes carry the rep's own BC user. The import sits inside
     # a function in the script, hence the leading-whitespace tolerance.
     "msal": {"kind": "python-package", "canon": None,
-             "signals": [r"^\s*(?:import|from) msal\b", r"\bpip install msal\b"]},
+             "signals": [r"^\s*(?:import|from) msal\b", r"\bpip install (?:--user )?msal\b"]},
+    # Its companion: encrypts the cached token (Keychain on a Mac, DPAPI on Windows).
+    # Without it the skill still runs on a 0600 file, so a skill may list it under
+    # degrades-without; bc-item-entry requires it because a plain-text refresh token
+    # is what the bare `Read` allow can open.
+    "msal-extensions": {"kind": "python-package", "canon": None,
+                        "signals": [r"^\s*(?:import|from) msal_extensions\b", r"\bmsal-extensions\b"]},
     # Not an import line: price-list-cleaner tells Claude to write the script
     # rather than shipping one, so the dependency is stated as prose and the
     # brand has no other sense in this domain.
@@ -1538,6 +1550,84 @@ def check_repo_only_pointers(findings):
                                     "resolves on a rep's machine"})
 
 
+BC_CONNECTION = os.path.join(PLUGINS, "bbs-sales", "skills", "bc-item-entry", "references",
+                             "bc-connection.json")
+BC_CONNECTION_KEYS = ("tenantId", "clientId", "environment", "companyId")
+GUID = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+# An Entra client secret value: three chars, a digit, "Q~", then 31-34 more. Not the
+# string CLIENT_SECRET=, which prose uses in order to say "never commit one"; the
+# value's own shape, which prose has no reason to contain.
+ENTRA_SECRET_SHAPE = re.compile(r"[A-Za-z0-9_~.]{3}\dQ~[A-Za-z0-9_~.-]{31,34}")
+SECRET_SCAN_SKIP_EXT = {".png", ".jpg", ".jpeg", ".gif", ".pdf", ".woff", ".woff2", ".ttf", ".ico",
+                        ".zip", ".pyc"}
+
+
+def check_bc_connection(findings):
+    """The connection file bc-item-entry ships: exactly four keys, every GUID well formed.
+
+    The script stops on a fifth key at run time; this stops the commit that adds one, so a
+    client secret pasted "for now" never reaches a rep's plugin cache. A missing file is
+    not a FAIL here (the skill's own tests cover that) but a present one must be clean.
+    """
+    if not os.path.isfile(BC_CONNECTION):
+        return
+    where = rel(BC_CONNECTION)
+    try:
+        with open(BC_CONNECTION, encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, ValueError) as exc:
+        findings.append({"level": "FAIL", "code": "bc_connection_unparseable", "where": where, "msg": str(exc)})
+        return
+    if not isinstance(data, dict):
+        findings.append({"level": "FAIL", "code": "bc_connection_shape", "where": where,
+                         "msg": "must be a JSON object"})
+        return
+    extra = sorted(set(data) - set(BC_CONNECTION_KEYS))
+    missing = [k for k in BC_CONNECTION_KEYS if not str(data.get(k) or "").strip()]
+    if extra:
+        findings.append({"level": "FAIL", "code": "bc_connection_extra_key", "where": where,
+                         "msg": f"carries {extra}; only {list(BC_CONNECTION_KEYS)} are allowed. This file "
+                                f"holds connection values and never a secret or a company name"})
+    if missing:
+        findings.append({"level": "FAIL", "code": "bc_connection_missing_key", "where": where,
+                         "msg": f"missing {missing}"})
+    for k in ("tenantId", "clientId", "companyId"):
+        v = str(data.get(k) or "")
+        if v and not GUID.match(v):
+            findings.append({"level": "FAIL", "code": "bc_connection_bad_guid", "where": where,
+                             "msg": f"{k} is not a well-formed GUID"})
+    if "environment" in data and not isinstance(data["environment"], str):
+        findings.append({"level": "FAIL", "code": "bc_connection_shape", "where": where,
+                         "msg": "environment must be a string"})
+
+
+def check_entra_secret_shapes(findings):
+    """No value shaped like an Entra client secret anywhere under plugins/.
+
+    Searching for the string CLIENT_SECRET= finds prose that says never to commit one and
+    misses a value pasted under another name. The shape of the value itself has no reason
+    to appear in a skill, so a match is a FAIL with no counter-example exemption.
+    """
+    for dirpath, dirnames, filenames in os.walk(PLUGINS):
+        dirnames[:] = [d for d in dirnames if d not in (".git", "node_modules", "__pycache__")]
+        for fn in filenames:
+            if os.path.splitext(fn)[1].lower() in SECRET_SCAN_SKIP_EXT:
+                continue
+            path = os.path.join(dirpath, fn)
+            try:
+                with open(path, encoding="utf-8", errors="replace") as fh:
+                    text = fh.read()
+            except OSError:
+                continue
+            for m in ENTRA_SECRET_SHAPE.finditer(text):
+                line = text[:m.start()].count("\n") + 1
+                findings.append({"level": "FAIL", "code": "entra_secret_shape",
+                                 "where": f"{rel(path)}:{line}",
+                                 "msg": "a value shaped like an Entra client secret. Secrets never ship in "
+                                        "a plugin; rotate it, then remove it"})
+                break
+
+
 def check_counts(findings, skills):
     """A skill count written into a README badge is a fact, and facts drift.
 
@@ -1628,8 +1718,8 @@ def main():
               + pad + "the Xcode command-line tools', which it asks for when missing." + pad
               + f"On the rep to install by hand: {', '.join(byhand)}.")
         print("  python-package, npm-package")
-        print("        Both bootstraps install pypdf, pymupdf, openpyxl (pip) and docx and"
-              + pad + "pptxgenjs (npm, with NODE_PATH set: the Windows user environment, or"
+        print("        Both bootstraps install pypdf, pymupdf, openpyxl, msal, msal-extensions"
+              + pad + "(pip) and docx and pptxgenjs (npm, with NODE_PATH set: the Windows user environment, or"
               + pad + "~/.zprofile on a Mac) \u2014 on Windows often only after the rerun it asks"
               + pad + "for. Anything else is on the rep; what saves them is that every import"
               + pad + "in the tree is guarded and fails with the install command to run"
