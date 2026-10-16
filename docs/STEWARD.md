@@ -241,9 +241,14 @@ Write it up with evidence and move to the next slice. Do not idle.
     (2026-10-15 amendment: the existing app's client id, no separate rep app, no secret).
   - *Scope note.* This narrows the 2026-10-13 `agent-team` ruling below, which accepted the
     session-tool allow-list on the basis that writes to a system of record "stay gated
-    separately": for item creation the gate is this skill's three gates plus the Allow click
-    on every run (`bc_item_entry.py` is kept off the `bbs-fill` allow list,
-    `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`, 2026-10-15), not a separate control.
+    separately": for item creation the gate is this skill's three gates, not a separate
+    control. (2026-10-15 had also kept `bc_item_entry.py` off the `bbs-fill` allow list so
+    every run waited for an Allow click; **RULED 2026-10-16, Parker in session, superseding
+    that:** the script is on the list and runs without a prompt. "I do not want to have to
+    approve the line items. I just want the rep to have to review the planned entered text."
+    The named sign-off on the review sheet is the gate, and it stays: the organization
+    instructions require it for any BC write. Record:
+    `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`, "Business Central writes".)
   - *Partly resolves* "Bechtel's home in this repo, and the BC write-API scripts" below.
   - *Open edges from the 2026-10-16 BC review of PR #64, for Parker:* (a) SOP
     `BC-WRITE-SOP-RULES.md` §4.5 still says Vendor No. stays blank on BBS items; §4.6 and
