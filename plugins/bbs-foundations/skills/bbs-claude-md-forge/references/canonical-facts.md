@@ -171,6 +171,12 @@ sheet by name in the chat; a person releases the quote in BC and the customer do
 BC's own print. `bbs-quote-builder` renders a copy of an existing BC quote only when asked.
 Order of operations: `/ca-rfq` Gate 5.
 
+**Salesperson follows the account split, quote by quote** (Parker, in session, 2026-10-16): on a
+California state quote the BC salesperson is `KQUEZON` for Kim Quezon's agencies (CDCR, CHP, CAL FIRE,
+CMD, CDFW, Cal OES, DOJ, DPR, DWR, DCC, CCC, ABC, DOC, State Water Board, OIG, POST, Horse Racing Board,
+Gambling Control Commission) and `AANYA` for every other state agency. `CA STATE TEAM` is not used on
+new quotes, even where the customer card still defaults to it. Body armor and CSU/UC keep their own owners.
+
 ### What counts as a win
 
 - **A win is confirmed by Business Central** — a sales quote with an `acceptedDate`, or a
@@ -241,6 +247,7 @@ marketplace repo, which does not ship to rep machines.
 | Grainger sell rule — California state schedules (incl. the NASPO LPA); primes | 2026-09-18 / 2026-09-28 | "Grainger sell rule, by channel", above |
 | Customer quote number | 2026-09-28 | Systems of record, above |
 | Customer quote is created in BC, not rendered in Claude; existing items never re-created | 2026-10-16 | Systems of record, above; `/ca-rfq` Gate 5 |
+| Quote salesperson follows the Kim/Aanya split (KQUEZON / AANYA), never CA STATE TEAM | 2026-10-16 | Systems of record, above; `/ca-rfq` Gate 5 |
 | Delegated signatures: the six, the limit incl. tax, PNG of record, "complete the packet" is the approval | 2026-10-01 | `ca-form-rules.md`, "Rep-signed lines and delegated signatures" |
 | Owner declarations (PD 843, CV 012, STD 204, STD 205) stay Jackson's whoever runs the packet | 2026-10-01 | `ca-form-rules.md`, "Who signs what" |
 | Who signs OBS 1000 (GenAI factsheet): rep-signed | 2026-10-01 | `ca-form-rules.md`, "Who signs what" |
