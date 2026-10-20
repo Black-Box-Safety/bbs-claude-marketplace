@@ -121,3 +121,17 @@ The six phrasings with an expected winner are `item-1` to `item-4`, `item-sib-1`
 authenticated session (see the PR #64 body). The expectation above stands until a run with
 Claude auth replaces it.
 
+
+## Added 20 October 2026: `bbs-daily-rep-summary` beside `bbs-weekly-sales-report`
+
+The two share every noun — Parker, a rep, the CRM, Business Central, "how did she do". The
+split is the time window and the mode. Read against both descriptions.
+
+| # | Phrasing | Fires | Why |
+|---|---|---|---|
+| 1 | "what did Aanya do yesterday" | daily | "yesterday" is named in the daily description; the weekly says "Do NOT use for a week… figure" in the other direction and names a week |
+| 2 | "set up the daily rep routine" | daily | verbatim in the daily description |
+| 3 | "draft my check-in" / "end of day, what do I tell Parker" | daily, check-in mode | the rep-side phrasings are only in the daily description |
+| 4 | "how did Aanya do this week" | weekly | "this week" is a weekly phrasing; the daily description sends a week figure to the weekly report by name |
+| 5 | "pull the numbers for the weekly" | weekly | verbatim in the weekly description; no overlap |
+| 6 | "what's Aanya's number this quarter" | neither; Business Central directly | both descriptions send a quarter figure to BC |
