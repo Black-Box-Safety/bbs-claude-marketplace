@@ -1,18 +1,17 @@
 ---
 name: bbs-daily-rep-summary
 description: >-
-  Daily, read-only summary of one sales rep's working day for Parker, from the systems of
-  record plus the rep's own end-of-day check-in, so Parker can see the work, spot where to
-  help, and hold commitments to account without surveillance. Two modes: check-in (the rep,
-  end of day: draft their own five-minute report, including off-computer work such as calls,
-  site visits, vendor conversations, sizing and drive time) and summary (Parker, next
-  morning, usually a scheduled Routine: pipeline from the Sales CRM, bookings from Business
-  Central, folder activity from SharePoint, the check-in from Teams, one file written,
-  nothing sent). Use when Parker says "daily summary for <rep>", "what did <rep> do
-  yesterday", "set up the daily rep routine", or a rep says "draft my check-in", "end of
-  day", "what do I tell Parker". Do NOT use for a week, month or quarter figure
-  (bbs-weekly-sales-report, or Business Central directly), to read any mailbox but the
-  signed-in person's, or to rate a rep from timestamps.
+  Daily, read-only summary of one California state book rep's working day for Parker, from
+  the rep's own end-of-day check-in plus the systems of record, so Parker can see the work,
+  spot where to help, and hold the rep to commitments the rep set, without surveillance. Two
+  modes: check-in (the rep, end of day: draft their own five-minute report, including
+  off-computer work such as calls, site visits, sizings, vendor calls and portals) and summary
+  (Parker, next morning, usually a scheduled Routine: the check-in from Teams, pipeline from
+  the Sales CRM, bookings from Business Central, quote-folder activity from SharePoint; one
+  file written, nothing sent). Use when Parker says "daily summary for <rep>" or "set up the
+  daily rep routine", or a rep says "draft my check-in" or "what do I tell Parker". Do NOT
+  use for a week or longer (bbs-weekly-sales-report), to read any mailbox but the signed-in
+  person's, or to rate a rep from timestamps.
 requires: [sales-crm, microsoft-365]
 degrades-without: [business-central]
 ---
@@ -63,7 +62,8 @@ through the rep's check-in, which is why the check-in is not optional.
 | A packet filled, a quote-log row, attachments saved | Files modified | SharePoint `Customers/State of CA Agencies/All RFQ's by Agency/<Agency>/…` | Yes, `sharepoint_search` by modified date |
 | Email with agencies and vendors | The thread | Rep's mailbox | **No.** Parker's mailbox only (`outlook_email_search`), for threads he is on |
 | Teams with Parker or in team channels | The messages | Chats and channels Parker is in | Yes, `chat_message_search`; never a chat Parker is not in |
-| Agency portals: Cal eProcure, Provision Connect, Grainger carts, a prime's portal | Nothing, or a confirmation email in the rep's mailbox | Rep | Check-in |
+| Agency portals: Cal eProcure, Provision Connect, Grainger carts | Nothing, except a Provision Connect quote the rep logged in the CRM (`bbs_quotemethod`) | Rep | Check-in; the CRM for logged Provision Connect quotes |
+| Solicitations found on Cal eProcure, not yet logged | Nothing until `/ca-rfq` intake | Rep | Check-in; the reply asks once whether to log them |
 | Thinking, planning, reading a solicitation, chasing a vendor who has not replied | Nothing | Rep | Check-in |
 
 Treat an empty systems column as **"not visible from here"**, never as "nothing happened".
@@ -90,30 +90,61 @@ Teams message, and writes nothing to the CRM or Business Central.
 3. **Pipeline, from the CRM**, filtered on `_ownerid_value` for the rep and on the day:
    received (`bbs_receiveddate`), submitted (`bbs_submitteddate`), modified, **overdue**
    (`bbs_duedate` passed, no `bbs_submitteddate`), **due in the next two working days**, and
-   **submitted more than ten working days ago with no outcome** on the record. Each row names
-   the agency, the item or title, the value and the date. The field meanings and the status
+   **submitted more than ten working days ago with no confirmed outcome**. Outcome is as canon
+   defines it (`bbs-foundations` `references/canonical-facts.md`, "What counts as a win": a
+   Business Central `acceptedDate` or converted order, or a rep-confirmed quote-log Outcome),
+   never `bbs_accepted`. Show the five largest by value; this is a follow-up prompt, not a
+   shortfall. Each row names the agency, the item or title, the value and the date. The field meanings and the status
    codes are the ones `bbs-weekly-sales-report` documents; do not re-derive them.
 4. **Bookings, from Business Central**, on `documentDate` for the day, in the rep's scope.
    Attribute per rep exactly the way `bbs-weekly-sales-report` does, by CRM owner or the
-   agency mapping, never by Business Central salesperson code alone, and apply the
+   agency mapping, never by Business Central salesperson code alone. The account split and
+   agency mapping come from the account-synced `ca-state-sales-grounding`; if it is not
+   installed, say so in Data gaps and attribute by CRM owner only. Apply the
    book's scope from canon ("CA state book scope" in `bbs-foundations`
    `references/canonical-facts.md`). Where a figure cannot be split, it is a team figure and
    the file says so.
 5. **Folder activity, from SharePoint**: files modified on the day under the rep's agency
    folders. List the folder and the file, not the contents. A packet rendered at 4 pm that
-   never reached the CRM is work; this is where it shows.
-6. **Shared touchpoints, from Parker's own Microsoft 365**: meetings on Parker's calendar
+   never reached the CRM is work; this is where it shows. Agency folders are shared: keep only
+   files whose last modifier is the rep where the result carries it, otherwise label the
+   section "author not shown". Files kept by an agent or regenerated by a script, the DGS
+   `BPO/` folder among them, are never the rep's folder activity.
+6. **DGS BPO signals, only if DGS is in the rep's book** (attributed as in step 4; otherwise
+   leave the section out, do not write "none"). Read `bpo-tracker.json` in the DGS `BPO/`
+   folder described in `${CLAUDE_PLUGIN_ROOT}/agents/brenda.md`, "The tracker you keep".
+   Status meanings are in that folder's `README.md`: read the status, never recompute pace,
+   never run the folder's scripts. Show BPOs logged on the day; any BPO at `at_risk` or
+   `overspent`; any `next_follow_up_date` on or before the next working day; any file dated
+   the day in `exceptions/`. Each row gives BPO number, facility department, status,
+   remaining balance and order-by date as the tracker states them, with the tracker's as-of
+   date. Remaining excludes orders not yet invoiced; say so once. No item prices, no contacts.
+   A balance the tracker holds as null is "data pending". Remaining is account state, not a
+   rep figure. If the folder cannot be read, note it in Data gaps and use no other source.
+7. **Shared touchpoints, from Parker's own Microsoft 365**: meetings on Parker's calendar
    the rep was in, and threads in Parker's mailbox or in Teams channels where the rep wrote
    or was copied. His accounts only. Never imply coverage of the rep's mailbox.
-7. **Commitments.** Take yesterday's "tomorrow's top three" from the previous day's check-in
+8. **Commitments.** Take yesterday's "tomorrow's top three" from the previous day's check-in
    (or the previous file) and set them beside today's check-in: done, moved, dropped, in the
    rep's words where they gave them, otherwise "not mentioned". This is the whole
-   accountability mechanism. It works because the rep wrote the list.
-8. **Where Parker can help.** Up to three items, concrete, each traceable to a line above:
+   accountability mechanism. It works because the rep wrote the list. If the rep works from a
+   `ca-territory-handoff` call list (`.sales-team/sal/` under State of CA Agencies, if
+   present), list the actions it dates for the next two working days. That list looks
+   forward and is not graded: the plan's dates are not the rep's commitments.
+9. **Account work, this day only.** From the check-in, plus CRM `bbs_rfqs` naming a contact
+   not on any earlier record for that account: named buyers reached, attempts, new names,
+   departed buyers. Contact versus attempt is as `ca-territory-handoff`
+   `references/scoreboard.md` defines it. No rates and no running totals; response rate and
+   weekly indicators belong to the weekly report.
+10. **Where Parker can help.** Up to three items, concrete, each traceable to a line above:
    an ask the rep made, a quote waiting on a price or an approval, an overdue RFQ with no
-   vendor reply, a buyer who should hear from Parker too. Label them as the summary's
-   inference, separate from the rep's own asks.
-9. **Write the file** and the reply block. Stop. Parker reads, then sends the reply himself.
+   vendor reply, a buyer who should hear from Parker too, a visit in tomorrow's top three
+   (offer `ca-site-visit-brief`), an account where only the rep has ever spoken to the buyer
+   and Parker can be the second BBS name (`ca-territory-handoff`, "Multi-thread: the two-name
+   rule"), or a BPO at `at_risk` or `overspent` where a call from Parker to the DGS buyer would
+   move it before the order-by date. Label them as the summary's inference, separate from the
+   rep's own asks.
+11. **Write the file** and the reply block. Stop. Parker reads, then sends the reply himself.
 
 ## The check-in, from the rep's side
 
@@ -123,16 +154,22 @@ on-screen half. It writes the draft into the chat and stops. The rep adds the of
 cuts anything they do not want to share, and posts it. **The rep posts; the skill never
 does.** The draft never contains anything the rep did not do or say.
 
-The six prompts, in the order a tired person can answer them at 5 pm:
+Pre-fill yesterday's three from the rep's previous check-in, so the rep only marks each one.
+If DGS is in the rep's book, the draft may list under prompt 3 each BPO follow-up the tracker
+shows as due, as a question the rep answers: sent / not yet / n/a. A follow-up sent from the
+rep's own mailbox shows up nowhere else.
+
+The five prompts, in the order a tired person can answer them at 5 pm:
 
 1. What I worked on today (quotes, RFQs, calls, visits, vendors, admin, training, anything).
-2. Off-screen: who I called or saw, and what came of it.
+2. Off-screen: who I reached (name, role, agency or site), what came of it, the next date.
+   Anyone new at an account, or anyone gone.
 3. What is stuck, and what it is waiting on (a vendor, a price, an approval, an agency, a portal).
 4. What I need from Parker, specifically (a call, a decision, an intro, a price approval).
 5. Tomorrow's top three.
-6. Anything else I want on the record (a win, a worry, a half day, PTO, context for a slow day).
 
-Plus one line: yesterday's top three, done / moved / dropped.
+Plus two lines: yesterday's top three, each marked done / moved / dropped; and, optionally,
+anything else for the record (a win, a worry, a half day, PTO, context for a slow day).
 
 Every prompt is optional. "Nothing to add" is a complete answer. The rep may write one line
 or twenty. The point is that the rep owns the account of their day; the summary quotes it, it
@@ -142,6 +179,8 @@ does not grade it.
 
 ```markdown
 # Daily summary — <Rep first name> — <Day, D Month YYYY>
+Calendar: <FY>, <first or second half>; next statewide date and days to it, from
+`ca-budget-timing` "The fixed statewide calendar". Do not restate dates here.
 
 ## In <Rep>'s words
 [The check-in, tidied, under their name. Verbatim where it matters. "No check-in posted" goes
@@ -149,13 +188,17 @@ in Data gaps, not here.]
 
 ## Pipeline (Sales CRM, as of <timestamp>)
 | Agency | Request | Value | Received | Due | Submitted | Status |
-Overdue: [...]   Due next 2 working days: [...]   Submitted >10 working days, no outcome: [...]
+Overdue: [...]   Due next 2 working days: [...]   Submitted >10 working days, no confirmed outcome (top 5 by value): [...]
 
 ## Bookings (Business Central, as of <timestamp>)
 [Quotes sent and orders booked on the day, in scope. "Team figure, cannot be split" where true.]
 
 ## Folder activity (SharePoint)
-[Folder → file, modified on the day.]
+[Folder → file, modified on the day, by the rep. "Author not shown" where the result lacks it.]
+
+## DGS BPOs (tracker, as of <date>) — only if DGS is in the rep's book
+| BPO | Facility dept | Status | Remaining (excl. uninvoiced) | Order-by | Follow-up due |
+Logged today: [...]   Exceptions filed today: [...]
 
 ## Touchpoints with Parker (his calendar, mail and Teams only)
 [...]
@@ -163,6 +206,11 @@ Overdue: [...]   Due next 2 working days: [...]   Submitted >10 working days, no
 ## Commitments
 | Yesterday's top three | Outcome (rep's words) |
 Tomorrow's top three: [from today's check-in]
+Call-list actions dated for the next two working days: [if a ca-territory-handoff list exists]
+
+## Account work (this day only)
+[Named buyers reached, attempts, new names, departed buyers. Contact vs attempt per
+ca-territory-handoff references/scoreboard.md. No rates, no running totals.]
 
 ## Where Parker can help (summary's inference, max 3)
 - [...]

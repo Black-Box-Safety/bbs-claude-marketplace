@@ -33,7 +33,8 @@ Fifteen minutes, in person or on a call, before anything runs. An outline, not a
    check-in on top, then what the CRM, Business Central and the quote folders show, then
    where Parker can help, then a reply from Parker.
 3. **What it reads, exactly.** The rep's CRM records. Business Central documents. Files
-   modified in the agency quote folders. The agreed Teams chat. Parker's own calendar and
+   modified in the agency quote folders. The agreed Teams chat. The DGS BPO tracker, if DGS is
+   in their book. Their territory call list, if one exists, for what it dates ahead. Parker's own calendar and
    mail where the rep was in the meeting or on the thread. Show the table in the skill.
 4. **What it does not read.** The rep's mailbox. Chats Parker is not in. Hours, start and
    stop times, location, anything about pace. Say it plainly: there is no delegate access to
@@ -61,7 +62,7 @@ Check-in <D Mon>
 Worked on:
 -
 
-Off-screen (calls, visits, who I saw, what came of it):
+Off-screen (who — name, role, site — result, next date; new or departed buyers):
 -
 
 Stuck on / waiting for:
@@ -75,10 +76,12 @@ Tomorrow's top 3:
 2.
 3.
 
-Yesterday's top 3: done / moved / dropped —
+Yesterday's top 3 (mark each done / moved / dropped):
+1.
+2.
+3.
 
-Anything else:
--
+Anything else (optional):
 ```
 
 ## 4. The Routine prompt (paste-ready)
@@ -99,16 +102,25 @@ Sources, read-only, in this order:
    none, write "No check-in posted for <date>" once, under Data gaps, and nowhere else.
 2. Sales CRM bbs_rfqs where the owner is <Rep>: received, submitted and modified on the day;
    overdue; due in the next two working days; submitted more than ten working days ago with
-   no outcome recorded.
+   no confirmed outcome as canon's "What counts as a win" defines it (never bbs_accepted),
+   top five by value, framed as follow-ups.
 3. Business Central quotes sent and orders booked on the day, attributed the way
    bbs-weekly-sales-report attributes them, in the CA state book scope from canon. Mark a
    figure that cannot be split as a team figure.
 4. SharePoint files modified on the day under the agency quote folders <Rep> works.
-   Folder and file name only.
+   Folder and file name only, last modified by <Rep> where the result shows it. Never the
+   DGS BPO/ folder, which a script regenerates.
+4a. If DGS is in <Rep>'s book: the DGS BPO tracker, read-only, as the skill's step 6
+   describes. Do not write to it and do not run its scripts.
+4b. If a ca-territory-handoff call list for <Rep> exists, the actions it dates for the next
+   two working days. Forward-looking, not graded.
 5. My own calendar, mail and Teams channels, for meetings and threads <Rep> was in. My
    accounts only.
 6. The previous day's file in <Folder>, for yesterday's top three and any correction <Rep>
    posted to it.
+
+Put one calendar line under the heading from ca-budget-timing's fixed statewide calendar
+(fiscal-year half, next statewide date, days to it). Do not restate the dates.
 
 Write one markdown file named YYYY-MM-DD_<Rep>.md to <Folder>, using the skill's summary
 structure, ending with a reply block addressed to <Rep> that I will send myself.
