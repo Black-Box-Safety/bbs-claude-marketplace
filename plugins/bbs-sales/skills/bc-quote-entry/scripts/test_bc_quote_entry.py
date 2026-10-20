@@ -32,7 +32,7 @@ def spec(**over):
         "contract": "OPEN",
         "book": "ca-state",
         "agency": "DGS",
-        "salesperson": "CA STATE TEAM",
+        "salesperson": "AANYA",
         "shipTo": {"shipToName": "Example Agency Training Center", "shipToContact": "Buyer Name",
                    "shipToAddressLine1": "100 Example Road", "shipToAddressLine2": "", "shipToCity": "Sacramento",
                    "shipToState": "CA", "shipToPostCode": "95814", "shipToCountry": "US"},
@@ -201,13 +201,14 @@ class Owner(unittest.TestCase):
 
     def test_codes(self):
         self.assertEqual(m.KIM_CODE, "KQUEZON")
-        self.assertEqual(m.AANYA_CODE, "CA STATE TEAM")
+        self.assertEqual(m.AANYA_CODE, "AANYA")
+        self.assertEqual(m.RETIRED_CODE, "CA STATE TEAM")
         self.assertEqual(m.HIGHER_ED_CODES, {"JMAGLIATO", "UNIVERSITY"})
 
     def test_kim_agency_needs_kim_code(self):
         for agency in self.KIM_18:
             self.assertEqual(self.owner_errors(agency=agency, salesperson="KQUEZON"), [], agency)
-            errs = self.owner_errors(agency=agency, salesperson="CA STATE TEAM")
+            errs = self.owner_errors(agency=agency, salesperson="AANYA")
             self.assertTrue(any("Kim Quezon's agencies" in e and "KQUEZON" in e for e in errs), agency)
 
     def test_aliases_resolve(self):
@@ -219,7 +220,7 @@ class Owner(unittest.TestCase):
 
     def test_other_state_agency_is_aanya(self):
         for agency in ("DGS", "Caltrans", "DSH", "CalVet", "DMV", "CDFA", "CARB", "DTSC", "CalRecycle"):
-            self.assertEqual(self.owner_errors(agency=agency, salesperson="CA STATE TEAM"), [], agency)
+            self.assertEqual(self.owner_errors(agency=agency, salesperson="AANYA"), [], agency)
             errs = self.owner_errors(agency=agency, salesperson="KQUEZON")
             self.assertTrue(any("Aanya Samarasinghe's" in e for e in errs), agency)
 
@@ -229,17 +230,23 @@ class Owner(unittest.TestCase):
         errs = self.owner_errors(agency="CAL FIRE", salesperson="PMARSHALL")
         self.assertTrue(any("KQUEZON" in e for e in errs))
 
-    def test_atwater_spec_shape_is_the_defect(self):
-        """The CAL FIRE Atwater quote of 2026-10-16 went out as CA STATE TEAM; CAL FIRE is Kim's."""
-        errs = self.owner_errors(agency="CAL FIRE", salesperson="CA STATE TEAM")
-        self.assertTrue(any("never carry the CA STATE TEAM bucket" in e for e in errs))
+    def test_ca_state_team_is_retired_everywhere(self):
+        """The CAL FIRE Atwater spec of 2026-10-16 carried CA STATE TEAM; CAL FIRE is Kim's, and the bucket is
+        never set on a new quote in any book, even where the customer card still defaults to it."""
+        for over in (dict(agency="CAL FIRE"), dict(agency="DGS"), dict(book="other"),
+                     dict(book="body-armor", contract="BA-CA"), dict(book="higher-ed", agency="CSU")):
+            s = spec(salesperson="CA STATE TEAM", **over)
+            if over.get("book") == "other":
+                del s["agency"]
+            errs = errors(s)
+            self.assertTrue(any("retired shared bucket" in e for e in errs), over)
 
     def test_agency_required_on_state_book(self):
         s = spec(); del s["agency"]
         self.assertTrue(any("needs agency" in e for e in errors(s)))
 
     def test_higher_ed_is_joey(self):
-        errs = self.owner_errors(agency="CSU", salesperson="CA STATE TEAM")
+        errs = self.owner_errors(agency="CSU", salesperson="AANYA")
         self.assertTrue(any("Joey Magliato's book" in e and "higher-ed" in e for e in errs))
         self.assertEqual(self.owner_errors(book="higher-ed", agency="UC", salesperson="UNIVERSITY"), [])
         self.assertEqual(self.owner_errors(book="higher-ed", agency="CSU", salesperson="JMAGLIATO"), [])
@@ -284,7 +291,7 @@ class Owner(unittest.TestCase):
         self.assertIsNone(err); self.assertIn("does not name one agency", note)
         note, err = m.dimension_conflict("", kim)
         self.assertIsNone(err); self.assertIn("[FLAG", note)
-        aanya = self.header(agency="DSH", salesperson="CA STATE TEAM")
+        aanya = self.header(agency="DSH", salesperson="AANYA")
         note, err = m.dimension_conflict("DCR", aanya)
         self.assertIn("Kim Quezon's", err)
         note, err = m.dimension_conflict("DGS", aanya)   # both Aanya's: a different agency, same owner, passes
@@ -366,7 +373,7 @@ class Gates(unittest.TestCase):
 
     def test_header_gate_pure(self):
         h = {"customerNumber": "C00000", "paymentTermsId": "pt-1", "shipmentMethodId": "sm-1",
-             "shortcutDimension1Code": "OPEN", "salesperson": "CA STATE TEAM",
+             "shortcutDimension1Code": "OPEN", "salesperson": "AANYA",
              "externalDocumentNumber": "RFQ EX-6001 01-02-26", **spec()["shipTo"]}
         self.assertTrue(all(ok for _, ok in m.header_gate(h, self.cust, self.header)))
         bad = dict(h, shipToCity="Corinne", shipToState="UT")

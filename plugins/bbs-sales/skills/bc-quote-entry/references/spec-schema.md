@@ -13,7 +13,9 @@ first).
 | `customerNumber` | yes | The BC customer number (`C#####`, upper-case). Resolved by number, never by name (BC's text search is case-sensitive). The customer must exist and not be blocked |
 | `externalDocumentNumber` | yes | 1-35 ASCII characters: the agency's solicitation or RFQ number, or the customer's PO number. The check stops if any sales quote in BC already carries it |
 | `contract` | yes | The CONTRACT dimension (shortcut dimension 1): the vehicle Gate 1 of `/ca-rfq` named. One of the codes in `quote-rules.md`; anything else stops. `OPEN` for open market, `NASPO` for the Grainger NASPO schedule |
-| `salesperson` | yes | The BC salesperson code, upper-case, written on the header (`CA STATE TEAM`, a rep's own code). The read-back gate compares it |
+| `book` | yes | Whose rules apply: `ca-state` (Kim Quezon's and Aanya Samarasinghe's agencies), `body-armor` (Parker's; needs a body-armor CONTRACT), `higher-ed` (CSU and UC, Joey Magliato's), `other` (federal, local, private; outside the state book). Body armor on `ca-state` and CSU/UC on `ca-state` both stop |
+| `agency` | yes on `ca-state` and `higher-ed` | The state agency the customer belongs to, by its short name or a common spelling (`CAL FIRE`, `CalFire`, `CDCR`, `DSH`, `Caltrans`, `State Water Board`). It decides the owner: one of Kim's 18 agencies means `KQUEZON`, any other state agency means `AANYA`. The check also reads the customer card's CUSTOMER dimension and stops when it names the other owner |
+| `salesperson` | yes | The BC salesperson code of the Account Manager who owns the agency: `KQUEZON` or `AANYA` on a state quote, `JMAGLIATO` or `UNIVERSITY` on higher education. Never `PMARSHALL` on a state quote (Parker holds no accounts there) and never `CA STATE TEAM` on any new quote, even where the customer card still defaults to it: the check stops on both. The read-back gate compares it with the header BC wrote |
 | `shipTo` | yes | The delivery point, below. PATCHed onto the header after the POST and gated by read-back before any line is added |
 | `costSource` | yes | Where every line's cost was read, with a number or date: the vendor quote number and date, or the Grainger account and date the price was read. The same guess-words that fail `bc-item-entry` fail here |
 | `pricingBasis` | yes | How the sell price was reached, in a sentence a rep can defend: margin over cost, freight folded in, the schedule rule (Grainger at cost on NASPO). Printed on the review sheet |
@@ -69,7 +71,9 @@ Every value below is synthetic.
   "customerNumber": "C00000",
   "externalDocumentNumber": "RFQ EX-6001 01-02-26",
   "contract": "OPEN",
-  "salesperson": "CA STATE TEAM",
+  "book": "ca-state",
+  "agency": "DGS",
+  "salesperson": "AANYA",
   "shipTo": {
     "shipToName": "Example Agency Training Center",
     "shipToContact": "Buyer Name",
@@ -100,12 +104,15 @@ Every value below is synthetic.
 
 A NASPO spec differs in three places: `"contract": "NASPO"`, every line's `unitPrice` equal
 to its `unitCost` (the Grainger price read on the buying institution's own account), and
-`"zeroMarginOk": true` at the top level with `pricingBasis` saying so.
+`"zeroMarginOk": true` at the top level with `pricingBasis` saying so. A CAL FIRE or CDCR
+spec differs in one: `"agency": "CAL FIRE"` makes the salesperson `KQUEZON`, and the check
+stops on anything else.
 
 ## What the review sheet shows
 
 A header table (customer number and BC name, the card's payment terms and shipment method,
-external document number, CONTRACT, salesperson, ship-to, document date, cost source,
+external document number, CONTRACT, book and owner (`CA state / CAL FIRE -> Kim Quezon
+(KQUEZON)`), salesperson, ship-to, document date, cost source,
 pricing basis, who prepared it, the sign-in that would write, where the connection values
 came from, the approval token), then one row per line:
 

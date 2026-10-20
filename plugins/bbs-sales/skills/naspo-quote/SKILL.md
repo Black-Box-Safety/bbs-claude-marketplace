@@ -77,6 +77,7 @@ rep's own sign-in. NASPO-specific values on that spec:
 | line `unitPrice` | the Grainger `unitPrice` — CA state schedule, at cost, no markup. `unitCost` is the same number, so the spec carries `zeroMarginOk: true` at the top level and `pricingBasis` says "Grainger at cost on NASPO" |
 | `contract` (CONTRACT, dimension 1) | `NASPO` |
 | `externalDocumentNumber` | the solicitation number off the worksheet header |
+| `book`, `agency`, `salesperson` | `ca-state`, the agency, and the owner's code: `KQUEZON` for Kim Quezon's agencies (CDCR, CHP, CAL FIRE, CMD, CDFW, Cal OES and the rest of her 18), `AANYA` for every other state agency; never `CA STATE TEAM` on a new quote (Parker, 2026-10-16; the table is in `bc-quote-entry`'s `quote-rules.md`) |
 | ship-to | the institution's delivery point from the buyer folder; gated by read-back |
 | payment terms, shipment method | inherit from the customer card. The worksheet expects FOB Destination; if the card says otherwise, flag it |
 | tax | the worksheet prints "Do not include sales tax"; BC calculates tax on release, so the rep checks the released quote against the worksheet and flags any tax AvaTax adds |

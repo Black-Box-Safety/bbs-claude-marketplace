@@ -28,7 +28,7 @@ this write path, not rendered as a PDF in Claude. The write scope is create item
 Vendor No., and create sales quotes and their lines. Nothing else, ever: no release, no
 `makeOrder`, no send, no post.
 
-**Four gates, none of them yours to waive.**
+**Five gates, none of them yours to waive.**
 
 1. **Items exist.** Every line's item number is read from BC and must exist as Inventory,
    unblocked. The script never creates or patches an item (SOP: never create an item as a
@@ -40,7 +40,14 @@ Vendor No., and create sales quotes and their lines. Nothing else, ever: no rele
    NASPO). A zero price stops. The lines sum to the total.
 3. **One quote per external document number.** The agency's solicitation or PO number goes
    on the header, and the check stops if any sales quote already carries it.
-4. **Named review.** Nothing is written until the rep has read the review sheet and you
+4. **The owner's code.** On a California state quote the salesperson is the Account Manager
+   who owns the agency: `KQUEZON` for Kim Quezon's 18 agencies, `AANYA` for every other state
+   agency. Parker holds no accounts on the state book, so state work Parker runs still lands
+   under Kim or Aanya; `PMARSHALL` never goes on a state quote and `CA STATE TEAM` is never
+   set on a new quote, even where the customer card still defaults to it. The spec's `book`
+   and `agency` carry the basis, the check compares it with the customer card's CUSTOMER
+   dimension, and body armor (Parker) and CSU/UC (Joey Magliato) keep their own owners.
+5. **Named review.** Nothing is written until the rep has read the review sheet and you
    commit with their name and the token the check printed. "Go ahead" before the sheet
    exists is not approval of the sheet.
 
@@ -93,6 +100,12 @@ customer card and `bc_find_item` for every line.
   card that says NET 30 is a question for the rep now, not after the quote exists.
 - Vehicle: the CONTRACT code is the one Gate 1 of `/ca-rfq` named, from the list in
   `references/quote-rules.md`. `OPEN` is open market. Never invent a code.
+- Owner: name the agency (`agency`) and the book (`book: ca-state` for a state agency) and put
+  the owner's salesperson code on the spec: `KQUEZON` when the agency is one of Kim Quezon's
+  18, `AANYA` otherwise; the table is "Whose quote it is" in `references/quote-rules.md`. The
+  customer card may still default to `CA STATE TEAM`; the quote does not inherit that, the
+  spec carries the code and the check stops on the old bucket. Do not ask the rep which code
+  to use when the agency decides it; do ask when the agency itself is unclear.
 - Items: `bc_find_item` on every line. A number that exists is quoted as it is. A number BC
   does not have goes through `bc-item-entry` first; come back when the card exists. Item
   numbers are upper-case, as the card has them.
@@ -204,13 +217,17 @@ page; nothing in the script changes.
 | "Release it too so the tax shows" | Out of scope by ruling. A person releases in BC. |
 | "The header gate failed, run commit again to add the lines" | The empty draft is the recovery, in BC. A second commit would stop on the duplicate gate, and should. |
 | "Parker already approved this" | Approval is of the review sheet, by the rep in the chat, after the check. Nothing else counts. |
+| "Put it under CA STATE TEAM like the customer card says" | The bucket is retired for new quotes. The agency decides: Kim's 18 carry `KQUEZON`, the rest carry `AANYA`. |
+| "Parker is running this one, use PMARSHALL" | Parker holds no accounts on the state book. The agency's owner goes on the header whoever runs the desk that day. |
+| "It's a CDCR quote but Aanya priced it, use AANYA" | Who priced it is not who owns it. CDCR is Kim's; the header carries `KQUEZON`. |
 | "Use Parker's service-principal file, it's quicker" | App-only puts the app's name on the quote instead of the rep's and needs a flag for that reason. The rep signs in once; it is cached. |
 | "Build the PDF in Claude, it's faster than BC" | Retired as the quote desk's path (2026-10-16). The customer document is the PDF BC prints from the released quote. |
 
 ## Common mistakes
 
-- `preparedBy` missing on a spec written before this skill existed. The CAL FIRE Atwater spec
-  of 2026-10-16 carries `approvedBy` prose instead; add `preparedBy` and the check passes.
+- `preparedBy`, `book` and `agency` missing on a spec written before this skill existed. The
+  CAL FIRE Atwater spec of 2026-10-16 carries `approvedBy` prose and `CA STATE TEAM`; with
+  `preparedBy`, `book: ca-state`, `agency: CAL FIRE` and `salesperson: KQUEZON` it passes.
 - Price equal to cost on an open-market quote with `zeroMarginOk` added to make the check
   pass. The flag records a decision the rep made; it is not a way past the gate.
 - Em dashes and curly quotes in line descriptions. ASCII only; the script rejects them.

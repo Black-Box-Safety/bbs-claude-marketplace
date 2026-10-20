@@ -245,13 +245,22 @@ Write it up with evidence and move to the next slice. Do not idle.
   ship-to, terms, shipment method, CONTRACT, salesperson and external document number before a
   line exists; whole quote read back with `$expand=salesQuoteLines` and verified; never
   `validUntilDate`, never release, convert, send or post. CONTRACT codes are the SOP §1 list,
-  held as a test. **Open for Parker:** (a) `BC-WRITE-SOP-RULES.md` §4.7's "follow-up (open)"
+  held as a test. **Salesperson follows the account split** (Parker, in session, 2026-10-16,
+  canon and Gate 5 on this branch's base): the spec carries `book` and `agency`; `check` stops
+  unless a state quote carries `KQUEZON` (Kim's 18 agencies) or `AANYA` (every other state
+  agency), stops on `PMARSHALL` for a state quote and on `CA STATE TEAM` for any new quote,
+  keeps body armor (Parker, body-armor CONTRACT) and CSU/UC (Joey, `JMAGLIATO`/`UNIVERSITY`)
+  on their own owners, and reads the customer card's CUSTOMER default dimension as a
+  cross-check that stops when the card names the other owner. The 18 agencies and the codes are
+  copied from canon into the script and held as a test. **Open for Parker:** (a) `BC-WRITE-SOP-RULES.md` §4.7's "follow-up (open)"
   line and §4.6 on SharePoint now point at a shipped skill and should say so (SharePoint is
   not edited from the marketplace). (b) Nothing has yet proven a delegated sales-quote write
   under a rep-class permission set; `rep-setup.md` 5b covers the item write only, and the
   first quote commit under a rep-class set should be recorded beside it. (c) The CAL FIRE
-  Atwater spec of 2026-10-16 carries `approvedBy` prose and no `preparedBy`; it passes every
-  other field rule offline, and adding `preparedBy` makes it the worked example. (d)
+  Atwater spec of 2026-10-16 carries `approvedBy` prose, no `preparedBy`, no `book` or
+  `agency`, and `CA STATE TEAM` as salesperson where CAL FIRE is Kim's; with those four fields
+  set it is the worked example, and the quote already built from it carries the retired code.
+  (d)
   `msal` is not installed in `/usr/bin/python3` on Parker's iMac (2026-10-16), so no live
   `check` has run; the first live `check` against that spec is the acceptance test. The
   routing eval: `bbs-quote-builder`'s description changed on this branch's base and

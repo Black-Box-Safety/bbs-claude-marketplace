@@ -16,10 +16,44 @@ CAL FIRE Atwater on 2026-10-16, which this skill replaces.
 | `externalDocumentNumber` | from the spec, 1-35 chars, unique across sales quotes **[script]** | The agency's solicitation or the customer's PO. BC accepts duplicates; the duplicate gate is this script's, and it stops on any quote that already carries the number, whatever its status, because the rep decides whether that is a re-quote |
 | `shortcutDimension1Code` (CONTRACT) | from the spec, on the list below **[script]** | The one BBS-specific rule in quote entry and the one the SOP never wrote down. `OPEN` unless the deal rides a vehicle |
 | `shortcutDimension2Code` (CUSTOMER) | **not sent** | Inherits from the customer's default dimensions (verified: `C10001` came back `DGS`) |
-| `salesperson` | from the spec **[script]** | Writable on POST (`SQ-104848`, `KQUEZON`); the read-back gate compares it |
+| `salesperson` | from the spec, the owner's code **[script]** | Writable on POST (`SQ-104848`, `KQUEZON`); the read-back gate compares it. Which code is the owner's is the section "Whose quote it is" below |
 | `shipTo*` | PATCHed after the POST with `If-Match`, then gated **[script]** | A quote inherits the customer's default ship-to, which is not always the job's destination (`C11312` defaults to Utah; the PO shipped to Vandenberg, a different tax jurisdiction). The gate runs before a single line exists |
 | payment terms, shipment method | inherit from the customer card, read back and compared to the card **[script]** | The sheet shows both so the rep can see NET 30 when the solicitation says Net 45 and decide in BC. This skill does not patch terms |
 | status | left `Draft` **[script]** | The API has no release action; a person releases in BC and that is where tax is calculated |
+
+## Whose quote it is
+
+Ruled by Parker, in session, 2026-10-16, and recorded in canonical-facts.md ("Salesperson
+follows the account split, quote by quote") and `/ca-rfq` Gate 5: on a California state quote the
+salesperson is the Account Manager who owns the agency, quote by quote. Parker holds no accounts
+on the state book; state work Parker runs still lands under Kim or Aanya.
+
+| Spec `book` | Who | `agency` | `salesperson` the check accepts |
+|---|---|---|---|
+| `ca-state` | Kim Quezon | CDCR, CHP, CAL FIRE, CMD, CDFW, Cal OES, DOJ, DPR, DWR, DCC, CCC, ABC, DOC, State Water Board (SWRCB / CWB), OIG, POST, Horse Racing Board, Gambling Control Commission | `KQUEZON` **[script]** |
+| `ca-state` | Aanya Samarasinghe | every other California state agency (DGS, Caltrans, DSH, CalVet, DMV, CDFA, CARB, DTSC, CalRecycle, DOR, DCA, CNRA, ...) | `AANYA` **[script]** (the code exists in BC since 2026-09-14) |
+| `higher-ed` | Joey Magliato | CSU, UC | `JMAGLIATO` or `UNIVERSITY` **[script]** |
+| `body-armor` | Parker Marshall | any; CONTRACT must be `BODYARMOR`, `BA-CA` or `BA-SRCWL` **[script]** | not gated |
+| `other` | outside the state book (federal primes, local, private) | none | not gated |
+
+- `CA STATE TEAM` was the shared Parker-and-Aanya bucket. It is never set on a new quote, in
+  any book, even where the customer card still defaults to it; the check stops on it
+  **[script]**. Historic quotes keep it.
+- `PMARSHALL` never goes on a state quote **[script]**: Parker holds no accounts there.
+- A body-armor CONTRACT on `book: ca-state` stops (body armor is outside the Kim/Aanya book;
+  set `body-armor`), and CSU or UC on `book: ca-state` stops (set `higher-ed`) **[script]**.
+- **Cross-check against the customer card.** `check` reads the customer's default CUSTOMER
+  dimension (`customers({id})/defaultDimensions`). `CALFIRE`, `DCR`, `CHP`, `CMD`, `DFW`,
+  `OES` and `CWB` name Kim's agencies; `DGS`, `DOT` and `DSH` name Aanya's; `CSU` and `UC`
+  name Joey's. When the card names the other owner the check stops; when it carries `AGNCY`,
+  `MUNC`, `UNAFLTD` or nothing, it cannot confirm the agency and the sheet says so, and the
+  spec's `agency` decides **[script]**. A card that could not be read is a flag on the sheet,
+  not a stop.
+- The agency list and the codes are copied into the script from canonical-facts and held as a
+  test (`test_bc_quote_entry.py`, `Owner`). When an agency moves or a code changes, change
+  canon, the script and the test together.
+- The CAL FIRE Atwater quote of 2026-10-16 is the precedent for the rule: its spec carried
+  `CA STATE TEAM` and CAL FIRE is Kim's, so under this skill it would carry `KQUEZON`.
 
 ## The CONTRACT list
 

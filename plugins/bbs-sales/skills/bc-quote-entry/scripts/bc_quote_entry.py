@@ -19,11 +19,12 @@ whole quote back with $expand=salesQuoteLines and verifies every line and the to
 appends to `<spec>.bc-log.jsonl`.
 
 Whose quote it is: a California state quote carries the salesperson code of the Account Manager
-who owns the agency (Kim Quezon's 18 agencies -> KQUEZON; every other state agency -> Aanya
-Samarasinghe, whose code is the CA STATE TEAM bucket until she has her own). Parker holds no
-accounts on the state book (Parker, in session, 2026-10-16), so PMARSHALL never goes on a state
-quote. Body armor is Parker's and higher education is Joey Magliato's; the spec's `book` says
-which rule applies, and the customer card's CUSTOMER dimension is read as a cross-check. It never releases, converts, sends or posts anything; a
+who owns the agency (Kim Quezon's 18 agencies -> KQUEZON; every other state agency -> AANYA).
+Parker holds no accounts on the state book (Parker, in session, 2026-10-16), so PMARSHALL never
+goes on a state quote, and the old CA STATE TEAM bucket is never set on a new quote even where
+the customer card still defaults to it. Body armor is Parker's and higher education is Joey
+Magliato's; the spec's `book` says which rule applies, and the customer card's CUSTOMER
+dimension is read as a cross-check. It never releases, converts, sends or posts anything; a
 person releases the quote in BC, which is where tax is calculated.
 
 Connection, sign-in, HTTP, the error table and the token cache are IMPORTED from the sibling
@@ -75,12 +76,13 @@ TOP_KNOWN = TOP_REQUIRED + ("agency", "zeroMarginOk", "deal", "approvedBy")
 BODY_ARMOR_CONTRACTS = frozenset({"BODYARMOR", "BA-CA", "BA-SRCWL"})
 BOOKS = ("ca-state", "body-armor", "higher-ed", "other")
 
-# Who owns what on the California state book. Authority: canonical-facts.md "CA state book
-# scope" (bbs-foundations) and the ca-state-sales-grounding skill, as of 2026-09-02; Parker, in
-# session, 2026-10-16: Parker holds no accounts on the state book, so every state quote carries
-# Kim's or Aanya's code. Aanya has no personal salesperson code as of 2026-10-16; CA STATE TEAM is
-# her bucket. When BC gains one, change AANYA_CODE, the test and the grounding together.
-KIM_CODE, AANYA_CODE = "KQUEZON", "CA STATE TEAM"
+# Who owns what on the California state book. Authority: canonical-facts.md "Salesperson follows
+# the account split, quote by quote" (bbs-foundations; Parker, in session, 2026-10-16) and /ca-rfq
+# Gate 5. Parker holds no accounts on the state book, so every state quote carries Kim's or
+# Aanya's code. BC has carried the AANYA salesperson code since 2026-09-14; CA STATE TEAM was the
+# shared bucket before it and is never set on a new quote, even where the customer card still
+# defaults to it.
+KIM_CODE, AANYA_CODE, RETIRED_CODE = "KQUEZON", "AANYA", "CA STATE TEAM"
 OWNERS = {"kim": ("Kim Quezon", KIM_CODE), "aanya": ("Aanya Samarasinghe", AANYA_CODE)}
 HIGHER_ED_CODES = frozenset({"JMAGLIATO", "UNIVERSITY"})   # Joey Magliato: CSU and UC
 # Kim Quezon's 18 agencies, keyed by the short name the spec uses, with the spellings a rep
@@ -156,6 +158,10 @@ def owner_gate(header):
     errs = []
     if book not in BOOKS:
         return "-", [f"book {book!r} is not one of {', '.join(BOOKS)}"]
+    if sales == RETIRED_CODE:
+        errs.append(f"salesperson {RETIRED_CODE!r} is the retired shared bucket and is never set on a new quote, even "
+                    f"where the customer card still defaults to it (Parker, 2026-10-16). A state quote carries "
+                    f"{KIM_CODE} (Kim Quezon's agencies) or {AANYA_CODE} (every other state agency)")
     if book == "body-armor":
         if contract not in BODY_ARMOR_CONTRACTS:
             errs.append(f"book body-armor needs a body-armor CONTRACT ({', '.join(sorted(BODY_ARMOR_CONTRACTS))}), not {contract!r}")
@@ -178,7 +184,7 @@ def owner_gate(header):
                f"{agency} is higher education, Joey Magliato's")
         errs.append(f"salesperson {sales!r} is not the owner's code: {why}; the header carries "
                     f"{' or '.join(sorted(codes))}. Parker holds no accounts on the state book, so a state quote never "
-                    f"carries PMARSHALL, and Kim's agencies never carry the CA STATE TEAM bucket")
+                    f"carries PMARSHALL")
     return text, errs
 
 
@@ -580,8 +586,9 @@ def review_sheet(bc, header, lines, cust, cards, notes, warns, token, spec_path)
     out += ["", "The quote is created as a Draft sales quote in Business Central with the header above and the lines "
                 "below. Nothing is written until the rep approves this sheet by name. Nothing here releases, "
                 "converts or sends it.", "",
-            "The salesperson is the Account Manager who owns the agency (Kim Quezon's 18 agencies, or Aanya "
-            "Samarasinghe for every other state agency); Parker holds no accounts on the state book.", "",
+            "The salesperson is the Account Manager who owns the agency (KQUEZON for Kim Quezon's 18 agencies, AANYA "
+            "for every other state agency); Parker holds no accounts on the state book and CA STATE TEAM is never set "
+            "on a new quote.", "",
             "| # | Item No. | Description | Qty | UoM | Cost | Price | Ext. price | GM% | Card |",
             "|---|---|---|---|---|---|---|---|---|---|"]
     for ln in lines:
