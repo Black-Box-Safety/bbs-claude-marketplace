@@ -30,9 +30,12 @@
 set -u
 set -f   # no globbing: a path segment like '*' must stay literal
 
-# The two federal lookups at the end are read-only network calls that write no file
-# (Parker, in session, 2026-10-02: "yes it can run without a call"). Keep comments out
-# of the array: the tests read it one entry per line.
+# The two federal lookups are read-only network calls that write no file (Parker, in
+# session, 2026-10-02: "yes it can run without a call"). The last two entries write to
+# Business Central (item cards, then the sales quote); Parker ruled 2026-10-16 that the rep's
+# named sign-off on each script's review sheet is the gate and no Allow click is added on top
+# (MANAGED-SETTINGS.md, "Business Central writes"). Keep comments out of the array: the tests
+# read it one entry per line.
 ALLOWED=(
   "ca-form-filler/scripts/fill_obs_packet.py"
   "ca-form-filler/scripts/fill_packet_c.py"
@@ -43,6 +46,8 @@ ALLOWED=(
   "bbs-quote-builder/scripts/build_quote.js"
   "sam-gov-opportunities/scripts/sam_opportunities.py"
   "usaspending-awards/scripts/usaspending_awards.py"
+  "bc-item-entry/scripts/bc_item_entry.py"
+  "bc-quote-entry/scripts/bc_quote_entry.py"
 )
 
 die() { printf 'bbs-fill: REFUSED — %s\nNothing was run.\n' "$1" >&2; exit 64; }

@@ -62,12 +62,13 @@ The same as `bc-item-entry`; do it once and both skills work. The checklist is
   (tenant, client id, environment, company id; **no secret, ever**). This skill has no
   connection file of its own; its script imports the sibling's connection loading, sign-in,
   HTTP helpers, error table and token cache, so there is one of each for both skills.
-- Install the sign-in libraries into the interpreter the skill runs with.
-  Mac: `/usr/bin/python3 -m pip install --user msal msal-extensions` (use `/usr/bin/python3`
-  for every command here; the python.org build fails TLS verification).
-  Windows: `python -m pip install msal msal-extensions`.
+- Install the sign-in libraries into the interpreter `bbs-fill` runs: `python3` on your PATH
+  on a Mac (after the bootstrap that is `/usr/bin/python3`), `python` on Windows.
+  Mac: `python3 -m pip install --user msal msal-extensions`.
+  Windows: `python -m pip install msal msal-extensions`. On a Mac, `CERTIFICATE_VERIFY_FAILED`
+  means a python.org build sits ahead of `/usr/bin` on PATH [FLAG: fix the PATH or ask Parker].
 - **Run the first `whoami` in your own terminal, not inside a Claude session:**
-  `python3 "${CLAUDE_PLUGIN_ROOT}/skills/bc-quote-entry/scripts/bc_quote_entry.py" whoami`.
+  `bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/bc-quote-entry/scripts/bc_quote_entry.py" whoami`.
   A browser window asks for your own Microsoft work account (a device code if no browser
   can open); the sign-in is cached encrypted and shared with `bc-item-entry`. `whoami` then
   reads customers, items, sales quotes and units of measure once each and prints PASS or FAIL
@@ -124,8 +125,16 @@ override the card's description on this quote only.
 ### 4. Run the check
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/bc-quote-entry/scripts/bc_quote_entry.py" check "<spec.json>"
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/bc-quote-entry/scripts/bc_quote_entry.py" check "<spec.json>"
 ```
+
+**Every run of this script goes through `bbs-fill`**, exactly as written: the managed
+settings allow `Bash(bbs-fill *)` and nothing broader, and the script is on the launcher's
+allow list by the same ruling as `bc_item_entry.py` (Parker, 2026-10-16: the rep's sign-off
+on the sheet is the gate, with no Allow click on top). Run it from the rep's working folder,
+never `cd` first, and never chain another command onto the line. If `bbs-fill` is not found,
+the `bbs-tools` plugin is not installed; say so rather than running the script with `python3`
+directly.
 
 It writes nothing in BC. It proves the read path, validates every field, looks the customer
 up (exists, unblocked), reads every line's item (exists, Inventory, unblocked; the card's
@@ -149,7 +158,7 @@ go back to step 4.
 ### 6. Commit with the rep's name and the current token
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/bc-quote-entry/scripts/bc_quote_entry.py" commit "<spec.json>" --approve <token> --approved-by "<rep name>"
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/bc-quote-entry/scripts/bc_quote_entry.py" commit "<spec.json>" --approve <token> --approved-by "<rep name>"
 ```
 
 `--approved-by` must match `preparedBy` on the spec; the script refuses any other name. It
@@ -167,9 +176,6 @@ header gate failed, no lines) or a **partial draft** (a line failed, with the li
 landed). Report that verbatim. The rep deletes or finishes it in the BC UI; you never re-run
 commit for it, because the duplicate gate on the external document number will stop until
 the draft is gone, which is correct.
-
-Every run of this script, commit included, waits for the person to click Allow: it is
-deliberately not on the `bbs-fill` allow list, like `bc_item_entry.py`.
 
 ### 7. Close out
 

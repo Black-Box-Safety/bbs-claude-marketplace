@@ -45,14 +45,18 @@ each step, is `references/rep-setup.md`. The short form:
 - The connection values ship with the plugin in `references/bc-connection.json` (tenant,
   client id, environment, company id; **no secret, ever**). Nothing to copy from the shared
   drive. A rep is never handed a file that carries `BC_CLIENT_SECRET`.
-- Install the sign-in libraries into the interpreter the skill runs with.
-  Mac: `/usr/bin/python3 -m pip install --user msal msal-extensions` (use `/usr/bin/python3`
-  for every command here; the python.org build fails TLS verification).
+- Install the sign-in libraries into the interpreter `bbs-fill` runs: `python3` on your PATH
+  on a Mac (after the bootstrap that is the Xcode command-line-tools interpreter,
+  `/usr/bin/python3`), `python` on Windows.
+  Mac: `python3 -m pip install --user msal msal-extensions`.
   Windows: `python -m pip install msal msal-extensions`.
   `bbs-setup.sh` and `bbs-setup.ps1` install both as well. A missing library stops the script
-  with the exact command for the interpreter that ran it.
-- **Run the first `whoami` in your own terminal, not inside a Claude session:**
-  `python3 "${CLAUDE_PLUGIN_ROOT}/skills/bc-item-entry/scripts/bc_item_entry.py" whoami`.
+  with the exact command for the interpreter that ran it; copy that line. On a Mac,
+  `CERTIFICATE_VERIFY_FAILED` means a python.org build sits ahead of `/usr/bin` on PATH
+  [FLAG: fix the PATH or ask Parker; the bootstrap's interpreter does not have the problem].
+- **Run the first `whoami` in your own terminal, not inside a Claude session.** Ask Claude
+  to print the command with the script's full path (it knows where the plugin is installed)
+  and paste it: `python3 "<plugin root>/skills/bc-item-entry/scripts/bc_item_entry.py" whoami`.
   A browser window asks for your own Microsoft work account (a device code if no browser
   can open). The sign-in is cached encrypted, so later runs, Claude's included, do not ask
   again. `whoami` then reads items, vendors and the Item Card web service once each and
@@ -117,8 +121,15 @@ its own `vendorName`.
 ### 4. Run the check
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/bc-item-entry/scripts/bc_item_entry.py" check "<spec.json>"
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/bc-item-entry/scripts/bc_item_entry.py" check "<spec.json>"
 ```
+
+**Every run of this script goes through `bbs-fill`**, exactly as written: the managed
+settings allow `Bash(bbs-fill *)` and nothing broader, and the script is on the launcher's
+allow list by ruling (Parker, 2026-10-16: the rep's sign-off on the sheet is the gate, with
+no Allow click on top). Run it from the rep's working folder, never `cd` first, and never
+chain another command onto the line. If `bbs-fill` is not found, the `bbs-tools` plugin is
+not installed; say so rather than running the script with `python3` directly.
 
 It writes nothing. It first proves the read path (items, vendors, Item Card web service) and
 stops if any of the three fails (a read PASS does not prove write rights; see the setup);
@@ -138,7 +149,7 @@ rep changes anything, edit the spec and go back to step 4.
 ### 6. Commit with the rep's name and the current token
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/bc-item-entry/scripts/bc_item_entry.py" commit "<spec.json>" --approve <token> --approved-by "<rep name>"
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/bc-item-entry/scripts/bc_item_entry.py" commit "<spec.json>" --approve <token> --approved-by "<rep name>"
 ```
 
 `--approved-by` must match `preparedBy` on the spec; the script refuses any other name.
@@ -146,8 +157,9 @@ The script re-runs every gate, creates each item as Inventory / PRODUCTS / INVEN
 TAXABLE, sets Vendor No. (and Vendor Item No. when given) through the Item Card web
 service, verifies every write by reading it back, and appends to `<spec>.bc-log.jsonl`
 with who approved and which sign-in wrote. A failure stops at that item and names what
-landed; report that list verbatim. Every run of this script, commit included, waits for the
-person to click Allow: it is deliberately not on the `bbs-fill` allow list.
+landed; report that list verbatim. The rep's named approval of the sheet is the only
+approval; there is no Allow click on top of it (Parker, 2026-10-16). That is why the sheet
+is shown in full and approved by name, never summarised.
 
 The sign-in that writes and the rep who approves are usually the same person. When they
 differ (a rep approving in a colleague's session), the script prints a note, the log shows
@@ -178,7 +190,7 @@ Items that need Extended Text or Item References get those in the BC UI.
 | `expired_token` | The sign-in code timed out. Run the command again, in your own terminal. |
 | HTTP 401 from BC | No BC user for this account, or no licence. A BC admin adds you on the Users page. |
 | HTTP 403 from BC | Your permission set lacks item insert, the Item Card page, or vendor read. BC admin, Users page. |
-| `CERTIFICATE_VERIFY_FAILED` | Mac, python.org build. Use `/usr/bin/python3`. |
+| `CERTIFICATE_VERIFY_FAILED` | Mac: a python.org build is ahead of `/usr/bin` on PATH. The bootstrap's interpreter (`/usr/bin/python3`) does not have the problem; fix the PATH or ask Parker. |
 | `No module named 'msal'` | Install into the interpreter the message names: it prints the exact command. |
 
 The script prints the same plain-language line beside the raw code.

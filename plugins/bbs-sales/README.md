@@ -88,6 +88,8 @@ one does not (a vendor quote for parts BBS has never stocked, a Grainger SKU on 
 buy), `bc-item-entry` creates the item card first. The write scope is exactly that: create
 items, patch Vendor No., create sales quotes and their lines. Neither skill releases,
 converts, sends or posts anything.
+Both scripts run through `bbs-fill` with no Allow prompt (Parker, 2026-10-16): the rep's named
+sign-off on the review sheet is the approval.
 
 | Skill | Fires when | Stops at |
 |---|---|---|
@@ -193,8 +195,9 @@ The connection values (tenant, client id, environment, company id, no secret) sh
 plugin in `skills/bc-item-entry/references/bc-connection.json`; nothing to copy from the shared
 drive. Per rep, once, in the rep's own terminal rather than inside a Claude session:
 
-1. Install the sign-in libraries into the interpreter the skill runs with.
-   Mac: `/usr/bin/python3 -m pip install --user msal msal-extensions`.
+1. Install the sign-in libraries into the interpreter `bbs-fill` runs (`python3` on PATH
+   on a Mac, `python` on Windows).
+   Mac: `python3 -m pip install --user msal msal-extensions`.
    Windows: `python -m pip install msal msal-extensions`.
    Both setup scripts (`bbs-setup.sh`, `bbs-setup.ps1`) install them too.
 2. Run `whoami` from either skill's script. A browser window asks for your own Microsoft

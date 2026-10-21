@@ -144,4 +144,8 @@ you and the rep before the spec is written.
   prints the same plain-language line next to the raw code. A 401 on write with a 200 on
   read means the rep's BC user lacks a permission set covering item write. That is a BC
   admin fix, not a script fix.
-- `CERTIFICATE_VERIFY_FAILED` on a Mac means the python.org build; use `/usr/bin/python3`.
+- `CERTIFICATE_VERIFY_FAILED` on a Mac means a python.org build is ahead of `/usr/bin` on
+  PATH; `bbs-fill` runs `python3` from PATH, and the bootstrap's `/usr/bin/python3` does not
+  have the problem. Fix the PATH rather than the script.
+- The script runs through `bbs-fill` (on its allow list by ruling, Parker 2026-10-16); the
+  rep's named sign-off on the review sheet is the gate, with no Allow click on top.

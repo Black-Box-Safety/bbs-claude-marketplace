@@ -134,7 +134,8 @@ gate. Tax lives on the released quote, and a person releases.
 - One quote per spec. A second revision is a new spec with its own external document number
   or a change the rep makes in BC.
 - The item half is `bc-item-entry`. Two skills write to Business Central and this is the
-  second; both stay off the `bbs-fill` allow list so every run waits for the Allow click.
+  second; both run through `bbs-fill` without an Allow prompt because the rep's named sign-off
+  on the review sheet is the gate (Parker, 2026-10-16).
 - Rendering a PDF copy of a quote that already exists in BC is `bbs-quote-builder`, only when
   a rep asks for one; the customer document is the PDF BC prints from the released quote.
 - Sales orders, invoices, purchase orders and vendor quotes are out of scope and out of the

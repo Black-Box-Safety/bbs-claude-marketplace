@@ -47,12 +47,17 @@ file ever holds a fifth key, and the marketplace checker stops a commit that add
 
 ## 3. Install the sign-in libraries
 
-Into the interpreter the skill runs with, in your own terminal:
+Into the interpreter `bbs-fill` runs, in your own terminal. On a Mac that is `python3` on
+your PATH, which after the bootstrap is the Xcode command-line-tools interpreter
+(`command -v python3` shows `/usr/bin/python3`); on Windows it is `python`.
 
-- **Mac:** `/usr/bin/python3 -m pip install --user msal msal-extensions`
-  (use `/usr/bin/python3` for every command here; the python.org build fails TLS
-  verification against Microsoft's endpoints).
+- **Mac:** `python3 -m pip install --user msal msal-extensions`
 - **Windows:** `python -m pip install msal msal-extensions`
+
+If `command -v python3` on a Mac shows a `/Library/Frameworks/Python.framework/...` path,
+that is a python.org build; it fails TLS verification against Microsoft's endpoints, and
+both your own `whoami` and Claude's runs through `bbs-fill` would hit it [FLAG: fix the
+PATH so `/usr/bin/python3` wins, or ask Parker].
 
 `scripts/bbs-setup.sh` and `scripts/bbs-setup.ps1` install both too. If a library is
 missing, the script stops with the exact `pip` command for the interpreter that ran it,
@@ -158,15 +163,16 @@ the permission set changes.
 | `[path] ... FAIL HTTP 403` | Permission set lacks item insert, the Item Card page, or vendor read | BC admin (section 1) |
 | `[path] Item_Card_Excel ... FAIL` while items PASS | The Item Card web service is unpublished or your set lacks the page; a commit would create items with no vendor, so the skill refuses | BC admin |
 | `commit` creates the item, then `Vendor No. PATCH failed HTTP 403` | Your set can insert items but not edit the Item Card page. The item exists without a vendor; the message names the recovery. Section 5b was skipped or the set changed | BC admin, then re-run 5b |
-| `CERTIFICATE_VERIFY_FAILED` | Mac, python.org build | You: `/usr/bin/python3` |
+| `CERTIFICATE_VERIFY_FAILED` | Mac, a python.org build ahead of `/usr/bin` on PATH | You: fix the PATH (section 3) or ask Parker |
 | `No module named 'msal'` | Library not installed in this interpreter | You: run the printed pip command |
 | `more than one cached sign-in` | Two accounts cached | You: `--account you@blackboxsafety.com`, or `logout --account <other>` |
 
 ## 7. Day to day
 
-- Claude runs `check` and `commit` for you; the cached sign-in means no prompt. Every run of
-  the script still waits for your Allow click, by ruling: it is not on the `bbs-fill`
-  allow list.
+- Claude runs `check` and `commit` for you through `bbs-fill`; the cached sign-in means no
+  sign-in prompt, and by ruling (Parker, 2026-10-16) there is no Allow click either. Your
+  approval is the review sheet: read it in full and reply with your name. Nothing is
+  written before that, and the commit carries your name and the sheet's token.
 - Signing out: `bc_item_entry.py logout` (one cached account) or `logout --all`.
 - A new laptop repeats sections 3 to 5. Sections 1 and 2 are per user and per tenant, not
   per machine.
