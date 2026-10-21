@@ -138,19 +138,22 @@ so the one-day phrasings were measured, not only read.
 | 5 | "pull the numbers for the weekly" | weekly | verbatim in the weekly description; no overlap |
 | 6 | "what's Aanya's number this quarter" | neither; Business Central directly | the daily sends "a week or longer" to the weekly, and the weekly sends "a month, quarter or fiscal-year-to-date figure" to Business Central directly |
 
-**Measured** with `docs/evals/discriminate.py` on 20 October 2026, against the 21-skill field
-from `build_skills_json.py`, using `docs/evals/queries-daily-weekly.json` (five daily, three
-weekly phrasings).
+**Measured** with `docs/evals/discriminate.py` against the 21-skill field from
+`build_skills_json.py`, using `docs/evals/queries-daily-weekly.json` (five daily, three weekly
+phrasings). The named and anonymized passes were re-run on 21 October 2026 on the committed
+965-character daily description, after the field was regenerated; the main-field baseline is
+from 20 October and does not include the daily skill.
 
 | Run | Daily phrasings | Weekly phrasings |
 |---|---|---|
 | Named, 2 runs | 5/5 to daily | 3/3 to weekly |
 | Anonymized, 3 runs | 5/5 to daily | 0/3: no skill fired |
-| Anonymized, weekly alone, 2 workers | | 0/3: no skill fired |
-| Anonymized, main's 20-skill field (no daily skill) | | 0/3: no skill fired |
+| Anonymized, weekly alone, 2 workers (20 Oct) | | 0/3: no skill fired |
+| Anonymized, main's 20-skill field, no daily skill (20 Oct) | | 0/3: no skill fired |
 
 No query went to the wrong sibling in any run. The weekly misses are `__none__` and reproduce
 on main without the daily skill, so they predate this skill: the weekly description alone does
 not carry its own phrasings when names are hidden. That is a separate fix to the weekly
 description, not part of adding the daily skill. Results:
-`docs/evals/results-2026-10-20-*.json`.
+`docs/evals/results-2026-10-21-daily-weekly-*.json` and
+`docs/evals/results-2026-10-20-weekly-on-main-anonymized.json`.
