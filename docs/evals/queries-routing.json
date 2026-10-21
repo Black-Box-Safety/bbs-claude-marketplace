@@ -189,5 +189,30 @@
     "id": "item-sib-2",
     "expect": "grainger-pricing",
     "query": "Price these Grainger items on the CMC account: 1TAJ3, 38W367, 60KA44. Just the prices, nothing in BC."
+  },
+  {
+    "id": "quote-entry-1",
+    "expect": "bc-quote-entry",
+    "query": "Pricing is done and the item exists in BC. Create the sales quote in Business Central for Cal Fire Atwater: 30 EA PHX 6001 at 95.50, ship to 4225 Hospital Road, Atwater CA, RFQ number RFQ AARF COVERS 10-16-26."
+  },
+  {
+    "id": "quote-entry-2",
+    "expect": "bc-quote-entry",
+    "query": "Build the BC sales quote for this CDCR RFQ from the Grainger prices you just pulled on their account. NASPO, ship to the institution's warehouse."
+  },
+  {
+    "id": "quote-entry-3",
+    "expect": "bc-quote-entry",
+    "query": "Make the SQ in Business Central so Kim can release it. Customer C11219, the lines are in the spec in the deal folder."
+  },
+  {
+    "id": "quote-entry-sib-1",
+    "expect": "bbs-quote-builder",
+    "query": "SQ-105190 is already in BC and released. Render it as a PDF on our letterhead, I can't print from BC right now."
+  },
+  {
+    "id": "quote-entry-sib-2",
+    "expect": "bc-item-entry",
+    "query": "Before we quote it, the Phenix helmet cover isn't in Business Central yet. Create the item card from the All Star quote in the folder."
   }
 ]
