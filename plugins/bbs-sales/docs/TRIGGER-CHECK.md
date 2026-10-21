@@ -121,3 +121,39 @@ The six phrasings with an expected winner are `item-1` to `item-4`, `item-sib-1`
 authenticated session (see the PR #64 body). The expectation above stands until a run with
 Claude auth replaces it.
 
+
+## Added 20 October 2026: `bbs-daily-rep-summary` beside `bbs-weekly-sales-report`
+
+The two share every noun: Parker, a rep, the CRM, Business Central, "how did she do". The split
+is the time window and the mode. Each row's reason quotes the descriptions as committed. The
+weekly description also claims per-rep questions with no time window ("what did Kim quote"),
+so the one-day phrasings were measured, not only read.
+
+| # | Phrasing | Fires | Why |
+|---|---|---|---|
+| 1 | "what did Aanya do yesterday" | daily | the daily description names "what did <rep> do yesterday"; the weekly names a week or "last week" and no single day |
+| 2 | "set up the daily rep routine" | daily | verbatim in the daily description |
+| 3 | "draft my check-in" / "what do I tell Parker" | daily, check-in mode | both verbatim in the daily description; the weekly has no rep-side phrasing |
+| 4 | "how did Aanya do this week" | weekly | the weekly names "how did Aanya do this week"; the daily sends "a week or longer" to bbs-weekly-sales-report |
+| 5 | "pull the numbers for the weekly" | weekly | verbatim in the weekly description; no overlap |
+| 6 | "what's Aanya's number this quarter" | neither; Business Central directly | the daily sends "a week or longer" to the weekly, and the weekly sends "a month, quarter or fiscal-year-to-date figure" to Business Central directly |
+
+**Measured** with `docs/evals/discriminate.py` against the 21-skill field from
+`build_skills_json.py`, using `docs/evals/queries-daily-weekly.json` (five daily, three weekly
+phrasings). The named and anonymized passes were re-run on 21 October 2026 on the committed
+965-character daily description, after the field was regenerated; the main-field baseline is
+from 20 October and does not include the daily skill.
+
+| Run | Daily phrasings | Weekly phrasings |
+|---|---|---|
+| Named, 2 runs | 5/5 to daily | 3/3 to weekly |
+| Anonymized, 3 runs | 5/5 to daily | 0/3: no skill fired |
+| Anonymized, weekly alone, 2 workers (20 Oct) | | 0/3: no skill fired |
+| Anonymized, main's 20-skill field, no daily skill (20 Oct) | | 0/3: no skill fired |
+
+No query went to the wrong sibling in any run. The weekly misses are `__none__` and reproduce
+on main without the daily skill, so they predate this skill: the weekly description alone does
+not carry its own phrasings when names are hidden. That is a separate fix to the weekly
+description, not part of adding the daily skill. Results:
+`docs/evals/results-2026-10-21-daily-weekly-*.json` and
+`docs/evals/results-2026-10-20-weekly-on-main-anonymized.json`.

@@ -1,0 +1,49 @@
+{
+  "model": "default",
+  "anonymized": true,
+  "runs_per_query": 3,
+  "pass_threshold": 0.8,
+  "summary": {
+    "queries": 3,
+    "passed": 0,
+    "failed": 3
+  },
+  "results": [
+    {
+      "id": "w1",
+      "query": "How did Aanya do this week?",
+      "expect": "bbs-weekly-sales-report",
+      "runs": 3,
+      "correct": 0,
+      "accuracy": 0.0,
+      "pass": false,
+      "distribution": {
+        "__none__": 3
+      }
+    },
+    {
+      "id": "w2",
+      "query": "Pull the numbers for the weekly sales report.",
+      "expect": "bbs-weekly-sales-report",
+      "runs": 3,
+      "correct": 0,
+      "accuracy": 0.0,
+      "pass": false,
+      "distribution": {
+        "__none__": 3
+      }
+    },
+    {
+      "id": "w3",
+      "query": "Write up last week for the team, I have to fill out the sales form.",
+      "expect": "bbs-weekly-sales-report",
+      "runs": 3,
+      "correct": 0,
+      "accuracy": 0.0,
+      "pass": false,
+      "distribution": {
+        "__none__": 3
+      }
+    }
+  ]
+}
