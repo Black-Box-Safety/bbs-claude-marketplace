@@ -1,0 +1,10 @@
+[
+ {"id":"d1","expect":"bbs-daily-rep-summary","query":"What did Aanya do yesterday? Give me the rundown."},
+ {"id":"d2","expect":"bbs-daily-rep-summary","query":"Set up the daily rep routine for Kim so I get a summary every morning."},
+ {"id":"d3","expect":"bbs-daily-rep-summary","query":"It's end of day. Draft my check-in for Parker."},
+ {"id":"d4","expect":"bbs-daily-rep-summary","query":"Give me the daily summary for Aanya."},
+ {"id":"d5","expect":"bbs-daily-rep-summary","query":"I'm wrapping up for today, what do I tell Parker?"},
+ {"id":"w1","expect":"bbs-weekly-sales-report","query":"How did Aanya do this week?"},
+ {"id":"w2","expect":"bbs-weekly-sales-report","query":"Pull the numbers for the weekly sales report."},
+ {"id":"w3","expect":"bbs-weekly-sales-report","query":"Write up last week for the team, I have to fill out the sales form."}
+]
