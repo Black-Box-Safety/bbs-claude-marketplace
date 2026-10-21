@@ -1,17 +1,18 @@
 ---
 name: bbs-daily-rep-summary
 description: >-
-  Daily, read-only summary of one California state book rep's working day for Parker, from
-  the rep's own end-of-day check-in plus the systems of record, so Parker can see the work,
-  spot where to help, and hold the rep to commitments the rep set, without surveillance. Two
-  modes: check-in (the rep, end of day: draft their own five-minute report, including
-  off-computer work such as calls, site visits, sizings, vendor calls and portals) and summary
-  (Parker, next morning, usually a scheduled Routine: the check-in from Teams, pipeline from
-  the Sales CRM, bookings from Business Central, quote-folder activity from SharePoint; one
-  file written, nothing sent). Use when Parker says "daily summary for <rep>" or "set up the
-  daily rep routine", or a rep says "draft my check-in" or "what do I tell Parker". Do NOT
-  use for a week or longer (bbs-weekly-sales-report), to read any mailbox but the signed-in
-  person's, or to rate a rep from timestamps.
+  Daily summary of one California state book rep's working day for Parker, from the rep's
+  own end-of-day check-in plus the systems of record, so Parker can see the work, spot where
+  to help, and hold the rep to their own commitments, without surveillance. Two modes:
+  check-in (the rep, end of day: draft their own five-minute report, including off-computer
+  work such as calls, visits, sizings and portals) and summary (Parker,
+  next morning, usually a scheduled Routine: reads the check-in from Teams, pipeline from the
+  Sales CRM, bookings from Business Central, quote-folder activity from SharePoint; writes one
+  file to Parker's folder, sends nothing). Use when Parker says "daily summary for <rep>",
+  "what did <rep> do yesterday" or "set up the daily rep routine", or a rep says "draft my
+  check-in" or "what do I tell Parker". Do NOT use for a week or longer
+  (bbs-weekly-sales-report), to read any mailbox but the signed-in person's, or to rate a rep
+  from timestamps.
 requires: [sales-crm, microsoft-365]
 degrades-without: [business-central]
 ---
@@ -72,12 +73,16 @@ Treat an empty systems column as **"not visible from here"**, never as "nothing 
 
 | Connector | Used for | If it is absent |
 |---|---|---|
-| Sales CRM (`crm_list_records`, `crm_get_record`, `crm_list_attributes`) | The rep's `bbs_rfqs`: received, submitted, overdue, due soon, and stale-submitted | Stop on the pipeline section and say so. Do not substitute Business Central quote counts: the weekly report's first trap applies here too |
-| Microsoft 365 (`chat_message_search`, `teams_list_chats`, `sharepoint_search`, `outlook_calendar_search`, `outlook_email_search`) | The check-in from the agreed Teams chat; folder activity; Parker's own calendar and mail for shared touchpoints | Without Teams, ask Parker to paste the check-in. Without SharePoint, mark folder activity "data pending" |
+| Sales CRM (`crm_list_records`, `crm_get_record`, `crm_list_attributes`) | The rep's `bbs_rfqs`: received, submitted, overdue, due soon, and stale-submitted | Mark the pipeline section "data pending" and say so in Data gaps; the rest of the summary still runs. Do not substitute Business Central quote counts: the weekly report's first trap applies here too |
+| Microsoft 365, reads (`chat_message_search`, `teams_list_chats`, `sharepoint_search`, `outlook_calendar_search`, `outlook_email_search`) | The check-in from the agreed Teams chat; folder activity; the previous day's file; Parker's own calendar and mail for shared touchpoints | Without Teams: in an interactive run, ask Parker to paste the check-in; in a scheduled run, which cannot ask, record "check-in not readable" in Data gaps. Without SharePoint search, mark folder activity "data pending" |
+| Microsoft 365, the one write (`sharepoint_upload_file`) | Saving the day's file to Parker's summary folder, and nowhere else | If the upload fails, return the whole file in the session output, with a first line saying the upload failed and why |
 | Business Central (`bc_query_entity`, `bc_get_sales_document`) | Quotes sent and orders booked on the day | Mark bookings "data pending". The summary still runs |
 
-Everything is read-only. The summary writes one file and nothing else. It sends no mail, no
-Teams message, and writes nothing to the CRM or Business Central.
+The summary reads the systems and writes one file, with `sharepoint_upload_file`, to the
+SharePoint folder Parker named for these summaries. That folder is the only write target: never
+anywhere under `Black Box Safety - MASTER/Customers/`, never an overwrite of a file it did not
+write, never any other tool that writes. It sends no mail and no Teams message, and writes
+nothing to the CRM or Business Central.
 
 ## Summary mode, step by step
 
@@ -90,12 +95,11 @@ Teams message, and writes nothing to the CRM or Business Central.
 3. **Pipeline, from the CRM**, filtered on `_ownerid_value` for the rep and on the day:
    received (`bbs_receiveddate`), submitted (`bbs_submitteddate`), modified, **overdue**
    (`bbs_duedate` passed, no `bbs_submitteddate`), **due in the next two working days**, and
-   **submitted more than ten working days ago with no confirmed outcome**. Outcome is as canon
-   defines it (`bbs-foundations` `references/canonical-facts.md`, "What counts as a win": a
-   Business Central `acceptedDate` or converted order, or a rep-confirmed quote-log Outcome),
-   never `bbs_accepted`. Show the five largest by value; this is a follow-up prompt, not a
-   shortfall. Each row names the agency, the item or title, the value and the date. The field meanings and the status
-   codes are the ones `bbs-weekly-sales-report` documents; do not re-derive them.
+   **submitted more than ten working days ago with no confirmed outcome**, as canon defines it
+   (`bbs-foundations` `references/canonical-facts.md`, "What counts as a win"). Show the five
+   largest by value; this is a follow-up prompt, not a shortfall. Each row names the agency, the
+   item or title, the value and the date. The field meanings and the status codes are the ones
+   `bbs-weekly-sales-report` documents; do not re-derive them.
 4. **Bookings, from Business Central**, on `documentDate` for the day, in the rep's scope.
    Attribute per rep exactly the way `bbs-weekly-sales-report` does, by CRM owner or the
    agency mapping, never by Business Central salesperson code alone. The account split and
@@ -144,13 +148,14 @@ Teams message, and writes nothing to the CRM or Business Central.
    rule"), or a BPO at `at_risk` or `overspent` where a call from Parker to the DGS buyer would
    move it before the order-by date. Label them as the summary's inference, separate from the
    rep's own asks.
-11. **Write the file** and the reply block. Stop. Parker reads, then sends the reply himself.
+11. **Save the file** and the reply block to Parker's summary folder, as above. Stop. Parker
+   reads, then sends the reply himself.
 
 ## The check-in, from the rep's side
 
 Check-in mode drafts the message for the rep to edit and post. Signed in as the rep, it may
 read the rep's own CRM records, own calendar and own quote folders for the day, to pre-fill the
-on-screen half. It writes the draft into the chat and stops. The rep adds the off-screen half,
+on-screen half. It returns the draft in this conversation and stops. It never posts to Teams. The rep adds the off-screen half,
 cuts anything they do not want to share, and posts it. **The rep posts; the skill never
 does.** The draft never contains anything the rep did not do or say.
 
@@ -242,7 +247,7 @@ you will. One question at most. No grades.]
   transition. The same rule the weekly report runs under.
 - **Every figure has a source and an as-of.** An unreachable source is "data pending", never an
   estimate. No price, value or date from memory.
-- **Read-only, no sends.** The summary writes one file. Parker sends the reply. A scheduled run
+- **One write, no sends.** The summary saves one file to Parker's folder. Parker sends the reply. A scheduled run
   cannot answer an Allow prompt, so it must never try to send; if it finds itself about to, it
   stops and says so in Data gaps.
 - **Not a performance record.** The files are a working log for a manager and a rep. Nothing in
@@ -257,5 +262,5 @@ you will. One question at most. No grades.]
 Setup is three things Parker confirms before the Routine is turned on, the kickoff
 conversation with the rep, and the Routine prompt itself, all in
 `references/routine-prompt.md`. The
-Routine fires on weekday mornings in Pacific time, writes the file to the folder Parker named
-(a folder of his own, never under the customer tree), and stops.
+Routine fires on weekday mornings in Pacific time, saves the file to the SharePoint folder
+Parker named (a folder of his own, never under the customer tree), and stops.

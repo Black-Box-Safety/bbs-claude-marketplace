@@ -4,7 +4,8 @@ Everything rep-specific is a placeholder here. Fill it in the saved Routine and 
 conversation with the rep, not in this repo. The method is in `../SKILL.md`.
 
 Placeholders: `<Rep>` the rep's first name · `<Chat>` the name of the Teams chat the rep
-posts check-ins in · `<Folder>` the SharePoint or OneDrive folder the summary files land in.
+posts check-ins in · `<Folder>` the SharePoint folder of Parker's own that the summary files
+are saved to (the Routine's one write target).
 
 ---
 
@@ -16,8 +17,9 @@ before the Routine is enabled.
 | Confirm | Why |
 |---|---|
 | **Connectors the Routine may use:** Sales CRM, Microsoft 365 (Teams, SharePoint, Parker's own calendar and mail), Business Central. Nothing else. | The Routine stores its connector grant. Pass only these. |
-| **Sends are refused.** The send-class ask and deny rules apply in the scheduled environment, and the prompt never asks to send. | A scheduled run cannot answer an Allow prompt. The reply block is in the file for Parker to send. |
-| **Where the file lands:** `<Folder>`, a folder of Parker's own. Never under `Black Box Safety - MASTER/Customers/…`. | The customer tree holds customer documents. A manager's daily log is not one. |
+| **The one write:** the Microsoft 365 grant is also used to *write*, once per run: `sharepoint_upload_file`, saving the day's file to `<Folder>`. Grant it knowing that. | A file written inside the Routine's cloud session never reaches Parker on its own. The upload is how it arrives, and the next run reads it back. |
+| **Confirm that sends are refused** in the scheduled environment before enabling: that the send-class ask and deny rules apply to a Routine session, given its Microsoft 365 grant includes send-capable tools. The prompt never asks to send. | A scheduled run cannot answer an Allow prompt. The reply block is in the file for Parker to send. Until this is confirmed, it is an assumption, not a control. |
+| **Where the file lands:** `<Folder>`, a SharePoint folder of Parker's own. Never under `Black Box Safety - MASTER/Customers/…`. | The customer tree holds customer documents. A manager's daily log is not one. |
 
 One more, not a system setting: **the rep has been told**, per section 2, before the first
 file is written.
@@ -102,8 +104,8 @@ Sources, read-only, in this order:
    none, write "No check-in posted for <date>" once, under Data gaps, and nowhere else.
 2. Sales CRM bbs_rfqs where the owner is <Rep>: received, submitted and modified on the day;
    overdue; due in the next two working days; submitted more than ten working days ago with
-   no confirmed outcome as canon's "What counts as a win" defines it (never bbs_accepted),
-   top five by value, framed as follow-ups.
+   no confirmed outcome as canon's "What counts as a win" defines it, top five by value,
+   framed as follow-ups.
 3. Business Central quotes sent and orders booked on the day, attributed the way
    bbs-weekly-sales-report attributes them, in the CA state book scope from canon. Mark a
    figure that cannot be split as a team figure.
@@ -122,15 +124,19 @@ Sources, read-only, in this order:
 Put one calendar line under the heading from ca-budget-timing's fixed statewide calendar
 (fiscal-year half, next statewide date, days to it). Do not restate the dates.
 
-Write one markdown file named YYYY-MM-DD_<Rep>.md to <Folder>, using the skill's summary
-structure, ending with a reply block addressed to <Rep> that I will send myself.
+Save one markdown file named YYYY-MM-DD_<Rep>.md to <Folder> with sharepoint_upload_file,
+using the skill's summary structure, ending with a reply block addressed to <Rep> that I will
+send myself. If the upload fails, return the whole file in this session's output with a first
+line saying the upload failed and why.
 
-Rules, no exceptions: read-only; send nothing; write nothing to the CRM or Business Central;
+Rules, no exceptions: read the systems only; the one write is that file to <Folder>, never
+anywhere else and never over a file this Routine did not write; send nothing; write nothing
+to the CRM or Business Central;
 report no start, stop or gap times; set no self-report against a timestamp; every figure has
 a source and an as-of; an unreachable source is "data pending", never an estimate; nothing
 in the file compares <Rep> to anyone or totals across days.
 
-If a connector needs authorization, write the file with that section marked "data pending"
+If a connector needs authorization, save the file with that section marked "data pending"
 and say which connector in Data gaps. Then stop.
 ```
 

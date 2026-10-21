@@ -114,7 +114,7 @@ anything; each stops at a document a rep works from.
 | `ca-site-visit-brief` | One booked meeting: the long call plan for the night before and the one-screen pocket card for the parking lot | The two documents |
 | `ca-visit-readiness-review` | Pressure-test a finished brief from the side of the person who has to say it in the room | An ordered list of changes, applied back to the brief |
 | `bbs-weekly-sales-report` | Parker's weekly summary of his, Kim's and Aanya's week — pipeline from the Sales CRM, bookings from Business Central | The markdown report he writes the weekly form from. A human submits the form |
-| `bbs-daily-rep-summary` | One rep's day, every morning: the rep's own end-of-day check-in on top, then the Sales CRM, Business Central and the quote folders beneath it, then where Parker can help. Runs as a Routine; the rep drafts their check-in with the same skill | One markdown file per day in a folder of Parker's own, with a reply block he sends himself. Read-only; the rep sees the same file |
+| `bbs-daily-rep-summary` | One rep's day, every morning: the rep's own end-of-day check-in on top, then the Sales CRM, Business Central and the quote folders beneath it, then where Parker can help. Runs as a Routine; the rep drafts their check-in with the same skill | One markdown file per day in a folder of Parker's own, with a reply block he sends himself. Reads the systems and saves that one file; sends nothing; the rep sees the same file |
 
 What each one needs installed is in its own `requires:` and `degrades-without:`; run
 `python3 scripts/check_marketplace.py --requirements` for the table. Several of them lean on

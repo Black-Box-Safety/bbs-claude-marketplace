@@ -124,14 +124,33 @@ Claude auth replaces it.
 
 ## Added 20 October 2026: `bbs-daily-rep-summary` beside `bbs-weekly-sales-report`
 
-The two share every noun — Parker, a rep, the CRM, Business Central, "how did she do". The
-split is the time window and the mode. Read against both descriptions.
+The two share every noun: Parker, a rep, the CRM, Business Central, "how did she do". The split
+is the time window and the mode. Each row's reason quotes the descriptions as committed. The
+weekly description also claims per-rep questions with no time window ("what did Kim quote"),
+so the one-day phrasings were measured, not only read.
 
 | # | Phrasing | Fires | Why |
 |---|---|---|---|
-| 1 | "what did Aanya do yesterday" | daily | "yesterday" is named in the daily description; the weekly says "Do NOT use for a week… figure" in the other direction and names a week |
+| 1 | "what did Aanya do yesterday" | daily | the daily description names "what did <rep> do yesterday"; the weekly names a week or "last week" and no single day |
 | 2 | "set up the daily rep routine" | daily | verbatim in the daily description |
-| 3 | "draft my check-in" / "end of day, what do I tell Parker" | daily, check-in mode | the rep-side phrasings are only in the daily description |
-| 4 | "how did Aanya do this week" | weekly | "this week" is a weekly phrasing; the daily description sends a week figure to the weekly report by name |
+| 3 | "draft my check-in" / "what do I tell Parker" | daily, check-in mode | both verbatim in the daily description; the weekly has no rep-side phrasing |
+| 4 | "how did Aanya do this week" | weekly | the weekly names "how did Aanya do this week"; the daily sends "a week or longer" to bbs-weekly-sales-report |
 | 5 | "pull the numbers for the weekly" | weekly | verbatim in the weekly description; no overlap |
-| 6 | "what's Aanya's number this quarter" | neither; Business Central directly | both descriptions send a quarter figure to BC |
+| 6 | "what's Aanya's number this quarter" | neither; Business Central directly | the daily sends "a week or longer" to the weekly, and the weekly sends "a month, quarter or fiscal-year-to-date figure" to Business Central directly |
+
+**Measured** with `docs/evals/discriminate.py` on 20 October 2026, against the 21-skill field
+from `build_skills_json.py`, using `docs/evals/queries-daily-weekly.json` (five daily, three
+weekly phrasings).
+
+| Run | Daily phrasings | Weekly phrasings |
+|---|---|---|
+| Named, 2 runs | 5/5 to daily | 3/3 to weekly |
+| Anonymized, 3 runs | 5/5 to daily | 0/3: no skill fired |
+| Anonymized, weekly alone, 2 workers | | 0/3: no skill fired |
+| Anonymized, main's 20-skill field (no daily skill) | | 0/3: no skill fired |
+
+No query went to the wrong sibling in any run. The weekly misses are `__none__` and reproduce
+on main without the daily skill, so they predate this skill: the weekly description alone does
+not carry its own phrasings when names are hidden. That is a separate fix to the weekly
+description, not part of adding the daily skill. Results:
+`docs/evals/results-2026-10-20-*.json`.
