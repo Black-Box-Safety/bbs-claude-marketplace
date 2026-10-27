@@ -204,6 +204,38 @@ since.
 
 ---
 
+## Maintainer-tier entries (in the catalog, not a rep default)
+
+Developer- or designer-aimed tools Parker asked for. They are pinned like every other
+commons entry and are **not** in `enabledPlugins` in managed settings.
+
+**Open, and blocking: in this repo, "in the catalog" means "on every rep's machine."**
+`scripts/bbs-setup.ps1` and `scripts/bbs-setup.sh` install every plugin in
+`marketplace.json` unless `bbs-managed-settings.json` sets it to `false`
+(`plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`, `enabledPlugins` row). So leaving an
+entry out of `enabledPlugins` does not keep it off the fleet: the next setup run installs
+it at user scope. Until Parker rules on the mechanism (see "Open for Parker"), an entry in
+this section must not merge. The one earlier maintainer-tier draft (#20,
+`andrej-karpathy-skills`, 2026-09-17) took the same "not in `enabledPlugins`" route and was
+closed unmerged on 2026-10-02.
+
+| Plugin | Pin | Release model · cadence | Why it is here | Watch for |
+|---|---|---|---|---|
+| `taste-skill` | `v2.1.5`, sha `12af471f` | `tagged`, train bare `vX.Y.Z` (the repo also carries two `archive/` tags) · **monthly**: six releases from 2026-10-13 to 2026-10-25, faster than quarterly | Parker, 2026-10-27: design work on the customer bots. Art direction for websites, product pages, dashboards and app screens, with a screenshot look-and-fix loop | **One skill, `design-taste-frontend`; no hooks (no `hooks/` directory, no `plugin.json`), no commands, no agents at the pin.** Its description fires on "landing page", "product page", "dashboard", "redesign" and "looks generic", so on any machine that has it, it competes for selection with `impeccable`, `document-skills`' `frontend-design` and `bbs-website:product-page`. Scripts need Node and a local Chrome, Edge or Chromium (`CHROME_PATH` overrides). `assets.mjs` queries api.openverse.org, commons.wikimedia.org, api.artic.edu, collectionapi.metmuseum.org, archive.org and images-api.nasa.gov with no key and downloads the chosen images into the working project; `draw.mjs` prints picsum.photos links and writes `~/.taste-skill/history.json`. No download-and-execute anywhere in the tree. Upstream `install.sh` symlinks into `~/.claude/skills`: **do not use it**, that is the user-level copy this file forbids. MIT |
+
+**Provenance.** Method as above (`git ls-remote` and a shallow clone through the agent
+proxy).
+
+| Entry | Verified | Tag object | Peeled commit | Upstream date |
+|---|---|---|---|---|
+| `taste-skill` `v2.1.5` | 2026-10-27, agent | — (lightweight tag: `refs/tags/v2.1.5` resolves straight to the commit) | `12af471f627f866411b4bd785b19646d3672784c` | 2026-10-25 (`CHANGELOG.md` `## 2.1.5 - 2026-10-25`); also HEAD of the default branch at pin time |
+
+The entry carries both `ref` and `sha`, so a force-moved tag cannot change what installs.
+The upstream ships no `.claude-plugin/plugin.json` (only its own `marketplace.json`), so the
+entry is `strict: false`, the same shape as `document-skills`.
+
+---
+
 ## Considered, not included
 
 | Candidate | Reason |
@@ -332,6 +364,14 @@ because selection does not work.
   `soffice`. Behaviour on a rep's Windows box is unverified until a pilot run.
 - **Account-synced personal copies** of `docx`, `pdf`, `xlsx` and `pptx` compete with the
   pinned copies. Account-side; no repo change fixes it.
+- **Maintainer tier vs the bootstraps (`taste-skill`, 2026-10-27).** Pick one before it merges:
+  (a) the two bootstraps skip entries keyworded `maintainer` (a one-line filter in each), and
+  Parker installs it on his own machine with `claude plugin install
+  taste-skill@bbs-claude-marketplace`; (b) `"taste-skill@bbs-claude-marketplace": false` in
+  managed settings, which keeps it off reps but, because managed settings outrank user
+  settings, very likely also off Parker's own machine (not verified here); (c) fleet-enable
+  it, which this file does not recommend: it is developer-aimed and competes with
+  `impeccable` for selection.
 
 ---
 

@@ -2,7 +2,7 @@
   <img src="https://img.shields.io/badge/company-Black%20Box%20Safety%2C%20Inc.-051c2c" alt="Black Box Safety, Inc.">
   <img src="https://img.shields.io/badge/certs-channel%20split%20%C2%B7%20see%20canonical--facts-b19800" alt="Certification language follows the channel; the numbers live in canonical-facts">
   <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20Cursor%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, Cursor, VS Code, and Desktop">
-  <img src="https://img.shields.io/badge/plugins-8%20BBS%20%2B%205%20pinned-2dd4bf" alt="Eight BBS plugins plus five pinned external">
+  <img src="https://img.shields.io/badge/plugins-8%20BBS%20%2B%206%20pinned-2dd4bf" alt="Eight BBS plugins plus six pinned external">
 </p>
 
 # Black Box Safety — Claude Marketplace
@@ -114,6 +114,7 @@ These ship with the eight BBS plugins. They are pinned so a third-party update d
 | `superpowers-chrome` | The rep's real Chrome, for product research. |
 | `document-skills` | Anthropic's Word, PDF, and Excel skills. |
 | `caveman` | Terse mode. Off until someone asks. Managed settings keep it off; a person turns it on for a session. |
+| `taste-skill` | Maintainer-tier, not a rep default: art direction for web pages and app screens. How it stays off rep machines is still open; see [`docs/COMMONS.md`](docs/COMMONS.md). |
 
 Commons detail: [`docs/COMMONS.md`](docs/COMMONS.md).
 
@@ -227,7 +228,7 @@ Managed settings ([`plugins/bbs-foundations/docs/bbs-managed-settings.json`](plu
 
 ```text
 bbs-claude-marketplace/
-├── .claude-plugin/marketplace.json     # manifest: 8 BBS plugins + 5 external (pinned)
+├── .claude-plugin/marketplace.json     # manifest: 8 BBS plugins + 6 external (pinned)
 ├── .cursor/rules/bbs-invariants.mdc    # always-on Cursor doctrine; stamp onto the desk too
 ├── README.md                           # this file
 ├── REGISTRY.md                         # every BBS repo and asset: canon, harvest, parked, archived
@@ -253,7 +254,7 @@ bbs-claude-marketplace/
 
 ## How we keep it honest
 
-- **Version policy.** Each BBS plugin carries a `version` in its `plugin.json`, and an installed machine picks up merged changes only when that version is bumped (#60). Bump it in the PR that needs to reach reps. The five externals stay pinned.
+- **Version policy.** Each BBS plugin carries a `version` in its `plugin.json`, and an installed machine picks up merged changes only when that version is bumped (#60). Bump it in the PR that needs to reach reps. The six externals stay pinned.
 - **Registry.** [`REGISTRY.md`](REGISTRY.md) gives every repo and asset exactly one status. Change the status in the same commit as the change.
 - **Measurement.** [`docs/MEASUREMENT.md`](docs/MEASUREMENT.md). Draft-fix rate is counted from `FLAGS.md`. No baseline number is invented here.
 - **Acceptance.** A rep who is not the admin runs a real RFQ end to end, unaided. Result recorded in [`docs/acceptance/`](docs/acceptance/README.md).
