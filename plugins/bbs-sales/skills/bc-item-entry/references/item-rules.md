@@ -110,8 +110,10 @@ you and the rep before the spec is written.
 
 - Body armor and higher-education items follow the same card rules; the book split is a
   quoting matter, not an item matter.
-- This skill does not build quotes, orders, or vendor POs. Sentinel POs use the per-PO
-  builders in `PM Claude/BC-Write-API/`; customer PDFs use `bbs-quote-builder`.
+- This skill does not build quotes, orders, or vendor POs. The customer's sales quote is
+  `bc-quote-entry` (same sign-in, same connection file, its own spec and sheet); a PDF copy
+  of an existing BC quote is `bbs-quote-builder`; Sentinel POs still use the per-PO builders
+  in `PM Claude/BC-Write-API/` on SharePoint.
 - Website catalog loading is `bbs-pricelist-import` (Supabase), a different system.
 
 ## Authentication
