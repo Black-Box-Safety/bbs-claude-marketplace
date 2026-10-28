@@ -207,17 +207,24 @@ since.
 ## Maintainer-tier entries (in the catalog, not a rep default)
 
 Developer- or designer-aimed tools Parker asked for. They are pinned like every other
-commons entry and are **not** in `enabledPlugins` in managed settings.
+commons entry, are **not** in `enabledPlugins` in managed settings, and carry the
+**`maintainer` keyword** on their `marketplace.json` entry.
 
-**Open, and blocking: in this repo, "in the catalog" means "on every rep's machine."**
-`scripts/bbs-setup.ps1` and `scripts/bbs-setup.sh` install every plugin in
-`marketplace.json` unless `bbs-managed-settings.json` sets it to `false`
-(`plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`, `enabledPlugins` row). So leaving an
-entry out of `enabledPlugins` does not keep it off the fleet: the next setup run installs
-it at user scope. Until Parker rules on the mechanism (see "Open for Parker"), an entry in
-this section must not merge. The one earlier maintainer-tier draft (#20,
-`andrej-karpathy-skills`, 2026-09-17) took the same "not in `enabledPlugins`" route and was
-closed unmerged on 2026-10-02.
+**How they stay off rep machines (Parker, 2026-10-28, in session).** Leaving an entry out
+of `enabledPlugins` is not enough on its own: `scripts/bbs-setup.ps1` and
+`scripts/bbs-setup.sh` install every plugin in `marketplace.json` that managed settings do
+not set to `false`. So both bootstraps also skip any entry keyworded `maintainer`. Parker
+installs one on his own machine by hand:
+
+```bash
+claude plugin install taste-skill@bbs-claude-marketplace --scope user
+```
+
+Managed settings are not used for this: a `false` there would very likely block the tool
+on Parker's machine too, since managed settings outrank user settings. **A maintainer-tier
+entry without the `maintainer` keyword reaches every rep at their next setup run.** The one
+earlier maintainer-tier draft (#20, `andrej-karpathy-skills`, 2026-09-17) relied on
+`enabledPlugins` alone and was closed unmerged on 2026-10-02.
 
 | Plugin | Pin | Release model · cadence | Why it is here | Watch for |
 |---|---|---|---|---|
@@ -364,14 +371,6 @@ because selection does not work.
   `soffice`. Behaviour on a rep's Windows box is unverified until a pilot run.
 - **Account-synced personal copies** of `docx`, `pdf`, `xlsx` and `pptx` compete with the
   pinned copies. Account-side; no repo change fixes it.
-- **Maintainer tier vs the bootstraps (`taste-skill`, 2026-10-27).** Pick one before it merges:
-  (a) the two bootstraps skip entries keyworded `maintainer` (a one-line filter in each), and
-  Parker installs it on his own machine with `claude plugin install
-  taste-skill@bbs-claude-marketplace`; (b) `"taste-skill@bbs-claude-marketplace": false` in
-  managed settings, which keeps it off reps but, because managed settings outrank user
-  settings, very likely also off Parker's own machine (not verified here); (c) fleet-enable
-  it, which this file does not recommend: it is developer-aimed and competes with
-  `impeccable` for selection.
 
 ---
 

@@ -221,6 +221,13 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
+- **Maintainer-tier commons entries (`taste-skill`, PR #71) — RULED 2026-10-28.** Parker, in
+  session, option (a): both bootstraps skip any `marketplace.json` entry keyworded
+  `maintainer`, and Parker installs it on his own machine by hand. Managed settings are not
+  touched (a `false` there would also block it for Parker). Record: `docs/COMMONS.md`,
+  "Maintainer-tier entries"; `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`,
+  `enabledPlugins` row.
+
 - **`bc-item-entry`: rep-facing item creation in Business Central (PR #64) — RULED
   2026-10-14.** Parker, in session. What was ruled, and where each part lives
   (`plugins/bbs-sales/skills/bc-item-entry/`: `SKILL.md`, `scripts/bc_item_entry.py`,

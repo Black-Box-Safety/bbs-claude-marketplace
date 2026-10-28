@@ -295,7 +295,7 @@
         "sha": "12af471f627f866411b4bd785b19646d3672784c"
       },
       "strict": false,
-      "description": "Commons, maintainer-tier (not a rep default): art direction for websites, product pages, dashboards and app screens, with a real-browser inspector. One skill, design-taste-frontend; no hooks, commands or agents. Its scripts query public open-image collections (no API key) and drive a local Chrome or Edge. Developer- and designer-aimed, and it overlaps impeccable and frontend-design, so it is not for the rep fleet. Pin, release model, cadence, provenance and the open bootstrap question: docs/COMMONS.md.",
+      "description": "Commons, maintainer-tier (not a rep default): art direction for websites, product pages, dashboards and app screens, with a real-browser inspector. One skill, design-taste-frontend; no hooks, commands or agents. Its scripts query public open-image collections (no API key) and drive a local Chrome or Edge. Developer- and designer-aimed, and it overlaps impeccable and frontend-design, so it is not for the rep fleet. The maintainer keyword makes the setup scripts skip it; Parker installs it by hand. Pin, release model, cadence and provenance: docs/COMMONS.md.",
       "version": "2.1.5",
       "author": {
         "name": "Leonxlnx"

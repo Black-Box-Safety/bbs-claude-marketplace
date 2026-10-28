@@ -319,7 +319,9 @@ if ($realPython) {
 # but in the background: a plugin whose install fails (a clone timeout, antivirus holding a
 # file) is simply absent, and /bbs-checkup can only say so. Installing from here shows the
 # error. The list is every plugin in the marketplace's own marketplace.json - everyone gets
-# every plugin (MANAGED-SETTINGS.md) - less any that bbs-managed-settings.json sets to false.
+# every plugin (MANAGED-SETTINGS.md) - less any that bbs-managed-settings.json sets to false,
+# and less any entry keyworded 'maintainer': maintainer-tier tools are in the catalog for
+# Parker to install by hand, never pushed to a rep machine (docs/COMMONS.md; Parker, 2026-10-28).
 # Nothing is copied into this script, so a plugin added to the marketplace is picked up.
 $marketplace = 'bbs-claude-marketplace'
 $claudeCmd = Get-Command claude -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -363,6 +365,7 @@ if (-not $claudeCmd) {
           Where-Object { $_.Value -eq $false } | ForEach-Object { $_.Name }
       }
       $want = (Get-Content $catalog -Raw | ConvertFrom-Json).plugins |
+        Where-Object { @($_.keywords) -notcontains 'maintainer' } |
         ForEach-Object { "$($_.name)@$marketplace" } |
         Where-Object { $blocked -notcontains $_ }
       $have = @{}

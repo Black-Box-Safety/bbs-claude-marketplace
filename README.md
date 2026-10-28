@@ -114,7 +114,7 @@ These ship with the eight BBS plugins. They are pinned so a third-party update d
 | `superpowers-chrome` | The rep's real Chrome, for product research. |
 | `document-skills` | Anthropic's Word, PDF, and Excel skills. |
 | `caveman` | Terse mode. Off until someone asks. Managed settings keep it off; a person turns it on for a session. |
-| `taste-skill` | Maintainer-tier, not a rep default: art direction for web pages and app screens. How it stays off rep machines is still open; see [`docs/COMMONS.md`](docs/COMMONS.md). |
+| `taste-skill` | Maintainer-tier, not a rep default: art direction for web pages and app screens. The setup scripts skip it; Parker installs it by hand. See [`docs/COMMONS.md`](docs/COMMONS.md). |
 
 Commons detail: [`docs/COMMONS.md`](docs/COMMONS.md).
 
@@ -179,7 +179,8 @@ Either script installs the tools the document skills use (Git, Node, Chrome, Lib
 the PDF/OCR tools, and the Python and Node libraries) and puts each one on PATH. Python
 itself comes from the Windows script, or on a Mac from Apple's command-line tools, which the
 Mac script asks for if they are missing. It installs Claude Code's `claude` command if it is missing, then installs **every
-plugin in this marketplace**: eight BBS plugins and five pinned externals. If a plugin fails,
+plugin in this marketplace**: eight BBS plugins and five pinned externals (maintainer-tier
+entries are skipped). If a plugin fails,
 it prints Claude Code's own error. Add `-DryRun` (Windows) or `--dry-run` (Mac) to preview
 without installing anything. A good run ends with `Done.` Anything else, send the window to
 Parker. Step by step: [`docs/REP-SETUP.md`](docs/REP-SETUP.md).
