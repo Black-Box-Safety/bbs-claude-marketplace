@@ -340,7 +340,7 @@ if (-not $claudeCmd) {
       Where-Object { $_.name -eq $marketplace } | Select-Object -First 1
   } catch { }
   if ($DryRun) {
-    Write-Host ("[would]   {0,-28} {1}" -f $marketplace, $(if ($mkt) { 'update, then install every plugin in it' } else { 'add, then install every plugin in it' }))
+    Write-Host ("[would]   {0,-28} {1}" -f $marketplace, $(if ($mkt) { 'update, then install every rep plugin in it (maintainer-tier entries skipped)' } else { 'add, then install every rep plugin in it (maintainer-tier entries skipped)' }))
   } else {
     $out = if ($mkt) { & $claude plugin marketplace update $marketplace 2>&1 }
            else      { & $claude plugin marketplace add "Black-Box-Safety/$marketplace" 2>&1 }

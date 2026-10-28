@@ -105,7 +105,7 @@ flowchart LR
 
 ## Pinned externals
 
-These ship with the eight BBS plugins. They are pinned so a third-party update does not move on its own.
+These ship with the eight BBS plugins, except where a row says maintainer-tier. They are pinned so a third-party update does not move on its own.
 
 | Plugin | For |
 |---|---|
@@ -179,7 +179,7 @@ Either script installs the tools the document skills use (Git, Node, Chrome, Lib
 the PDF/OCR tools, and the Python and Node libraries) and puts each one on PATH. Python
 itself comes from the Windows script, or on a Mac from Apple's command-line tools, which the
 Mac script asks for if they are missing. It installs Claude Code's `claude` command if it is missing, then installs **every
-plugin in this marketplace**: eight BBS plugins and five pinned externals (maintainer-tier
+rep plugin in this marketplace**: eight BBS plugins and five pinned externals (maintainer-tier
 entries are skipped). If a plugin fails,
 it prints Claude Code's own error. Add `-DryRun` (Windows) or `--dry-run` (Mac) to preview
 without installing anything. A good run ends with `Done.` Anything else, send the window to
@@ -210,7 +210,7 @@ This does not install the tools in step 1.
 /plugin install agent-team@bbs-claude-marketplace
 ```
 
-Managed settings ([`plugins/bbs-foundations/docs/bbs-managed-settings.json`](plugins/bbs-foundations/docs/bbs-managed-settings.json)) enable all thirteen plugins for everyone, once the admin has pasted the current file ([`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §1).
+Managed settings ([`plugins/bbs-foundations/docs/bbs-managed-settings.json`](plugins/bbs-foundations/docs/bbs-managed-settings.json)) enable the thirteen rep plugins for everyone, once the admin has pasted the current file ([`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §1).
 
 ## Pick your path
 

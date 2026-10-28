@@ -10,8 +10,9 @@ maintained upstream, and matches a task reps actually do. Context cost is a tieb
 a veto. Anything that needs a per-machine API key stays out.
 
 **How it ships.** Each item is a pinned external entry in `.claude-plugin/marketplace.json`
-under `category: "commons"`, enabled for everyone through managed settings. Nothing is
-copied into this repo.
+under `category: "commons"`, enabled for everyone through managed settings, except
+maintainer-tier entries (below), which are pinned but not enabled and not installed by the
+bootstraps. Nothing is copied into this repo.
 
 **A commons entry is all-or-nothing.** Read "`skills:` does not filter" below before
 assuming otherwise. Because there is no working way to take part of a tree, **the unit of
@@ -228,7 +229,7 @@ earlier maintainer-tier draft (#20, `andrej-karpathy-skills`, 2026-09-17) relied
 
 | Plugin | Pin | Release model · cadence | Why it is here | Watch for |
 |---|---|---|---|---|
-| `taste-skill` | `v2.1.5`, sha `12af471f` | `tagged`, train bare `vX.Y.Z` (the repo also carries two `archive/` tags) · **monthly**: six releases from 2026-10-13 to 2026-10-25, faster than quarterly | Parker, 2026-10-27: design work on the customer bots. Art direction for websites, product pages, dashboards and app screens, with a screenshot look-and-fix loop | **One skill, `design-taste-frontend`; no hooks (no `hooks/` directory, no `plugin.json`), no commands, no agents at the pin.** Its description fires on "landing page", "product page", "dashboard", "redesign" and "looks generic", so on any machine that has it, it competes for selection with `impeccable`, `document-skills`' `frontend-design` and `bbs-website:product-page`. Scripts need Node and a local Chrome, Edge or Chromium (`CHROME_PATH` overrides). `assets.mjs` queries api.openverse.org, commons.wikimedia.org, api.artic.edu, collectionapi.metmuseum.org, archive.org and images-api.nasa.gov with no key and downloads the chosen images into the working project; `draw.mjs` prints picsum.photos links and writes `~/.taste-skill/history.json`. No download-and-execute anywhere in the tree. Upstream `install.sh` symlinks into `~/.claude/skills`: **do not use it**, that is the user-level copy this file forbids. MIT |
+| `taste-skill` | `v2.1.5`, sha `12af471f` | `multi-train`, authoritative train bare `vX.Y.Z` (ignore the two `archive/` tags) · monthly: tagged, but seven releases from 2026-10-13 to 2026-10-25 (`CHANGELOG.md`), faster than quarterly | Parker, 2026-10-27: design work on the customer bots. Art direction for websites, product pages, dashboards and app screens, with a screenshot look-and-fix loop | **One skill, `design-taste-frontend`; no hooks (no `hooks/` directory, no `.claude-plugin/plugin.json`; the `.codex-plugin/plugin.json` it carries is for Codex and inert here), no commands, no agents at the pin.** Its description fires on "landing page", "product page", "dashboard", "redesign" and "looks generic", so on any machine that has it, it competes for selection with `impeccable`, `document-skills`' `frontend-design` and `bbs-website:product-page`. Scripts need Node and a local Chrome, Edge or Chromium (`CHROME_PATH` overrides). `assets.mjs` queries api.openverse.org, commons.wikimedia.org, api.artic.edu, collectionapi.metmuseum.org, archive.org and images-api.nasa.gov with no key and downloads the chosen images and video (archive.org and NASA) into the working project, refusing a licence outside the allowed set unless run with `--license all`; `draw.mjs` prints picsum.photos links and writes `~/.taste-skill/history.json`. No download-and-execute anywhere in the tree. Upstream `install.sh` symlinks into `~/.claude/skills`: **do not use it**, that is the user-level copy this file forbids. MIT |
 
 **Provenance.** Method as above (`git ls-remote` and a shallow clone through the agent
 proxy).
@@ -375,4 +376,4 @@ because selection does not work.
 ---
 
 *Maintainer: Parker Marshall · Curator agent: `.claude/agents/commons-curator.md` · Last
-verified: 2026-09-16*
+verified: 2026-09-16 (roster) · 2026-10-27 (maintainer tier)*

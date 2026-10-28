@@ -195,7 +195,7 @@ else
   }
   MKT_DIR="$(mkt_dir)"
   if [[ $DRY_RUN -eq 1 ]]; then
-    printf '[would]   %-22s %s\n' "$MARKETPLACE" "$([[ -n "$MKT_DIR" ]] && echo update || echo add), then install every plugin in it"
+    printf '[would]   %-22s %s\n' "$MARKETPLACE" "$([[ -n "$MKT_DIR" ]] && echo update || echo add), then install every rep plugin in it (maintainer-tier entries skipped)"
   else
     if [[ -n "$MKT_DIR" ]]; then
       out="$(claude plugin marketplace update "$MARKETPLACE" 2>&1)"
@@ -216,7 +216,7 @@ else
       BLOCKED=""
       [[ -f "$POLICY" ]] && BLOCKED="$(jq -r '.enabledPlugins | to_entries[] | select(.value == false) | .key' "$POLICY")"
       for id in $(jq -r --arg m "@$MARKETPLACE" \
-          '.plugins[] | select(((.keywords // []) | any(. == "maintainer")) | not) | .name + $m' "$CATALOG"); do
+          '.plugins[] | select(((.keywords // []) | any(ascii_downcase == "maintainer")) | not) | .name + $m' "$CATALOG"); do
         if printf '%s\n' "$BLOCKED" | grep -qxF "$id"; then
           continue
         fi
