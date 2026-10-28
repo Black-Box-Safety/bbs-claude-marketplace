@@ -171,7 +171,9 @@ fi
 # in the background, so a failed install is just an absent plugin. Installing from here shows
 # Claude Code's own error. The list is every plugin in the marketplace's own marketplace.json -
 # everyone gets every plugin (MANAGED-SETTINGS.md) - less any bbs-managed-settings.json sets to
-# false, so nothing is copied into this script. A clone gets 120 s by default; give the
+# false, and less any entry keyworded "maintainer" (maintainer-tier: in the catalog for Parker
+# to install by hand, never pushed to a rep machine; docs/COMMONS.md, Parker 2026-10-28), so
+# nothing is copied into this script. A clone gets 120 s by default; give the
 # installs below ten minutes. Claude Code's own later installs and updates get the same value
 # from the managed settings' `env` (bbs-managed-settings.json, 2026-10-01), its one home, so
 # this script no longer saves it. A line an earlier version added to ~/.zprofile is left:
@@ -193,7 +195,7 @@ else
   }
   MKT_DIR="$(mkt_dir)"
   if [[ $DRY_RUN -eq 1 ]]; then
-    printf '[would]   %-22s %s\n' "$MARKETPLACE" "$([[ -n "$MKT_DIR" ]] && echo update || echo add), then install every plugin in it"
+    printf '[would]   %-22s %s\n' "$MARKETPLACE" "$([[ -n "$MKT_DIR" ]] && echo update || echo add), then install every rep plugin in it (maintainer-tier entries skipped)"
   else
     if [[ -n "$MKT_DIR" ]]; then
       out="$(claude plugin marketplace update "$MARKETPLACE" 2>&1)"
@@ -213,7 +215,8 @@ else
         jq -r '.[] | select((.errors // []) | length == 0) | "\(.id)\t\(.installPath)"' 2>/dev/null)"
       BLOCKED=""
       [[ -f "$POLICY" ]] && BLOCKED="$(jq -r '.enabledPlugins | to_entries[] | select(.value == false) | .key' "$POLICY")"
-      for id in $(jq -r --arg m "@$MARKETPLACE" '.plugins[].name + $m' "$CATALOG"); do
+      for id in $(jq -r --arg m "@$MARKETPLACE" \
+          '.plugins[] | select(((.keywords // []) | any(ascii_downcase == "maintainer")) | not) | .name + $m' "$CATALOG"); do
         if printf '%s\n' "$BLOCKED" | grep -qxF "$id"; then
           continue
         fi
