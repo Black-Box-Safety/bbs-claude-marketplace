@@ -116,6 +116,16 @@ Sourcewell Body Armor Contract: 091924-BBS
 
 Internal notes to teammates get no block, or just "Parker".
 
+**Rendered signature (2026-10-30).** The block above is the text form. His live skill
+also carries `assets/signature.html` (the Outlook rendering: two-cell table, stacked logo
+behind a gold rule, name in gold, cert line, three contract lines with links, logo embedded),
+`assets/signature-outlook-draft.html` (the same block with no attributes and no image, the
+only form the Microsoft 365 connector's draft tools accept) and `assets/signature.txt`. All
+three were read from his sent mail, not designed. The logo is `Logo Color Stacked 2.png`
+from the marketing folder, because the image in his Outlook signature had gone missing: his
+export carried a 48×48 placeholder and his sent mail an empty logo cell. The recipe is
+`bbs-voice-template` step 3b and `signature-template.html`.
+
 **Corrected 2026-09-22, deliberately diverging from the corpus.** Emails sampled on
 2026-09-01 carry `CA SB/DVBE 2009473` in this block. That is no longer accurate — OSDS
 2009473 carries DVBE only and BBS is not a California small business — so the block above

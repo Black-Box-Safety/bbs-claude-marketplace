@@ -38,13 +38,29 @@ The ones that matter most in <First>'s email, from the profile's "never does" li
 
 Greeting on its own line; opener only when the relationship warrants it; one idea per
 paragraph; asks phrased the way the profile shows; problems owned plainly; the closer and
-sign-off from the profile; full signature block on external mail.
+sign-off from the profile.
 
-## Step 4 — Verify
+## Step 4 — Sign it
+
+External mail ends with `<their default sign-off>`, a blank line, then the signature from
+`assets/`, pasted and never retyped. Which file:
+
+| Channel | Paste |
+|---|---|
+| Outlook draft created with the Microsoft 365 connector (`outlook_create_draft`, reply and reply-all drafts) | `assets/signature-outlook-draft.html`, verbatim, as the last block of the HTML body. The connector rejects `style`, `class`, `id` and `<img>`, so this form has no logo and no colors |
+| Any HTML output that allows images (an .html or .eml file, a mail-merge template, Outlook > Settings > Signatures) | `assets/signature.html` |
+| Plain text (a chat draft, a .txt, `bodyType: text`) | `assets/signature.txt` |
+| Internal mail to a teammate | No block, or just `<First>` |
+
+Connector-created drafts never receive <First>'s Outlook signature on their own, so a
+draft that skips this step goes out unsigned.
+
+## Step 5 — Verify
 
 - [ ] Every "never does" item is absent
 - [ ] Greeting, opener, sign-off match the profile
 - [ ] Every fact traces to source material — nothing invented
+- [ ] The signature is the asset, unedited, and the right one for the channel
 - [ ] Would a reader who knows <First> believe they typed this?
 
 ## Hard rules
