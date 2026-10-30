@@ -26,7 +26,7 @@ when that file changes, change the block.
 | `pluginConfigs` → `cc-plugin-sec-default@builtin` → `allowManagedModsOnly: true` | Only the organization's own mods load; a mod a user installs, loads with `--plugin-dir`, or Claude writes mid-session does not (Parker, 2026-10-02) | A user's mod can approve a call an `ask` rule would prompt for, so without this the per-send Allow could be skipped. Plugins' `hooks/hooks.json` hooks (ours) are not mods and keep running. A mod in a plugin from a GitHub marketplace counts as a user's and stops loading; as of 2026-10-02 none of ours or the pinned commons ship one (`impeccable` and `claudeforge` track moving branches, so recheck when they update) |
 | `channelsEnabled: true` | Channels are allowed for the organization (managed-only key) | It was set in the console's live copy (v12) and missing here, so pasting this file would have turned channels off (Parker, 2026-10-02) |
 | `disableBypassPermissionsMode` | Nobody can run `--dangerously-skip-permissions` | For a team that is not native with AI, the permission prompt is the seatbelt |
-| `claudeMd` | Company memory injected into **every** session on every machine | The nine rules that hold everywhere, the exact strings, the systems of record, and where the detail lives. Managed-settings-only field, so it cannot be overridden by a repo file. This is the fastest path to "the same answer Parker would give" |
+| `claudeMd` | Company memory injected into **every** session on every machine | The ten rules that hold everywhere, the exact strings, the systems of record, and where the detail lives. Managed-settings-only field, so it cannot be overridden by a repo file. This is the fastest path to "the same answer Parker would give" |
 | `companyAnnouncements` | One rotating line at startup | Onboarding by repetition |
 | `autoUpdatesChannel: stable` | Skip release-candidate builds | Fewer surprises on machines nobody is debugging |
 | `cleanupPeriodDays: 60` | Transcripts kept two months | Long enough to `/resume` a quote thread from last month |
@@ -180,7 +180,8 @@ through the managed `env` block; a rep turns it on per session with `/caveman li
   in `plugins/bbs-sales/references/vendor_profile.json`, committed deliberately in this
   private repo — not re-keyed into a CLAUDE.md.
 - **No hooks.** The plugins carry their own (`bbs-foundations` and `bbs-website` inject
-  doctrine, `bbs-sales` guards the quote-desk tree); `bbs-website` ships one template
+  doctrine, `bbs-foundations` also reminds a session in a customer folder to keep that
+  customer's `CLAUDE.md`, outside the CA quote desk, `bbs-sales` guards the quote-desk tree); `bbs-website` ships one template
   validator in `bbs-database`'s repo settings where it belongs.
 - **No model pin.** People pick per task; the `claudeMd` block names the three current IDs
   so nobody writes a stale one into a file.
