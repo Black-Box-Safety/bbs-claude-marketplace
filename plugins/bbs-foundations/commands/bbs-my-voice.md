@@ -25,11 +25,18 @@ shape of the run; the skill carries the rules.
    `references/ai-patterns.md`. Never write it into a repo: it carries their phone number
    and signature block.
 
-5. **Test.** Take one AI-drafted email and one of their real ones. Run the new skill on the
+5. **Render their signature** (skill step 3b). Read the signature out of one of their
+   sent emails, fill `references/signature-template.html`, take the stacked logo from the
+   marketing folder on SharePoint, and write `assets/signature.html`,
+   `assets/signature-outlook-draft.html` and `assets/signature.txt`. Prove the draft form
+   by creating an Outlook draft with it, reading it back, and deleting it. Without this
+   step every draft Claude creates for them goes out unsigned.
+
+6. **Test.** Take one AI-drafted email and one of their real ones. Run the new skill on the
    draft and put the result next to the real one. If they would not believe they typed
    it, fix the profile and run again.
 
-6. **Finish.** Tell them the path, that it fires automatically on drafts they will send
+7. **Finish.** Tell them the path, that it fires automatically on drafts they will send
    under their own name, and that they can re-run `/bbs-my-voice` when their writing
    changes.
 
