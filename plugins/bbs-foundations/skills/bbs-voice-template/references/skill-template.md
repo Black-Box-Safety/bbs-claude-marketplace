@@ -42,13 +42,14 @@ sign-off from the profile.
 
 ## Step 4 — Sign it
 
-External mail ends with `<their default sign-off>`, a blank line, then the signature from
-`assets/`, pasted and never retyped. Which file:
+The signature is `assets/signature.html`: their real Outlook rendering with the logo.
+External mail ends with `<their default sign-off>`, a blank line, then that block, pasted
+and never retyped. The other files exist only for channels that cannot carry it:
 
 | Channel | Paste |
 |---|---|
-| Outlook draft created with the Microsoft 365 connector (`outlook_create_draft`, reply and reply-all drafts) | `assets/signature-outlook-draft.html`, verbatim, as the last block of the HTML body. The connector rejects `style`, `class`, `id` and `<img>`, so this form has no logo and no colors |
-| Any HTML output that allows images (an .html or .eml file, a mail-merge template, Outlook > Settings > Signatures) | `assets/signature.html` |
+| Anything that carries HTML with images: an .html or .eml file, a mail-merge template, a reply rendered as HTML, Outlook > Settings > Signatures | `assets/signature.html` |
+| An Outlook draft created with the Microsoft 365 connector (`outlook_create_draft`, reply and reply-all drafts) | The connector rejects `style`, `class`, `id` and `<img>` outright, so it cannot carry the logo rendering. Paste `assets/signature-outlook-draft.html` verbatim as the last block of the body, and say in the reply that the draft carries the text signature because the connector strips images. Never drop the block to avoid the caveat |
 | Plain text (a chat draft, a .txt, `bodyType: text`) | `assets/signature.txt` |
 | Internal mail to a teammate | No block, or just `<First>` |
 
