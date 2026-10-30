@@ -221,6 +221,16 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
+- **Email signatures — RULED 2026-10-30.** Parker, in session, with his own Outlook
+  signature export in hand. A rep's signature is their real Outlook rendering with the
+  stacked logo from the marketing folder (`MARKETING/BBS Logo/.../Logos Color/Stacked/Logo
+  Color Stacked 2.png`), read out of their sent mail and kept in their personal
+  `<first>-voice` skill under `assets/`; never a company-wide block typed into a shared
+  skill, which is how `SB/DVBE` outlived the 2026-09-22 ruling. The Microsoft 365
+  connector's draft tools reject images and inline styles, so a connector-created draft
+  carries the attribute-free form and the reply says so; it never drops the block. Recipe:
+  `bbs-voice-template` step 3b and `references/signature-template.html`; `bbs-sourcing`
+  Step 8 now points at the rep's assets instead of a block that was never written.
 - **`bc-item-entry`: rep-facing item creation in Business Central (PR #64) — RULED
   2026-10-14.** Parker, in session. What was ruled, and where each part lives
   (`plugins/bbs-sales/skills/bc-item-entry/`: `SKILL.md`, `scripts/bc_item_entry.py`,

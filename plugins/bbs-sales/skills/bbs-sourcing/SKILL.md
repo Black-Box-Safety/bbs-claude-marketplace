@@ -5,7 +5,7 @@ requires: [microsoft-365]
 degrades-without: [firecrawl, ca-procurement-intel, business-central]
 ---
 
-> **Known gap:** this skill references companion files under `references/` (vendor directory, email templates, triage, input-handling) that are not yet included in the package. Until they are added, follow the inline guidance and flag the gap via `/bbs-review`.
+> **Known gap:** this skill references companion files under `references/` (vendor directory, triage, input-handling) that are not yet included in the package. Until they are added, follow the inline guidance and flag the gap via `/bbs-review`. `references/email-templates.md` shipped 2026-10-30.
 
 # BBS Sourcing Skill
 
@@ -168,7 +168,7 @@ If multiple BBS teammates have worked with the vendor, ask the rep which one to 
 Use the templates in `references/email-templates.md`. The skill's job here is three things:
 
 1. Fill in the template variables: vendor contact name, end-customer agency (e.g., "CAL FIRE Butte Unit"), line items with links/SKUs/qty, ship-to address, vendor response deadline.
-2. Use BBS's full signature block (see `references/email-templates.md` — includes SDVOSB UEI, DVBE #, all three contract vehicle numbers).
+2. Sign with the rep's own signature from their `<first>-voice` skill (`~/.claude/skills/<first>-voice/assets/`, built with `/bbs-my-voice`): `signature.html` wherever the output carries HTML with images, `signature-outlook-draft.html` for a draft created through the Microsoft 365 connector, `signature.txt` for plain text. It carries the SDVOSB UEI, the DVBE number and all three contract vehicles. No voice skill on this machine → write `[MISSING — NEEDS INPUT: signature]` at the foot of the draft. Never type a block from memory.
 3. Render each email with the **message_compose_v1** tool (`kind: "email"`). This produces a preview card inline with "Open in Mail" → launches the rep's Outlook with the draft pre-filled.
 
 Every cold/referral email must include the transparency line: *"I'm getting quotes from a few different vendors to get best pricing."* This is BBS's soft-leverage baseline — vendors expect competition, and saying so upfront sets the tone for future price-match asks without being adversarial.
@@ -256,6 +256,6 @@ These are the rules the skill must not relax, no matter what the rep asks:
 ## Reference files
 
 - **`references/vendor-directory.md`** — BBS's vendors by product vertical, with tier flags (DPA Buying Group, Direct Account, Wholesaler, Retail) and account notes
-- **`references/email-templates.md`** — Full text for all five templates: Cold, Referral, Warm, Follow-up, Price-Match. Plus the BBS signature block.
+- **`references/email-templates.md`** — Placeholder shells for all five templates: Cold, Referral, Warm, Follow-up, Price-Match, with the rules each one carries. The signature is not in it; it comes from the rep's `<first>-voice` assets (Step 8).
 - **`references/competitive-vs-naspo-triage.md`** — How to distinguish competitive RFQs from NASPO requests. Signal words, Grainger check procedure, edge cases.
 - **`references/input-handling.md`** — How to read the RFQ when it arrives as pasted text, PDF, XLSX, or an Outlook email reference.
