@@ -8,7 +8,10 @@
 #                   session hears it again.
 #
 # A customer folder is a child of a folder named Customers whose parent's name ends in
-# "Black Box Safety - MASTER" (the Mac and Windows OneDrive shapes both do). Prints
+# "Black Box Safety - MASTER" (the Mac and Windows OneDrive shapes both do). Two are not this
+# hook's: State of CA Agencies is the bbs-sales quote desk, whose learning lives in buyer-level
+# CLAUDE.md, quote-log.md and FLAGS.md (ca-rfq-intake), and a folder named "DO NOT USE ..." is a
+# dead tree. Both stay silent. Prints
 #   {"hookSpecificOutput":{"hookEventName":"<event>","additionalContext":"<text>"}}
 # or nothing. Always exit 0: a hook error must never block a tool.
 #
@@ -41,6 +44,8 @@ if ($event -eq 'SessionStart') {
 if (-not ($start -is [string]) -or [string]::IsNullOrWhiteSpace($start)) { exit 0 }
 
 $MasterSuffix = 'black box safety - master'
+$NotOurs = 'state of ca agencies'
+$DeadPrefix = 'do not use'
 
 # The Customers/<customer> folder at or above $s, or $null.
 function CustomerRoot([string]$s) {
@@ -55,7 +60,12 @@ function CustomerRoot([string]$s) {
     if ([System.IO.Path]::GetFileName($parent).ToLowerInvariant() -ceq 'customers' -and
         $upName.ToLowerInvariant().EndsWith($MasterSuffix, [StringComparison]::Ordinal)) {
       $name = [System.IO.Path]::GetFileName($p)
-      if ($name.StartsWith('.', [StringComparison]::Ordinal) -or -not [System.IO.Directory]::Exists($p)) { return $null }
+      $low = $name.ToLowerInvariant()
+      # Hidden, the CA quote desk, or a dead tree.
+      if ($name.StartsWith('.', [StringComparison]::Ordinal) -or $low -ceq $NotOurs -or
+          $low.StartsWith($DeadPrefix, [StringComparison]::Ordinal)) { return $null }
+      # A file sitting in Customers/.
+      if (-not [System.IO.Directory]::Exists($p)) { return $null }
       return $p
     }
     $p = $parent

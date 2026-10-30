@@ -11,7 +11,10 @@ Same events, same output bytes (tests/customer_folder_parity.py proves it):
                   session_id stops it repeating on every write. SessionStart always
                   speaks, so a compacted session hears it again.
 A customer folder is a child of a folder named Customers whose parent's name ends in
-"Black Box Safety - MASTER" (the Mac and Windows OneDrive shapes both do). Stdlib only.
+"Black Box Safety - MASTER" (the Mac and Windows OneDrive shapes both do). Two are not
+this hook's: State of CA Agencies is the bbs-sales quote desk, whose learning lives in
+buyer-level CLAUDE.md, quote-log.md and FLAGS.md (ca-rfq-intake), and a folder named
+"DO NOT USE ..." is a dead tree. Both stay silent. Stdlib only.
 Always exit 0, never print to stderr: a hook error must never block a tool. The texts
 live in customer-folder/*.md; this script re-keys nothing.
 """
@@ -22,6 +25,8 @@ import sys
 import tempfile
 
 MASTER_SUFFIX = "black box safety - master"
+NOT_OURS = "state of ca agencies"
+DEAD_PREFIX = "do not use"
 
 
 def customer_root(start):
@@ -34,8 +39,11 @@ def customer_root(start):
         if (os.path.basename(parent).lower() == "customers"
                 and os.path.basename(os.path.dirname(parent)).lower().endswith(MASTER_SUFFIX)):
             name = os.path.basename(p)
-            if name.startswith(".") or not os.path.isdir(p):
-                return None             # hidden folder, or a file sitting in Customers/
+            low = name.lower()
+            if name.startswith(".") or low == NOT_OURS or low.startswith(DEAD_PREFIX):
+                return None             # hidden, the CA quote desk, or a dead tree
+            if not os.path.isdir(p):
+                return None             # a file sitting in Customers/
             return p
         p = parent
     return None

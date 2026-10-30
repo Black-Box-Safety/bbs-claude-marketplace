@@ -181,7 +181,7 @@ through the managed `env` block; a rep turns it on per session with `/caveman li
   private repo — not re-keyed into a CLAUDE.md.
 - **No hooks.** The plugins carry their own (`bbs-foundations` and `bbs-website` inject
   doctrine, `bbs-foundations` also reminds a session in a customer folder to keep that
-  customer's `CLAUDE.md`, `bbs-sales` guards the quote-desk tree); `bbs-website` ships one template
+  customer's `CLAUDE.md`, outside the CA quote desk, `bbs-sales` guards the quote-desk tree); `bbs-website` ships one template
   validator in `bbs-database`'s repo settings where it belongs.
 - **No model pin.** People pick per task; the `claudeMd` block names the three current IDs
   so nobody writes a stale one into a file.

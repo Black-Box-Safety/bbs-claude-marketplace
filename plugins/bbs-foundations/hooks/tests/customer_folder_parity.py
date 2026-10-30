@@ -79,11 +79,18 @@ def build(root):
         "decoy": os.path.join(root, "Elsewhere", "Customers", "Acme"),
         "delta": os.path.join(win, "Delta", "PO 7"),
         "delta_root": os.path.join(win, "Delta"),
+        # The CA quote desk: a desk-root CLAUDE.md, a buyer folder with none of its own.
+        "desk": os.path.join(cust, "State of CA Agencies"),
+        "desk_deal": os.path.join(cust, "State of CA Agencies", "All RFQ's by Agency",
+                                  "CMD - 887895101", "Pat Lever", "Gloves 10.21.26"),
+        "dead": os.path.join(cust, "DO NOT USE CA Dept. of Corrections and Rehabilitation copy", "x"),
+        "legacy": os.path.join(cust, "CDCR"),
     }
-    for k in ("acme_rfq", "beta_deep", "gamma_rfq", "gamma_other", "odd", "hidden", "decoy", "delta"):
+    for k in ("acme_rfq", "beta_deep", "gamma_rfq", "gamma_other", "odd", "hidden", "decoy", "delta",
+              "desk_deal", "dead", "legacy"):
         os.makedirs(p[k])
     for f in (os.path.join(p["beta"], "CLAUDE.md"), os.path.join(p["gamma_site"], "CLAUDE.md"),
-              os.path.join(cust, "loose.md")):
+              os.path.join(p["desk"], "CLAUDE.md"), os.path.join(cust, "loose.md")):
         open(f, "w").close()
     return p
 
@@ -120,6 +127,14 @@ def cases(p):
         ("a file sitting in Customers is silent", post(os.path.join(p["cust"], "loose.md")), b""),
         ("hidden folder is silent", start(p["hidden"]), b""),
         ("Customers not under MASTER is silent", start(p["decoy"]), b""),
+        ("CA desk root is silent (bbs-sales owns it)", start(p["desk"]), b""),
+        ("CA buyer deal folder is silent", start(p["desk_deal"]), b""),
+        ("write in a CA buyer deal folder is silent",
+         post(os.path.join(p["desk_deal"], "RFQ.md"), sid="sess-ca"), b""),
+        ("DO NOT USE tree is silent", start(p["dead"]), b""),
+        ("write in a DO NOT USE tree is silent", post(os.path.join(p["dead"], "f.pdf"), sid="sess-dead"), b""),
+        ("legacy agency folder gets missing (text defers to DUPLICATE-TREES)",
+         start(p["legacy"], sid="sess-legacy"), miss("SessionStart", p["legacy"])),
         ("write the CLAUDE.md itself: silent once it exists", None, b""),   # filled in below
         ("after it exists, session start is present", start(p["acme_rfq"]), pres(acme_t)),
         ("unknown event", j({"hook_event_name": "Stop", "cwd": p["acme_rfq"]}), b""),
