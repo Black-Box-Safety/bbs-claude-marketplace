@@ -47,6 +47,12 @@ content. Two BBS-wide rules go in every profile regardless of the person:
   California context — see `canonical-facts.md`, "Small-business status is channel-dependent".
 - **Never invent facts.** Dates, part numbers, prices, names, lead times come from source
   material or the person. A gap gets a bracketed placeholder and a flag.
+- **Layout and question discipline.** `references/email-format.md` is the house layout:
+  the block skeleton, one blank line between blocks, lists with a lead-in that split past
+  about five items, no bold in the body, and the rule that a buyer or vendor is asked only
+  what the documents cannot answer and whose answer moves the number (Parker, 2026-10-30).
+  It ships in every voice skill unchanged; the profile records only where the person
+  departs from it.
 
 ## 3. Write the skill
 
@@ -57,7 +63,8 @@ Create `~/.claude/skills/<first>-voice/` with:
 ├── SKILL.md                      copy references/skill-template.md, fill the name
 └── references/
     ├── voice-profile.md          the filled profile from step 2
-    └── ai-patterns.md            copy references/ai-patterns.md unchanged
+    ├── ai-patterns.md            copy references/ai-patterns.md unchanged
+    └── email-format.md           copy references/email-format.md unchanged
 ```
 
 The `SKILL.md` frontmatter description names the person so Claude picks the right voice

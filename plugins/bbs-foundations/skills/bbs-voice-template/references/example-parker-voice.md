@@ -79,6 +79,16 @@ carries several separate items:
 - "I believe that changed the general nature of the RFP a little bit because
   initially it was just focused on replenishment."
 
+**Layout (read from Sent Items 2026-10-30).** His vendor requests follow one skeleton:
+greeting; one paragraph of opener and context ending in "...get a quote from you on the
+following:"; the items as a numbered list or a three-column table; any item question
+directly under it; "Items would ship to:" with the address on line breaks; "Some quick
+notes:" with two to four requests; the deadline as a question with its reason ("Our bid is
+due the next day."); "Please let me know if you have any questions. Thank you!"; then
+`Best,`. One blank line between every block, nothing bold in the body. The house version is
+`email-format.md`, which also carries his ruling of 2026-10-30 on questions to a buyer:
+only the ones the documents cannot answer, grouped and spaced, never nineteen in one list.
+
 ## Closers
 
 - "Please let me know if you have any questions."
