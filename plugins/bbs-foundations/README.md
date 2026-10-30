@@ -53,6 +53,15 @@ to wire — it is active the moment the plugin is installed. Interpreter: pwsh 7
 else Windows PowerShell 5.1, else python3 (`hooks/doctrine.py`, same logic). A Mac needs
 nothing beyond the Xcode command-line tools.
 
+A second hook keeps customer folders documented. When a session starts in, or Claude
+writes a file in, a folder under `MASTER/Customers/<customer>/`, it checks for a
+`CLAUDE.md` between there and the customer root. None: Claude is told to create one with
+this skill before it finishes (once per customer per session on writes). One there, at
+session start: Claude is told to keep it current. The text lives in
+`hooks/customer-folder/`; `customer-folder.ps1` and `customer-folder.py` are the same
+logic, proven byte for byte by `hooks/tests/customer_folder_parity.py`. The managed
+`claudeMd` states the same rule, so it holds on a machine where no hook runs.
+
 ## Command
 
 | Command | Does |
