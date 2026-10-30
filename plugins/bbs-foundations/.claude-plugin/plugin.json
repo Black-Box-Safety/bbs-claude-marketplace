@@ -1,7 +1,7 @@
 {
   "name": "bbs-foundations",
   "description": "Company-wide AI foundations for Black Box Safety: the BBS way to write CLAUDE.md files (BBSClaudeMDForge), the doctrine every skill inherits, the shared company facts, systems of record, and certification rules that keep every repo and customer folder consistent. Carries bbs-claude-md-forge, bbs-deck-voice and bbs-voice-template; order reconciliation lives in bbs-back-office.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": {
     "name": "Black Box Safety, Inc."
   },

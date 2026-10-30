@@ -40,11 +40,18 @@ Greeting on its own line; opener only when the relationship warrants it; one ide
 paragraph; asks phrased the way the profile shows; problems owned plainly; the closer and
 sign-off from the profile; full signature block on external mail.
 
+Layout follows `references/email-format.md`: the block skeleton, a blank line between
+blocks, lists with a lead-in line that split past about five items, nothing bold in the
+body, and questions to a buyer or vendor only where the documents cannot answer and the
+answer moves the number. The profile says where <First> departs from it.
+
 ## Step 4 — Verify
 
 - [ ] Every "never does" item is absent
 - [ ] Greeting, opener, sign-off match the profile
 - [ ] Every fact traces to source material — nothing invented
+- [ ] Blocks separated by blank lines, lists led in and split past five, no bold in the
+      body, and every question passed the four checks in `references/email-format.md`
 - [ ] Would a reader who knows <First> believe they typed this?
 
 ## Hard rules

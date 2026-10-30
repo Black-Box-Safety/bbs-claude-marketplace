@@ -21,9 +21,9 @@ shape of the run; the skill carries the rules.
    that makes it work; ask them to confirm each item — they know their own tells.
 
 4. **Write the skill** to `~/.claude/skills/<first>-voice/` from
-   `references/skill-template.md`, with the filled profile and a copy of
-   `references/ai-patterns.md`. Never write it into a repo: it carries their phone number
-   and signature block.
+   `references/skill-template.md`, with the filled profile and copies of
+   `references/ai-patterns.md` and `references/email-format.md`. Never write it into a
+   repo: it carries their phone number and signature block.
 
 5. **Test.** Take one AI-drafted email and one of their real ones. Run the new skill on the
    draft and put the result next to the real one. If they would not believe they typed
