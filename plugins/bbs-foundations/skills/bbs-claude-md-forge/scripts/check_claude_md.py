@@ -36,7 +36,11 @@ MODELS_JSON = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 # There is deliberately no trailing lookahead: `claude-3-…` ends on a hyphen, and
 # `(?![\w-])` would drop that whole stale family. The greedy tail already runs to
 # the end of the hyphenated run, so a real ID is never cut short.
-ANY_CLAUDE_ID = re.compile(r"(?<![\w-])claude-[a-z0-9]+(?:-[a-z0-9]+)*\b")
+# A run that sits between two path separators is a directory name, not a model ID:
+# the stamped buyer stubs cite `docs/claude-md/generation-plan.md`, and `claude-md`
+# FAILed 70 times in one customer tree. Only the both-sides case is refused, so
+# `anthropic/claude-3-opus` and `claude-3-opus/claude-3-sonnet` are still checked.
+ANY_CLAUDE_ID = re.compile(r"(?<![\w-])(?!(?<=[/\\])[\w-]+[/\\])claude-[a-z0-9]+(?:-[a-z0-9]+)*\b")
 DATE_SUFFIXED = re.compile(r"\bclaude-[a-z0-9-]+-20\d{6}\b")
 
 
