@@ -10,7 +10,8 @@ maintained upstream, and matches a task reps actually do. Context cost is a tieb
 a veto. Anything that needs a per-machine API key stays out.
 
 **How it ships.** Each item is a pinned external entry in `.claude-plugin/marketplace.json`
-under `category: "commons"`, enabled for everyone through managed settings. Nothing is
+under `category: "commons"`, enabled for everyone through managed settings, except the
+maintainer-tier entries below "Current roster", which are left out of `enabledPlugins`. Nothing is
 copied into this repo.
 
 **A commons entry is all-or-nothing.** Read "`skills:` does not filter" below before
@@ -141,12 +142,13 @@ is Parker's call; the re-check is the interim control.
 
 ### Maintainer-tier (available, not fleet-enabled)
 
-In the marketplace, deliberately absent from `enabledPlugins`. Parker and whoever builds
-internal pages install it; reps do not get it switched on.
+In the marketplace, deliberately absent from `enabledPlugins`. Intended for Parker and whoever
+builds internal pages, not for reps. **Not enforced yet:** the bootstraps install every
+marketplace plugin, so until the item under "Open for Parker" is decided this tier is intent only.
 
 | Plugin | Pin | Release model · cadence | Who uses it, for what | Watch for |
 |---|---|---|---|---|
-| `taste-skill` (Leonxlnx) | `v2.1.5`, commit `12af471f` | `tagged`, lightweight `vX.Y.Z` tags, six releases 2026-10-13 to 10-25, so treated as `multi-train` · monthly | Art direction and a real-browser self-check on internal operational pages (the CA State RFQ Pipeline dashboard first). Admitted 2026-11-02 by Parker after a read-only vetting note (`Customers/State of CA Agencies/docs/dashboards/rfq-pipeline/TASTE-SKILL-VETTING.md` in the MASTER store) and an independent read. **The bbs-shopify Field Manual wins any conflict**; no decorative imagery on operational pages | **Whole tree is one skill** (`design-taste-frontend`), no hooks, commands or agents; the tree also carries sponsor logos and CC BY-SA example screenshots that do not load as skills. MIT. Scripts need Node 22+ and a local Chrome, Edge or Chromium. **`assets.mjs` downloads pictures and films from open archives** (Openverse, Wikimedia Commons, Art Institute of Chicago, the Met, Internet Archive, NASA): do not run it on BBS pages. **`inspect.mjs` opens any http(s) URL it is given, not only local files, and deletes earlier inspection screenshots in its output folder**: run it only on a local, privacy-scrubbed page, into a fresh scratch folder, never a customer folder. `draw.mjs` writes `~/.taste-skill/history.json` and emits Google Fonts and picsum.photos links; `references/scenes.md` loads gsap and lenis from cdn.jsdelivr.net; `SKILL.md` writes working files to `.taste-skill/` in the project and has a `mailto:` fallback for buttons. None of those belong on a BBS page. The SKILL.md workflow runs its scripts by default, so the rules above are the operator's job; nothing in the plugin enforces them. Vetting read SKILL.md and references by grep and excerpts, not line by line. Re-vet on every refresh: the pin is a lightweight tag, so the recorded commit is the tag's own target |
+| `taste-skill` (Leonxlnx) | `v2.1.5`, commit `12af471f` | `tagged`, lightweight `vX.Y.Z` tags (seven: `v2.0.0` on 2026-10-13, `v2.1.0` to `v2.1.5` by 10-25) plus annotated `archive/taste-skill-*` tags, a second prefix a refresh must ignore; treated as `multi-train` · monthly | Art direction and a real-browser self-check on internal operational pages (the CA State RFQ Pipeline dashboard first). Admitted 2026-11-02 by Parker after a read-only vetting note (`Customers/State of CA Agencies/docs/dashboards/rfq-pipeline/TASTE-SKILL-VETTING.md` in the MASTER store) and an independent read. **The bbs-shopify Field Manual wins any conflict**; no decorative imagery on operational pages | **Whole tree is one skill** (`design-taste-frontend`), no hooks, commands or agents; the tree also carries sponsor logos and CC BY-SA example screenshots that do not load as skills. MIT. `inspect.mjs` and `scenes.mjs` need Node 22+ and a local Chrome, Edge or Chromium; the other scripts run on older Node. **`assets.mjs` downloads pictures and films from open archives** (Openverse, Wikimedia Commons, Art Institute of Chicago, the Met, Internet Archive, NASA): do not run it on BBS pages. **`inspect.mjs` opens any http(s) URL it is given, not only local files, and deletes earlier inspection screenshots in its output folder**: run it only on a local, privacy-scrubbed page, into a fresh scratch folder, never a customer folder. **`scenes.mjs` also opens any http(s) URL it is given** and writes into `.taste-skill/scenes`. `draw.mjs` writes `~/.taste-skill/history.json` and emits picsum.photos links, and its `--app` path (`lib/app-draw.mjs`) emits a Google Fonts link; `references/scenes.md` loads gsap and lenis from cdn.jsdelivr.net; `SKILL.md` writes working files to `.taste-skill/` in the project and has a `mailto:` fallback for buttons. None of those belong on a BBS page. The SKILL.md workflow runs its scripts by default, so the rules above are the operator's job; nothing in the plugin enforces them. Vetting read SKILL.md and references by grep and excerpts, not line by line. Re-vet on every refresh: the pin is a lightweight tag, so the recorded commit is the tag's own target |
 
 ### Provenance
 
@@ -345,7 +347,9 @@ because selection does not work.
 - **Maintainer-tier is not enforced by the bootstrap (found 2026-11-02 adding `taste-skill`).**
   `bbs-setup.ps1` and `bbs-setup.sh` install every plugin in `marketplace.json` at user scope
   unless `bbs-managed-settings.json` sets it `false`, so leaving `taste-skill` out of
-  `enabledPlugins` does not keep it off a rep's machine: the next bootstrap run installs it.
+  `enabledPlugins` does not keep it off a rep's machine: the next bootstrap run installs it, and a
+  user-scope install probably also enables it (unverified on a rep machine). Its skill description
+  triggers on any dashboard or web page, so an enabled copy would be picked up widely.
   Options: set it `false` in managed settings (the bootstrap then skips it; unverified whether a
   managed `false` also blocks Parker's own install), teach both bootstraps to skip
   maintainer-tier entries (PowerShell untested here), or accept it reaching reps. Not decided here.

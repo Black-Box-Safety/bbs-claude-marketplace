@@ -114,7 +114,7 @@ These ship with the eight BBS plugins. They are pinned so a third-party update d
 | `superpowers-chrome` | The rep's real Chrome, for product research. |
 | `document-skills` | Anthropic's Word, PDF, and Excel skills. |
 | `caveman` | Terse mode. Off until someone asks. Managed settings keep it off; a person turns it on for a session. |
-| `taste-skill` | Maintainer-tier: art direction and a real-browser check for internal pages. Not switched on for reps; the bootstrap still installs it until that gap is closed (see Commons). |
+| `taste-skill` | Maintainer-tier: art direction and a real-browser check for internal pages. Meant for maintainers, not reps; until a gap in the bootstrap is closed, the next bootstrap run installs it, and probably enables it, on every machine (see Commons). |
 
 Commons detail: [`docs/COMMONS.md`](docs/COMMONS.md).
 
