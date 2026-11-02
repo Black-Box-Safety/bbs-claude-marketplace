@@ -255,6 +255,10 @@ A denial shows up as a permission refusal with a one-line reason Claude relays. 
 `python3 plugins/bbs-sales/hooks/tests/parity.py` (both halves, when PowerShell is present),
 or `pwsh -File plugins/bbs-sales/hooks/tests/run-tests.ps1` for the PowerShell half alone.
 
+## The RFQ record (v2)
+
+An `RFQ.md` is now the machine record of a deal, not just notes: a fixed header, a Lines table, a Pricing table, and a Status table that moves through the stages, with the Gap report, Flags and Stated requirements kept as prose. `scripts/rfq_record.py` is the one parser and CLI (`validate`, `compile`, `current-stage`, `set-stage`, `set-header`, `upsert-pricing`, `migrate`); `compile` writes an `rfq-state.json` beside the record. The `rfq-record-hook` (PowerShell and Python twins, same decisions, proved by `hooks/tests/parity.py`) checks every `RFQ.md` edit against that format and says what is wrong before the edit lands. A v1 record passes the hook with a notice (no check, no sidecar) until it is migrated; `migrate --dry-run` reports whether it converts cleanly. The reference for the exact table headers and rules is `plugins/bbs-sales/skills/ca-rfq-intake/references/rfq-record-v2.md`.
+
 ## Rollout guide
 
 How this gets introduced to the team, and what "working" looks like: <https://claude.ai/code/artifact/6fd0a004-8323-477d-b461-332fb35afd7e>

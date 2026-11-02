@@ -20,6 +20,7 @@ Exit 0 = all pass. Stdlib only. Writes only inside a temp dir it removes.
 """
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -27,6 +28,7 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HOOKS = os.path.dirname(HERE)
+FIXTURES = os.path.join(os.path.dirname(HOOKS), "scripts", "tests", "fixtures")
 PS = shutil.which("pwsh") or shutil.which("powershell")
 REQUIRE_PS = os.environ.get("BBS_REQUIRE_PS") == "1"
 PY = sys.executable
@@ -155,8 +157,80 @@ def main():
                 prc, pout, perr = run_ps("desk-context", payload)
                 check(prc == 0 and perr == "" and ctx_norm(pout) == o, name + " [parity]",
                       f"ps rc={prc} ps={ctx_norm(pout)[:120]!r} py={o[:120]!r} err={perr.strip()[:200]!r}")
+        # rfq-record-hook: the Python half validates and compiles rfq-state.json; the PowerShell
+        # half checks shape only and writes nothing. Compared: exit code, stderr first line.
+        # The sidecar is checked for existence only (generated_at is not deterministic).
+        def fixture(name):
+            with open(os.path.join(FIXTURES, name), encoding="utf-8", newline="") as fh:
+                return fh.read()
+
+        good = fixture("v2_naspo_full.md")
+        bad = good.replace("| sent |", "| Sent |", 1)
+        assert bad != good
+        deal = os.path.join(tree, "CMD - 880000001", "Pat Example", "widgets 10.27.26")
+        other = os.path.join(root, "Customers", "Bechtel", "x")
+        os.makedirs(deal)
+        os.makedirs(other)
+        # (name, file content, file_path as sent in the hook JSON, expected exit, sidecar written, first-line check)
+        deal_rfq = os.path.join(deal, "RFQ.md")
+        # NOTE: on POSIX the backslash path is just an odd file name; the case passes only because
+        # both halves read the same file we create at that name. Real Windows paths are the target.
+        bs_path = deal_rfq.replace("/", "\\")
+        rfq_cases = [
+            ("rfq-record valid_v2", good, deal_rfq, 0, True, None),
+            ("rfq-record bad_status_enum", bad, deal_rfq, 2, False, "bbs-sales rfq-record: 1 problem(s) in RFQ.md"),
+            ("rfq-record not_an_rfq_path", bad, os.path.join(other, "RFQ.md"), 0, False, None),
+            ("rfq-record windows_backslash_path", bad, bs_path, 2, False, "bbs-sales rfq-record: 1 problem(s) in RFQ.md"),
+            ("rfq-record bad_header_stage", good.replace("**Stage:** delivered to rep", "**Stage:** Sent", 1), deal_rfq, 2, False, "bbs-sales rfq-record: 1 problem(s) in RFQ.md"),
+            ("rfq-record v1_record", fixture("v1_cmd_hvac.md"), deal_rfq, 0, False, None),
+            ("rfq-record legacy_no_status_section", re.sub(r"\*\*Stage:\*\*[^\n]*\n", "", good[:good.index("## Status")]), deal_rfq, 0, False, None),
+            ("rfq-record v2_with_stage_but_broken_status", good.replace("| Stage | Date | Evidence |", "| Stage | When | Evidence |", 1), deal_rfq, 2, False, "bbs-sales rfq-record: 1 problem(s) in RFQ.md"),
+            ("rfq-record v2_quotes_v1_header", good.replace("## Flags\n", "## Flags\n\nThe old header was `| Stage | State | Date |` in v1.\n", 1), deal_rfq, 0, True, None),
+        ]
+        for name, content, fpath, want_rc, want_state, want_first in rfq_cases:
+            payload = {"hook_event_name": "PostToolUse", "tool_name": "Write",
+                       "tool_input": {"file_path": fpath, "content": content}}
+            # Backslash paths are not real files on this OS: write the content at the forward-slash
+            # location the hook will resolve (the hook opens the path it was given, so a Windows-style
+            # path only works here when the OS treats it as a file name; skip the open by mirroring).
+            real = deal_rfq if fpath == bs_path else fpath
+            for stale in (os.path.join(os.path.dirname(real), "rfq-state.json"), os.path.join(deal, "rfq-state.json")):
+                if os.path.exists(stale):
+                    os.remove(stale)
+            os.makedirs(os.path.dirname(real), exist_ok=True)
+            with open(real, "w", encoding="utf-8", newline="") as fh:
+                fh.write(content)
+            if fpath == bs_path and os.sep == "/":
+                # On POSIX the backslash string is a single odd file name; create it so the hook can read it.
+                with open(fpath, "w", encoding="utf-8", newline="") as fh:
+                    fh.write(content)
+            rc, out, err = run_py("rfq-record-hook", payload)
+            state = os.path.exists(os.path.join(os.path.dirname(real), "rfq-state.json"))
+            first = err.split("\n", 1)[0].strip()
+            is_v1 = name.endswith(("v1_record", "legacy_no_status_section"))
+            ok = rc == want_rc and (out == "" or is_v1) and state == want_state
+            if is_v1:
+                ok = ok and "legacy format" in json.loads(out)["systemMessage"] and "migrate" in json.loads(out)["systemMessage"]
+            ok = ok and ((err == "") if want_rc == 0 else (first == want_first))
+            check(ok, name, f"py rc={rc} state={state} out={out[:80]!r} err={err[:200]!r}")
+            if PS:
+                for stale in (os.path.join(deal, "rfq-state.json"),):
+                    if os.path.exists(stale):
+                        os.remove(stale)
+                prc, pout, perr = run_ps("rfq-record-hook", payload)
+                pfirst = perr.split("\n", 1)[0].strip()
+                pstate = os.path.exists(os.path.join(deal, "rfq-state.json"))
+                pok = prc == want_rc and not pstate
+                if is_v1:
+                    pok = pok and out.strip() and json.loads(pout) == json.loads(out)
+                else:
+                    pok = pok and pout.strip() == ""
+                pok = pok and ((perr.strip() == "") if want_rc == 0 else (pfirst == first))
+                check(pok, name + " [parity]", f"ps rc={prc} state={pstate} first={pfirst!r} py={first!r} err={perr[:200]!r}")
+            if fpath == bs_path and os.sep == "/" and os.path.exists(fpath):
+                os.remove(fpath)
         # Garbage on stdin: both halves stay silent and exit 0.
-        for script in ("guard-tree", "desk-context"):
+        for script in ("guard-tree", "desk-context", "rfq-record-hook"):
             for raw in (b"", b"not json", b"[1,2]"):
                 p = subprocess.run([PY, os.path.join(HOOKS, script + ".py")], input=raw, capture_output=True)
                 check(p.returncode == 0 and p.stdout == b"" and p.stderr == b"", f"{script} silent on {raw!r}")

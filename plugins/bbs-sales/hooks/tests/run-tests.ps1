@@ -129,6 +129,50 @@ Check 'acronym typo agency folder denied' (Decision $o) 'deny'
 $o = Run $ctx @{ hook_event_name='SessionStart'; source='startup'; cwd = $outside }
 Check 'session context silent outside tree with quote-log' ($o -eq '') $true
 
+# 16. rfq-record-hook: same fixtures as parity.py; exit code and stderr first line.
+$rfqHook = Join-Path (Split-Path -Parent $here) 'rfq-record-hook.ps1'
+$fx = Join-Path (Split-Path -Parent (Split-Path -Parent $here)) 'scripts\tests\fixtures'
+$good = [IO.File]::ReadAllText((Join-Path $fx 'v2_naspo_full.md')) -replace "`r`n","`n"
+$rfqDeal = Join-Path $tree 'CMD - 880000001\Pat Example\widgets 10.27.26'
+$rfqOther = Join-Path $root 'Customers\Bechtel\x'
+New-Item -ItemType Directory -Force -Path $rfqDeal | Out-Null
+New-Item -ItemType Directory -Force -Path $rfqOther | Out-Null
+function RunRfq($content, $path) {
+  [IO.File]::WriteAllText($path, $content)
+  $json = @{ hook_event_name='PostToolUse'; tool_name='Write'; tool_input=@{ file_path = $path; content = $content } } | ConvertTo-Json -Compress -Depth 5
+  $err = Join-Path $root 'rfq-err.txt'
+  $outText = ($json | & $exe -NoProfile -ExecutionPolicy Bypass -File $rfqHook 2> $err) -join "`n"
+  $first = ''
+  if (Test-Path $err) { $first = (Get-Content -Path $err -TotalCount 1) }
+  return @{ rc = $LASTEXITCODE; first = [string]$first; out = [string]$outText }
+}
+$firstLine = 'bbs-sales rfq-record: 1 problem(s) in RFQ.md'
+$badStatus = $good.Replace('| sent |', '| Sent |')
+$badHeader = $good.Replace('**Stage:** delivered to rep', '**Stage:** Sent')
+$v1 = [IO.File]::ReadAllText((Join-Path $fx 'v1_cmd_hvac.md')) -replace "`r`n","`n"
+$r = RunRfq $good (Join-Path $rfqDeal 'RFQ.md')
+Check 'rfq-record valid_v2' ("$($r.rc)|$($r.first)") '0|'
+$r = RunRfq $badStatus (Join-Path $rfqDeal 'RFQ.md')
+Check 'rfq-record bad_status_enum' ("$($r.rc)|$($r.first)") "2|$firstLine"
+$r = RunRfq $badHeader (Join-Path $rfqDeal 'RFQ.md')
+Check 'rfq-record bad_header_stage' ("$($r.rc)|$($r.first)") "2|$firstLine"
+$r = RunRfq $badStatus (Join-Path $rfqOther 'RFQ.md')
+Check 'rfq-record not_an_rfq_path' ("$($r.rc)|$($r.first)") '0|'
+# Windows backslash path: Join-Path already yields backslashes on Windows.
+$r = RunRfq $badStatus ((Join-Path $rfqDeal 'RFQ.md').Replace('/', '\'))
+Check 'rfq-record windows_backslash_path' ("$($r.rc)|$($r.first)") "2|$firstLine"
+$r = RunRfq $v1 (Join-Path $rfqDeal 'RFQ.md')
+Check 'rfq-record v1_record passes with notice' ("$($r.rc)|$($r.first)|$($r.out -match 'legacy format' -and $r.out -match 'migrate')") '0||True'
+$quoted = $good.Replace("## Flags`n", "## Flags`n`nOld header: ``| Stage | State | Date |``.`n")
+$r = RunRfq $quoted (Join-Path $rfqDeal 'RFQ.md')
+Check 'rfq-record v2_quotes_v1_header accepted' ("$($r.rc)|$($r.first)|$($r.out)") '0||'
+$legacy = ($good -replace '(?s)\n## Status.*$', "`n") -replace '\*\*Stage:\*\*[^\n]*\n', ''
+$r = RunRfq $legacy (Join-Path $rfqDeal 'RFQ.md')
+Check 'rfq-record legacy_no_status_section passes with notice' ("$($r.rc)|$($r.first)|$($r.out -match 'legacy format')") '0||True'
+$brokenStatus = $good.Replace('| Stage | Date | Evidence |', '| Stage | When | Evidence |')
+$r = RunRfq $brokenStatus (Join-Path $rfqDeal 'RFQ.md')
+Check 'rfq-record v2_with_stage_but_broken_status rejected' ("$($r.rc)") '2'
+
 Remove-Item -Recurse -Force $root
 Write-Host ""
 if ($fails -eq 0) { Write-Host "ALL PASS"; exit 0 } else { Write-Host "$fails FAILED"; exit 1 }
