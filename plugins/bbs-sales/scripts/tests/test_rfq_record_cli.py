@@ -177,6 +177,20 @@ class TestCli(CliBase):
         self.assertEqual(rc.returncode, 2, rc.stdout + rc.stderr)
         self.assertIn("would not convert:", rc.stdout)
 
+    def test_migrate_dry_run_no_lines_table(self):
+        bad = self.copy("v1_no_lines.md", "nolines")
+        rc = run_cli(["migrate", bad, "--dry-run"])
+        self.assertEqual(rc.returncode, 2)
+        self.assertIn("would not convert:", rc.stdout)
+        self.assertIn("no Lines table", rc.stdout)
+
+    def test_migrate_alias_fixture_writes_valid_v2(self):
+        alias = self.copy("v1_site_numbering.md", "alias")
+        self.assertEqual(run_cli(["migrate", alias, "--dry-run"]).returncode, 0)
+        self.assertEqual(run_cli(["migrate", alias]).returncode, 0)
+        self.assertEqual(run_cli(["validate", alias]).returncode, 0)
+        self.assertIn("| S1 |", slurp(alias))
+
     def test_migrate_writes_then_refuses_v2(self):
         rc = run_cli(["migrate", self.v1, "--rep", "Kim Quezon"])
         self.assertEqual(rc.returncode, 0, rc.stderr)

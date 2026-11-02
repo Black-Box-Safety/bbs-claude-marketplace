@@ -280,6 +280,143 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class TestMigrateAliases(unittest.TestCase):
+    def mig(self, name, **kw):
+        text = read_fixture(name)
+        rec, notes = rfq_record.migrate_v1(text, **kw)
+        out = rfq_record.render(rec)
+        again = rfq_record.parse(out)
+        self.assertEqual(rfq_record.validate(rec), [], name)
+        self.assertEqual(rfq_record.validate(again), [], name)
+        self.assertEqual(rfq_record.render(again), out, "render-parse-render " + name)
+        self.assertFalse(rfq_record.is_v1(out))
+        self.assertIn(rec.header["Stage"], rfq_record.STAGES)
+        self.assertEqual(rfq_record.render(rfq_record.parse(out)), out)
+        return rec, notes, out
+
+    def test_line_items_heading_and_column_aliases(self):
+        rec, notes, out = self.mig("v1_alias_line_items.md")
+        self.assertIn("## Lines (2 items)", out)
+        self.assertNotIn("## Line items", out.split("## Original Lines table")[0])
+        self.assertEqual(rec.lines[0].part, "1AAA1")
+        self.assertEqual(rec.lines[1].uom, "pkg of 12")
+        self.assertTrue(rec.lines[0].lane.startswith("[FLAG"))
+        orig = out.split("## Original Lines table")[1]
+        self.assertIn("| # | Grainger Item # | Description | Qty | UoM |", orig)
+        self.assertIn("Original heading: ## Line items (from Grainger cart screenshot)", orig)
+        self.assertEqual(len(rec.pricing), 2)
+
+    def test_extra_columns_and_parenthetical_headers_kept_verbatim(self):
+        rec, notes, out = self.mig("v1_extra_columns.md")
+        self.assertEqual(rec.lines[0].description, "Example lanyard, 24 in")
+        self.assertEqual(rec.lines[1].lane, "sourcing")
+        orig = out.split("## Original Lines table")[1].split("\n## ")[0]
+        self.assertIn("Tax rate on sheet", orig)
+        self.assertIn("8.75%", orig)
+        self.assertIn("Description (Grainger catalog, 10/22/26)", orig)
+        self.assertIn("Lane (from precedent, re-verify)", orig)
+        self.assertTrue(any("Tax rate on sheet" in n for n in notes))
+        self.assertEqual(rec.header["Stage"], "logged")
+        self.assertEqual(rec.pricing[1].vendor, "[sourcing]")
+
+    def test_non_integer_row_numbers_renumbered_labels_kept(self):
+        rec, notes, out = self.mig("v1_site_numbering.md")
+        self.assertEqual([l.num for l in rec.lines], [1, 2, 3, 4])
+        self.assertEqual(len(rec.pricing), 4)
+        orig = out.split("## Original Lines table")[1]
+        for label in ("| S1 |", "| S3 |", "| C1 |"):
+            self.assertIn(label, orig)
+        self.assertTrue(any("assigned 1..4" in n for n in notes))
+
+    def test_placeholder_row_labels_with_canonical_header(self):
+        rec, notes, out = self.mig("v1_placeholder_rows.md")
+        self.assertEqual([l.num for l in rec.lines], [1, 2])
+        self.assertIn("| — | [FLAG] |", out)
+        self.assertIn("| + | [FLAG: no model #] |", out)
+
+    def test_no_number_column_grainger_and_mfr_merged(self):
+        rec, notes, out = self.mig("v1_no_number_column.md")
+        self.assertEqual(rec.lines[0].num, 1)
+        self.assertEqual(rec.lines[0].part, "1ZZZ1 (mfr 633W 3/4)")
+        self.assertEqual(rec.lines[0].qty, "16")
+        self.assertEqual(rec.lines[0].uom, "EA")
+        self.assertTrue(rec.lines[0].lane.startswith("[FLAG"))
+        self.assertIn("| Qty | UOM | Grainger item | Description | Mfr part |", out)
+        # a Status heading with a suffix is not the Status table: kept, canonical one added
+        self.assertIn("## Status — packet filled 2026-10-27", out)
+        logged = rec.status[0]
+        self.assertIsNone(logged.date)
+        self.assertIn("[FLAG", logged.evidence)
+
+    def test_status_checklist_kept_and_logged_dated_from_received(self):
+        rec, notes, out = self.mig("v1_status_checklist.md")
+        self.assertIn("## Original Status", out)
+        self.assertIn("- [x] Logged", out)
+        self.assertEqual(rec.status[0].date, "2026-10-06")
+        self.assertEqual(rec.header["Stage"], "logged")
+        self.assertEqual(rec.lines[0].qty, "1 EA")
+        self.assertTrue(rec.lines[0].part.startswith("[FLAG"))
+        self.assertIn("B000000001", out.split("## Original Lines table")[1])
+        self.assertIn("## Lines (2 items)", out)
+
+    def test_mpn_alias_and_missing_status_without_received(self):
+        rec, notes, out = self.mig("v1_mpn_line_run_record.md")
+        self.assertEqual(rec.lines[0].part, "300 2083")
+        self.assertEqual(rec.lines[0].qty, "[FLAG: buyer gave no qty]")
+        self.assertIn("| 1 | 300 2083 | Example 300 Disposer", out.split("## Original Lines table")[0])
+        self.assertIn("Brand Example", out.split("## Original Lines table")[1])
+        self.assertIsNone(rec.status[0].date)
+        self.assertIn("[FLAG", rec.status[0].evidence)
+        self.assertEqual(rec.header["Stage"], "logged")
+
+    def test_customer_item_column_without_number_or_lane(self):
+        rec, notes, out = self.mig("v1_customer_item_column.md")
+        self.assertEqual(rec.lines[0].part, "XX-0001")
+        self.assertEqual(rec.lines[0].num, 1)
+        self.assertIn("Substitution allowed", out.split("## Original Lines table")[1])
+        self.assertIn("## Pricing note", out)
+        self.assertEqual(rec.status[0].date, "2026-09-08")
+
+    def test_other_pricing_shapes_kept_verbatim(self):
+        rec, notes, out = self.mig("v1_pricing_other_shapes.md")
+        self.assertIn("## Original Pricing (Grainger MCP, account 880000001, 10/28/2026)", out)
+        self.assertIn("| 1 | 6EEE6 | 1 | $10.00 | $10.00 | NASPO | 5% |", out)
+        self.assertIn("## Pricing sources on file", out)  # prose-only stays as written
+        self.assertEqual(len(rec.pricing), 2)
+        self.assertEqual(rec.pricing[0].strategy, "NASPO at cost")
+
+    def test_exact_pricing_heading_with_prose_or_other_table_is_parked(self):
+        src = read_fixture("v1_extra_columns.md").replace(
+            "## Status", "## Pricing\n\nPriced by phone, see Notes.\n\n## Status", 1)
+        rec, notes, out = self.mig_text(src)
+        self.assertIn("## Original Pricing", out)
+        self.assertIn("Priced by phone, see Notes.", out)
+        self.assertEqual(len(rec.pricing), 2)
+
+    def mig_text(self, src):
+        rec, notes = rfq_record.migrate_v1(src)
+        out = rfq_record.render(rec)
+        self.assertEqual(rfq_record.validate(rfq_record.parse(out)), [])
+        self.assertEqual(rfq_record.render(rfq_record.parse(out)), out)
+        return rec, notes, out
+
+    def test_no_lines_table_stays_legacy(self):
+        with self.assertRaises(rfq_record.RecordError) as cm:
+            rfq_record.migrate_v1(read_fixture("v1_no_lines.md"))
+        self.assertEqual(cm.exception.problems, ["no Lines table"])
+
+    def test_aliases_are_idempotent_and_keep_every_row(self):
+        for name in ("v1_alias_line_items.md", "v1_site_numbering.md", "v1_no_number_column.md"):
+            rec, _, out = self.mig(name)
+            n_rows = sum(1 for l in read_fixture(name).splitlines()
+                         if l.startswith("|") and not l.startswith("|---") and "Stage" not in l
+                         and not l.startswith("| Logged") and not l.startswith("| Priced")
+                         and not l.startswith("| Packet") and not l.startswith("| Sent")
+                         and not l.startswith("| Outcome") and not l.startswith("| #")
+                         and not l.startswith("| Qty |"))
+            self.assertEqual(len(rec.lines), n_rows, name)
+
+
 class TestStateSidecar(unittest.TestCase):
     def test_parse_date_variants(self):
         for raw, want in [("2026-10-29","2026-10-29"),("10.27.26","2026-10-27"),("10/29/2026 2:00PM Pacific","2026-10-29"),("10.27.2026","2026-10-27"),("[pending]",None),("",None),("Q4",None)]:

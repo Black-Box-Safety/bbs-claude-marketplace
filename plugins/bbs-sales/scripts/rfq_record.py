@@ -590,6 +590,172 @@ def _table_span(L, sec):
     return (hi, j), nxt
 
 
+_LINES_ALIAS_RE = re.compile(r"^## Lines?(?: items?)?(?: requested)?(?=[\s(\u2014\u2013:-]|$)")
+_SEP_RE = re.compile(r"^\|[\s:|-]+\|?\s*$")
+_ITEM_DIRECT = ("item / part #", "buyer item #", "item #")
+_GRAINGER_COLS = ("grainger #", "grainger item", "grainger item #")
+_MFR_COLS = ("model #", "mfr part", "mfr pn", "mpn", "part #")
+_PLAIN_NAMES = ("#", "item / part #", "description", "qty", "uom", "lane", "model #", "grainger #")
+
+
+def _role(h):
+    h = h.strip().lower()
+    if h in ("#", "line", "ln", "line #"):
+        return "num"
+    if h in _ITEM_DIRECT or h.startswith("item #"):
+        return "item"
+    if h in _GRAINGER_COLS:
+        return "gr"
+    if h in _MFR_COLS:
+        return "mfr"
+    if re.match(r"^(rfq )?description\b", h):
+        return "desc"
+    if h in ("qty", "quantity"):
+        return "qty"
+    if h in ("uom", "unit"):
+        return "uom"
+    if h.startswith("lane"):
+        return "lane"
+    return None
+
+
+def _normalize_lines(L, notes):
+    """Rewrite the Lines section in place to the canonical heading and table.
+
+    Returns (heading index or None, [(row number, lane)]). Raises RecordError when
+    there is no Lines table at all. Anything that does not map to a canonical column
+    is kept verbatim, with the original heading and table, in ## Original Lines table.
+    """
+    ls = _find(L, lambda l: l.startswith("## Lines ("))
+    alias = False
+    if ls is None:
+        ls = _find(L, lambda l: _LINES_ALIAS_RE.match(l))
+        alias = ls is not None
+    if ls is None:
+        raise RecordError(["no Lines table"])
+    span, nxt = _table_span(L, ls)
+    if not span:
+        raise RecordError(["no Lines table"])
+    hi, end = span
+    hc = _cells(L[hi])
+    canon = _cells(LINES_HEADER)
+    seq = hi + 1 < end and _SEP_RE.match(L[hi + 1])
+    rows_raw = L[hi + 2:end] if seq else []
+    ints = all(re.fullmatch(r"\d+", c[0]) for c in map(_cells, rows_raw) if c)
+    if not alias and hc == canon and ints:
+        return ls, _lane_pairs(rows_raw)
+    roles = {}
+    for i, h in enumerate(hc):
+        r = _role(h)
+        if r and r not in roles:
+            roles[r] = i
+    recognised = ("desc" in roles or "item" in roles or "gr" in roles or "mfr" in roles)
+    cells = [_cells(r) for r in rows_raw]
+    if not seq or not recognised or any(len(c) != len(hc) for c in cells):
+        if alias:
+            raise RecordError(["no Lines table"])
+        return ls, _lane_pairs(rows_raw)
+    flag = lambda what: "[FLAG: %s not in the v1 table]" % what
+    used = set()
+    for k in ("num", "desc", "qty", "uom", "lane"):
+        if k in roles:
+            used.add(roles[k])
+    if "item" in roles:
+        used.add(roles["item"])
+    else:
+        used.update(roles[k] for k in ("gr", "mfr") if k in roles)
+    extras = [hc[i] for i in range(len(hc)) if i not in used]
+    nums, relabeled = [], False
+    if "num" in roles and all(re.fullmatch(r"\d+", c[roles["num"]]) for c in cells):
+        nums = [int(c[roles["num"]]) for c in cells]
+    else:
+        nums = list(range(1, len(cells) + 1))
+        relabeled = True
+    out, pairs = [], []
+    for n, c in zip(nums, cells):
+        get = lambda k: c[roles[k]] if k in roles else None
+        if "item" in roles:
+            part = get("item")
+        elif "gr" in roles or "mfr" in roles:
+            g, m = get("gr") or "", get("mfr") or ""
+            part = "%s (mfr %s)" % (g, m) if g and m else (g or m)
+        else:
+            part = flag("item / part #")
+        desc = get("desc") if "desc" in roles else flag("description")
+        qty = get("qty") if "qty" in roles else flag("Qty")
+        uom = get("uom") if "uom" in roles else flag("UOM")
+        lane = get("lane") if "lane" in roles else flag("Lane")
+        out.append("| %d | %s | %s | %s | %s | %s |" % (n, part, desc, qty, uom, lane))
+        pairs.append((n, lane))
+    if "item" not in roles and "gr" in roles and "mfr" in roles:
+        notes.append("Lines: merged %s and %s into Item / part # as '<Grainger #> (mfr <Model #>)'"
+                     % (hc[roles["mfr"]], hc[roles["gr"]]))
+    elif "item" not in roles and ("gr" in roles or "mfr" in roles):
+        notes.append("Lines: column %r used as Item / part #" % hc[roles.get("gr", roles.get("mfr"))])
+    for k, name in (("item", "Item / part #"), ("desc", "Description"), ("qty", "Qty"),
+                    ("uom", "UOM"), ("lane", "Lane"), ("num", "#")):
+        if k in roles and hc[roles[k]].lower() != name.lower():
+            notes.append("Lines: column %r mapped to %s" % (hc[roles[k]], name))
+    for k, name in (("uom", "UOM"), ("lane", "Lane"), ("qty", "Qty"), ("desc", "Description")):
+        if k not in roles:
+            notes.append("Lines: no %s column in the v1 table; every row marked [FLAG]" % name)
+    if "item" not in roles and "gr" not in roles and "mfr" not in roles:
+        notes.append("Lines: no item / part # column in the v1 table; every row marked [FLAG]")
+    if relabeled:
+        notes.append("Lines: row numbers %s; assigned 1..%d in order, original labels kept in ## Original Lines table"
+                     % ("missing" if "num" not in roles else "not all integers", len(cells)))
+    if extras:
+        notes.append("Lines: columns not in the v2 table kept in ## Original Lines table: %s" % ", ".join(extras))
+    heading = L[ls]
+    new_heading = heading
+    if alias or "(" not in heading:
+        new_heading = "## Lines (%d item%s)" % (len(out), "" if len(out) == 1 else "s")
+        notes.append("Lines heading %r rewritten as %r" % (heading, new_heading))
+    orig_table = L[hi:end]
+    lossless = (not extras and not relabeled and new_heading == heading
+                and all(h.lower() in _PLAIN_NAMES for h in hc))
+    L[hi:end] = [LINES_HEADER, "|---|---|---|---|---|---|"] + out
+    L[ls] = new_heading
+    if not lossless:
+        _, nxt = _table_span(L, ls)
+        block = ["## Original Lines table", ""]
+        if new_heading != heading:
+            block += ["Original heading: %s" % heading, ""]
+        block += orig_table + [""]
+        if nxt > 0 and L[nxt - 1].strip():
+            block.insert(0, "")
+        L[nxt:nxt] = block
+        notes.append("Original Lines table kept verbatim in ## Original Lines table")
+    return ls, pairs
+
+
+def _lane_pairs(rows):
+    pairs = []
+    for r in rows:
+        c = _cells(r)
+        if len(c) == 6:
+            try:
+                pairs.append((int(c[0]), c[5]))
+            except ValueError:
+                pass
+    return pairs
+
+
+def _park_original_pricing(L, notes):
+    """Rename a Pricing section that is not the canonical table, so no text is lost
+    and the parser sees only the canonical ## Pricing."""
+    for i, l in enumerate(L):
+        if not l.startswith("## Pricing"):
+            continue
+        span, _ = _table_span(L, i)
+        exact = l.strip() == "## Pricing"
+        if exact and span and L[span[0]].strip() == PRICING_HEADER:
+            continue
+        if exact or span:
+            L[i] = "## Original Pricing" + l[len("## Pricing"):]
+            notes.append("Pricing section %r is not the v2 table; kept verbatim as %r" % (l, L[i]))
+
+
 def migrate_v1(text, rep=None):
     nl = "\r\n" if "\r\n" in text else "\n"
     L = text.split(nl)
@@ -632,46 +798,35 @@ def migrate_v1(text, rep=None):
                 d, e = srows.get(g, (None, ""))
                 new.append("| %s | %s | %s |" % (g, d or "", e))
             L[hi:end] = new
-    else:
-        L += ["", "## Status", ""] + [STATUS_HEADER, "|---|---|---|"] + \
-             ["| %s |  |  |" % g for g in STAGES] + [""]
-        notes.append("No Status section; added an empty v2 one")
+    if st is not None and not _table_span(L, st)[0]:
+        # an exact `## Status` with no table (checklist or prose): keep it under a new name
+        L[st] = "## Original Status"
+        notes.append("Status section had no table; kept verbatim as ## Original Status and added the v2 table")
+        st = None
+    if st is None:
+        recv = ""
+        for l in L:
+            if l.startswith("## "):
+                break
+            m = re.search(r"\*\*Received:\*\*[ \t]*(.*?)\s*(?:\*\*|$)", l)
+            if m:
+                recv = m.group(1)
+                break
+        rd = parse_date(recv)
+        if rd:
+            logged = "| logged | %s | from **Received:** header; v1 had no Status table |" % rd
+            notes.append("No Status table; added the v2 one with logged dated %s from **Received:**" % rd)
+        else:
+            logged = "| logged |  | [FLAG: v1 had no Status table and **Received:** has no parseable date] |"
+            notes.append("No Status table; added the v2 one, logged left empty and flagged (Received not parseable)")
+        L += ["", "## Status", ""] + [STATUS_HEADER, "|---|---|---|", logged] + \
+             ["| %s |  |  |" % g for g in STAGES[1:]] + [""]
     if extra:
         while L and L[-1] == "":
             L.pop()
         L += ["", "## Status notes", ""] + extra + [""]
     # --- lines ---
-    ls = _find(L, lambda l: l.startswith("## Lines ("))
-    lines = []
-    if ls is not None:
-        span, nxt = _table_span(L, ls)
-        if span:
-            hi, end = span
-            hc = _cells(L[hi])
-            rows = []
-            if "Model #" in hc and "Grainger #" in hc:
-                im, ig = hc.index("Model #"), hc.index("Grainger #")
-                rest = [i for i in range(len(hc)) if i not in (im, ig)]
-                for r in L[hi + 2:end]:
-                    c = _cells(r)
-                    if len(c) != len(hc):
-                        rows.append(r)
-                        notes.append("Lines row left as written (cell count): %s" % r)
-                        continue
-                    g, m = c[ig], c[im]
-                    part = "%s (mfr %s)" % (g, m) if g and m else (g or m)
-                    o = [c[i] for i in rest]  # #, Description, Qty, UOM, Lane
-                    rows.append("| %s | %s | %s |" % (o[0], part, " | ".join(o[1:])))
-                notes.append("Lines: merged Model # and Grainger # into Item / part # as '<Grainger #> (mfr <Model #>)'")
-                L[hi:end] = [LINES_HEADER, "|---|---|---|---|---|---|"] + rows
-                end = hi + 2 + len(rows)
-            for r in L[hi + 2:end]:
-                c = _cells(r)
-                if len(c) == 6:
-                    try:
-                        lines.append((int(c[0]), c[5]))
-                    except ValueError:
-                        pass
+    ls, lines = _normalize_lines(L, notes)
     # --- header ---
     first = _find(L, lambda l: l.startswith("## "))
     first = len(L) if first is None else first
@@ -698,6 +853,7 @@ def migrate_v1(text, rep=None):
             veh = m.group(1)
     naspo = "NASPO" in veh or "Provision Connect" in veh
     # --- pricing ---
+    _park_original_pricing(L, notes)
     if not any(re.match(r"## Pricing\s*$", l) for l in L) and lines and ls is not None:
         ls2 = _find(L, lambda l: l.startswith("## Lines ("))
         nxt = _find(L, lambda l: l.startswith("## "), ls2 + 1)
@@ -706,6 +862,8 @@ def migrate_v1(text, rep=None):
         for n, lane in lines:
             ven = "Grainger" if lane == "grainger" else "[sourcing]" if lane == "sourcing" else ""
             P.append("| %d | %s |  |  |  | %s |  | open |  |" % (n, ven, "NASPO at cost" if naspo else ""))
+        if nxt > 0 and L[nxt - 1].strip():
+            P.insert(0, "")
         L[nxt:nxt] = P + [""]
         notes.append("Added an empty ## Pricing table with one open row per line")
     rec = parse(nl.join(L))
