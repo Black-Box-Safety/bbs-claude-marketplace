@@ -285,6 +285,29 @@
         "xlsx"
       ],
       "category": "commons"
+    },
+    {
+      "name": "taste-skill",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/Leonxlnx/taste-skill.git",
+        "ref": "v2.1.5",
+        "sha": "12af471f627f866411b4bd785b19646d3672784c"
+      },
+      "strict": false,
+      "description": "Commons, maintainer-tier (not fleet-enabled): art direction and a real-browser self-check for pages and dashboards. Used on internal operational pages under the bbs-shopify Field Manual, which wins any conflict; not for decorative imagery. One skill, no hooks, commands or agents. Its scripts need Node 22+ and a local Chrome, Edge or Chromium; assets.mjs fetches pictures from open archives and inspect.mjs opens any http(s) URL it is given and deletes earlier screenshots in its output folder. Vetting, pin, release model and the usage rules: docs/COMMONS.md.",
+      "version": "2.1.5",
+      "author": {
+        "name": "Leonxlnx"
+      },
+      "keywords": [
+        "commons",
+        "dashboard",
+        "design",
+        "external",
+        "maintainer-tier"
+      ],
+      "category": "commons"
     }
   ]
 }

@@ -139,9 +139,18 @@ is Parker's call; the re-check is the interim control.
 | `caveman` | `v2.7.0` | `multi-train`, nine tag prefixes, authoritative train is bare `vX.Y.Z` · monthly | Opt-in terse mode. Cuts output tokens roughly two-thirds; technical content stays exact. `/caveman lite` is a good default for long sessions | Off by default via managed env (`CAVEMAN_DEFAULT_MODE=off`); never forced on. **Reps receive the whole tree** (measured on Claude Code 2.1.273 on Linux; the loader is not platform-specific, but it was not re-measured on Windows) — 20 skills, 6 command files, 3 `cavecrew-*` agents — because `skills:` does not filter. **`caveman-init` (`.md` and `.toml`) runs `curl … raw.githubusercontent.com/JuliusBrussee/caveman/main/src/tools/caveman-init.js \| node -`: download-and-execute from upstream `main`, bypassing the pin entirely and writing rule files into the rep's current repo.** Pre-existing at v2.6.0. Commands ship regardless of any `skills:` list. `caveman-help` advertises `/caveman-compress`, for which no command file exists. Split license, see below. Pin is a mutable tag ref |
 | `document-skills` (Anthropic) | commit `34040c9c` | `rolling`, zero tags · monthly | Word, PDF, Excel and PowerPoint with real scripts: fill and merge PDFs, read tracked changes, build spreadsheets with formulas, assemble decks. RFQ worksheets and bid packets are exactly this | **`pptx` visual QA and PDF conversion go through LibreOffice (`soffice`), now installed by both bootstraps; behaviour on a rep's Windows box is still unverified.** `docx` and `xlsx` reference `soffice` too. `pptx` also assumes `pptxgenjs` is preinstalled; on a rep machine it is an `npm install`. **Reps receive all 19 skills in the tree**, not the 4 named — the filter has never worked (measured on Claude Code 2.1.273 on Linux; not re-measured on Windows). `uv` from the bootstrap covers the Python runtime; Poppler covers `pdftoppm` |
 
+### Maintainer-tier (available, not fleet-enabled)
+
+In the marketplace, deliberately absent from `enabledPlugins`. Parker and whoever builds
+internal pages install it; reps do not get it switched on.
+
+| Plugin | Pin | Release model · cadence | Who uses it, for what | Watch for |
+|---|---|---|---|---|
+| `taste-skill` (Leonxlnx) | `v2.1.5`, commit `12af471f` | `tagged`, lightweight `vX.Y.Z` tags, six releases 2026-10-13 to 10-25, so treated as `multi-train` · monthly | Art direction and a real-browser self-check on internal operational pages (the CA State RFQ Pipeline dashboard first). Admitted 2026-11-02 by Parker after a read-only vetting note (`Customers/State of CA Agencies/docs/dashboards/rfq-pipeline/TASTE-SKILL-VETTING.md` in the MASTER store) and an independent read. **The bbs-shopify Field Manual wins any conflict**; no decorative imagery on operational pages | **Whole tree is one skill** (`design-taste-frontend`), no hooks, commands or agents; the tree also carries sponsor logos and CC BY-SA example screenshots that do not load as skills. MIT. Scripts need Node 22+ and a local Chrome, Edge or Chromium. **`assets.mjs` downloads pictures and films from open archives** (Openverse, Wikimedia Commons, Art Institute of Chicago, the Met, Internet Archive, NASA): do not run it on BBS pages. **`inspect.mjs` opens any http(s) URL it is given, not only local files, and deletes earlier inspection screenshots in its output folder**: run it only on a local, privacy-scrubbed page, into a fresh scratch folder, never a customer folder. `draw.mjs` writes `~/.taste-skill/history.json` and emits Google Fonts and picsum.photos links; `references/scenes.md` loads gsap and lenis from cdn.jsdelivr.net; `SKILL.md` writes working files to `.taste-skill/` in the project and has a `mailto:` fallback for buttons. None of those belong on a BBS page. The SKILL.md workflow runs its scripts by default, so the rules above are the operator's job; nothing in the plugin enforces them. Vetting read SKILL.md and references by grep and excerpts, not line by line. Re-vet on every refresh: the pin is a lightweight tag, so the recorded commit is the tag's own target |
+
 ### Provenance
 
-Every pin, with how it was established. Method for all three: `git ls-remote` / `git clone`
+Every pin, with how it was established. Method for every entry: `git ls-remote` / `git clone`
 through the agent proxy. **The GitHub MCP cannot see third-party repos here and
 `api.github.com` returns 403 over the proxy — an access error is not evidence a repo is
 missing.**
@@ -151,6 +160,7 @@ missing.**
 | `superpowers-chrome` `v3.0.5` | 2026-09-16, agent | `9048f78163ff3c1f1300a856b8890ab02c92d9f0` | `782358eb8d3b99e3cc1321354b9233f660fdac7a` | 2026-08-07 — newest tag *and* branch tip |
 | `caveman` `v2.7.0` | 2026-09-16, agent | `e6c5e68b0064758b8106b83df41cf3829dde3216` | `8b0c1d3699b8d83e87fe4605b378da20c41555e0` | 2026-09-14 |
 | `document-skills` `34040c9c` | 2026-09-16, agent | — (no tags in repo) | `34040c9c568585f6929bedeaad110ad08f079624` | 2026-09-10 — is exactly current HEAD |
+| `taste-skill` `v2.1.5` | 2026-11-02, agent (`git ls-remote` and a clone at the pin) | none: lightweight tag, `ls-remote` returns no `^{}` line | `12af471f627f866411b4bd785b19646d3672784c` | 2026-10-25, newest tag and default-branch HEAD on 2026-11-02 |
 
 ### Why `caveman` moved to v2.7.0 — and how big the move actually is
 
@@ -332,6 +342,13 @@ because selection does not work.
   `soffice`. Behaviour on a rep's Windows box is unverified until a pilot run.
 - **Account-synced personal copies** of `docx`, `pdf`, `xlsx` and `pptx` compete with the
   pinned copies. Account-side; no repo change fixes it.
+- **Maintainer-tier is not enforced by the bootstrap (found 2026-11-02 adding `taste-skill`).**
+  `bbs-setup.ps1` and `bbs-setup.sh` install every plugin in `marketplace.json` at user scope
+  unless `bbs-managed-settings.json` sets it `false`, so leaving `taste-skill` out of
+  `enabledPlugins` does not keep it off a rep's machine: the next bootstrap run installs it.
+  Options: set it `false` in managed settings (the bootstrap then skips it; unverified whether a
+  managed `false` also blocks Parker's own install), teach both bootstraps to skip
+  maintainer-tier entries (PowerShell untested here), or accept it reaching reps. Not decided here.
 
 ---
 
