@@ -417,6 +417,36 @@ class TestMigrateAliases(unittest.TestCase):
             self.assertEqual(len(rec.lines), n_rows, name)
 
 
+class TestMigrateGuards(unittest.TestCase):
+    def test_unit_price_and_line_label_columns_are_extras(self):
+        rec, notes = rfq_record.migrate_v1(read_fixture("v1_unit_price_line_label.md"))
+        out = rfq_record.render(rec)
+        self.assertEqual(rfq_record.validate(rfq_record.parse(out)), [])
+        self.assertEqual(rfq_record.render(rfq_record.parse(out)), out)
+        self.assertEqual([l.num for l in rec.lines], [1, 2])
+        self.assertEqual(rec.lines[0].uom, "[FLAG: UOM not in the v1 table]")
+        self.assertEqual(rec.lines[0].part, "EX-100")  # mfg part alias
+        orig = out.split("## Original Lines table")[1]
+        for keep in ("$1,450.50", "$2,901.00", "3 High risk L", "Promo A", "| Line | MFG part |"):
+            self.assertIn(keep, orig)
+        self.assertTrue(any("renumber" in n or "assigned 1..2" in n for n in notes))
+
+    def test_unit_of_measure_header_and_merged_table_kept(self):
+        rec, notes = rfq_record.migrate_v1(read_fixture("v1_unit_of_measure_merged.md"))
+        out = rfq_record.render(rec)
+        self.assertEqual(rec.lines[0].uom, "EA")
+        self.assertEqual(rec.lines[0].part, "1ABC2 (mfr MFR-100)")
+        self.assertIn("| # | Model # | Grainger # | Description | Qty | Unit of measure | Lane |",
+                      out.split("## Original Lines table")[1])
+
+    def test_blank_v1_date_not_flagged(self):
+        rec, notes = rfq_record.migrate_v1(read_fixture("v1_unit_price_line_label.md"))
+        q = [s for s in rec.status if s.stage == "quote built"][0]
+        self.assertIsNone(q.date)
+        self.assertEqual(q.evidence, "SQ-900002")
+        self.assertFalse(any("unparseable" in n or "not parseable" in n and "Quote" in n for n in notes))
+
+
 class TestStateSidecar(unittest.TestCase):
     def test_parse_date_variants(self):
         for raw, want in [("2026-10-29","2026-10-29"),("10.27.26","2026-10-27"),("10/29/2026 2:00PM Pacific","2026-10-29"),("10.27.2026","2026-10-27"),("[pending]",None),("",None),("Q4",None)]:

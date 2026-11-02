@@ -594,8 +594,8 @@ _LINES_ALIAS_RE = re.compile(r"^## Lines?(?: items?)?(?: requested)?(?=[\s(\u201
 _SEP_RE = re.compile(r"^\|[\s:|-]+\|?\s*$")
 _ITEM_DIRECT = ("item / part #", "buyer item #", "item #")
 _GRAINGER_COLS = ("grainger #", "grainger item", "grainger item #")
-_MFR_COLS = ("model #", "mfr part", "mfr pn", "mpn", "part #")
-_PLAIN_NAMES = ("#", "item / part #", "description", "qty", "uom", "lane", "model #", "grainger #")
+_MFR_COLS = ("model #", "mfr part", "mfr pn", "mfg part", "mfg pn", "mpn", "part #")
+_PLAIN_NAMES = ("#", "item / part #", "description", "qty", "uom", "lane")
 
 
 def _role(h):
@@ -612,7 +612,7 @@ def _role(h):
         return "desc"
     if h in ("qty", "quantity"):
         return "qty"
-    if h in ("uom", "unit"):
+    if h in ("uom", "unit", "unit of measure", "units"):
         return "uom"
     if h.startswith("lane"):
         return "lane"
@@ -644,13 +644,25 @@ def _normalize_lines(L, notes):
     ints = all(re.fullmatch(r"\d+", c[0]) for c in map(_cells, rows_raw) if c)
     if not alias and hc == canon and ints:
         return ls, _lane_pairs(rows_raw)
+    cells = [_cells(r) for r in rows_raw]
+    _MONEY = re.compile(r"\$|\d,\d{3}|\d\.\d{2}\b")
+
+    def _col_ok(r, i, h):
+        if any(len(c) != len(hc) for c in cells):
+            return True
+        col = [c[i] for c in cells]
+        if r == "num":
+            return all(re.fullmatch(r"\d+|S\d+", v, re.I) for v in col)
+        if r == "uom" and h.strip().lower() == "unit":
+            return not any(_MONEY.search(v) for v in col)
+        return True
+
     roles = {}
     for i, h in enumerate(hc):
         r = _role(h)
-        if r and r not in roles:
+        if r and r not in roles and _col_ok(r, i, h):
             roles[r] = i
     recognised = ("desc" in roles or "item" in roles or "gr" in roles or "mfr" in roles)
-    cells = [_cells(r) for r in rows_raw]
     if not seq or not recognised or any(len(c) != len(hc) for c in cells):
         if alias:
             raise RecordError(["no Lines table"])
@@ -703,7 +715,7 @@ def _normalize_lines(L, notes):
         notes.append("Lines: no item / part # column in the v1 table; every row marked [FLAG]")
     if relabeled:
         notes.append("Lines: row numbers %s; assigned 1..%d in order, original labels kept in ## Original Lines table"
-                     % ("missing" if "num" not in roles else "not all integers", len(cells)))
+                     % ("missing or not integer labels" if "num" not in roles else "not all integers", len(cells)))
     if extras:
         notes.append("Lines: columns not in the v2 table kept in ## Original Lines table: %s" % ", ".join(extras))
     heading = L[ls]
@@ -789,7 +801,7 @@ def migrate_v1(text, rep=None):
                     notes.append("Status row %r mapped to stage %r" % (name, tgt))
                 nd = parse_date(date)
                 ev = state
-                if state.strip() and nd is None:
+                if state.strip() and date.strip() and nd is None:
                     ev = "%s [FLAG: date unparsed: %s]" % (state, date)
                     notes.append("Status row %r: date %r not parseable; Date left empty, flagged in Evidence" % (name, date))
                 srows[tgt] = (nd, ev)
