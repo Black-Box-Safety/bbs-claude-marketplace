@@ -101,6 +101,28 @@ jobs:
             if ($e.Count) { $e | ForEach-Object { Write-Error $_.Message }; exit 1 }
             "bbs-setup.ps1 parses"'
 
+      # Anthropic's own validator, which knows the manifest schema our checker does not.
+      # Errors fail the job: invalid JSON, a missing required field, a bad name, a relative
+      # source with "..". Warnings are printed and do NOT fail it: an unknown key, an entry
+      # version that plugin.json silently overrides, a plugin-root CLAUDE.md that never
+      # loads. (`--strict` would block on warnings, but fails today on the bbs-claude-coach
+      # name and bbs-marketing's CLAUDE.md, so it is not a drop-in.) The full output is kept
+      # so the log says why it fired. It reads only files in this repo (no fetch, no
+      # sign-in). Pinned to an exact CLI version so a new release cannot turn a green main
+      # red overnight; move the pin on purpose.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: claude plugin validate (marketplace and every local plugin)
+        run: |
+          npm install --global --silent @anthropic-ai/claude-code@2.1.319
+          claude plugin validate .
+          for p in plugins/*/; do
+            echo "== $p"
+            claude plugin validate "$p"
+          done
+
       # What each skill needs installed, printed on every run, so the "will this run on my
       # machine?" answer is in the PR rather than in someone's head.
       - name: What each skill requires
