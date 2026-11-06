@@ -144,9 +144,13 @@ Anthropic's marketplace docs are the authority for the version rules
   `description`, `author` or `keywords` set on a relative-path entry in `marketplace.json`
   overrides `plugin.json` in `/plugin`, so the two drift (on 2026-11-06, seven of eight
   had). Pinned externals keep their entry fields, because nothing else is readable before
-  install.
+  install. One exception once #71 lands: the bootstraps read an entry's `keywords` to skip
+  `maintainer` plugins, so a local maintainer-tier plugin keeps that one keyword on its
+  entry, or it ships to reps.
 - **One version number, one PR.** Before claiming a version, check the open PRs. When two
-  PRs claim the same number, the second to merge rebases and takes the next one.
+  PRs claim the same number, the second to merge merges `main` into its branch and takes
+  the next one. Never rebase a pushed branch: landing it needs a force-push, which managed
+  settings deny.
 - **Branch names say the kind of change**: `feat/`, `fix/`, `docs/`, `commons/`,
   `chore/`, or a session's own `claude/<name>`. One branch, one PR. A merged branch is
   never reused; follow-up work starts a new branch from `main`.
