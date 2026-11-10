@@ -62,6 +62,13 @@ Depends on PR #72 being on `main`.
 
 Tests: both checkers; `test_mine_precedents.py`; the routing eval on a machine with auth.
 
+## Outside this plan: the NASPO at-cost stop
+
+The refusal table is a floor. The lasting control for a Grainger markup on a California state or
+NASPO quote is a deterministic at-cost stop in `bc-quote-entry` (#68) and the same check in
+`bbs-quote-builder`. It belongs to those skills, is not part of desk memory, and is not built.
+Until it is, do not narrow the markup category in `REFUSE_TABLE`.
+
 ## Slice 6 — a second desk, only when one asks
 
 A profile in `DESKS` and a second tree name in the hook pair. Not built until a desk exists

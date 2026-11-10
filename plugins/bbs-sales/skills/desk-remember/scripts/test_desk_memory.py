@@ -152,7 +152,15 @@ def main():
             ("REX3 two points over Grainger", dict(at=buyer_a, level=1, text='two points over Grainger')),
             ("REX3 invoice at Grainger plus 8", dict(at=buyer_a, level=1, text='invoice at Grainger plus 8')),
             ("REX3 the at-cost one plus a little extra", dict(at=buyer_a, level=1, text='the at-cost one plus a little extra')),
-            # The optional terms from the same review, one case each.
+            # Rex's fourth review of #81 (at cf49301): a figure tied to Grainger or cost, verbatim.
+            ("REX4 We usually come in 10% higher than Grainger", dict(at=buyer_a, level=1, text='We usually come in 10% higher than Grainger')),
+            ("REX4 Quote 10 over Grainger for them", dict(at=buyer_a, level=1, text='Quote 10 over Grainger for them')),
+            ("REX4 Quote at Grainger with a 10% uplift", dict(at=buyer_a, level=1, text='Quote at Grainger with a 10% uplift')),
+            ("REX4 Grainger times 1.1 for this agency", dict(at=buyer_a, level=1, text='Grainger times 1.1 for this agency')),
+            ("REX4 Our normal 20 percent goes on top for this buyer", dict(at=buyer_a, level=1, text='Our normal 20 percent goes on top for this buyer')),
+            ("REX4 Price them at list for Grainger items", dict(at=buyer_a, level=1, text='Price them at list for Grainger items')),
+            ("REX4 They pay full list on the Grainger lines", dict(at=buyer_a, level=1, text='They pay full list on the Grainger lines')),
+            # The optional terms from the third review, one case each.
             ("optional: Jackson signs the PD 843 for her", dict(at=buyer_a, level=1, text='Jackson signs the PD 843 for her')),
             ("optional: They want it in small biz terms", dict(at=buyer_a, level=1, text='They want it in small biz terms')),
             ("optional: Check the S-B box", dict(at=buyer_a, level=1, text='Check the S-B box')),
@@ -186,6 +194,16 @@ def main():
         check(rc == 0, "a percentage that is not a price is allowed", out)
         for ok_text in ('Wants wet signatures on the packet', 'Buyer approves orders on Tuesdays', 'Prefers the PDF worksheet, not Excel', 'Deliveries go to the warehouse gate',   # Rex's must-pass lines
                         "Buyer sends the worksheet without a solicitation number.",
+                        # Rex's fourth review: must keep saving.
+                        'Prefers Grainger over Fastenal brands',
+                        'Send the item list over email',
+                        'Grainger is their preferred brand over Uline',
+                        'They want the cost center code on every quote',
+                        'They always want Grainger 6GRH5 not the Uline one',
+                        'Accepts 100% recycled paper towels as an equivalent.',
+                        'Buyer wants 2 copies of the Grainger packing list',
+                        'They buy 50 boxes over two deliveries from Grainger',
+                        'She is okay with equivalents if the spec sheet is attached',
                         'Send the item list over email.',
                         'Prefers Grainger over Fastenal brands.',
                         'Buyer said yes to equivalents last time.',

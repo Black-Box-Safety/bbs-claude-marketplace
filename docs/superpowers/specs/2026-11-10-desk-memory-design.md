@@ -184,6 +184,18 @@ signers, buying-account numbers, credentials. Enforced three ways:
   yes" next to a price or approval word, and a singular "buck". Known and accepted false
   positives, named in `SKILL.md`: "Discount codes do not apply to state orders" and "They want
   the margin of the PDF wide enough to punch holes".
+- Fourth review (at cf49301), the last widening round: Rex's pattern for a figure tied to
+  Grainger or cost (N%/points after Grainger or cost; N over/above/higher/more/uplift with
+  Grainger or cost; "Grainger times"; "uplift"; "% goes on top"; "full list" or "at list" near
+  Grainger), beside the earlier markup entry; and `okay` narrowed to `okayed`/`okays` so "She is
+  okay with equivalents" saves while "Parker okayed ..." stays refused. Seven must-refuse and
+  nine must-pass lines in both suites.
+- **Widening stops here.** What remains are phrasings with no figure ("Grainger is the floor, we
+  can go higher", "bump it a tenth"). They do not put a specific wrong price in front of Claude,
+  and the HEAD sentence covers them: a note never changes a price, and one that reads that way is
+  raised with the rep. The lasting control is a deterministic NASPO at-cost stop in
+  `bc-quote-entry` (#68) and the same check in `bbs-quote-builder`: not built, and a separate
+  slice from this one.
 - **On read too.** Both hook halves carry the same table and withhold, and count, any line in
   the entry format that matches it, so a hand edit to `LEARNED.md` cannot put a price, a
   contact detail or an instruction in front of Claude. `test_desk_memory.py` fails when the
@@ -200,9 +212,13 @@ by hand is counted and skipped. A note changes nothing a binding document says.
 The writer is importable, so another desk, or `bbs-foundations`' customer-folder upkeep
 (#72), can reuse the entry format and the refusal table instead of building a second one.
 
-**The table is not the control.** Prices, signers and certifications are enforced by the
-deterministic gates in the quote and form scripts (the signer resolution in the packet fillers,
-the vendor profile, the Grainger at-cost rule in the quote builder) and by the rep's review.
+**The table is not the control.** Signers and certifications are enforced by deterministic
+gates in the form scripts (the packet fillers stamp the DVBE owner on the owner lines and write
+the SB boxes `/Off` from the vendor profile) and by the rep's review. **Grainger sell rules are
+the exception: no deterministic gate exists yet.** `bbs-quote-builder` takes its pricing method
+from a spec Claude writes, and `bc-quote-entry` (#68) has no NASPO at-cost stop. Until one is
+built, the markup category in this table and the HEAD sentence are the only things between a
+note and a wrong Grainger price, which is why that category was widened furthest.
 The table only keeps the obvious phrasings out of memory; it is widened by category, not by
 chasing every phrasing. The hook's first line says a note never grants approval and never
 changes a price, a signer or a certification, and that a note reading that way is raised with
