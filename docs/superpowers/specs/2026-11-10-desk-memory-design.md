@@ -176,6 +176,14 @@ signers, buying-account numbers, credentials. Enforced three ways:
   the warehouse gate"); no category needed a narrower form to keep them passing. One deliberate
   trade-off stands from the first round: a bare percentage that is not a price ("100% recycled")
   is allowed, so only a percent next to a price or preference word, or 5/five percent, refuses.
+- Third review (at 6d8d9ed): a markup-over-Grainger-or-cost category, because no deterministic
+  gate backs that rule yet (#68's NASPO at-cost gate is not built). "+" or "plus" after Grainger,
+  cost or list price refuses broadly; "over" or "above" refuses only after a number of points or
+  percent, so "Prefers Grainger over Fastenal" and "Send the item list over email" still save.
+  Also small biz, S-B, disabled veteran, state preference, okayed, green-lit, good to go, "said
+  yes" next to a price or approval word, and a singular "buck". Known and accepted false
+  positives, named in `SKILL.md`: "Discount codes do not apply to state orders" and "They want
+  the margin of the PDF wide enough to punch holes".
 - **On read too.** Both hook halves carry the same table and withhold, and count, any line in
   the entry format that matches it, so a hand edit to `LEARNED.md` cannot put a price, a
   contact detail or an instruction in front of Claude. `test_desk_memory.py` fails when the

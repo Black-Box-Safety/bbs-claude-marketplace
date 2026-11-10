@@ -98,6 +98,9 @@ If the note was marked wider, add: "I marked it for Parker to confirm for all of
 
 The script refuses these, and so should you before it gets that far:
 
+- A markup over Grainger or cost ("Grainger plus 10%", "two points over Grainger", "the
+  at-cost one plus a little extra"). Grainger sell rules depend on the channel and are applied
+  by the rep on each quote.
 - A price, discount, margin, markup or sell price, a stock level or a lead time, with or
   without a dollar sign or digits ("forty dollars a box", "mark up by ten percent", "40 on the
   shelf", "takes ten days after the PO"). Say where the number is recorded instead: "last
@@ -117,6 +120,12 @@ The script refuses these, and so should you before it gets that far:
 
 The session-start hook applies the same list when it reads the file, so a line typed into
 `LEARNED.md` by hand that breaks it is withheld, not shown.
+
+Two notes are refused even though they are harmless, and that is accepted: "Discount codes do
+not apply to state orders" and "They want the margin of the PDF wide enough to punch holes".
+Words like discount and margin are refused wherever they appear because a price rule hidden in
+a note costs far more than rewording a harmless one ("No promo codes on state orders", "Wide
+left edge on the PDF for hole punching").
 
 **This list is a floor, not the control.** It catches the obvious phrasings so they never
 reach a session; it will not catch every way of saying them. What keeps a wrong price, signer
