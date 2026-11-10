@@ -735,7 +735,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   `bbs-rebate-profitability` stays on CData; this ruling does not cover it.
 - **Rulings of 2026-11-10 (R1–R9) — RULED 2026-11-10.** Parker's words, in the steward session, 2026-11-10, after reading R1–R9 with the steward's recommendations: "Follow recommendations except for the last one we don't need payroll. I want vercel and supabase to be allowed". R1–R8 adopt
   the steward's recommendation as written; R9 is his exception, clarified the same day.
-- **R1. Agents never merge — RULED 2026-11-10.** Managed settings deny the GitHub merge and
+- **R1. Agents never merge — RULED 2026-11-10.**
+  Adopted recommendation: "Block agents from merging, using managed settings. Agents could no longer call merge or auto-merge. Rex still reviews; you click Merge in GitHub. Every agent posts as your GitHub account, so an agent can't prove you approved. This makes the rule a hard block instead of an instruction. The cost: no “merge #82” replies, like the one I just did for you." → "Yes". "You click Merge in GitHub" is the recommendation's wording. Managed settings deny the GitHub merge and
   auto-merge tools (`permissions.deny` in `bbs-managed-settings.json`; the names, which are
   verified and which inferred, are in `MANAGED-SETTINGS.md`, "Agents never merge"), and
   `gh pr merge` moves from `ask` to `deny`. Rex reviews and posts "Cleared — awaiting
@@ -747,8 +748,7 @@ Write it up with evidence and move to the next slice. Do not idle.
   now say agents never merge and Parker merges in the UI. **Open action for Parker:**
   re-paste managed settings in the admin console; until then the deny reaches no machine.
 - **R2. Quote creation in Business Central through `bc-quote-entry` (#68) is allowed —
-  RULED 2026-11-10.** The steward's R2 recommendation, adopted with "Follow
-  recommendations…": "Yes. Record it on main and add `bc-quote-entry` to the organization
+  RULED 2026-11-10.** Adopted recommendation (with "Follow recommendations…"): "Yes. Record it on main and add `bc-quote-entry` to the organization
   instruction. It only creates the quote and its lines; it never releases, sends, converts
   or posts." It writes only the quote, its ship-to and its lines; it never
   releases, sends, converts or posts; and it runs only after the rep approves the review
@@ -761,11 +761,13 @@ Write it up with evidence and move to the next slice. Do not idle.
   console, a separate place that also covers claude.ai chats, to name both the
   `bc-item-entry` and `bc-quote-entry` skills, as the adopted recommendation says. No repo
   change does the second.
-- **R3. `bc_quote_entry.py` may go on the `bbs-fill` allow list — RULED 2026-11-10.** No
+- **R3. `bc_quote_entry.py` may go on the `bbs-fill` allow list — RULED 2026-11-10.**
+  Adopted recommendation: "No Allow click for the quote-entry script. The rep's named review sheet stays the approval step." → "Yes, only after #68 forces NASPO lines to sell at cost. Today it lets a markup through, and I confirmed that in the code." No
   Allow click, but **only after** #68 enforces NASPO lines at cost, per the rule in
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`, "Grainger sell rule, by channel". The named review sheet stays the gate. Until that check
   ships in #68, the script stays off the list.
 - **R4. Salesperson split on the Kim/Aanya California state book — RULED 2026-11-10.**
+  Adopted recommendation: "Who is salesperson on a state quote. Kim's 18 agencies get KQUEZON, all others AANYA, and PMARSHALL never." → "Confirm the rule and the list of 18. Keep one copy of the list in the shared facts file instead of five." The CA state book scope from canon (body armor and CSU/UC outside the book) is applied here as an existing ruling, not a new one.
   Within that book, `KQUEZON` for Kim's 18 agencies, `AANYA` for all others, `PMARSHALL`
   never on a state quote. What is outside the book (body armor and CSU/UC) is canon's,
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`, "CA state book scope" (RULED 2026-09-28); this split does not reach it. The list of 18 has
@@ -773,21 +775,26 @@ Write it up with evidence and move to the next slice. Do not idle.
   everything else points at it, and the test reads it. As of this entry the list is not
   yet in canon on `main`; it lands with the work that uses it, not re-keyed anywhere else.
 - **R5. Proof read-back of the BC quote printout stays mandatory — RULED 2026-11-10.**
+  Adopted recommendation: "DVBE wording on the BC quote printout. #68 drops the old check that the certification line says DVBE only." → "Keep a proof read-back required until someone confirms BC's printout says DVBE only, never SB."
   Until someone verifies that BC's sales-quote report prints DVBE only, never SB, for
   California state customers.
-- **R6. #72 is narrowed — RULED 2026-11-10.** Quote outcomes live only in `quote-log.md`
+- **R6. #72 is narrowed — RULED 2026-11-10.**
+  Adopted recommendation: "Customer-folder CLAUDE.md upkeep (#72). Sessions would update a customer folder's CLAUDE.md without being asked and record quote outcomes there." → "Narrow it. Outcomes already live in quote-log.md (#75). Notes should reuse #81's format and filters, so there is one memory system, not two." Quote outcomes live only in `quote-log.md`
   (#75). Durable customer-folder notes reuse #81's desk-memory entry format and refusal
   table, so there is one memory mechanism, not two.
 - **R7. Desk memory (#81) "Open for Parker" items 1–7 accepted as recommended — RULED
-  2026-11-10.** The items, in their own wording and each now marked RULED 2026-11-10, live
+  2026-11-10.**
+  Adopted recommendation: "Desk memory's A1–A7 (#81)." → "Yes as listed in my last message. A3 waits for the next slice, and A4 is your SharePoint step." The items, in their own wording and each now marked RULED 2026-11-10, live
   once: `docs/superpowers/specs/2026-11-10-desk-memory-design.md`, "Open for Parker". Not
   restated here. **Open actions for Parker:** item 2 (approving agency-wide and desk-wide
   notes at the monthly review) and item 4 (restamp the desk-root `CLAUDE.md` on SharePoint;
   #81 has merged, so it is due).
 - **R8. Duplicate PRs: keep #71 and close #78; keep #74 and close #73 — RULED
-  2026-11-10.** Each close happens only after its unique content is ported; the ports are
+  2026-11-10.**
+  Adopted recommendation: "Duplicate PR pairs." → "Keep #71 and close #78; keep #74 and close #73. Close each only after its useful content is copied over." Each close happens only after its unique content is ported; the ports are
   dispatched separately. Parker closes; no agent closes a PR.
 - **R9. Payroll stays blocked; Vercel and Supabase tools are allowed — RULED 2026-11-10.**
+  Adopted recommendation: "Revive #53, the payroll, Vercel and Supabase blocks. You approved these on 2 Oct, but they never merged." → "Yes. Without it, any session with the QuickBooks connector can read payroll." Adopted with Parker's changes: "except for the last one we don't need payroll. I want vercel and supabase to be allowed", then "Yes A", where A was "Block it. Nobody needs payroll access through Claude, so keep the 27 payroll tools blocked."
   Parker's exception to the steward's last recommendation ("we don't need payroll. I want
   vercel and supabase to be allowed"), then, asked about payroll in the steward session,
   "Yes A". So: the QuickBooks payroll tools (`qbo_payroll_*`) are denied; the Vercel and
