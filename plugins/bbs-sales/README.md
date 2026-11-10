@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-18-b19800" alt="18 skills">
+  <img src="https://img.shields.io/badge/skills-21-b19800" alt="21 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
@@ -19,7 +19,7 @@ automatic so the rep spends their time on the buyer. The same discipline applies
 promo page that overstates a discount or implies an agency's endorsement is a compliance problem,
 not a marketing win, so every page runs through the same brand gate as any printed piece.
 
-**Jump to:** [The desk, end to end](#the-desk-end-to-end) · [The territory, before the RFQ](#the-territory-before-the-rfq) · [Setup](#one-time-setup) · [Commands](#commands) · [The rules that don't bend](#the-rules-that-dont-bend) · [Rollout guide](#rollout-guide)
+**Jump to:** [The desk, end to end](#the-desk-end-to-end) · [The territory, before the RFQ](#the-territory-before-the-rfq) · [Item cards in Business Central](#item-cards-in-business-central) · [Setup](#one-time-setup) · [Commands](#commands) · [The rules that don't bend](#the-rules-that-dont-bend) · [Rollout guide](#rollout-guide)
 
 ## The desk, end to end
 
@@ -79,6 +79,41 @@ Creating a second folder for a buyer who already has one is the expensive mistak
 
 Both `ca-rfq-intake` and `naspo-quote` fire on their own when the conversation matches an inbound request; `grainger-promo-page` fires the same way when the conversation matches an outbound campaign build. You do not have to name any of them.
 
+## What the desk remembers
+
+A rep says "remember that this buyer wants the quote as one PDF". `desk-remember` saves that
+as one dated line with the rep's name in `LEARNED.md` in the buyer's folder (or the
+institution's, when it is true for everyone there), and says where it went. The next session
+anyone opens in that folder, or in a deal folder under it, is shown the line before the first
+prompt. A session in a different buyer's folder is not.
+
+A note is a person's statement, not a record. It never holds a price, an account number, a
+certification or a contract fact; the script refuses those and says where the number belongs
+instead. A note that should apply to a whole agency is saved for the buyer and marked for
+Parker to confirm. Design and what is still to come (showing notes when a session opens at
+the desk root, retiring a replaced note, the monthly roll-up):
+`docs/superpowers/specs/2026-11-10-desk-memory-design.md` in the marketplace repo.
+
+## Item cards in Business Central
+
+Step 5 above assumes every line already has an item number in Business Central. When it
+does not (a vendor quote for parts BBS has never stocked, a Grainger SKU on a drop-ship
+buy), `bc-item-entry` creates the item cards, and it is the only skill in this marketplace
+that writes to Business Central.
+
+| Skill | Fires when | Stops at |
+|---|---|---|
+| `bc-item-entry` | A rep says "add these items to BC", "these SKUs aren't in Business Central yet", "set up the item cards for this PO", or hands over a vendor quote or price list and wants the products on file | Item cards created and read back, each with a vendor, a cost, Inventory / PRODUCTS / INVENTORY / TAXABLE, and a log of who approved. No quote, no order, no vendor card |
+
+Three gates, none of them the model's to waive (ruled 2026-10-14, `docs/STEWARD.md` in the
+marketplace repo): the vendor already exists in BC and the skill never creates one; the
+cost is greater than zero and names the document it was read from; nothing is written until
+the rep has read the review sheet and the commit carries their name and the token the check
+printed. The script runs through `bbs-fill` with no Allow prompt (Parker, 2026-10-16): the
+rep's sign-off on the sheet is the approval. Writes run under the rep's own Business Central sign-in, so BC records the rep as
+the creator (system fields and the skill's log), not a shared service account. Before the
+first run, work through `skills/bc-item-entry/references/rep-setup.md`.
+
 ## The territory, before the RFQ
 
 Sales drives requests. A rep works a book, a buyer at a facility gets a call, and the call
@@ -94,6 +129,7 @@ anything; each stops at a document a rep works from.
 | `ca-site-visit-brief` | One booked meeting: the long call plan for the night before and the one-screen pocket card for the parking lot | The two documents |
 | `ca-visit-readiness-review` | Pressure-test a finished brief from the side of the person who has to say it in the room | An ordered list of changes, applied back to the brief |
 | `bbs-weekly-sales-report` | Parker's weekly summary of his, Kim's and Aanya's week — pipeline from the Sales CRM, bookings from Business Central | The markdown report he writes the weekly form from. A human submits the form |
+| `bbs-daily-rep-summary` | One rep's day, every morning: the rep's own end-of-day check-in on top, then the Sales CRM, Business Central and the quote folders beneath it, then where Parker can help. Runs as a Routine; the rep drafts their check-in with the same skill | One markdown file per day in a folder of Parker's own, with a reply block he sends himself. Reads the systems and saves that one file; sends nothing; the rep sees the same file |
 
 What each one needs installed is in its own `requires:` and `degrades-without:`; run
 `python3 scripts/check_marketplace.py --requirements` for the table. Several of them lean on
@@ -155,10 +191,33 @@ This skill does not touch the PDF stack or `vendor_profile.json` above: it has i
 ### For `sam-gov-opportunities`
 
 BBS uses one SAM.gov account and one shared key (ruled 2026-10-02). Parker gives each person
-the value, and the bootstrap (`bbs-setup.ps1` / `bbs-setup.sh`) asks for it with hidden input
-and saves it as `SAM_GOV_API_KEY`. It is never committed or pasted into a chat. The key is the entity account's, so the whole team shares one
+the value, and the bootstrap asks for it with hidden input when run with the SAM.gov flag
+(`bbs-setup.ps1 -SamGov` / `bbs-setup.sh --sam-gov`) and saves it as `SAM_GOV_API_KEY`. It is never committed or pasted into a chat. The key is the entity account's, so the whole team shares one
 budget of 1,000 requests a day; its expiry date is in canon. `usaspending-awards` needs no key. Both run
 through `bbs-fill`, so they need the `bbs-tools` plugin.
+
+### For `bc-item-entry`
+
+The connection values (tenant, client id, environment, company id, no secret) ship with the
+plugin in `skills/bc-item-entry/references/bc-connection.json`; nothing to copy from the shared
+drive. Per rep, once, in the rep's own terminal rather than inside a Claude session:
+
+1. Install the sign-in libraries into the interpreter `bbs-fill` runs (`python3` on PATH
+   on a Mac, `python` on Windows).
+   Mac: `python3 -m pip install --user msal msal-extensions`.
+   Windows: `python -m pip install msal msal-extensions`.
+   Both setup scripts (`bbs-setup.sh`, `bbs-setup.ps1`) install them too.
+2. Run `whoami` from the skill's script. A browser window asks for your own Microsoft
+   sign-in; the token is cached encrypted (Keychain on Mac, DPAPI on Windows), so later runs
+   do not ask again. `whoami` then reads items, vendors and the Item Card web service once
+   each and prints PASS or FAIL for the path a commit would use.
+3. Run `check` on a one-item test spec and read the review sheet it prints. That proves the
+   setup end to end and writes nothing.
+
+Your BC user needs a licence and permission sets that can create items; an admin confirms
+them on the BC Users page. The checklist, the three Entra settings an admin confirms on the
+app registration, the expected output of each step and what each error means are in
+`skills/bc-item-entry/references/rep-setup.md`.
 
 ## Commands
 
@@ -195,16 +254,22 @@ One more that is not a rule but behaves like one: the `Customers/State of CA Age
 
 ## Hooks (v1.1)
 
-Deterministic guards, PowerShell, shipped with the plugin. They fire on Windows rep machines
-without any per-machine setup.
+Deterministic guards shipped with the plugin. Each ships twice, as a PowerShell script and a
+Python script that decide identically (`hooks/tests/parity.py` proves it, and CI runs it), so
+they fire on Windows and on Mac rep machines without any per-machine setup. The shell Claude
+Code runs hooks through picks the interpreter: `pwsh` 7, else Windows PowerShell, else
+`python3`. A machine with none of the three sees a message saying the guard did not run and the
+call went ahead unguarded, instead of looking guarded.
 
 | Hook | When | What it does |
 |---|---|---|
-| `guard-tree.ps1` | Before Bash / PowerShell / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/`, including a shell delete or a redirect into a submitted packet (reading one stays allowed) |
-| `desk-context.ps1` | Session start inside a buyer folder | Puts the last rows of `quote-log.md` and the latest `FLAGS.md` entries in front of Claude before the first prompt |
+| `guard-tree.ps1` / `.py` | Before Bash / PowerShell / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/`, including a shell delete or a redirect into a submitted packet (reading one stays allowed) |
+| `desk-context.ps1` / `.py` | Session start inside a buyer folder | Puts the last rows of `quote-log.md` and the latest `FLAGS.md` entries in front of Claude before the first prompt |
+| `desk-memory.ps1` / `.py` | Session start inside the tree, or at the desk root just above it | Shows what reps asked Claude to remember: the `LEARNED.md` lines in the session's folder and in each folder above it, nearest first. It walks up and never sideways, so one buyer's notes never show in another buyer's folder. Lines that are not in the entry format are counted and skipped, and a line that holds what a note may not (a price, a contact detail, an instruction to skip a review) is withheld and counted. Its own parity test: `hooks/tests/desk_memory_parity.py` |
 
 A denial shows up as a permission refusal with a one-line reason Claude relays. Test locally:
-`powershell -File plugins/bbs-sales/hooks/tests/run-tests.ps1`.
+`python3 plugins/bbs-sales/hooks/tests/parity.py` (both halves, when PowerShell is present),
+or `pwsh -File plugins/bbs-sales/hooks/tests/run-tests.ps1` for the PowerShell half alone.
 
 ## Rollout guide
 

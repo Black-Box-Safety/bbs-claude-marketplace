@@ -50,6 +50,13 @@
   allow-list, from the installed `bbs-sales`, with a fixed interpreter — a path-pattern
   rule would have let a crafted command run arbitrary Python. Its own plugin because
   claude.ai and Cowork do not install a plugin with a `bin/` folder. `plugins/bbs-tools`.
+- **agent-team** (live, 2026-10-13) — two company-neutral skills for running a long,
+  multi-session program with a team of named agents. `roster-builder` charters one owner per
+  lane, grounded in real repo scans, with a dated opening gap list; `project-steward` is the
+  one planner that sequences session-sized tasks, writes fenced charters, runs a bounded
+  review loop, keeps the decisions and carry-forward ledgers, and hands off. Every program
+  noun comes from the adopter's `docs/pm/PROGRAM-PROFILE.md` (template in `roster-builder`);
+  the steward refuses to run without it. Nothing BBS-specific inside. `plugins/agent-team`.
 - **claudeforge** (pinned external) — the generic CLAUDE.md engine `bbs-foundations`
   depends on, pinned to the BBS fork `Black-Box-Safety/ClaudeForge` at `dev` so it updates
   through git and never gets hand-copied. Install it for `/sync-claude-md` and the

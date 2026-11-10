@@ -111,7 +111,7 @@ report format at the end. Read-only: create/modify nothing, send nothing.
     usage line ("REFUSED — usage: …", exit 64) and run nothing — that is the expected
     answer, and it shows the launcher runs on this machine. Then ask the rep to type
     `/permissions` and read you two things: whether **Allow** lists `Bash(bbs-fill *)`,
-    and whether **Deny** lists the Outlook `outlook_send_mail` tool. PASS = `bbs-fill`
+    and whether **Ask** lists the Outlook `outlook_send_mail` tool. PASS = `bbs-fill`
     resolves, prints its usage, and both rules are listed. WARN, naming which part failed:
     `bbs-fill` missing → rerun the bootstrap and restart (bbs-tools not installed); a rule
     missing → the managed settings on this machine are older than the current file: restart

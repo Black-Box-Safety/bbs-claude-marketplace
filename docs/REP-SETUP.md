@@ -19,13 +19,13 @@ Same steps on Windows and Mac. Where they differ, each step says so; on a Mac re
 
    **Windows PC**
    - Open PowerShell (Start → type "PowerShell" → Enter) and `cd` to where you saved the file.
-   - Run: `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1`
+   - Run: `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1` (SAM.gov users, Kim and Griffin, add `-SamGov` to be asked for the shared SAM.gov key; Parker supplies it)
      (add `-DryRun` to preview without installing anything).
 
    **Mac**
    - Homebrew must be installed once first: follow [brew.sh](https://brew.sh).
    - Open Terminal (Cmd+Space → type "Terminal" → Enter) and `cd` to where you saved the file.
-   - Run: `chmod +x bbs-setup.sh && ./bbs-setup.sh` (add `--dry-run` to preview).
+   - Run: `chmod +x bbs-setup.sh && ./bbs-setup.sh` (add `--dry-run` to preview; SAM.gov users add `--sam-gov` to be asked for the shared SAM.gov key).
    - If it says `python3` is missing, run `xcode-select --install`, then run the script again.
 
    **What it does, either way:** installs the tools Claude uses to read RFQs and build quotes

@@ -111,7 +111,7 @@ Claude Code can run a saved prompt on a schedule (a Routine) and leave the resul
 person. The natural candidates are Tier 1 and Tier 2 items that already run weekly: the
 Monday call list, the weekly sales report, reorder outreach, the vendor liability digest.
 Before any of these is scheduled, Parker confirms three things for the scheduled
-environment: the connectors it may use, that the send-class denies apply there too, and
+environment: the connectors it may use, that the send-class ask and deny rules apply there too (a scheduled run cannot answer an Allow prompt, so its sends are refused), and
 where the output lands (a SharePoint folder or Drafts, never an outbound message).
 
 ## 5. What we will not automate
@@ -127,7 +127,7 @@ where the output lands (a SharePoint folder or Drafts, never an outbound message
 | Risk | Control |
 |---|---|
 | A plausible wrong number on a binding document | Invariants in `AGENTS.md`; values from systems of record only; `check_marketplace.py` on every PR; review by an agent that did not write the change |
-| Something gets sent that should not | Managed settings deny send-class tools on Claude Code; drafts only |
+| Something gets sent that should not | On Claude Code every Outlook or Teams send waits for a person's Allow (managed `ask`, console `ask`, managed mods only); other send tools are denied |
 | The interim Business Central connector is swapped | Re-verify read-only and tool names at the swap; the skills name `bc_*` tools in one place each |
 | SCPRS read as the whole market | Every SCPRS figure states its slice |
 | CRM writes go wrong at scale | No playbook writes today; Tier 2 item 1 proposes per record and asks before each write |

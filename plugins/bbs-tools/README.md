@@ -9,7 +9,9 @@ allow rule shaped like `Bash(python *…/fill_obs_packet.py *)` would fix that a
 past auto mode's safety check. Instead the managed settings allow exactly
 `Bash(bbs-fill *)`, and the launcher decides what runs:
 
-- only the scripts on its `ALLOWED` list (the vetted form and quote scripts in `bbs-sales`);
+- only the scripts on its `ALLOWED` list (the vetted form, quote, federal-lookup and Business
+  Central item-entry scripts in `bbs-sales`; the item-entry script was added by ruling,
+  Parker 2026-10-16, see `bbs-foundations` `docs/MANAGED-SETTINGS.md`);
 - only from the `bbs-sales` plugin in the same marketplace cache the launcher is installed
   in, after resolving symlinks and `..`;
 - with a fixed interpreter (`python`/`python3`, or `node`) and no interpreter options, so
@@ -28,4 +30,4 @@ folder. Keeping `bin/` here leaves `bbs-sales` installable everywhere.
 it. Vetting a new script means adding it to `ALLOWED` in a reviewed PR, nothing else.
 Tests: `python3 tests/test_bbs_fill.py`.
 
-Owner: Parker Marshall. Last verified 2026-10-01.
+Owner: Parker Marshall. Last verified 2026-10-16.

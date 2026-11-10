@@ -33,10 +33,10 @@ BBS uses **one SAM.gov account and one shared key** for everyone (Parker, 2026-1
 will all link to the same sam.gov account, we dont need multiple").
 
 1. **Parker gives you the value.** Do not request your own key.
-2. **The bootstrap asks for it.** `scripts/bbs-setup.ps1` (Windows) and `scripts/bbs-setup.sh`
-   (Mac) prompt for the key with hidden input and save it: to the user environment on
-   Windows, to `~/.zprofile` on a Mac. Press Enter to skip, and rerun the script later to add
-   it. Then quit and reopen Claude.
+2. **The bootstrap asks for it when run with the SAM.gov flag:** `bbs-setup.ps1 -SamGov`
+   (Windows) or `bbs-setup.sh --sam-gov` (Mac). It prompts with hidden input and saves the key:
+   to the user environment on Windows, to `~/.zprofile` on a Mac. Without the flag it asks
+   nothing, so people who never use SAM.gov are not prompted. Then quit and reopen Claude.
    - By hand instead: on Windows, Start → "Edit environment variables for your account" →
      New, named `SAM_GOV_API_KEY`. On a Mac, add `export SAM_GOV_API_KEY='…'` to
      `~/.zprofile`.

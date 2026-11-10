@@ -7,12 +7,18 @@
 #
 #   ./scripts/bbs-setup.sh
 #   ./scripts/bbs-setup.sh --dry-run
+#   ./scripts/bbs-setup.sh --sam-gov    (SAM.gov users: also asks for the shared API key)
 set -u
 
 DRY_RUN=0
-if [[ "${1:-}" == "--dry-run" || "${1:-}" == "-n" ]]; then
-  DRY_RUN=1
-fi
+SAM_GOV=0
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run|-n) DRY_RUN=1 ;;
+    --sam-gov) SAM_GOV=1 ;;   # SAM.gov users (Kim, Griffin): be asked for the shared API key
+    *) echo "Unknown option: $arg (use --dry-run and/or --sam-gov)" >&2; exit 2 ;;
+  esac
+done
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
   echo "This script is for macOS. On Windows use scripts/bbs-setup.ps1." >&2
@@ -108,10 +114,11 @@ else
 fi
 
 # Python libraries the form-fill, quote and reconciliation scripts import, for the python3 the
-# skills call. Homebrew's Python refuses a plain pip install (PEP 668), so retry the --user
+# skills call, plus msal and msal-extensions, which bc-item-entry needs to sign the rep in to
+# Business Central and keep the token encrypted in the Keychain. Homebrew's Python refuses a plain pip install (PEP 668), so retry the --user
 # install with the flag it names; a --user install never touches Homebrew's own packages. On a
 # Mac without the command-line tools, /usr/bin/python3 is a stub that only offers to install them.
-PY_PACKAGES="pypdf pymupdf openpyxl"
+PY_PACKAGES="pypdf pymupdf openpyxl msal msal-extensions"
 if ! python3 -c 'import sys' >/dev/null 2>&1; then
   if [[ $DRY_RUN -eq 1 ]]; then
     printf '[would]   %-22s %s\n' "python packages" "$PY_PACKAGES after python3 works"
@@ -119,7 +126,7 @@ if ! python3 -c 'import sys' >/dev/null 2>&1; then
     echo "[missing] python3                run: xcode-select --install   then run this script again"
     failed+=("python3")
   fi
-elif python3 -c 'import pypdf, fitz, openpyxl' >/dev/null 2>&1; then
+elif python3 -c 'import pypdf, fitz, openpyxl, msal, msal_extensions' >/dev/null 2>&1; then
   printf '[ok]      %s\n' "$PY_PACKAGES"
 elif [[ $DRY_RUN -eq 1 ]]; then
   printf '[would]   %-22s %s\n' "python packages" "$PY_PACKAGES"
@@ -230,24 +237,27 @@ fi
 # for the team: Parker, 2026-10-02). It is a credential, so it is never in this script or the
 # repo: the person running the bootstrap pastes it when asked (Parker supplies it), and it is
 # saved to ~/.zprofile beside NODE_PATH, which is what VS Code reads at launch. Input is hidden
-# and the value is never printed. Enter skips; rerun later to add it. Its expiry date is in
+# and the value is never printed. Only the people who use SAM.gov need it, so the prompt is
+# opt-in: run with --sam-gov to be asked. Enter skips; rerun with --sam-gov to add it. Its expiry date is in
 # bbs-foundations canonical-facts.md, "Federal codes"; to replace it, delete that line and rerun.
 if [[ -n "${SAM_GOV_API_KEY:-}" ]] || grep -qs '^export SAM_GOV_API_KEY=' "$HOME/.zprofile"; then
   printf '[ok]      %-22s %s\n' "SAM_GOV_API_KEY" "set (value not shown)"
+elif [[ $SAM_GOV -eq 0 ]]; then
+  printf '[skip]    %-22s %s\n' "SAM_GOV_API_KEY" "only for SAM.gov users; rerun with --sam-gov to add it"
 elif [[ $DRY_RUN -eq 1 ]]; then
   printf '[would]   %-22s %s\n' "SAM_GOV_API_KEY" "ask for the BBS SAM.gov key from Parker"
 elif [[ ! -t 0 ]]; then
-  failed+=("SAM_GOV_API_KEY (rerun in a terminal and paste the key from Parker)")
+  failed+=("SAM_GOV_API_KEY (rerun with --sam-gov in a terminal and paste the key from Parker)")
 else
   read -r -s -p "Paste the BBS SAM.gov API key from Parker (input hidden; press Enter to skip): " SAM_KEY_IN
   echo ""
   if [[ -z "$SAM_KEY_IN" ]]; then
-    printf '[skip]    %-22s %s\n' "SAM_GOV_API_KEY" "not set; rerun this script to add it"
-    failed+=("SAM_GOV_API_KEY (rerun and paste the key from Parker)")
+    printf '[skip]    %-22s %s\n' "SAM_GOV_API_KEY" "not set; rerun with --sam-gov to add it"
+    failed+=("SAM_GOV_API_KEY (rerun with --sam-gov and paste the key from Parker)")
   elif [[ ! "$SAM_KEY_IN" =~ ^[A-Za-z0-9_-]+$ ]]; then
     # Letters, digits, '-' and '_' only, so nothing pasted can break out of the quoted line.
     printf '[skip]    %-22s %s\n' "SAM_GOV_API_KEY" "that paste had characters a key does not; rerun and paste the key alone"
-    failed+=("SAM_GOV_API_KEY (rerun and paste the key alone)")
+    failed+=("SAM_GOV_API_KEY (rerun with --sam-gov and paste the key alone)")
   else
     printf "\n# BBS bootstrap: the shared SAM.gov API key (from Parker)\nexport SAM_GOV_API_KEY='%s'\n" "$SAM_KEY_IN" >> "$HOME/.zprofile"
     printf '[install] %-22s %s\n' "SAM_GOV_API_KEY" "saved to ~/.zprofile (value not shown)"

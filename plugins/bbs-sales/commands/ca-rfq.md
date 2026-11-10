@@ -192,8 +192,8 @@ RFQ that was never filed is the one that misses its next deadline.
 Write the files where the skill says, hand the rep the file list, and state in the reply
 itself every judgment call made on their behalf. Those are the ones that come back.
 
-**Gate. The run ends with a person.** This command has no send step and never will. The
-send-class tools are denied by managed settings. Do not draft-and-send, do not queue, do
+**Gate. The run ends with a person.** This command has no send step and never will; any send
+is the rep's, outside this command. Do not draft-and-send, do not queue, do
 not offer to transmit. The rep reviews and the rep sends.
 
 ---

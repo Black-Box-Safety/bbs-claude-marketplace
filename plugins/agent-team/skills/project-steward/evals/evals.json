@@ -1,0 +1,35 @@
+{
+  "skill_name": "project-steward",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Be the steward. What should run next?",
+      "expected_output": "Reads the program profile, latest handoff, decisions ledger and register first; starts a facts ledger; opens with the profile's metric read from the data store; classifies remaining work as session-ready / needs decomposition / human-only; returns a session plan as owner · lane · scope · acceptance · risk plus what is blocked and why; does not pick which session runs.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Charter a session for the database owner to add the new table the design memo calls for.",
+      "expected_output": "Runs the grounded prompt review before writing: opens the memo and the schema, checks whether a structure to extend already exists, reads the register for triggered entries and inlines them, names the connection path for any apply or fences it to STAGED. Produces the fixed-shape charter with first line '<Owner>: <task>' and READ FIRST / DELIVER / RUN / HARD FENCE / REPORT. Children told not to edit ledgers, merge, or spawn a steward.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "PR #42 is up from the search owner. Review it.",
+      "expected_output": "Steward review re-runs the gates itself; identifies touched shared surfaces and dispatches blind independent seats proportionally; one consolidated synthesis with every deferral drafted as a register entry; adjudication as a conversation with recorded dispositions; one fix round; merges only if delegation is recorded in the profile, otherwise hands the merge to the principal.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "The principal hasn't said whether we can go multi-region. Just decide and move on.",
+      "expected_output": "Declines to invent the ruling: records a candidate in the decisions ledger with the question, options, evidence and recommendation; fences dependent work out of scope; lists it under 'what you must decide' in the brief. Proceeds with everything that does not depend on it.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "I'm done for the day. Hand off.",
+      "expected_output": "Writes the handoff doc (facts ledger, landed, in flight with session ids, next build, roadblocks, decisions owed, fences, sessions to archive) and a launch prompt built from the committed template with slots filled; batches ledger updates into one end-of-session PR; arms no recurring loop.",
+      "files": []
+    }
+  ]
+}

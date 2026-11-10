@@ -1,7 +1,7 @@
 {
   "name": "bbs-tools",
   "description": "Claude Code only: the bbs-fill launcher, the one way Claude runs BBS's vetted form and quote scripts without auto mode stopping it. Managed settings allow Bash(bbs-fill *); the launcher runs only scripts on its allow-list, from the installed bbs-sales plugin, with a fixed interpreter. No skills.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": {
     "name": "Black Box Safety, Inc."
   },

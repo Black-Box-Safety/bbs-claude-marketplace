@@ -1,0 +1,19 @@
+{
+  "name": "agent-team",
+  "description": "Run a long program with a team of Claude agents: roster-builder charters named, lane-owned agents grounded in the real repos; project-steward is the one planner that sequences work, writes fenced session charters, runs a bounded review loop, keeps the decision and carry-forward ledgers honest, and hands off. Company-neutral; every program noun lives in docs/pm/PROGRAM-PROFILE.md. Use when setting up a team of agents, chartering an owner, or stewarding a multi-session build.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Black Box Safety, Inc."
+  },
+  "keywords": [
+    "agents",
+    "roster",
+    "steward",
+    "program-management",
+    "charters",
+    "review-loop",
+    "harness",
+    "multi-repo"
+  ],
+  "skills": "./skills/"
+}

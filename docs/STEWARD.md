@@ -10,15 +10,15 @@ The operating manual for `.claude/agents/steward.md`. Read `AGENTS.md` first.
 scope → brief → dispatch worker → worker opens PR
       → steward reviews with a fresh reviewer
       → findings back to the SAME worker → worker tends
-      → steward merges
+      → Rex clears → steward asks Parker per PR → Parker approves by number → merge
 ```
 
 Four properties make it worth running:
 
 - **A session ends at a PR, not a merge.** The agent that wrote the change never approves
   it.
-- **The reviewer did not write the code.** Parker's standing authorization to merge is
-  conditional on exactly this.
+- **The reviewer did not write the code, and Parker approves the merge.** There is no
+  standing authorization to merge (ruled 2026-11-10, "Parker approves every merge").
 - **Findings return to the original worker**, which still holds the context. A fresh
   session re-deriving the change is slower and gets it less right.
 - **The steward is woken by the PR**, not by polling. Subscribe to PR activity when the
@@ -220,6 +220,76 @@ Write it up with evidence and move to the next slice. Do not idle.
 - Removing a control. Say it is wrong; do not delete it.
 
 ### Already open for Parker
+
+- **Desk memory (`desk-remember`, `desk-memory` hook, `LEARNED.md`) — OPEN, seven items
+  ASSUMED, 2026-11-10.** Built at Parker's request of 2026-11-10. The spec's "Open for Parker"
+  list (`docs/superpowers/specs/2026-11-10-desk-memory-design.md`) is the single home: who may
+  write a note without review, who approves agency-wide and desk-wide notes, whether saving a
+  note runs without an Allow click (`bbs-fill` allow list; a control change), restamping the
+  desk-root `CLAUDE.md`, stale thresholds, the file name, contact changes. Nothing in it
+  changes a signer, a form ID, a certification claim or a price rule; notes are refused when
+  they carry one.
+
+- **`bc-item-entry`: rep-facing item creation in Business Central (PR #64) — RULED
+  2026-10-14.** Parker, in session. What was ruled, and where each part lives
+  (`plugins/bbs-sales/skills/bc-item-entry/`: `SKILL.md`, `scripts/bc_item_entry.py`,
+  `references/item-rules.md`):
+  - *Vendor.* Every item names a vendor that already exists in BC and is not blocked. The
+    skill never creates a vendor; the rep does, in the BC UI, and the check runs again.
+  - *Cost.* Every item carries a cost greater than zero with a document source (quote number
+    and date, or the Grainger account and date the price was read). A price, when given, is
+    never below cost; a price equal to cost needs an explicit `zeroMarginOk` on the row that
+    the rep has seen on the sheet.
+  - *Named review.* The rep reads the review sheet the check writes; commit needs the current
+    token (a hash of the spec) and the preparer's name, and refuses any other name.
+  - *Sign-in.* Rep-facing writes run under the rep's own delegated sign-in, so BC records the
+    rep as creator (system fields and the skill's log; not a visible field on the Item Card
+    page). App-only (the service principal) is a flagged fallback that runs only with
+    `BBS_BC_AUTH=app-only`. Vendor No. is set through the `Item_Card_Excel` web service, since
+    the v2.0 items entity hides it. Connection values ship in `references/bc-connection.json`
+    (2026-10-15 amendment: the existing app's client id, no separate rep app, no secret).
+  - *Scope note.* This narrows the 2026-10-13 `agent-team` ruling below, which accepted the
+    session-tool allow-list on the basis that writes to a system of record "stay gated
+    separately": for item creation the gate is this skill's three gates, not a separate
+    control. (2026-10-15 had also kept `bc_item_entry.py` off the `bbs-fill` allow list so
+    every run waited for an Allow click; **RULED 2026-10-16, Parker in session, superseding
+    that:** the script is on the list and runs without a prompt. "I do not want to have to
+    approve the line items. I just want the rep to have to review the planned entered text."
+    The named sign-off on the review sheet is the gate, and it stays: the organization
+    instructions require it for any BC write. Record:
+    `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`, "Business Central writes".)
+  - *Partly resolves* "Bechtel's home in this repo, and the BC write-API scripts" below.
+  - *Open edges from the 2026-10-16 BC review of PR #64, for Parker:* (a) SOP
+    `BC-WRITE-SOP-RULES.md` §4.5 still says Vendor No. stays blank on BBS items; §4.6 and
+    this ruling make it mandatory for this skill, so §4.5 needs amending, and
+    `bc_create_items_rfp817007.py` (2026-10-15, written to bypass the vendor gate for a vendor
+    with no card) is either the sanctioned app-only exception or a one-off. (b) The
+    `includedWith` accessory row carries cost 0 by design; confirm the "cost > 0" ruling
+    covers that carve-out. (c) Manufacturer-first descriptions: the 12,000-odd existing
+    Grainger items carry Grainger catalog descriptions, so the house-style gate forces a
+    rewrite on every Grainger SKU; keep as a stop, or make it a warning for Grainger SKUs.
+    (d) Something other than this skill created zero-cost Grainger items on 2026-10-16 (SOP
+    §4.5's open Shopify-sync question); not this PR's to fix, but it is live. (e) Nothing
+    has yet proven a delegated item write under a rep-class permission set; rep-setup 5b
+    records the first one.
+
+- **`agent-team` plugin (PR #63), 2026-10-13.** Four rulings in session, all closed.
+  - *Enable for everyone* — **RULED 2026-10-13:** on in `enabledPlugins`. Routine.
+  - *Company memory line* — **RULED 2026-10-13, narrowed after Rex's review:** the
+    `claudeMd` entry is a pointer only; the steward's rules (gates, merge delegation) live in
+    the skill and the adopter's profile, not restated in memory.
+  - *Session-tool allow-list* — **RULED 2026-10-13, Parker in session, after Rex's
+    scope finding:** the launch-and-monitor set (`Agent`, `create_session`, `send_message`,
+    the session reads, the PR subscriptions) stays allowed for **every** session on a rep
+    machine, a quote-desk session reading an agency PDF included. Parker accepted the risk
+    on the stated basis that these tools cannot send mail, place an order, or write to a
+    system of record, all of which stay gated separately (narrowed 2026-10-14: item creation
+    in BC is gated by `bc-item-entry`'s own gates, see the entry above). `interrupt_session`, `send_later`,
+    `list_triggers` and `delete_trigger` are `ask` (irreversible, or able to rebuild an
+    unattended loop). Revisit if a rep machine ever shows an unexpected spawned session.
+  - *Provenance* — **RULED 2026-10-13, Parker in session:** the plugin content is BBS's own
+    work; the placeholder author in the patch was a stand-in. Author stays
+    Black Box Safety, Inc.
 
 - **Re-paste managed settings** — the model-ID and Grainger changes reach no machine from
   the repo alone, and neither does the slice-2 command line. The repo copy's `claudeMd`
@@ -454,7 +524,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   on 2026-10-01 blocked the build session from dispatching a reviewer to merge the build
   session's own PR), stop and report it to Parker; do not retry or route around it. ~~Parker
   merges when the session that dispatches Rex is also the PR's author.~~ Superseded
-  2026-10-02 (next entry).
+  2026-10-02 (next entry). *Since 2026-11-10 the clear marker reads "Cleared — awaiting
+  Parker's merge approval" ("Parker approves every merge").*
 
 - **impeccable: install only the fork's `plugin/` folder, with its hooks off — RULED
   2026-10-01 (Parker, in session: "go with option A").** The entry was a `url` source with
@@ -480,11 +551,13 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **Address spelling in `vendor_profile.json` — OPEN (2026-09-28).** The profile holds
   `1950 Cordell CT Ste 103`, which every filled form prints. **Ask:** confirm the spelling
   and case as registered (e.g. with OSDS), so binding forms match the certification record.
-- **Bechtel's home in this repo, and the BC write-API scripts — OPEN (2026-09-28).**
-  Bechtel is the only customer outside State of CA agencies with the same folder
-  structure (Parker, in session); its desk `CLAUDE.md` lives on SharePoint, not here, and
-  the scripts that write to Business Central have no declared home. **Ask:** where
-  Bechtel's desk context and those scripts are maintained. #35 depends on the answer.
+- **Bechtel's home in this repo, and the BC write-API scripts — OPEN (2026-09-28); PARTLY
+  RESOLVED 2026-10-14.** Bechtel is the only customer outside State of CA agencies with the
+  same folder structure (Parker, in session); its desk `CLAUDE.md` lives on SharePoint, not
+  here. The scripts half now has a declared home: rep-facing item creation lives here as
+  `bc-item-entry` (PR #64, ruling above); the per-PO quote builders and
+  `bc_patch_item_vendor.py` stay in `PM Claude/BC-Write-API` on SharePoint. **Still open:**
+  where Bechtel's desk context is maintained. #35 depends on that answer.
 - **The macOS bootstrap installs no pip or npm libraries — RESOLVED 2026-10-01, this
   session's rep-setup PR** (`bbs-setup.sh` now installs pypdf/pymupdf/openpyxl for `python3`,
   `docx`/`pptxgenjs` with NODE_PATH in `~/.zprofile`, links `soffice`, and installs the
@@ -658,7 +731,24 @@ Write it up with evidence and move to the next slice. Do not idle.
   `purchaseOrderLines` cannot be queried without its parent. `requires:` is
   `business-central` for both; the retired `bc-mcp-proxy` is required by nothing.
   `bbs-rebate-profitability` stays on CData; this ruling does not cover it.
-- **Rex merges what it clears, whichever session dispatched it — RULED 2026-10-02.**
+- **Parker approves every merge — RULED 2026-11-10.** Parker, in session, choosing
+  "Parker approves each" over "Rex merges, steward reports" and "Parker merges by hand":
+  Rex reviews and posts "Cleared" or "Request changes — do not merge"; the steward brings
+  cleared PRs to Parker; nothing merges into `main`, leaves draft, or closes until Parker
+  approves that PR by number. An agent may execute the merge only with his approval quoted
+  in its brief. A general instruction ("merge the valuable ones", "use Rex") is not
+  approval. Supersedes the 2026-10-02 entry below. Why: on 2026-11-10, between 07:13 and
+  07:24 UTC, a steward session read Parker's "deal with the many branches… merge the
+  valuable ones… utilize Rex" as authority, told its Rex that "draft status alone is not a
+  hold", and Rex marked #80, #79 and #75 ready and squash-merged them. Each write was
+  auto-accepted by configuration, no person approved any of them, and the steward told
+  Parker that nothing had merged. Parker: "I haven't approved or done any of the merges."
+  Out of scope here, carried as a follow-up: `plugins/agent-team/skills/project-steward/SKILL.md`
+  still lets a steward squash-merge when a program profile records the delegation. BBS has
+  no `docs/pm/PROGRAM-PROFILE.md` and runs its own steward agent, so it is not a live path
+  in this repo today.
+- ~~**Rex merges what it clears, whichever session dispatched it — RULED 2026-10-02.**~~
+  *Superseded 2026-11-10 by "Parker approves every merge", above.*
   Parker, in session: "enable rex to conduct merges himself going forward for all session".
   This supersedes "Parker merges when the session that dispatches Rex is also the PR's
   author" (2026-10-01 entry above). Rex squash-merges any PR it has cleared on its own
@@ -669,6 +759,24 @@ Write it up with evidence and move to the next slice. Do not idle.
   merge. The build session still never merges its own PR, and still never edits a PR Rex is
   reviewing. Parker merged PR #50 himself on 2026-10-02, by instruction in session, after
   both reviews' findings were fixed and CI was green.
+- **Claude may send, with a person's Allow on every send — RULED 2026-10-02.** Parker, in
+  session: "I actually want send to be enabled", then chose "Ask each time" over "Fully
+  allowed" and "Only for me", for Outlook email, Teams messages, and calendar and mailbox
+  rules. Rex's review of PR #55 raised three follow-ups, and Parker chose, in session:
+  "Org 'ask'", "Managed mods only" and "Keep send_draft denied". So: eight Microsoft 365
+  tools (`outlook_send_mail`, `outlook_forward_mail`, `outlook_respond_to_event`,
+  `outlook_create_filter`, `outlook_set_vacation`, and the three Teams sends) move from
+  `permissions.deny` to `permissions.ask` in `bbs-managed-settings.json` and are set to
+  `ask` in the admin console as well; `outlook_send_draft` stays denied (its Allow prompt
+  shows only a message id) and is `blocked` in the console; the SignNow and QuickBooks sends
+  stay denied and `blocked`; managed settings set `allowManagedModsOnly`, because a user's
+  mod can approve past an `ask` rule. This supersedes the 2026-09-11 draft-first deny for
+  those eight tools, narrows ruling (d) above to the still-denied tools, and rewords
+  `AGENTS.md` invariant 5 to "A person approves every send"; Cursor stays draft-only
+  (`.cursor/rules/bbs-invariants.mdc`). Org `ask` does not reach the Desktop app's local
+  sessions, so whether a Desktop Code-tab send stops for Allow is unverified; ADMIN-RUNBOOK
+  §3 has the test and the fallback. The team page, the coach rails, the desk template and
+  `/bbs-checkup` check 12 say what holds.
 - **Federal lookups: SAM.gov and USAspending skills — BUILT and RULED 2026-10-02.** Built
   the item Parker deferred on 2026-10-01 (see "The team-rollout page covers Sales" above).
   - **Skills.** `bbs-sales` gained two read-only skills:
@@ -729,10 +837,50 @@ Write it up with evidence and move to the next slice. Do not idle.
     save it as `SAM_GOV_API_KEY`: the user environment on Windows, `~/.zprofile` on a Mac. Enter
     skips. The Mac script refuses anything but letters, digits, `-` and `_`, so a paste cannot
     break out of the profile line.
+    - **Opt-in.** Parker, in session: "yes fix 1 and 2". The prompt now runs only with
+      `-SamGov` / `--sam-gov`, so people who never use SAM.gov are neither asked nor shown it
+      as undone. On Windows, a run with redirected input or `-NonInteractive` skips quietly
+      instead of erroring. Rex's PR #56 finding 3, the plain-text key readable by Claude, is
+      accepted ("3 is fine").
     - **A GitHub Actions secret would not do this job.** Only workflows can read one; an
       install cannot.
   - **`bbs-tools` 0.2.0.** The two scripts reach installed machines only through the
     version bump, so `bbs-tools` moves to 0.2.0 with the allow-list change.
+- **Channels stay on; the repo file replaces the console copy — RULED 2026-10-02.** Parker
+  shared the console's live managed settings (v12), which set `channelsEnabled: true`, and
+  asked that it be "added to the managed settings". It is now in
+  `bbs-managed-settings.json`, so the paste in ADMIN-RUNBOOK §1 keeps channels on, and §1
+  says the repo file replaces the console copy whole. The same console copy's local
+  `bbs-grainger` server entry is not carried: it points at a path and gateway on Parker's
+  Mac, so on every other machine it fails. Everyone gets Grainger through the BBS Grainger
+  MCP connector assigned in the console (ADMIN-RUNBOOK §3); Parker said "I just want it to
+  work for everyone".
+- **bbs-sales quote-desk hooks run on macOS — RULED 2026-10-05.** Starting Claude Code on
+  Parker's iMac showed `SessionStart:startup hook error ... Executable not found in $PATH:
+  "powershell"`. Both bbs-sales hooks called `powershell` in exec form, so on a Mac the
+  session-start context errored and, worse, the `guard-tree` folder guard (no renames, no
+  near-duplicate buyer folders, `FILLED/` immutable) silently never ran. Parker, in session:
+  "I am on a mac and so is griffin", then "yes, please make the fixes". Chosen: port both
+  scripts to Python with a parity test, the doctrine-hook pattern, over installing PowerShell
+  on every Mac (a Mac that skipped the bootstrap would lose the guard with no sign of it).
+  `hooks.json` now uses the same `pwsh`, `powershell`, `python3` fallback chain as
+  bbs-foundations; with none present the guard prints one stderr line and allows. CI runs
+  `run-tests.ps1` under pwsh and `parity.py` with `BBS_REQUIRE_PS=1`. `bbs-sales` moves to
+  0.6.0 so installed machines receive it.
+  - **Pre-existing gap, not changed here (would break parity if fixed on one side):** an
+    unquoted shell path with escaped spaces (`mkdir All\ RFQ's\ by\ Agency/CalTrans`) evades
+    the near-duplicate check in both halves, because the unquoted fallback splits on
+    whitespace. **Ask:** fix both halves together in a follow-up.
+  - **Rex's PR #61 review, fixed in the follow-up PR:** the "guard did not run" line went to
+    stderr, which Claude Code shows nowhere for a hook that exits 0, so it now goes out as a
+    `systemMessage` the rep sees; the Python half counted hidden (dot) folders as siblings
+    where PowerShell's `Get-ChildItem` does not; this entry had been fused onto the previous
+    ruling's last line.
+  - **More pre-existing gaps Rex found, identical in both halves, for the same follow-up:** a
+    quoted `mkdir` whose tree name differs in case; a single-quoted path; `cd <tree> &&
+    mkdir X`; an unquoted `>>` into a FILLED path containing spaces. **Ask (Parker's call):**
+    `Caltrans District 8` is refused as a near-duplicate of `Caltrans District 7`, because the
+    two share every word but one. Is a numbered-district sibling a different buyer?
 - **Connector access: everyone reads, writing to a shared space is by request — RULED
   2026-10-02.** Parker, in session: "I want everyone to have access to all of the
   connectors and items provided in BBS Claude Marketplace. Our team is small enough that
@@ -740,24 +888,31 @@ Write it up with evidence and move to the next slice. Do not idle.
   "everyone should have read access, but not write access. They have to request write
   access to anything that acts as a shared information space, or canonical space, for the
   company." QuickBooks payroll: "Everyone, block payroll" (every `qbo_payroll_*` tool
-  denied and console-blocked, admins included). Vercel: block purchases (`buy_*`,
+  denied and console-blocked, admins included). ~~Vercel: block purchases (`buy_*`,
   `create_or_transfer_domain`) and `delete_project`, admins included. Supabase spending,
   asked the same day ("block Supabase spending too"): `create_project`, `create_branch`
   and `restore_project` (each adds billing), denied and console-blocked, admins included;
-  no skill uses them. Team-rollout page: flip connector rows to Ready today now. Every
+  no skill uses them.~~ *Superseded by R9, 2026-11-10:* Parker, in session, "we don't need
+  payroll. I want vercel and supabase to be allowed", then "Yes A" to keeping payroll
+  blocked. The Vercel and Supabase denies are out of `bbs-managed-settings.json` and the
+  console list; the payroll denies stay. Team-rollout page: flip connector rows to Ready today now. Every
   plugin was already enabled for everyone (`enabledPlugins`). Homes:
   `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md` (matrix and "Enforcing write by
   request"), `bbs-managed-settings.json` `permissions.deny`, `docs/ADMIN-RUNBOOK.md` §3.
   Managed settings and console blocks are org-wide, so write-by-request is enforced in
   each system or by a read-only connection; **OPEN for Parker:** how each connector signs
   in, the CRM's `crm_update_record` (already on everyone's account), and the new deny
-  names' live-fire check (`mcp__claude_ai_Vercel__` and `mcp__claude_ai_Supabase__` are
-  inferred from the naming of the others). Cursor plugins are unchanged (invariant 5).
+  names' live-fire check ~~(`mcp__claude_ai_Vercel__` and `mcp__claude_ai_Supabase__` are
+  inferred from the naming of the others)~~ (*Superseded by R9, 2026-11-10:* no Vercel or
+  Supabase deny remains; the check is a payroll read). The 27 `qbo_payroll_*` names were
+  re-checked against the QuickBooks connector's tool list on 2026-11-10 and match. They
+  are enumerated, so a payroll tool Intuit adds later is not covered until it is added. Cursor plugins are unchanged (invariant 5).
   **Signing is excluded** (Rex, PR #53 review): the ruling is about information and
   shared-space writes, so who signs stays R1 and R1a and no connector grant changes it;
   SignNow grants no one signing by request. **Closed** (Parker, in session): QuickBooks is
   hardly used, so no further QuickBooks denies. **Signed off** (Parker, in session,
-  2026-10-02): "I approve the deny list changes" (payroll, Vercel, Supabase; Rex E1), and
+  2026-10-02): "I approve the deny list changes" (payroll, ~~Vercel, Supabase~~; Rex E1;
+  the Vercel and Supabase part *Superseded by R9, 2026-11-10*), and
   Microsoft 365 is assigned to Rachelle ("yes it is assigned").
 - **Rachelle does not sign through Claude — RULED 2026-10-02.** Parker, in session, in the
   brief for her team-rollout card: "Signing stays off her page. Rachelle does not sign
@@ -766,6 +921,7 @@ Write it up with evidence and move to the next slice. Do not idle.
   form-filling job, and tile 3 ("Outside Sales, it doesn't sign for you") covers her.
   `/bbs-my-voice` learns only from her own Sent Items, so drafting in Jackson's voice is
   shown as Not built yet.
+
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02.

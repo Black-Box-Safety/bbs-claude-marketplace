@@ -1,0 +1,109 @@
+{
+  "model": "default",
+  "anonymized": false,
+  "runs_per_query": 2,
+  "pass_threshold": 0.8,
+  "summary": {
+    "queries": 8,
+    "passed": 8,
+    "failed": 0
+  },
+  "results": [
+    {
+      "id": "d1",
+      "query": "What did Aanya do yesterday? Give me the rundown.",
+      "expect": "bbs-daily-rep-summary",
+      "runs": 2,
+      "correct": 2,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-daily-rep-summary": 2
+      }
+    },
+    {
+      "id": "d2",
+      "query": "Set up the daily rep routine for Kim so I get a summary every morning.",
+      "expect": "bbs-daily-rep-summary",
+      "runs": 2,
+      "correct": 2,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-daily-rep-summary": 2
+      }
+    },
+    {
+      "id": "d3",
+      "query": "It's end of day. Draft my check-in for Parker.",
+      "expect": "bbs-daily-rep-summary",
+      "runs": 2,
+      "correct": 2,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-daily-rep-summary": 2
+      }
+    },
+    {
+      "id": "d4",
+      "query": "Give me the daily summary for Aanya.",
+      "expect": "bbs-daily-rep-summary",
+      "runs": 2,
+      "correct": 2,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-daily-rep-summary": 2
+      }
+    },
+    {
+      "id": "d5",
+      "query": "I'm wrapping up for today, what do I tell Parker?",
+      "expect": "bbs-daily-rep-summary",
+      "runs": 2,
+      "correct": 2,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-daily-rep-summary": 2
+      }
+    },
+    {
+      "id": "w1",
+      "query": "How did Aanya do this week?",
+      "expect": "bbs-weekly-sales-report",
+      "runs": 2,
+      "correct": 2,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-weekly-sales-report": 2
+      }
+    },
+    {
+      "id": "w2",
+      "query": "Pull the numbers for the weekly sales report.",
+      "expect": "bbs-weekly-sales-report",
+      "runs": 2,
+      "correct": 2,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-weekly-sales-report": 2
+      }
+    },
+    {
+      "id": "w3",
+      "query": "Write up last week for the team, I have to fill out the sales form.",
+      "expect": "bbs-weekly-sales-report",
+      "runs": 2,
+      "correct": 2,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bbs-weekly-sales-report": 2
+      }
+    }
+  ]
+}

@@ -7,8 +7,8 @@ Everyone can **read** every connector. **Changing** a shared space (the catalog,
 storefront, the site, the books, the pipeline, SharePoint) needs write access that Parker
 grants to the person, on request. Signing is not a write anyone can request: who signs is
 set by the delegated-signature rules, never by a connector. If a job needs a write you don't have, say so and
-tell them to ask Parker; do not look for another way to make the change. QuickBooks payroll,
-Vercel purchases and Supabase spending are blocked for everyone.
+tell them to ask Parker; do not look for another way to make the change. QuickBooks payroll
+is blocked for everyone.
 
 | The job | First step | Usually lives in | Needs a live connector? |
 |---|---|---|---|
@@ -20,12 +20,13 @@ Vercel purchases and Supabase spending are blocked for everyone.
 | When does an agency have money / is June 30 the real deadline? | Ask the timing question (`ca-budget-timing`) | `bbs-sales` | none |
 | Price Grainger / NASPO lines | Ask to price the list (Grainger MCP — never memory or the open web) | `bbs-sales` | **Grainger MCP** |
 | Fill CA / CDCR compliance packet | Ask after pricing — `ca-form-filler` / packet path | `bbs-sales` | usually local PDF tools from bootstrap |
+| Items a quote needs that Business Central does not have yet | Ask to add them to BC (`bc-item-entry`): it checks vendor, sourced cost and duplicates, shows you a review sheet, and writes only after you approve it by name under your own BC sign-in. Once per rep: its `references/rep-setup.md` | `bbs-sales` | **Business Central** (your own BC user; `msal` from the bootstrap) |
 | Marketing one-pager, campaign email, logo check, a prior brochure or deck | `/bbs-one-pager`, or ask (`sales-one-pager`, `campaign-email`, `marketing-assets`, `deck-precedent`); approved wording is the claims registry; design polish via `impeccable` | `bbs-marketing` | varies |
 | Brand page on the storefront | Ask; design polish via `impeccable`. Publishing needs catalog and storefront write access, which Parker grants on request | `bbs-website` | **Supabase**, **Shopify** |
 | Order / invoice / "what do they owe us?" | Ask about the PO, order, or vendor balance | `bbs-back-office` | **Business Central** |
 | Problem order / reconciliation | Ask what the order needs (`bbs-order-reconciliation` lives in `bbs-back-office`) | `bbs-back-office` | **Business Central** |
 | AR: what is past due / where we stand with one agency | Ask; Claude reads Business Central (read-only) and says where each number came from. Shopify card payments may still show as unpaid: check before you chase | `bbs-back-office` | **Business Central** |
-| AR: past-due reminder email | Ask for the reminder in your Outlook Drafts; once, run `/bbs-my-voice`. You read it and send it | `bbs-foundations` (voice) | **Microsoft 365** (draft only; sending is denied in Claude Code) |
+| AR: past-due reminder email | Ask for the reminder in your Outlook Drafts; once, run `/bbs-my-voice`. You read it and send it | `bbs-foundations` (voice) | **Microsoft 365** (drafts; in Claude Code a send waits for your Allow) |
 | AR: short payment over a price or quantity | Ask which record is wrong (`bbs-order-reconciliation`); sales decides what goes back to the customer | `bbs-back-office` | **Business Central** |
 | Accounting: one question about the books, no export | Ask it in plain words; Claude reads Business Central (read-only) and names the records behind each number | `bbs-back-office` | **Business Central** |
 | Accounting: was a promised vendor credit received? | Ask about the PO; `bbs-order-reconciliation` lists credits, free replacements and absorbed freight ("Money owed back to us") | `bbs-back-office` | **Business Central** |
@@ -34,7 +35,7 @@ Vercel purchases and Supabase spending are blocked for everyone.
 | Margin after the Grainger rebate | **Not ready yet.** `bbs-rebate-profitability` needs a connector Parker hasn't switched on. Tell Parker if you need it | Parker | n/a |
 | Admin: meeting notes into a summary and a follow-up list | Paste the notes or hand over the file; Claude writes the summary and a follow-up list with a name on each item, as text or a Word document. You check it and send it | commons `document-skills` | none |
 | Admin: a letter, memo or spreadsheet | Say what it is for and who reads it, or hand over an old one to follow; Claude builds the Word, Excel or PDF file. Sending stays with you | commons `document-skills` | none |
-| Admin: inbox, calendar, a brief before a meeting | Ask; Claude drafts replies into your Outlook Drafts (sending is denied in Claude Code), and asks before a calendar invite goes out. Your own mailbox and calendar only: working in someone else's, or drafting in their voice, is **not built yet**. Tell Parker | `bbs-foundations` (voice) | **Microsoft 365** |
+| Admin: inbox, calendar, a brief before a meeting | Ask; Claude drafts replies into your Outlook Drafts (in Claude Code a send waits for your Allow), and asks before a calendar invite goes out. Your own mailbox and calendar only: working in someone else's, or drafting in their voice, is **not built yet**. Tell Parker | `bbs-foundations` (voice) | **Microsoft 365** |
 | Supplier options for an item BBS has never sold | Ask for supplier options; the `supplier-scout` agent searches the web itself and prices only from pages it opened, with link and date. Grainger prices still come from Grainger | `bbs-sales` | none (built-in web search; Firecrawl when assigned) |
 | Product research you want to see yourself | Ask Claude to open your real Chrome and look; prices still from a real source | commons `superpowers-chrome` | Chrome/Node from bootstrap |
 | What federal solicitations are open for a NAICS code or an agency? | Ask what is open on SAM.gov (`sam-gov-opportunities`); it lists open notices with a set-aside fit column and flags what it cannot tell | `bbs-sales` | **SAM.gov key** in `SAM_GOV_API_KEY` (BBS's one shared key, from Parker; never pasted into a chat) |

@@ -67,7 +67,7 @@ Refresh this table with `scripts/mine_precedents.py` after a batch of new RFQs.
 
 ## Contract vehicles seen
 
-- **NASPO ValuePoint 07-25-51-02.3** — CA State Agency MRO. The default for CDCR,
+- **NASPO MRO LPA 7-25-51-02.03** — CA State Agency MRO. The default for CDCR,
   CalVet, DSH, and most department buys. Sell rule `at_cost`, track VSBAA.
 - **CA DGS BPO** — sub-track VSBUE. Different track, same at-cost rule.
 - Some buyers issue no solicitation number at all and simply email an item list.

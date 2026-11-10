@@ -73,7 +73,9 @@ You do **not** merge. A session ends at a draft PR. You do not own commons pin r
 - **Portable paths only:** `${CLAUDE_PLUGIN_ROOT}` and `$SKILL_DIR`. Never
   `/mnt/skills/`, `/Users/<someone>/`, or a per-machine copy of shared facts.
 - **`plugin.json` + marketplace entry** — every first-party plugin under `plugins/` needs
-  both. Marketplace `source: ./plugins/<name>`; keywords and category for discovery.
+  both. The entry carries `name`, `source: ./plugins/<name>` and `category` only; display
+  fields and `version` live in `plugin.json`. Rules: `docs/MAINTAINER-GUIDE.md` §4,
+  "Branches and versions".
 - **Marketplace `skills:` lists are additive, not restrictive** (confirmed on Claude Code
   2.1.273 — see `docs/COMMONS.md`). They record intent; they do not filter the tree. Do
   not design controls that assume they filter.
@@ -99,8 +101,8 @@ inside** a skill, not a sibling skill that competes on description.
 
 - **Content** (skills, commands, plugins, hooks) lives in this repo. Merge to `main` and
   registered machines pick it up (`autoUpdate` on the marketplace).
-- **Policy** (which plugins are enabled, connectors per person, company memory, deny on
-  send-class tools) is **managed settings** pushed from the Claude admin console. The
+- **Policy** (which plugins are enabled, connectors per person, company memory, ask
+  and deny rules on send-class tools) is **managed settings** pushed from the Claude admin console. The
   template is `plugins/bbs-foundations/docs/bbs-managed-settings.json`. Updating the
   template is not the same as deploying it — name the Parker action in the PR.
 - **MCPs / connectors are not marketplace plugins.** Assign them in the console. A skill
