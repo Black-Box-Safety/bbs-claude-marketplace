@@ -747,22 +747,28 @@ Write it up with evidence and move to the next slice. Do not idle.
   now say agents never merge and Parker merges in the UI. **Open action for Parker:**
   re-paste managed settings in the admin console; until then the deny reaches no machine.
 - **R2. Quote creation in Business Central through `bc-quote-entry` (#68) is allowed —
-  RULED 2026-11-10.** It writes only the quote, its ship-to and its lines; it never
+  RULED 2026-11-10.** The steward's R2 recommendation, adopted with "Follow
+  recommendations…": "Yes. Record it on main and add `bc-quote-entry` to the organization
+  instruction. It only creates the quote and its lines; it never releases, sends, converts
+  or posts." It writes only the quote, its ship-to and its lines; it never
   releases, sends, converts or posts; and it runs only after the rep approves the review
   sheet by name. Parker, in session, 2026-11-10, further: "Add bc quote entry to managed
   settings". So the `claudeMd` block in `bbs-managed-settings.json` gains one rule naming
   the BC write boundary, with `bc-quote-entry` beside `bc-item-entry` (record:
   `MANAGED-SETTINGS.md`, "Business Central writes"). `bc_quote_entry.py` is not added to
-  the `bbs-fill` allow list here (R3). **Open actions for Parker:** re-paste managed
-  settings after merge; and amend the organization instruction in the admin console, a
-  separate place that also covers claude.ai chats, to name both the `bc-item-entry` and
-  `bc-quote-entry` skills. No repo change does the second.
+  the `bbs-fill` allow list here (R3). **Open actions for Parker (both RULED):** re-paste
+  managed settings after merge; and amend the organization instruction in the admin
+  console, a separate place that also covers claude.ai chats, to name both the
+  `bc-item-entry` and `bc-quote-entry` skills, as the adopted recommendation says. No repo
+  change does the second.
 - **R3. `bc_quote_entry.py` may go on the `bbs-fill` allow list — RULED 2026-11-10.** No
-  Allow click, but **only after** #68 enforces NASPO lines at cost (`unitPrice ==
-  unitCost` on contract NASPO). The named review sheet stays the gate. Until that check
+  Allow click, but **only after** #68 enforces NASPO lines at cost, per the rule in
+  `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`, "Grainger sell rule, by channel". The named review sheet stays the gate. Until that check
   ships in #68, the script stays off the list.
-- **R4. Salesperson split on state quotes — RULED 2026-11-10.** `KQUEZON` for Kim's 18
-  agencies, `AANYA` for all others, `PMARSHALL` never on a state quote. The list of 18 has
+- **R4. Salesperson split on the Kim/Aanya California state book — RULED 2026-11-10.**
+  Within that book, `KQUEZON` for Kim's 18 agencies, `AANYA` for all others, `PMARSHALL`
+  never on a state quote. What is outside the book (body armor and CSU/UC) is canon's,
+  `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`, "CA state book scope" (RULED 2026-09-28); this split does not reach it. The list of 18 has
   one home, `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`;
   everything else points at it, and the test reads it. As of this entry the list is not
   yet in canon on `main`; it lands with the work that uses it, not re-keyed anywhere else.
@@ -772,15 +778,12 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **R6. #72 is narrowed — RULED 2026-11-10.** Quote outcomes live only in `quote-log.md`
   (#75). Durable customer-folder notes reuse #81's desk-memory entry format and refusal
   table, so there is one memory mechanism, not two.
-- **R7. Desk memory (#81) assumptions A1–A7 accepted as recommended — RULED 2026-11-10.**
-  - A1: any rep writes buyer-level and institution-level notes without review, name
-    attached, and Parker sees new lines in a monthly digest.
-  - A2: agency-wide and desk-wide notes are Parker's. **Open action for Parker:** he owns
-    writing them.
-  - A3: the `bbs-fill` allow-list entry for `desk_memory.py` comes in slice 2, not #81.
-  - A4: Parker restamps the desk-root CLAUDE.md on SharePoint after #81 merges. **Open
-    action for Parker**, after merge.
-  - A5–A7: accepted as written in #81's spec.
+- **R7. Desk memory (#81) "Open for Parker" items 1–7 accepted as recommended — RULED
+  2026-11-10.** The items, in their own wording and each now marked RULED 2026-11-10, live
+  once: `docs/superpowers/specs/2026-11-10-desk-memory-design.md`, "Open for Parker". Not
+  restated here. **Open actions for Parker:** item 2 (approving agency-wide and desk-wide
+  notes at the monthly review) and item 4 (restamp the desk-root `CLAUDE.md` on SharePoint;
+  #81 has merged, so it is due).
 - **R8. Duplicate PRs: keep #71 and close #78; keep #74 and close #73 — RULED
   2026-11-10.** Each close happens only after its unique content is ported; the ports are
   dispatched separately. Parker closes; no agent closes a PR.
@@ -792,8 +795,10 @@ Write it up with evidence and move to the next slice. Do not idle.
   proposed are dropped. Implementation lives in #53, revived by a separate worker; this
   entry records the ruling only. Note: as of this entry `main`'s managed settings do not
   yet deny the payroll tools (#53 adds them), so "payroll blocked" holds only once #53
-  merges and Parker re-pastes managed settings. Supersedes, for Vercel, #53's 2026-10-02
-  "block purchases" ruling as recorded in that PR.
+  merges and Parker re-pastes managed settings. R9 allows Vercel and Supabase, so the
+  Vercel and Supabase denies Parker approved for #53 on 2026-10-02 do not ship; the payroll
+  denies do. No `ask` rules for the Vercel purchase or domain tools are added: Parker said
+  "allowed", and whether he wants `ask` there is a separate question the steward put to him.
 - **Parker approves every merge — RULED 2026-11-10.** Parker, in session, choosing
   "Parker approves each" over "Rex merges, steward reports" and "Parker merges by hand":
   Rex reviews and posts "Cleared" or "Request changes — do not merge"; the steward brings

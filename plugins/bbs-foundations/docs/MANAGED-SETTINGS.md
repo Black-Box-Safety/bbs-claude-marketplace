@@ -164,7 +164,7 @@ releases, sends, converts or posts, and it runs only after the rep approves the 
 sheet by name. The `claudeMd` block now carries one rule naming the whole BC write
 boundary (items, Vendor No. on items, sales quotes and their lines; the PM
 Claude/BC-Write-API scripts and the `bc-item-entry` and `bc-quote-entry` skills; named
-approval; never release, send, convert or post). Before this the company memory named no
+approval in the chat; never release, send, convert or post). Before this the company memory named no
 BC write rule, only the systems-of-record line. Detail stays here, not in `claudeMd`:
 `bc_quote_entry.py` is **not** on the `bbs-fill` allow list, and goes on it only after #68
 enforces NASPO lines at cost (R3); a proof read-back of the quote printout stays mandatory
@@ -197,7 +197,11 @@ refused rather than prompted.
 `main`, and any GitHub tool on a surface managed settings do not reach (the Desktop
 **chat** window and Cowork; see "What is deliberately not here"). `git push` stays in
 `ask`; branch protection on `main` (a required PR and the `invariants` check) is the
-control there. Taking a PR out of draft (`gh pr ready`, `update_pull_request`) is not a
+control there. Nor does it cover the GitHub MCP tools that write commits straight to a
+branch: `push_files`, `create_or_update_file`, and `update_pull_request_branch`. Pointed at
+`main`, those are stopped only by branch protection on `main` with admin bypass **off**
+(agents act as Parker's own account, an admin, so with bypass on they would pass); that
+setting is the backstop for every path in this paragraph. Taking a PR out of draft (`gh pr ready`, `update_pull_request`) is not a
 merge and is not denied here; `AGENTS.md` and the agent files still forbid it.
 
 **Where it reaches.** Server-managed settings from the admin console reach Anthropic-hosted

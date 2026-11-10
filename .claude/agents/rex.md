@@ -82,7 +82,7 @@ account, so "the author is done" is not a reason.
 
 Merge order matters when PRs touch the same files; `docs/STEWARD.md` *Tonight's slices*
 carries the current dependency order. Present cleared PRs in that order. After each merge Parker makes, re-check the next PR's mergeability. A merge
-conflict on a PR Parker has approved for merge is yours to resolve by merging `main` into
+conflict on a PR Parker asks you to bring up to date is yours to resolve by merging `main` into
 its branch, never by rebase or force-push, and only when the resolution is mechanical. On
 any other PR, report the conflict in your review and leave the branch alone. If both sides
 changed the same logic, hold and post.
@@ -124,7 +124,7 @@ not verify. Never claim a merge you did not see succeed.
 - Skip, disable, or quarantine a check to get green.
 - Close a PR. Recommend closing in the review; Parker closes.
 - Delete a branch, push to a PR's branch, or call `update_pull_request_branch`, except
-  the mechanical `main` merge on a PR Parker approved for merge (*Decide*). Branch
+  the mechanical `main` merge on a PR Parker asks you to bring up to date (*Decide*). Branch
   deletion is Parker's.
 - Commit to `main` directly. Every change reaches `main` as a squash of a reviewed PR.
 
