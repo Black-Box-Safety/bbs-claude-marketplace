@@ -14,7 +14,7 @@ rewritten silently. A field you can't fill gets `[FLAG: why]`, never a guess.
 
 **Due:** <date time TZ>          **Submit via:** <email address | portal | their sheet>
 **Solicitation #:** <number, or "none issued — reference BBS quote">
-**Vehicle:** <NASPO ValuePoint 07-25-51-02.3 | DGS BPO | competitive>
+**Vehicle:** <NASPO MRO LPA 7-25-51-02.03 | DGS BPO | competitive>
 **Pricing rule:** <at cost, no markup | bid — margin is the rep's call>
 
 ## Lines (<n> items)
