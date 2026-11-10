@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-20-b19800" alt="20 skills">
+  <img src="https://img.shields.io/badge/skills-21-b19800" alt="21 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
@@ -78,6 +78,21 @@ Creating a second folder for a buyer who already has one is the expensive mistak
 **`grainger-promo-page`** runs the other direction. An agency already buys a given list of items, usually direct or from a competitor. Routing the same items at the same contract price through Black Box Safety turns that spend into reportable DVBE participation, and the skill's job is to make that concrete: real prices, real photos, real availability, and a quote builder a buyer can use without typing an email. The pricing-verification step matters because the sheet a rep sends is not always actually the lowest price: the skill checks every line against the agency's own Grainger account and prints whichever number is lower, because "lowest when you quote" is usually what the rep promised the buyer. SCPRS segmentation is what makes this more than a mailshot: instead of one blast, the skill sizes three buyer segments from the SCPRS warehouse (buys the prime direct, buys the category elsewhere, has BBS history but drifted) so the page goes to the people it can actually move, each with the wedge that fits their situation. And nothing ships before the brand compliance gate runs on the rendered page, same as any other piece, because an implied endorsement or an unregistered discount claim is a compliance problem the gate can catch just as easily on a webpage as on a PDF. The CAL FIRE H2 2026 build is the reference example: it was built once against a real agency hot list, and the errors it turned up (unpriced lines, a sheet that lost to the account price on more than a dozen lines, mismatched item descriptions) are written up in the skill's own worked example rather than repeated here.
 
 Both `ca-rfq-intake` and `naspo-quote` fire on their own when the conversation matches an inbound request; `grainger-promo-page` fires the same way when the conversation matches an outbound campaign build. You do not have to name any of them.
+
+## What the desk remembers
+
+A rep says "remember that this buyer wants the quote as one PDF". `desk-remember` saves that
+as one dated line with the rep's name in `LEARNED.md` in the buyer's folder (or the
+institution's, when it is true for everyone there), and says where it went. The next session
+anyone opens in that folder, or in a deal folder under it, is shown the line before the first
+prompt. A session in a different buyer's folder is not.
+
+A note is a person's statement, not a record. It never holds a price, an account number, a
+certification or a contract fact; the script refuses those and says where the number belongs
+instead. A note that should apply to a whole agency is saved for the buyer and marked for
+Parker to confirm. Design and what is still to come (showing notes when a session opens at
+the desk root, retiring a replaced note, the monthly roll-up):
+`docs/superpowers/specs/2026-11-10-desk-memory-design.md` in the marketplace repo.
 
 ## Item cards in Business Central
 
@@ -250,6 +265,7 @@ call went ahead unguarded, instead of looking guarded.
 |---|---|---|
 | `guard-tree.ps1` / `.py` | Before Bash / PowerShell / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/`, including a shell delete or a redirect into a submitted packet (reading one stays allowed) |
 | `desk-context.ps1` / `.py` | Session start inside a buyer folder | Puts the last rows of `quote-log.md` and the latest `FLAGS.md` entries in front of Claude before the first prompt |
+| `desk-memory.ps1` / `.py` | Session start inside the tree, or at the desk root just above it | Shows what reps asked Claude to remember: the `LEARNED.md` lines in the session's folder and in each folder above it, nearest first. It walks up and never sideways, so one buyer's notes never show in another buyer's folder. Lines that are not in the entry format are counted and skipped, and a line that holds what a note may not (a price, a contact detail, an instruction to skip a review) is withheld and counted. Its own parity test: `hooks/tests/desk_memory_parity.py` |
 
 A denial shows up as a permission refusal with a one-line reason Claude relays. Test locally:
 `python3 plugins/bbs-sales/hooks/tests/parity.py` (both halves, when PowerShell is present),
