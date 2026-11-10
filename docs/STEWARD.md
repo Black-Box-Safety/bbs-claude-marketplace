@@ -10,15 +10,15 @@ The operating manual for `.claude/agents/steward.md`. Read `AGENTS.md` first.
 scope → brief → dispatch worker → worker opens PR
       → steward reviews with a fresh reviewer
       → findings back to the SAME worker → worker tends
-      → steward merges
+      → Rex clears → steward asks Parker per PR → Parker approves by number → merge
 ```
 
 Four properties make it worth running:
 
 - **A session ends at a PR, not a merge.** The agent that wrote the change never approves
   it.
-- **The reviewer did not write the code.** Parker's standing authorization to merge is
-  conditional on exactly this.
+- **The reviewer did not write the code, and Parker approves the merge.** There is no
+  standing authorization to merge (ruled 2026-11-10, "Parker approves every merge").
 - **Findings return to the original worker**, which still holds the context. A fresh
   session re-deriving the change is slower and gets it less right.
 - **The steward is woken by the PR**, not by polling. Subscribe to PR activity when the
@@ -566,7 +566,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   on 2026-10-01 blocked the build session from dispatching a reviewer to merge the build
   session's own PR), stop and report it to Parker; do not retry or route around it. ~~Parker
   merges when the session that dispatches Rex is also the PR's author.~~ Superseded
-  2026-10-02 (next entry).
+  2026-10-02 (next entry). *Since 2026-11-10 the clear marker reads "Cleared — awaiting
+  Parker's merge approval" ("Parker approves every merge").*
 
 - **impeccable: install only the fork's `plugin/` folder, with its hooks off — RULED
   2026-10-01 (Parker, in session: "go with option A").** The entry was a `url` source with
@@ -772,7 +773,24 @@ Write it up with evidence and move to the next slice. Do not idle.
   `purchaseOrderLines` cannot be queried without its parent. `requires:` is
   `business-central` for both; the retired `bc-mcp-proxy` is required by nothing.
   `bbs-rebate-profitability` stays on CData; this ruling does not cover it.
-- **Rex merges what it clears, whichever session dispatched it — RULED 2026-10-02.**
+- **Parker approves every merge — RULED 2026-11-10.** Parker, in session, choosing
+  "Parker approves each" over "Rex merges, steward reports" and "Parker merges by hand":
+  Rex reviews and posts "Cleared" or "Request changes — do not merge"; the steward brings
+  cleared PRs to Parker; nothing merges into `main`, leaves draft, or closes until Parker
+  approves that PR by number. An agent may execute the merge only with his approval quoted
+  in its brief. A general instruction ("merge the valuable ones", "use Rex") is not
+  approval. Supersedes the 2026-10-02 entry below. Why: on 2026-11-10, between 07:13 and
+  07:24 UTC, a steward session read Parker's "deal with the many branches… merge the
+  valuable ones… utilize Rex" as authority, told its Rex that "draft status alone is not a
+  hold", and Rex marked #80, #79 and #75 ready and squash-merged them. Each write was
+  auto-accepted by configuration, no person approved any of them, and the steward told
+  Parker that nothing had merged. Parker: "I haven't approved or done any of the merges."
+  Out of scope here, carried as a follow-up: `plugins/agent-team/skills/project-steward/SKILL.md`
+  still lets a steward squash-merge when a program profile records the delegation. BBS has
+  no `docs/pm/PROGRAM-PROFILE.md` and runs its own steward agent, so it is not a live path
+  in this repo today.
+- ~~**Rex merges what it clears, whichever session dispatched it — RULED 2026-10-02.**~~
+  *Superseded 2026-11-10 by "Parker approves every merge", above.*
   Parker, in session: "enable rex to conduct merges himself going forward for all session".
   This supersedes "Parker merges when the session that dispatches Rex is also the PR's
   author" (2026-10-01 entry above). Rex squash-merges any PR it has cleared on its own
