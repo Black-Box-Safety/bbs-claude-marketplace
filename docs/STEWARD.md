@@ -10,15 +10,16 @@ The operating manual for `.claude/agents/steward.md`. Read `AGENTS.md` first.
 scope → brief → dispatch worker → worker opens PR
       → steward reviews with a fresh reviewer
       → findings back to the SAME worker → worker tends
-      → Rex clears → steward asks Parker per PR → Parker approves by number → merge
+      → Rex clears → steward brings cleared PRs to Parker → Parker merges in the GitHub UI
 ```
 
 Four properties make it worth running:
 
 - **A session ends at a PR, not a merge.** The agent that wrote the change never approves
   it.
-- **The reviewer did not write the code, and Parker approves the merge.** There is no
-  standing authorization to merge (ruled 2026-11-10, "Parker approves every merge").
+- **The reviewer did not write the code, and only Parker merges.** Agents never merge;
+  Parker clicks Merge in the GitHub UI, and managed settings deny the merge tools (ruled
+  2026-11-10, "Agents never merge", R1).
 - **Findings return to the original worker**, which still holds the context. A fresh
   session re-deriving the change is slower and gets it less right.
 - **The steward is woken by the PR**, not by polling. Subscribe to PR activity when the
@@ -722,12 +723,59 @@ Write it up with evidence and move to the next slice. Do not idle.
   `purchaseOrderLines` cannot be queried without its parent. `requires:` is
   `business-central` for both; the retired `bc-mcp-proxy` is required by nothing.
   `bbs-rebate-profitability` stays on CData; this ruling does not cover it.
+- **Rulings of 2026-11-10 (R1–R8) — RULED 2026-11-10.** Parker's words, in the steward session, 2026-11-10, after reading R1–R9 with the steward's recommendations: "Follow recommendations except for the last one we don't need payroll. I want vercel and supabase to be allowed". R9 is still being clarified with him and is not recorded here. Each entry below adopts
+  the steward's recommendation as written.
+- **R1. Agents never merge — RULED 2026-11-10.** Managed settings deny the GitHub merge and
+  auto-merge tools (`permissions.deny` in `bbs-managed-settings.json`; the names, which are
+  verified and which inferred, are in `MANAGED-SETTINGS.md`, "Agents never merge"), and
+  `gh pr merge` moves from `ask` to `deny`. Rex reviews and posts "Cleared — awaiting
+  Parker's merge approval"; Parker clicks Merge in the GitHub UI. Why: every agent posts as
+  Parker's GitHub account (pjm3wv), so no agent can prove Parker approved; a deny is a
+  control, a sentence is a request. Supersedes the "An agent may execute the merge only
+  with his approval quoted in its brief" wording that #82 put in `.claude/agents/rex.md`,
+  `.claude/agents/steward.md`, this file and `AGENTS.md` (Rex's open question M1); all four
+  now say agents never merge and Parker merges in the UI. **Open action for Parker:**
+  re-paste managed settings in the admin console; until then the deny reaches no machine.
+- **R2. Quote creation in Business Central through `bc-quote-entry` (#68) is allowed —
+  RULED 2026-11-10.** It writes only the quote, its ship-to and its lines; it never
+  releases, sends, converts or posts; and it runs only after the rep approves the review
+  sheet by name. **Open action for Parker:** amend the organization instruction in the
+  admin console to name both the `bc-item-entry` and `bc-quote-entry` skills. No repo
+  change does it.
+- **R3. `bc_quote_entry.py` may go on the `bbs-fill` allow list — RULED 2026-11-10.** No
+  Allow click, but **only after** #68 enforces NASPO lines at cost (`unitPrice ==
+  unitCost` on contract NASPO). The named review sheet stays the gate. Until that check
+  ships in #68, the script stays off the list.
+- **R4. Salesperson split on state quotes — RULED 2026-11-10.** `KQUEZON` for Kim's 18
+  agencies, `AANYA` for all others, `PMARSHALL` never on a state quote. The list of 18 has
+  one home, `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`;
+  everything else points at it, and the test reads it. As of this entry the list is not
+  yet in canon on `main`; it lands with the work that uses it, not re-keyed anywhere else.
+- **R5. Proof read-back of the BC quote printout stays mandatory — RULED 2026-11-10.**
+  Until someone verifies that BC's sales-quote report prints DVBE only, never SB, for
+  California state customers.
+- **R6. #72 is narrowed — RULED 2026-11-10.** Quote outcomes live only in `quote-log.md`
+  (#75). Durable customer-folder notes reuse #81's desk-memory entry format and refusal
+  table, so there is one memory mechanism, not two.
+- **R7. Desk memory (#81) assumptions A1–A7 accepted as recommended — RULED 2026-11-10.**
+  - A1: any rep writes buyer-level and institution-level notes without review, name
+    attached, and Parker sees new lines in a monthly digest.
+  - A2: agency-wide and desk-wide notes are Parker's. **Open action for Parker:** he owns
+    writing them.
+  - A3: the `bbs-fill` allow-list entry for `desk_memory.py` comes in slice 2, not #81.
+  - A4: Parker restamps the desk-root CLAUDE.md on SharePoint after #81 merges. **Open
+    action for Parker**, after merge.
+  - A5–A7: accepted as written in #81's spec.
+- **R8. Duplicate PRs: keep #71 and close #78; keep #74 and close #73 — RULED
+  2026-11-10.** Each close happens only after its unique content is ported; the ports are
+  dispatched separately. Parker closes; no agent closes a PR.
 - **Parker approves every merge — RULED 2026-11-10.** Parker, in session, choosing
   "Parker approves each" over "Rex merges, steward reports" and "Parker merges by hand":
   Rex reviews and posts "Cleared" or "Request changes — do not merge"; the steward brings
   cleared PRs to Parker; nothing merges into `main`, leaves draft, or closes until Parker
-  approves that PR by number. An agent may execute the merge only with his approval quoted
-  in its brief. A general instruction ("merge the valuable ones", "use Rex") is not
+  approves that PR by number. ~~An agent may execute the merge only with his approval quoted
+  in its brief.~~ *Superseded 2026-11-10 by "Agents never merge" (R1), above: no agent
+  merges; Parker merges in the GitHub UI.* A general instruction ("merge the valuable ones", "use Rex") is not
   approval. Supersedes the 2026-10-02 entry below. Why: on 2026-11-10, between 07:13 and
   07:24 UTC, a steward session read Parker's "deal with the many branches… merge the
   valuable ones… utilize Rex" as authority, told its Rex that "draft status alone is not a
@@ -875,4 +923,4 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-10-02.
+Owner: Parker Marshall. Last verified 2026-10-02; rulings register updated 2026-11-10.
