@@ -189,5 +189,50 @@
     "id": "item-sib-2",
     "expect": "grainger-pricing",
     "query": "Price these Grainger items on the CMC account: 1TAJ3, 38W367, 60KA44. Just the prices, nothing in BC."
+  },
+  {
+    "id": "remember-1",
+    "expect": "desk-remember",
+    "query": "Remember that the buyer at this institution wants the quote and every cert merged into one PDF."
+  },
+  {
+    "id": "remember-2",
+    "expect": "desk-remember",
+    "query": "Note for next time: this buyer always wants a phone call before we email anything."
+  },
+  {
+    "id": "remember-3",
+    "expect": "desk-remember",
+    "query": "That was wrong, the buyer moved to the Folsom office last month. Make sure we know that next time."
+  },
+  {
+    "id": "remember-4",
+    "expect": "desk-remember",
+    "query": "Don't forget the receiving dock at this hospital closes at noon on Fridays."
+  },
+  {
+    "id": "remember-5",
+    "expect": "desk-remember",
+    "query": "What do we have remembered about this buyer? Show me the notes for this folder."
+  },
+  {
+    "id": "remember-neg-intake",
+    "expect": "ca-rfq-intake",
+    "query": "A new RFQ just came in from a CDCR institution for nitrile gloves. Log it so we remember the deadline."
+  },
+  {
+    "id": "remember-neg-outcome",
+    "expect": "__none__",
+    "query": "The gloves quote we sent this buyer last month was won. Update the outcome in the quote log."
+  },
+  {
+    "id": "remember-neg-flag",
+    "expect": "__none__",
+    "query": "The draft pulled last quarter's solicitation number. Log that in FLAGS.md as a factual error."
+  },
+  {
+    "id": "remember-neg-precedent",
+    "expect": "__none__",
+    "query": "What did we quote this buyer last time for the same gloves?"
   }
 ]
