@@ -10,6 +10,7 @@ rep's quote. The gates that need BC take a fake with the three reads they use.
 import copy
 import json
 import os
+import re
 import sys
 import tempfile
 import types
@@ -19,6 +20,21 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import bc_quote_entry as m  # noqa: E402
 
 UOMS = {"EA", "PK10", "CS"}
+# The one home of Kim Quezon's 18 agencies (invariant 2). The Owner tests parse it; they carry no list.
+CANON = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "..",
+                                      "bbs-foundations", "skills", "bbs-claude-md-forge", "references",
+                                      "canonical-facts.md"))
+
+
+def canon_kim_agencies():
+    """The agency names in canon's "Salesperson follows the account split" sentence, as written there."""
+    with open(CANON, encoding="utf-8") as f:
+        text = f.read()
+    hit = re.search(r"`KQUEZON` for Kim Quezon's agencies \(([^)]*)\)", text)
+    if not hit:
+        raise AssertionError(f"canon no longer carries the sentence \"KQUEZON for Kim Quezon's agencies (...)\" "
+                             f"in {CANON}; update this parser with the new wording")
+    return [n.strip() for n in re.sub(r"\s+", " ", hit.group(1)).split(",") if n.strip()]
 # The CONTRACT list as BC-WRITE-SOP-RULES.md section 1 prints it. Change both, or neither.
 SOP_CONTRACT_CODES = {"OPEN", "NASPO", "NPPGOV", "GSA", "OMNIA", "EMRKT", "ICPT", "UCOP", "BODYARMOR", "BA-CA",
                       "BA-SRCWL", "WWG-SRCWL", "DODIG", "QB LEGACY", "BBSACCOUNTINGONLY"}
@@ -63,7 +79,11 @@ class ContractList(unittest.TestCase):
     def test_every_code_passes(self):
         for code in SOP_CONTRACT_CODES:
             book = "body-armor" if code in m.BODY_ARMOR_CONTRACTS else "ca-state"
-            self.assertEqual(errors(spec(contract=code, book=book)), [], code)
+            s = spec(contract=code, book=book)
+            if code == "NASPO":   # NASPO sells at cost (NaspoAtCost below)
+                s["lines"][0]["unitPrice"] = s["lines"][0]["unitCost"]
+                s["quoteTotalExclTax"] = round(s["lines"][0]["qty"] * s["lines"][0]["unitCost"], 2)
+            self.assertEqual(errors(s), [], code)
 
 
 class HeaderRules(unittest.TestCase):
@@ -152,10 +172,11 @@ class LineRules(unittest.TestCase):
         self.assertTrue(any("0% margin" in e for e in errors(s)))
         s["lines"][0]["zeroMarginOk"] = True
         self.assertEqual(errors(s), [])
-        s = self.line(unitPrice=89.50); s["zeroMarginOk"] = True   # the NASPO shape: spec-level
+        s = self.line(unitPrice=89.50); s["zeroMarginOk"] = True   # spec-level, on a non-NASPO contract
         _, lines, errs, _ = m.validate_spec(s, UOMS)
         self.assertEqual(errs, [])
         self.assertTrue(lines[0]["atCost"])
+
 
     def test_cost_required(self):
         self.assertTrue(any("unitCost must be a number greater than 0" in e for e in errors(self.line(unitCost=0))))
@@ -185,19 +206,73 @@ class LineRules(unittest.TestCase):
         self.assertEqual(errors(s), [])
 
 
+class NaspoAtCost(unittest.TestCase):
+    """Canon, "Grainger sell rule, by channel": on NASPO the Grainger price is the customer price, never
+    marked up (Parker, 2026-11-10, R3: the allow-list entry depends on this gate)."""
+
+    def naspo(self, price, cost=89.50, **line_over):
+        s = spec(contract="NASPO", pricingBasis="Grainger at cost on NASPO")
+        s["lines"][0].update(unitPrice=price, unitCost=cost, **line_over)
+        s["quoteTotalExclTax"] = round(s["lines"][0]["qty"] * price, 2)
+        return s
+
+    def test_naspo_markup_is_refused(self):
+        errs = errors(self.naspo(95.50))
+        self.assertTrue(any("NASPO" in e and "never marked up" in e and "must equal unitCost" in e for e in errs), errs)
+
+    def test_naspo_one_cent_over_is_refused(self):
+        self.assertTrue(any("never marked up" in e for e in errors(self.naspo(89.51))))
+
+    def test_naspo_markup_refused_even_with_zero_margin_ok(self):
+        s = self.naspo(95.50, zeroMarginOk=True); s["zeroMarginOk"] = True
+        self.assertTrue(any("never marked up" in e for e in errors(s)))
+
+    def test_naspo_at_cost_passes_without_zero_margin_ok(self):
+        s = self.naspo(89.50)
+        self.assertNotIn("zeroMarginOk", s)
+        _, lines, errs, _ = m.validate_spec(s, UOMS)
+        self.assertEqual(errs, [])
+        self.assertTrue(lines[0]["atCost"])
+
+    def test_naspo_below_cost_still_stops(self):
+        self.assertTrue(any("below unitCost" in e for e in errors(self.naspo(80.00))))
+
+    def test_naspo_multiline_one_marked_up_line_stops(self):
+        s = spec(contract="NASPO", pricingBasis="Grainger at cost on NASPO")
+        s["lines"] = [{"line": 1, "number": "A", "description": "A", "qty": 2, "uom": "EA", "unitCost": 10.0, "unitPrice": 10.0},
+                      {"line": 2, "number": "B", "description": "B", "qty": 1, "uom": "EA", "unitCost": 5.0, "unitPrice": 5.25}]
+        s["quoteTotalExclTax"] = 25.25
+        errs = errors(s)
+        self.assertEqual(len([e for e in errs if "never marked up" in e]), 1)
+        self.assertTrue(any(e.startswith("line 2:") for e in errs))
+
+    def test_non_naspo_markup_passes(self):
+        for contract in ("OPEN", "NPPGOV", "OMNIA", "GSA"):
+            self.assertEqual(errors(spec(contract=contract)), [], contract)
+
+
 class Owner(unittest.TestCase):
     """Whose quote it is. Parker, in session, 2026-10-16: Parker holds no accounts on the state book, so a
     state quote carries Kim's code for her 18 agencies and Aanya's for every other state agency."""
 
-    KIM_18 = {"CDCR", "CHP", "CAL FIRE", "CMD", "CDFW", "CAL OES", "DOJ", "DPR", "DWR", "DCC", "CCC", "ABC", "DOC",
-              "SWRCB", "OIG", "POST", "CHRB", "CGCC"}
+    KIM_18 = None   # read from canon in setUpClass; never a copy here
+
+    @classmethod
+    def setUpClass(cls):
+        cls.CANON_NAMES = canon_kim_agencies()
+        cls.KIM_18 = {m.normalize_agency(n) for n in cls.CANON_NAMES}
 
     def owner_errors(self, **over):
         return [e for e in errors(spec(**over)) if "salesperson" in e or "book" in e or "agency" in e or "CONTRACT" in e]
 
     def test_kim_has_eighteen_agencies(self):
-        self.assertEqual(set(m.KIM_AGENCIES), self.KIM_18)
+        self.assertEqual(len(self.CANON_NAMES), 18, self.CANON_NAMES)
         self.assertEqual(len(m.KIM_AGENCIES), 18)
+
+    def test_script_matches_canon(self):
+        unresolved = [n for n in self.CANON_NAMES if m.normalize_agency(n) not in m.KIM_AGENCIES]
+        self.assertEqual(unresolved, [], "canon names an agency the script's KIM_AGENCIES does not resolve")
+        self.assertEqual(set(m.KIM_AGENCIES), self.KIM_18, "KIM_AGENCIES and canon disagree on Kim's agencies")
 
     def test_codes(self):
         self.assertEqual(m.KIM_CODE, "KQUEZON")

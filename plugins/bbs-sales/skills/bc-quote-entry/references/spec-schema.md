@@ -22,7 +22,7 @@ first).
 | `lines` | yes | One object per quote line, below. At least one |
 | `quoteTotalExclTax` | yes | Sum of `qty x unitPrice` across the lines, to the cent. The check stops if the lines do not add up to it; the commit stops if BC's total differs from it |
 | `preparedBy` | yes | The rep's name; printed on the sheet and matched against `--approved-by` on commit |
-| `zeroMarginOk` | no | `true` when every line sells at cost by design (the NASPO schedule: the Grainger price is the customer price). Otherwise put it on the lines that need it |
+| `zeroMarginOk` | no | `true` when every line sells at cost by design on a contract other than NASPO. Not needed on NASPO, where at cost is enforced. Otherwise put it on the lines that need it |
 | `deal` | no | One line naming the deal, for the sheet and the log |
 | `approvedBy` | no | Free text for the rep's own record. The script does not read it: approval is the `--approve <token> --approved-by "<name>"` pair on the commit. Editing it after the check changes the token like any other edit |
 
@@ -52,7 +52,7 @@ the check because BC would reject or ignore the PATCH. All ASCII.
 | `qty` | yes | Greater than zero |
 | `uom` | yes | A unit of measure code that exists in BC, usually `EA` |
 | `unitCost` | yes | Greater than zero: BBS's cost for one unit from `costSource`. Not written to BC; it is the basis the sheet's GM% and the price gate use. Shown beside the card's cost when the two differ |
-| `unitPrice` | yes | Greater than zero, never below `unitCost`. Equal to `unitCost` only with `zeroMarginOk` on the line or the spec. A zero stops: by SOP a zero price means nobody priced the line |
+| `unitPrice` | yes | Greater than zero, never below `unitCost`. On `NASPO`, equal to `unitCost` to the cent, always. Elsewhere, equal to `unitCost` only with `zeroMarginOk` on the line or the spec. A zero stops: by SOP a zero price means nobody priced the line |
 | `zeroMarginOk` | no | `true` when this line sells at cost and the rep has seen that on the sheet |
 
 Everything else on the header is fixed or inherited: `documentDate` is the day of the commit,
@@ -102,9 +102,10 @@ Every value below is synthetic.
 }
 ```
 
-A NASPO spec differs in three places: `"contract": "NASPO"`, every line's `unitPrice` equal
-to its `unitCost` (the Grainger price read on the buying institution's own account), and
-`"zeroMarginOk": true` at the top level with `pricingBasis` saying so. A CAL FIRE or CDCR
+A NASPO spec differs in two places: `"contract": "NASPO"`, and every line's `unitPrice` equal
+to its `unitCost` to the cent (the Grainger price read on the buying institution's own
+account), with `pricingBasis` saying so. The check stops on any NASPO line priced above
+cost; `zeroMarginOk` is not needed. A CAL FIRE or CDCR
 spec differs in one: `"agency": "CAL FIRE"` makes the salesperson `KQUEZON`, and the check
 stops on anything else.
 

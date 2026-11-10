@@ -122,6 +122,11 @@ ITEM_MISSING = ("not in Business Central. Nothing is created or patched from her
                 "bc-item-entry (vendor, sourced cost, named review), then run check again.")
 
 
+def at_cost(price, cost):
+    """True when the price equals the cost to the cent."""
+    return round(price * 100) == round(cost * 100)
+
+
 def num_or_none(v):
     try:
         return float(v) if v not in (None, "") else None
@@ -368,7 +373,13 @@ def validate_spec(spec, uoms):
             elif cost is not None and cost > 0:
                 if price < cost - 0.005:
                     errs.append(f"{tag}: unitPrice {money(price)} is below unitCost {money(cost)}")
-                elif abs(price - cost) < 0.005 and not (ln.get("zeroMarginOk") or spec_zero_ok):
+                elif contract == "NASPO" and not at_cost(price, cost):
+                    # Canon, "Grainger sell rule, by channel" (RULED for California state and the
+                    # NASPO LPA): on NASPO the Grainger price is the customer price, never marked up.
+                    errs.append(f"{tag}: this is a NASPO quote, and on NASPO BBS sells Grainger at cost, never marked "
+                                f"up. unitPrice {money(price)} must equal unitCost {money(cost)} to the cent. Set the "
+                                f"price to the cost, or if this is not a NASPO order, fix the contract")
+                elif at_cost(price, cost) and contract != "NASPO" and not (ln.get("zeroMarginOk") or spec_zero_ok):
                     errs.append(f"{tag}: unitPrice equals unitCost (0% margin); set zeroMarginOk: true on the line, or "
                                 f"on the spec when every line sells at cost by contract (Grainger on NASPO)")
             gm = None
@@ -808,6 +819,11 @@ def cmd_commit(args):
           f"{norm(doc.get('status'))} - approved by {who}. Log: {log_path}")
     print("NEXT: a person reviews the quote in BC, releases it (tax), prints the PDF there and sends it. "
           "Nothing here releases or sends.")
+    if header.get("book") == "ca-state":
+        # Parker, 2026-11-10 (R5): mandatory until someone verifies BC prints DVBE only for California.
+        print("PROOF BEFORE SENDING (mandatory): on the PDF BC prints from the released quote, the certification "
+              "line reads DVBE 2009473 only, never SB or SDVOSB, and the tax matches the agency's worksheet. "
+              "Neither is checked by this script; BC's print layout sets both.")
 
 
 def main():

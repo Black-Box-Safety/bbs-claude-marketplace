@@ -35,9 +35,10 @@ Vendor No., and create sales quotes and their lines. Nothing else, ever: no rele
    side effect of quoting). A missing number stops with the instruction to enter it through
    `bc-item-entry` first.
 2. **Price has a basis.** Every line carries a cost greater than zero with the document it
-   came from, and a price that is never below it. A price equal to cost needs `zeroMarginOk`
-   on the line, or on the spec when the whole quote sells at cost by contract (Grainger on
-   NASPO). A zero price stops. The lines sum to the total.
+   came from, and a price that is never below it. On a `NASPO` quote every line's price
+   must equal its cost to the cent: Grainger on NASPO sells at cost, never marked up, and a
+   markup stops the check. Elsewhere a price equal to cost needs `zeroMarginOk` on the line,
+   or on the spec. A zero price stops. The lines sum to the total.
 3. **One quote per external document number.** The agency's solicitation or PO number goes
    on the header, and the check stops if any sales quote already carries it.
 4. **The owner's code.** On a California state quote the salesperson is the Account Manager
@@ -181,7 +182,27 @@ the draft is gone, which is correct.
 
 Tell the rep the SQ number, that it is a Draft, and where the log is. What happens next is
 theirs, in BC: review the quote, release it (that is where tax is calculated), print the PDF
-from the released quote, send it. Nothing here releases, prints or sends. If the rep wants a
+from the released quote, proof it (below), send it. Nothing here releases, prints or sends.
+
+**Proof the BC printout before it goes out — mandatory** (Parker, 2026-11-10, R5; it stays
+until someone verifies that BC's print layout puts DVBE, and only DVBE, on every California
+quote). On a California state quote the rep reads the PDF BC printed from the released quote
+and confirms:
+
+- **The certification line reads `DVBE 2009473` only.** Never SB, never SDVOSB, never
+  "small business" on a California quote. If it reads anything else, stop: do not send, and
+  tell Parker, because the print layout is wrong for every California quote, not just this
+  one.
+- **Tax is right.** Tax appears only after release. It matches the agency's worksheet: none
+  where the worksheet says no sales tax, the ship-to's rate otherwise.
+
+Say this to the rep in the close-out on every `ca-state` quote; the commit output prints the
+same reminder. Which read-backs this skill already does, so the rep knows what is left: the
+**header read-back** (customer, ship-to, payment terms, shipment method, CONTRACT,
+salesperson, external document number, before any line exists) and the **quote read-back**
+(every line, and the total excluding tax, after the lines). Both read BC's data, not BC's
+printout; neither sees the certification line or the tax, which is why the proof is the
+rep's. If the rep wants a
 Claude-rendered copy of the quote as well, that is `bbs-quote-builder`, on the SQ number BC
 assigned, after the quote exists.
 
@@ -217,6 +238,7 @@ page; nothing in the script changes.
 | "The item isn't in BC, just quote it as a text line" | Every line is an item line by SOP. Enter the item through `bc-item-entry`, then quote. |
 | "Leave the price at zero, I'll fill it in BC" | A zero price is a line nobody priced. The gate stops; price it or drop it. |
 | "Mark it up later, use cost as the price for now" | Only on a schedule where cost is the price by contract, with `zeroMarginOk` and the basis saying so. Otherwise it is a pricing decision the rep makes before the sheet. |
+| "It's NASPO but add a few percent for freight" | Grainger on NASPO sells at cost, never marked up. The check stops on any NASPO line priced above cost. |
 | "The RFQ number is already on an old quote, just reuse it" | The duplicate gate stops on purpose. The rep decides: revise in BC, or a new external document number. |
 | "Ship it to the customer's default address, it's close enough" | The default is sometimes another state and another tax jurisdiction (the Bechtel Utah case). The spec carries the RFQ's delivery point and the gate checks it. |
 | "Set valid-until to 30 days" | BC computes document date + 60 by SOP. A different validity is a change the rep makes in BC and defends. |

@@ -23,15 +23,16 @@ CAL FIRE Atwater on 2026-10-16, which this skill replaces.
 
 ## Whose quote it is
 
-Ruled by Parker, in session, 2026-10-16, and recorded in canonical-facts.md ("Salesperson
-follows the account split, quote by quote") and `/ca-rfq` Gate 5: on a California state quote the
+Ruled by Parker, in session, 2026-10-16 (reaffirmed 2026-11-10, R4), and recorded in
+`bbs-foundations` `references/canonical-facts.md` ("Salesperson follows the account split, quote
+by quote"), which is the one list of Kim's 18 agencies, and `/ca-rfq` Gate 5: on a California state quote the
 salesperson is the Account Manager who owns the agency, quote by quote. Parker holds no accounts
 on the state book; state work Parker runs still lands under Kim or Aanya.
 
 | Spec `book` | Who | `agency` | `salesperson` the check accepts |
 |---|---|---|---|
-| `ca-state` | Kim Quezon | CDCR, CHP, CAL FIRE, CMD, CDFW, Cal OES, DOJ, DPR, DWR, DCC, CCC, ABC, DOC, State Water Board (SWRCB / CWB), OIG, POST, Horse Racing Board, Gambling Control Commission | `KQUEZON` **[script]** |
-| `ca-state` | Aanya Samarasinghe | every other California state agency (DGS, Caltrans, DSH, CalVet, DMV, CDFA, CARB, DTSC, CalRecycle, DOR, DCA, CNRA, ...) | `AANYA` **[script]** (the code exists in BC since 2026-09-14) |
+| `ca-state` | Kim Quezon | her 18 agencies, listed once in canonical-facts.md (above); the script's `KIM_AGENCIES` is held to that list by a test | `KQUEZON` **[script]** |
+| `ca-state` | Aanya Samarasinghe | every other California state agency | `AANYA` **[script]** (the code exists in BC since 2026-09-14) |
 | `higher-ed` | Joey Magliato | CSU, UC | `JMAGLIATO` or `UNIVERSITY` **[script]** |
 | `body-armor` | Parker Marshall | any; CONTRACT must be `BODYARMOR`, `BA-CA` or `BA-SRCWL` **[script]** | not gated |
 | `other` | outside the state book (federal primes, local, private) | none | not gated |
@@ -49,9 +50,11 @@ on the state book; state work Parker runs still lands under Kim or Aanya.
   `MUNC`, `UNAFLTD` or nothing, it cannot confirm the agency and the sheet says so, and the
   spec's `agency` decides **[script]**. A card that could not be read is a flag on the sheet,
   not a stop.
-- The agency list and the codes are copied into the script from canonical-facts and held as a
-  test (`test_bc_quote_entry.py`, `Owner`). When an agency moves or a code changes, change
-  canon, the script and the test together.
+- The script keeps the 18 as `KIM_AGENCIES` (short names plus the spellings a rep writes),
+  because a rep's installed plugin cannot read another plugin's file at run time. The test
+  (`test_bc_quote_entry.py`, `Owner`) parses canon's sentence and fails when the two differ, so
+  canon cannot move without the script following. When an agency moves, change canon and the
+  script together; the test carries no list of its own.
 - The CAL FIRE Atwater quote of 2026-10-16 is the precedent for the rule: its spec carried
   `CA STATE TEAM` and CAL FIRE is Kim's, so under this skill it would carry `KQUEZON`.
 
@@ -92,11 +95,15 @@ accepts them because they exist; the sheet names the code so the rep sees it.
 - `costSource` names a document with a number or date. The guess-word list is
   `bc-item-entry`'s: verbal, estimate, approx, roughly, about, ballpark, phone, from memory,
   guess, last time, typical, TBD, later, in any form. **[script]**
-- Price below cost stops. Price equal to cost stops unless the line, or the spec, says
-  `zeroMarginOk: true` **[script]**. On a NASPO or other Grainger-schedule quote the Grainger
-  price is the customer price by contract, so `zeroMarginOk` at the top level with a
-  `pricingBasis` that says "Grainger at cost on NASPO" is the normal shape, not an exception.
-  On an open-market quote a line at cost is a question for the rep.
+- Price below cost stops **[script]**.
+- On `contract: NASPO` every line's `unitPrice` must equal its `unitCost` to the cent, and a
+  markup stops the check **[script]**: the Grainger price is the customer price on NASPO,
+  never marked up (canon, `canonical-facts.md` "Grainger sell rule, by channel"). No
+  `zeroMarginOk` is needed on a NASPO quote; `pricingBasis` still says "Grainger at cost on
+  NASPO".
+- On every other contract, price equal to cost stops unless the line, or the spec, says
+  `zeroMarginOk: true` **[script]**. On an open-market quote a line at cost is a question
+  for the rep.
 - The lines must sum to `quoteTotalExclTax` to the cent before anything is written, and BC's
   `totalAmountExcludingTax` must equal it after **[script]**. Tax is excluded on both sides;
   it is calculated on release.
