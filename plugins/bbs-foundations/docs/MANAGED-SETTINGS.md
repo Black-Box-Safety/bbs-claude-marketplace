@@ -157,10 +157,14 @@ superseded; its reasoning (a write to a system of record deserves a second contr
 answered by the sheet, not by the click. Taking the script back off the list is a reversal
 and needs Parker, in a reviewed PR.
 
-`bc_quote_entry.py` (`bbs-sales` / `bc-quote-entry`, the sales-quote half, 2026-10-16) follows
-the same ruling: it is on the `ALLOWED` list, its `check` writes a review sheet with every header
-field and line Business Central will receive, and its `commit` carries the rep's name and the
-sheet's token. The two are the only scripts in the marketplace that write to Business Central.
+`bc_quote_entry.py` (`bbs-sales` / `bc-quote-entry`, the sales-quote half, 2026-10-16) is on the
+`ALLOWED` list under a narrower ruling: Parker, 2026-11-10 (R3), allowed it **only once its check
+stops a NASPO quote priced above cost**, because Grainger on NASPO sells at cost and a markup
+there is a wrong number on a binding quote. That gate exists (`validate_spec`, tested in
+`test_bc_quote_entry.py`, `NaspoAtCost`); removing or weakening it means taking the script off
+the list in the same PR. Otherwise it follows the item ruling: its `check` writes a review sheet
+with every header field and line Business Central will receive, and its `commit` carries the
+rep's name and the sheet's token. The two are the only scripts in the marketplace that write to Business Central.
 
 ## Empowerment posture (2026-09-11)
 
