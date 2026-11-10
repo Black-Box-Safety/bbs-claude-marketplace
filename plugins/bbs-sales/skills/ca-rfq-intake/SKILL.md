@@ -68,7 +68,8 @@ The fields that decide everything downstream:
 
 Read the buyer's `CLAUDE.md` (a folder up) while you fill this in. It carries what we
 learned last time: format quirks, whether they accept equivalents, how they've handled
-recycled-content answers.
+recycled-content answers. Lines shown under DESK MEMORY at session start are what reps asked
+to be remembered for this buyer and the folders above it; read those too.
 
 ## 4. Classify the request
 
