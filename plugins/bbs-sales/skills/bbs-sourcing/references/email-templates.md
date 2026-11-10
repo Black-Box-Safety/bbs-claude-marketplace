@@ -272,6 +272,7 @@ their real sent mail. Which asset to paste depends on what the run produces:
 
 | The run produces | Paste as `{{signature}}` |
 |---|---|
+| HTML that can carry images (an .html or .eml file, a mail-merge template) | `assets/signature.html` |
 | An Outlook draft through the Microsoft 365 connector (`outlook_create_draft`, `outlook_create_reply_draft`) | `assets/signature-outlook-draft.html`, verbatim, as the last block of the body. The connector strips images and styling, so this is the text form; say so in the chat reply and never drop the block to avoid saying it |
 | Plain text: the `message_compose_v1` card, a chat draft, `bodyType: text` | `assets/signature.txt`, verbatim |
 
