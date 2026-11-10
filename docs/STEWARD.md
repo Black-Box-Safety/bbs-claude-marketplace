@@ -271,6 +271,14 @@ Write it up with evidence and move to the next slice. Do not idle.
   signature, not a routing result, so no artifact was kept. Re-login the CLI in a terminal
   (`claude` then `/login`) and run the command in Commands above before this lands; the
   pass line to beat is 39/39 anonymized.
+- **Desk memory (`desk-remember`, `desk-memory` hook, `LEARNED.md`) — OPEN, seven items
+  ASSUMED, 2026-11-10.** Built at Parker's request of 2026-11-10. The spec's "Open for Parker"
+  list (`docs/superpowers/specs/2026-11-10-desk-memory-design.md`) is the single home: who may
+  write a note without review, who approves agency-wide and desk-wide notes, whether saving a
+  note runs without an Allow click (`bbs-fill` allow list; a control change), restamping the
+  desk-root `CLAUDE.md`, stale thresholds, the file name, contact changes. Nothing in it
+  changes a signer, a form ID, a certification claim or a price rule; notes are refused when
+  they carry one.
 
 - **`bc-item-entry`: rep-facing item creation in Business Central (PR #64) — RULED
   2026-10-14.** Parker, in session. What was ruled, and where each part lives

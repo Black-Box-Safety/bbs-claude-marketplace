@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-21-b19800" alt="21 skills">
+  <img src="https://img.shields.io/badge/skills-22-b19800" alt="22 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
@@ -79,6 +79,21 @@ Creating a second folder for a buyer who already has one is the expensive mistak
 
 Both `ca-rfq-intake` and `naspo-quote` fire on their own when the conversation matches an inbound request; `grainger-promo-page` fires the same way when the conversation matches an outbound campaign build. You do not have to name any of them.
 
+## What the desk remembers
+
+A rep says "remember that this buyer wants the quote as one PDF". `desk-remember` saves that
+as one dated line with the rep's name in `LEARNED.md` in the buyer's folder (or the
+institution's, when it is true for everyone there), and says where it went. The next session
+anyone opens in that folder, or in a deal folder under it, is shown the line before the first
+prompt. A session in a different buyer's folder is not.
+
+A note is a person's statement, not a record. It never holds a price, an account number, a
+certification or a contract fact; the script refuses those and says where the number belongs
+instead. A note that should apply to a whole agency is saved for the buyer and marked for
+Parker to confirm. Design and what is still to come (showing notes when a session opens at
+the desk root, retiring a replaced note, the monthly roll-up):
+`docs/superpowers/specs/2026-11-10-desk-memory-design.md` in the marketplace repo.
+
 ## Writes to Business Central
 
 Two skills write to Business Central, and they are the only two in this marketplace that do.
@@ -88,8 +103,9 @@ one does not (a vendor quote for parts BBS has never stocked, a Grainger SKU on 
 buy), `bc-item-entry` creates the item card first. The write scope is exactly that: create
 items, patch Vendor No., create sales quotes and their lines. Neither skill releases,
 converts, sends or posts anything.
-Both scripts run through `bbs-fill` with no Allow prompt (Parker, 2026-10-16): the rep's named
-sign-off on the review sheet is the approval.
+Both scripts run through `bbs-fill` with no Allow prompt: the rep's named sign-off on the
+review sheet is the approval. `bc_quote_entry.py` is on that list only because its check stops
+any NASPO line priced above cost (Parker, 2026-11-10, R3).
 
 | Skill | Fires when | Stops at |
 |---|---|---|
@@ -260,6 +276,7 @@ call went ahead unguarded, instead of looking guarded.
 |---|---|---|
 | `guard-tree.ps1` / `.py` | Before Bash / PowerShell / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/`, including a shell delete or a redirect into a submitted packet (reading one stays allowed) |
 | `desk-context.ps1` / `.py` | Session start inside a buyer folder | Puts the last rows of `quote-log.md` and the latest `FLAGS.md` entries in front of Claude before the first prompt |
+| `desk-memory.ps1` / `.py` | Session start inside the tree, or at the desk root just above it | Shows what reps asked Claude to remember: the `LEARNED.md` lines in the session's folder and in each folder above it, nearest first. It walks up and never sideways, so one buyer's notes never show in another buyer's folder. Lines that are not in the entry format are counted and skipped, and a line that holds what a note may not (a price, a contact detail, an instruction to skip a review) is withheld and counted. Its own parity test: `hooks/tests/desk_memory_parity.py` |
 
 A denial shows up as a permission refusal with a one-line reason Claude relays. Test locally:
 `python3 plugins/bbs-sales/hooks/tests/parity.py` (both halves, when PowerShell is present),
