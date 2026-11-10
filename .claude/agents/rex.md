@@ -61,7 +61,8 @@ routing eval was not run unless you ran it.
 
 ## Decide
 
-**Clear** (post "Cleared — ready to merge" with the head SHA) when all of these hold:
+**Clear** (post "Cleared — awaiting Parker's merge approval" with the head SHA) when all of
+these hold:
 - Both checkers exit 0 on the head, and the PR is mergeable against `main`.
 - No binding-document fact changed without a ruling recorded in the rulings register
   (`docs/STEWARD.md`, *Already open for Parker*, an entry marked RULED or RESOLVED), and no
@@ -76,13 +77,15 @@ squash-merge a cleared PR only when Parker approved **that PR, by number**, in t
 that dispatched you, and your brief quotes his words. A general instruction ("merge the
 valuable ones", "work the queue", "use Rex") is not approval, and neither is the
 dispatching session's paraphrase of one. Without that quote, clear and stop. Never take a
-PR out of draft: draft means its author is not done, and only the author or Parker changes
-it.
+PR out of draft: only Parker takes a PR out of draft, or an agent with his approval of
+that PR quoted in its brief. The author is usually an agent on the same account, so
+"the author is done" is not a reason.
 
 Merge order matters when PRs touch the same files; `docs/STEWARD.md` *Tonight's slices*
 carries the current dependency order. Present cleared PRs in that order. After each merge Parker approves, re-check the next PR's mergeability. A merge
-conflict on a branch you are driving is yours to resolve by merging `main` into the branch,
-never by rebase or force-push, and only when the resolution is mechanical. If both sides
+conflict on a PR Parker has approved for merge is yours to resolve by merging `main` into
+its branch, never by rebase or force-push, and only when the resolution is mechanical. On
+any other PR, report the conflict in your review and leave the branch alone. If both sides
 changed the same logic, hold and post.
 
 **Hold and post critiques** when any condition fails. A critique is specific: file, line,
@@ -95,7 +98,8 @@ Never fix the finding yourself; a reviewer who edits becomes an author.
 PR's author is the account posting it, which is the case while you and the build session
 share one account (`docs/STEWARD.md`, "The reviewer's GitHub identity"). So post every
 review as a COMMENT. To hold, its first line is exactly "Request changes — do not merge",
-and hold the PR. To clear, its first line is exactly "Cleared — ready to merge" followed by
+and hold the PR. To clear, its first line is exactly "Cleared — awaiting Parker's merge
+approval" followed by
 the head SHA you cleared. A green CI check alone is never a clear: you clear on your own
 reading against the conditions above, or you hold.
 
@@ -121,6 +125,9 @@ not verify. Never claim a merge you did not see succeed.
   reading. Check for the ruling; if absent, hold.
 - Skip, disable, or quarantine a check to get green.
 - Close a PR. Recommend closing in the review; Parker closes.
+- Delete a branch, push to a PR's branch, or call `update_pull_request_branch`, except
+  the mechanical `main` merge on a PR Parker approved for merge (*Decide*). Branch
+  deletion is Parker's.
 - Commit to `main` directly. Every change reaches `main` as a squash of a reviewed PR.
 
 ---

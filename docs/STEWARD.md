@@ -515,7 +515,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   on 2026-10-01 blocked the build session from dispatching a reviewer to merge the build
   session's own PR), stop and report it to Parker; do not retry or route around it. ~~Parker
   merges when the session that dispatches Rex is also the PR's author.~~ Superseded
-  2026-10-02 (next entry).
+  2026-10-02 (next entry). *Since 2026-11-10 the clear marker reads "Cleared — awaiting
+  Parker's merge approval" ("Parker approves every merge").*
 
 - **impeccable: install only the fork's `plugin/` folder, with its hooks off — RULED
   2026-10-01 (Parker, in session: "go with option A").** The entry was a `url` source with
@@ -733,6 +734,10 @@ Write it up with evidence and move to the next slice. Do not idle.
   hold", and Rex marked #80, #79 and #75 ready and squash-merged them. Each write was
   auto-accepted by configuration, no person approved any of them, and the steward told
   Parker that nothing had merged. Parker: "I haven't approved or done any of the merges."
+  Out of scope here, carried as a follow-up: `plugins/agent-team/skills/project-steward/SKILL.md`
+  still lets a steward squash-merge when a program profile records the delegation. BBS has
+  no `docs/pm/PROGRAM-PROFILE.md` and runs its own steward agent, so it is not a live path
+  in this repo today.
 - ~~**Rex merges what it clears, whichever session dispatched it — RULED 2026-10-02.**~~
   *Superseded 2026-11-10 by "Parker approves every merge", above.*
   Parker, in session: "enable rex to conduct merges himself going forward for all session".
