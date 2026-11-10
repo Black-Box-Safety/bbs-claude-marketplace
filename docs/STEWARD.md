@@ -222,8 +222,9 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
-- **Desk memory (`desk-remember`, `desk-memory` hook, `LEARNED.md`) — OPEN, seven items
-  ASSUMED, 2026-11-10.** Built at Parker's request of 2026-11-10. The spec's "Open for Parker"
+- **Desk memory (`desk-remember`, `desk-memory` hook, `LEARNED.md`) — seven items RULED
+  2026-11-10** (R7, below: A1–A7 accepted as recommended; was "OPEN, seven items ASSUMED").
+  Built at Parker's request of 2026-11-10. The spec's "Open for Parker"
   list (`docs/superpowers/specs/2026-11-10-desk-memory-design.md`) is the single home: who may
   write a note without review, who approves agency-wide and desk-wide notes, whether saving a
   note runs without an Allow click (`bbs-fill` allow list; a control change), restamping the
@@ -732,8 +733,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   `purchaseOrderLines` cannot be queried without its parent. `requires:` is
   `business-central` for both; the retired `bc-mcp-proxy` is required by nothing.
   `bbs-rebate-profitability` stays on CData; this ruling does not cover it.
-- **Rulings of 2026-11-10 (R1–R8) — RULED 2026-11-10.** Parker's words, in the steward session, 2026-11-10, after reading R1–R9 with the steward's recommendations: "Follow recommendations except for the last one we don't need payroll. I want vercel and supabase to be allowed". R9 is still being clarified with him and is not recorded here. Each entry below adopts
-  the steward's recommendation as written.
+- **Rulings of 2026-11-10 (R1–R9) — RULED 2026-11-10.** Parker's words, in the steward session, 2026-11-10, after reading R1–R9 with the steward's recommendations: "Follow recommendations except for the last one we don't need payroll. I want vercel and supabase to be allowed". R1–R8 adopt
+  the steward's recommendation as written; R9 is his exception, clarified the same day.
 - **R1. Agents never merge — RULED 2026-11-10.** Managed settings deny the GitHub merge and
   auto-merge tools (`permissions.deny` in `bbs-managed-settings.json`; the names, which are
   verified and which inferred, are in `MANAGED-SETTINGS.md`, "Agents never merge"), and
@@ -778,6 +779,16 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **R8. Duplicate PRs: keep #71 and close #78; keep #74 and close #73 — RULED
   2026-11-10.** Each close happens only after its unique content is ported; the ports are
   dispatched separately. Parker closes; no agent closes a PR.
+- **R9. Payroll stays blocked; Vercel and Supabase tools are allowed — RULED 2026-11-10.**
+  Parker's exception to the steward's last recommendation ("we don't need payroll. I want
+  vercel and supabase to be allowed"), then, asked about payroll in the steward session,
+  "Yes A". So: the QuickBooks payroll tools (`qbo_payroll_*`) are denied; the Vercel and
+  Supabase connector tools are **not** denied, and the Vercel and Supabase denies #53
+  proposed are dropped. Implementation lives in #53, revived by a separate worker; this
+  entry records the ruling only. Note: as of this entry `main`'s managed settings do not
+  yet deny the payroll tools (#53 adds them), so "payroll blocked" holds only once #53
+  merges and Parker re-pastes managed settings. Supersedes, for Vercel, #53's 2026-10-02
+  "block purchases" ruling as recorded in that PR.
 - **Parker approves every merge — RULED 2026-11-10.** Parker, in session, choosing
   "Parker approves each" over "Rex merges, steward reports" and "Parker merges by hand":
   Rex reviews and posts "Cleared" or "Request changes — do not merge"; the steward brings
