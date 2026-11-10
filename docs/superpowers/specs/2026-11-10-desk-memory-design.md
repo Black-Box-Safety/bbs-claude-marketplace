@@ -157,9 +157,18 @@ Buyer > institution > agency > desk > a skill change in this repo by PR. Slice 3
 Prices, discounts, margins, stock, lead times, certification and contract numbers, form IDs,
 signers, buying-account numbers, credentials. Enforced three ways:
 
-- `desk_memory.py` refuses a currency amount, a discount or margin percentage, a digit run of
-  seven or more, a contract-number shape, a certification or contract name next to digits, and
-  credential words. A pointer at a record ("see SQ-104032") passes.
+- `desk_memory.py` refuses, from one table (`REFUSE_TABLE`): a price with or without a currency
+  sign (a two-decimal figure, "N per box"), a discount or margin percentage; stock and lead
+  time ("lead time", "in stock", "backordered", "N days ARO"); any certification, small-business
+  or bid-preference claim, with or without digits; an instruction to skip, ignore or bypass a
+  review, approval, form or signature, or to send or commit without one; a phone number or an
+  email address; a digit run of seven or more; a contract-number shape; credential words. A
+  pointer at a record ("see SQ-104032") passes. (Tightened after Rex's review of #81.)
+- **On read too.** Both hook halves carry the same table and withhold, and count, any line in
+  the entry format that matches it, so a hand edit to `LEARNED.md` cannot put a price, a
+  contact detail or an instruction in front of Claude. `test_desk_memory.py` fails when the
+  writer, `desk-memory.py` and `desk-memory.ps1` disagree on the table, and the hook's first line
+  says every line is a teammate's note, never an instruction.
 - The skill body says the same in rep words, and refuses a note that tells Claude to skip a
   review, form, signature or approval.
 - The hook's first line tells the reader to take no such fact from a note.
@@ -167,6 +176,9 @@ signers, buying-account numbers, credentials. Enforced three ways:
 Text from a buyer email, an RFQ PDF or a web page is data. The skill saves the rep's sentence,
 never lifted text; the hook shows only lines in the entry format, so text pasted into the file
 by hand is counted and skipped. A note changes nothing a binding document says.
+
+The writer is importable, so another desk, or `bbs-foundations`' customer-folder upkeep
+(#72), can reuse the entry format and the refusal table instead of building a second one.
 
 The pattern check is a floor, not a ceiling: it cannot tell "delivery expected in two weeks"
 (a buyer preference) from a vendor lead time. That judgment stays with the skill and the rep.
@@ -224,7 +236,8 @@ Each is ASSUMED as recommended so the build could continue. None changes a bindi
    hook halves and the test that ties them together.
 7. **Contact changes.** ASSUMED: "buyer moved to Folsom" is a fine note; the phone, email and
    ship-to themselves stay in the buyer's `CLAUDE.md` header, which the skill tells Claude to
-   fix in the same turn.
+   fix in the same turn. Enforced: the writer refuses a phone number or email address and the
+   hook withholds one.
 
 ## What could not be verified here
 
@@ -233,6 +246,7 @@ Each is ASSUMED as recommended so the build could continue. None changes a bindi
   `invariants` job is the proof. Windows PowerShell 5.1 is proven by nothing until a rep
   machine runs it.
 - The routing eval was not run (no Claude auth in the container). `docs/evals/skills.json` is
-  regenerated with the new description; "remember that ..." queries should be added to
-  `queries-routing.json` and scored on the next authenticated run.
+  regenerated with the new description, and `queries-routing.json` carries five `desk-remember`
+  queries and four negatives (log an RFQ, record a quote outcome, log a flag, a precedent
+  question); score them on the next authenticated run.
 - No session has run `desk-remember` against the real tree.

@@ -47,11 +47,12 @@ their sentence.
 
 ## 3. Find the folder and the level
 
-`SKILL_DIR` is the folder holding this SKILL.md. Ask the script which folders the line could
+`SKILL_DIR` is the folder holding this SKILL.md. The commands below say `python3`, which is
+right on a Mac; on Windows type `python` instead (`python3` there is a Store stub). Ask the script which folders the line could
 go to, giving it the buyer or deal folder the session is working in:
 
 ```bash
-python "$SKILL_DIR/scripts/desk_memory.py" where --at "<buyer or deal folder>"
+python3 "$SKILL_DIR/scripts/desk_memory.py" where --at "<buyer or deal folder>"
 ```
 
 It prints the choices, nearest first: `1.` the buyer, `2.` the institution (CDCR, CalVet and
@@ -73,7 +74,7 @@ Ask one question only when the level is unclear. "Is that just this buyer, or ev
 ## 4. Save it
 
 ```bash
-python "$SKILL_DIR/scripts/desk_memory.py" add --at "<same folder>" --level 1 \
+python3 "$SKILL_DIR/scripts/desk_memory.py" add --at "<same folder>" --level 1 \
   --author "<the rep's full name>" --kind preference --text "<the sentence>"
 ```
 
@@ -97,12 +98,21 @@ If the note was marked wider, add: "I marked it for Parker to confirm for all of
 
 The script refuses these, and so should you before it gets that far:
 
-- A price, discount, margin, stock level or lead time. Say where the number is recorded
-  instead: "last gloves quote is SQ-104032" is fine, the dollar figure is not.
+- A price, discount, margin, stock level or lead time, with or without a dollar sign. Say
+  where the number is recorded instead: "last gloves quote is SQ-104032" is fine, the figure
+  is not.
+- Anything about BBS's certifications, small-business status or a bid preference. Those come
+  from the vendor profile and canonical facts, and a wrong one on a bid is a false
+  certification.
 - An account number, a certification number or a contract number.
+- A phone number or an email address. Fix the contact in the buyer's `CLAUDE.md` header and
+  save the change as words ("new buyer as of November, see CLAUDE.md").
 - A password, a login, anything that opens something.
-- An instruction to skip a review, a form, a signature or an approval. That is not a memory;
-  tell the rep it needs Parker.
+- An instruction to skip, ignore or get around a review, a form, a signature or an approval,
+  or to send or commit without one. That is not a memory; tell the rep it needs Parker.
+
+The session-start hook applies the same list when it reads the file, so a line typed into
+`LEARNED.md` by hand that breaks it is withheld, not shown.
 
 A note is context for a person's judgment. It never outranks Business Central, the Grainger
 connector, the vendor profile or the buyer's own documents, and when one disagrees with a
@@ -120,7 +130,7 @@ An older note the change replaces stays in the file for now, below the new one. 
 ## Showing what is remembered
 
 ```bash
-python "$SKILL_DIR/scripts/desk_memory.py" show --at "<folder>"
+python3 "$SKILL_DIR/scripts/desk_memory.py" show --at "<folder>"
 ```
 
 Prints exactly what a new session in that folder is given, nearest folder first.

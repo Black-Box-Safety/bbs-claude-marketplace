@@ -265,8 +265,7 @@ call went ahead unguarded, instead of looking guarded.
 |---|---|---|
 | `guard-tree.ps1` / `.py` | Before Bash / PowerShell / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/`, including a shell delete or a redirect into a submitted packet (reading one stays allowed) |
 | `desk-context.ps1` / `.py` | Session start inside a buyer folder | Puts the last rows of `quote-log.md` and the latest `FLAGS.md` entries in front of Claude before the first prompt |
-
-| `desk-memory.ps1` / `.py` | Session start inside the tree, or at the desk root just above it | Shows what reps asked Claude to remember: the `LEARNED.md` lines in the session's folder and in each folder above it, nearest first. It walks up and never sideways, so one buyer's notes never show in another buyer's folder. Lines that are not in the entry format are counted and skipped. Its own parity test: `hooks/tests/desk_memory_parity.py` |
+| `desk-memory.ps1` / `.py` | Session start inside the tree, or at the desk root just above it | Shows what reps asked Claude to remember: the `LEARNED.md` lines in the session's folder and in each folder above it, nearest first. It walks up and never sideways, so one buyer's notes never show in another buyer's folder. Lines that are not in the entry format are counted and skipped, and a line that holds what a note may not (a price, a contact detail, an instruction to skip a review) is withheld and counted. Its own parity test: `hooks/tests/desk_memory_parity.py` |
 
 A denial shows up as a permission refusal with a one-line reason Claude relays. Test locally:
 `python3 plugins/bbs-sales/hooks/tests/parity.py` (both halves, when PowerShell is present),

@@ -58,7 +58,7 @@ Depends on PR #72 being on `main`.
   customer desk; `scaffold_folder_context.py` leaves `LEARNED.md` alone and says so.
 - The stay-in-this-buyer's-folder rule goes into the skills that search past packets
   (`naspo-quote` precedent mining), with the "label every row with its folder" clause.
-- Routing queries for "remember that ..." added to `docs/evals/queries-routing.json`.
+- Score the "remember that ..." routing queries (added in slice 1) on a machine with auth.
 
 Tests: both checkers; `test_mine_precedents.py`; the routing eval on a machine with auth.
 

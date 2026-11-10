@@ -9,9 +9,14 @@
 --level and --wider are the numbers `where` prints (1 = the nearest folder). A dated deal folder
 is never a level: what is true for one deal belongs in its RFQ.md, not in memory.
 
-Refuses, and writes nothing, when the text holds what belongs to a system of record or a secret
-(a dollar amount, a long digit run such as an account or contract number, a certification or
-contract number pattern), when it is more than one line, or when the level needs Parker.
+Refuses, and writes nothing, when the text holds what belongs to a system of record, a contact
+detail or a secret (REFUSE_TABLE: prices, stock and lead times, certification and small-business
+or preference claims, account and contract numbers, phone numbers and email addresses,
+credentials), when it tells Claude to get around a review or approval, when it is more than one
+line, or when the level needs Parker.
+
+Importable: another desk or plugin may reuse ENTRY, REFUSE_TABLE, POINTER_PATTERN, check_text and
+check_author rather than build a second mechanism.
 The line format is read by hooks/desk-memory.py and desk-memory.ps1: change all three together.
 
 Exit 0 = done. Exit 2 = refused, with one plain sentence on stdout saying why. Stdlib only.
@@ -49,23 +54,32 @@ HEADER = [
     "profile. Format: `- date | who said it | kind | what`.",
     "",
 ]
-# What memory may not hold. Each is (pattern, the plain reason given to the rep).
-REFUSE = [
-    (re.compile(r"[$€£]\s*[0-9]|[0-9]\s*(?:dollars|usd)\b"
-                r"|[0-9]\s*%\s*(?:off|discount|margin|mark-?up)|(?:discount|margin|mark-?up)[^.]{0,20}[0-9]\s*%", re.I),
-     "it has a price, discount or margin in it. Prices live in Business Central and the Grainger "
-     "connector; say where the number is recorded instead (for example the quote number)"),
-    (re.compile(r"(?<![0-9])[0-9]{7,}(?![0-9])"),
-     "it has a long number in it that could be an account or contract number. Those are "
-     "not kept in memory; name the record that holds it instead"),
-    (re.compile(r"\b[0-9]-[0-9]{2}-[0-9]{2}-[0-9]{2}\b|\b(?:dvbe|sdvosb|osds|uei|fein|gsa|naspo|lpa|sourcewell)\b[^.]{0,20}[0-9]{3,}", re.I),
-     "it states a certification or contract number. Those come from the vendor profile and "
-     "canonical facts, never from memory"),
-    (re.compile(r"\b(?:password|passcode|api key|token|login)\b", re.I),
+# What memory may not hold, as (pattern, the plain reason given to the rep). The patterns are
+# plain strings valid in Python and .NET regex: hooks/desk-memory.py and desk-memory.ps1 carry
+# the same list (and POINTER) and withhold a matching line on read; test_desk_memory.py fails
+# when the three differ. They are applied to the statement after POINTER is removed.
+REFUSE_TABLE = [
+    (r"(?i)[$\u20AC\u00A3]\s*[0-9]|[0-9]\s*(?:dollars|usd|cents)\b|\b[0-9]+\.[0-9]{2}\b|\b[0-9]+(?:\.[0-9]+)?\s*(?:per|/|a|an|each)\s*(?:box|case|each|unit|pair|pack|pk|bx|cs|dozen|dz|roll|item|ea)\b|[0-9]\s*%\s*(?:off|discount|margin|mark-?up)|\b(?:discount|margin|mark-?up|price[ds]?|costs?|priced)\b[^.]{0,20}[0-9]",
+     "it has a price, discount or margin in it. Prices live in Business Central and the Grainger connector; say where the number is recorded instead (for example the quote number)"),
+    (r"(?i)\blead[- ]?times?\b|\bin[- ]stock\b|\bout[- ]of[- ]stock\b|\bback[- ]?order(?:ed|s)?\b|\bon[- ]hand\b|\bstock(?:ed)?\s+(?:level|levels|is|are|of|at)\b|\bships?\s+in\s+[0-9]+|\b[0-9]+\s*(?:-\s*[0-9]+\s*)?(?:business\s+)?(?:days?|weeks?)\s+(?:lead|to\s+ship|ARO|turnaround)\b|\bARO\b",
+     "it states stock or a lead time. Those change daily and come from the Grainger connector, Business Central or the vendor's quote, never from a note"),
+    (r"(?i)\b(?:small[- ]business(?:es)?|DVBE|SDVOSB|VOSB|OSDS|DOBE|SLBE|SBE|MBE|WBE|micro[- ]?business)\b|\bSB\b|\bcertified\b|\bcertifications?\b|\b(?:SB|DVBE|bid|price|small[- ]business|veteran|5\s*%)\s+(?:preferences?|incentives?)\b|\bpreference\s+(?:points?|percent|program|claim)\b|\bincentives?\b",
+     "it says something about a certification, small-business status or a bid preference. Those come from the vendor profile and canonical facts, never from a note"),
+    (r"(?i)\b(?:skip|skipping|ignore|ignoring|bypass|override|disable|waive|drop)\b[^.]{0,40}\b(?:reviews?|approvals?|sign-?offs?|signatures?|checks?|forms?|rules?|instructions?|permissions?|gates?|allow)\b|\bno\s+need\s+(?:for|to)\b[^.]{0,30}\b(?:reviews?|approvals?|sign-?offs?|check)|\b(?:commit|send|submit|post|release|sign)\w*\b[^.]{0,30}\bwithout\s+(?:a\s+|the\s+|any\s+)?(?:reviews?|approvals?|sign-?offs?|asking|checking|permission)|\b(?:directly|automatically)\s+(?:commit|send|submit|post|release)\w*|\b(?:commit|send|submit|post|release)\w*\s+(?:the\s+)?(?:quotes?\s+|bids?\s+|packets?\s+)?(?:directly|automatically|straight)\b",
+     "it tells Claude to skip or get around a review, approval, form or signature. That is not a memory; a change like that needs Parker"),
+    (r"(?i)[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}|\(?\b[0-9]{3}\)?[-. ][0-9]{3}[-. ][0-9]{4}\b",
+     "it has an email address or phone number in it. Contact details belong in the buyer's CLAUDE.md header, where they are kept current; say what changed instead"),
+    (r"(?<![0-9])[0-9]{7,}(?![0-9])",
+     "it has a long number in it that could be an account or contract number. Those are not kept in memory; name the record that holds it instead"),
+    (r"(?i)\b[0-9]-[0-9]{2}-[0-9]{2}-[0-9]{2}\b|\b(?:uei|fein|gsa|naspo|lpa|sourcewell|cage)\b[^.]{0,20}[0-9]{3,}",
+     "it states a contract or registration number. Those come from the vendor profile and canonical facts, never from a note"),
+    (r"(?i)\b(?:password|passcode|api\s+key|token|login|username)\b",
      "it looks like a credential. Credentials are never written down here"),
 ]
+REFUSE = [(re.compile(p), why) for p, why in REFUSE_TABLE]
 # Pointers at a record are welcome ("see SQ-104032"); they are removed before the checks above.
-POINTER = re.compile(r"\b(?:SQ|SO|INVP|PO)-?[0-9]{4,}\b", re.I)
+POINTER_PATTERN = r"(?i)\b(?:SQ|SO|INVP|PO)-?[0-9]{4,}\b"
+POINTER = re.compile(POINTER_PATTERN)
 # The line format. hooks/desk-memory.py and .ps1 carry the same pattern; test_desk_memory.py
 # fails when they differ.
 ENTRY = re.compile(
