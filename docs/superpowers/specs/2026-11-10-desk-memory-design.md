@@ -164,6 +164,18 @@ signers, buying-account numbers, credentials. Enforced three ways:
   review, approval, form or signature, or to send or commit without one; a phone number or an
   email address; a digit run of seven or more; a contract-number shape; credential words. A
   pointer at a record ("see SQ-104032") passes. (Tightened after Rex's review of #81.)
+- Widened by meaning after Rex's second review (at 97f9285), in five categories: authority
+  (pre-approved, authorized, sign-off, implied approval, "treat X as approval", sign someone's
+  line, sign for); price rules (markup, margin, discount with or without digits; sell, charge,
+  bill or quote at a number; amounts spelled out with dollars or bucks; markup by a spelled-out
+  percent); preference (S.B. in any spelling, 5 or five percent anywhere, a bump or credit next
+  to a percent, "qualify for" a preference); stock and delivery (on the shelf, available now,
+  "takes N days", "days after the PO", "deliver within"); contacts (`(NNN)NNN-NNNN`, "name at
+  domain dot gov"). Must-pass lines are tested too ("Wants wet signatures on the packet",
+  "Buyer approves orders on Tuesdays", "Prefers the PDF worksheet, not Excel", "Deliveries go to
+  the warehouse gate"); no category needed a narrower form to keep them passing. One deliberate
+  trade-off stands from the first round: a bare percentage that is not a price ("100% recycled")
+  is allowed, so only a percent next to a price or preference word, or 5/five percent, refuses.
 - **On read too.** Both hook halves carry the same table and withhold, and count, any line in
   the entry format that matches it, so a hand edit to `LEARNED.md` cannot put a price, a
   contact detail or an instruction in front of Claude. `test_desk_memory.py` fails when the
@@ -179,6 +191,14 @@ by hand is counted and skipped. A note changes nothing a binding document says.
 
 The writer is importable, so another desk, or `bbs-foundations`' customer-folder upkeep
 (#72), can reuse the entry format and the refusal table instead of building a second one.
+
+**The table is not the control.** Prices, signers and certifications are enforced by the
+deterministic gates in the quote and form scripts (the signer resolution in the packet fillers,
+the vendor profile, the Grainger at-cost rule in the quote builder) and by the rep's review.
+The table only keeps the obvious phrasings out of memory; it is widened by category, not by
+chasing every phrasing. The hook's first line says a note never grants approval and never
+changes a price, a signer or a certification, and that a note reading that way is raised with
+the rep, not followed.
 
 The pattern check is a floor, not a ceiling: it cannot tell "delivery expected in two weeks"
 (a buyer preference) from a vendor lead time. That judgment stays with the skill and the rep.
