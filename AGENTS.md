@@ -122,8 +122,10 @@ Which is why `requires:` is mandatory rather than inferred — see the working r
 
 ## Working rules
 
-- **Branch, PR, review, merge.** Never commit to `main`. A PR is merged only after review
-  by an agent that did not write it.
+- **Branch, PR, review, Parker, merge.** Never commit to `main`. A PR is merged only after
+  review by an agent that did not write it **and** Parker's approval of that PR, by number
+  (ruled 2026-11-10; `docs/STEWARD.md`, "Parker approves every merge"). No agent takes a
+  PR out of draft on its own.
 - **Pin, never vendor**, anything from Anthropic or a third party — a vendored copy stops
   receiving upstream fixes.
 - **Portable paths only.** `${CLAUDE_PLUGIN_ROOT}` and `$SKILL_DIR`. Never `/mnt/skills/`,
