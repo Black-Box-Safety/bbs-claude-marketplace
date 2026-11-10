@@ -749,9 +749,14 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **R2. Quote creation in Business Central through `bc-quote-entry` (#68) is allowed —
   RULED 2026-11-10.** It writes only the quote, its ship-to and its lines; it never
   releases, sends, converts or posts; and it runs only after the rep approves the review
-  sheet by name. **Open action for Parker:** amend the organization instruction in the
-  admin console to name both the `bc-item-entry` and `bc-quote-entry` skills. No repo
-  change does it.
+  sheet by name. Parker, in session, 2026-11-10, further: "Add bc quote entry to managed
+  settings". So the `claudeMd` block in `bbs-managed-settings.json` gains one rule naming
+  the BC write boundary, with `bc-quote-entry` beside `bc-item-entry` (record:
+  `MANAGED-SETTINGS.md`, "Business Central writes"). `bc_quote_entry.py` is not added to
+  the `bbs-fill` allow list here (R3). **Open actions for Parker:** re-paste managed
+  settings after merge; and amend the organization instruction in the admin console, a
+  separate place that also covers claude.ai chats, to name both the `bc-item-entry` and
+  `bc-quote-entry` skills. No repo change does the second.
 - **R3. `bc_quote_entry.py` may go on the `bbs-fill` allow list — RULED 2026-11-10.** No
   Allow click, but **only after** #68 enforces NASPO lines at cost (`unitPrice ==
   unitCost` on contract NASPO). The named review sheet stays the gate. Until that check

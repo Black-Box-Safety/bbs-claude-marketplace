@@ -26,7 +26,7 @@ when that file changes, change the block.
 | `pluginConfigs` → `cc-plugin-sec-default@builtin` → `allowManagedModsOnly: true` | Only the organization's own mods load; a mod a user installs, loads with `--plugin-dir`, or Claude writes mid-session does not (Parker, 2026-10-02) | A user's mod can approve a call an `ask` rule would prompt for, so without this the per-send Allow could be skipped. Plugins' `hooks/hooks.json` hooks (ours) are not mods and keep running. A mod in a plugin from a GitHub marketplace counts as a user's and stops loading; as of 2026-10-02 none of ours or the pinned commons ship one (`impeccable` and `claudeforge` track moving branches, so recheck when they update) |
 | `channelsEnabled: true` | Channels are allowed for the organization (managed-only key) | It was set in the console's live copy (v12) and missing here, so pasting this file would have turned channels off (Parker, 2026-10-02) |
 | `disableBypassPermissionsMode` | Nobody can run `--dangerously-skip-permissions` | For a team that is not native with AI, the permission prompt is the seatbelt |
-| `claudeMd` | Company memory injected into **every** session on every machine | The nine rules that hold everywhere, the exact strings, the systems of record, and where the detail lives. Managed-settings-only field, so it cannot be overridden by a repo file. This is the fastest path to "the same answer Parker would give" |
+| `claudeMd` | Company memory injected into **every** session on every machine | The ten rules that hold everywhere (the Business Central write boundary added 2026-11-10, R2), the exact strings, the systems of record, and where the detail lives. Managed-settings-only field, so it cannot be overridden by a repo file. This is the fastest path to "the same answer Parker would give" |
 | `companyAnnouncements` | One rotating line at startup | Onboarding by repetition |
 | `autoUpdatesChannel: stable` | Skip release-candidate builds | Fewer surprises on machines nobody is debugging |
 | `cleanupPeriodDays: 60` | Transcripts kept two months | Long enough to `/resume` a quote thread from last month |
@@ -156,6 +156,21 @@ ruling that kept the script off the list, so that every run also waited for a cl
 superseded; its reasoning (a write to a system of record deserves a second control) was
 answered by the sheet, not by the click. Taking the script back off the list is a reversal
 and needs Parker, in a reviewed PR.
+
+**Quote creation, and the line in company memory (2026-11-10, R2).** Parker, in session,
+2026-11-10, adopting R2, then "Add bc quote entry to managed settings". `bc-quote-entry`
+(#68) may create a sales quote, its ship-to and its lines in Business Central; it never
+releases, sends, converts or posts, and it runs only after the rep approves the review
+sheet by name. The `claudeMd` block now carries one rule naming the whole BC write
+boundary (items, Vendor No. on items, sales quotes and their lines; the PM
+Claude/BC-Write-API scripts and the `bc-item-entry` and `bc-quote-entry` skills; named
+approval; never release, send, convert or post). Before this the company memory named no
+BC write rule, only the systems-of-record line. Detail stays here, not in `claudeMd`:
+`bc_quote_entry.py` is **not** on the `bbs-fill` allow list, and goes on it only after #68
+enforces NASPO lines at cost (R3); a proof read-back of the quote printout stays mandatory
+(R5). The organization instruction in the claude.ai admin console is a separate place,
+which also covers claude.ai chats, and needs the same `bc-quote-entry` edit by hand;
+re-pasting this file does not change it.
 
 ## Agents never merge (2026-11-10, R1)
 
