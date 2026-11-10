@@ -129,6 +129,65 @@ Check 'acronym typo agency folder denied' (Decision $o) 'deny'
 $o = Run $ctx @{ hook_event_name='SessionStart'; source='startup'; cwd = $outside }
 Check 'session context silent outside tree with quote-log' ($o -eq '') $true
 
+# 16. PostToolUse: first write in a dated deal folder (3-level and 2-level agencies). parity.py holds the
+#     full matrix; these prove the PowerShell half on its own. BBS_TODAY pins today; the temp dir is
+#     fresh per run so markers never leak between cases.
+$env:BBS_TODAY = '2026-10-30'
+function RunPost($path, $sid) {
+  $t = Join-Path $root ("tmp-" + [guid]::NewGuid().ToString('N'))
+  New-Item -ItemType Directory -Force -Path $t | Out-Null
+  $env:TMPDIR = $t; $env:TEMP = $t; $env:TMP = $t
+  $p = @{ hook_event_name='PostToolUse'; tool_name='Write'; tool_input=@{ file_path = $path } }
+  if ($sid) { $p.session_id = $sid }
+  return (Run $ctx $p)
+}
+function AddedContext($out) {
+  if (-not $out) { return '' }
+  try { return ($out | ConvertFrom-Json).hookSpecificOutput.additionalContext } catch { return "unparseable: $out" }
+}
+$joe = Join-Path (Join-Path $cdcr 'CAL - Calipatria State Prison - 887895116') 'Joe Ketner'
+New-Item -ItemType Directory -Force -Path (Join-Path $joe '9.14.26') | Out-Null
+Set-Content -Path (Join-Path $joe 'CLAUDE.md') -Value '# Joe Ketner'
+Set-Content -Path (Join-Path $joe 'quote-log.md') -Value @(
+  '| Date | Item | Quote # | Vehicle | Value | Outcome |',
+  '|---|---|---|---|---|---|',
+  '| 9.14.26 | V-belts | 900021 | OBS 4007(A) | 3668.70 | priced, awaiting signature |',
+  '| 10.7.26 | Refrigerants | SQ-105100 | OBS 4007(B) | 23981.10 | packet signed, not sent |',
+  '| 2026-03-04 | Nitrile gloves | SQ-1001 | NASPO | 2400 | won |',
+  '| 7.13.23 | Gloves | SQ-0001 | NASPO | 100 | sent |'
+)
+Set-Content -Path (Join-Path $joe 'FLAGS.md') -Value @(
+  '| Date | What | Status |', '|---|---|---|',
+  '| 2026-10-23 | worksheet rows overwritten | open |',
+  '| 10.2.26 | old radio bug | closed 10.3.26 |',
+  '- 9.20.26 bullet flag one'
+)
+$c = AddedContext (RunPost (Join-Path (Join-Path $joe '9.14.26') 'form.pdf') 's1')
+Check 'first write names the buyer files' ($c -match 'BUYER DESK -- first write in 9\.14\.26 for CDCR \(ALL\)/CAL - Calipatria State Prison - 887895116/Joe Ketner' -and $c -match 'quote-log\.md --') $true
+Check 'first write: precedent newest first' ($c.IndexOf('| 10.7.26 |') -ge 0 -and $c.IndexOf('| 10.7.26 |') -lt $c.IndexOf('| 9.14.26 |') -and $c.IndexOf('| 9.14.26 |') -lt $c.IndexOf('| 2026-03-04 |')) $true
+Check 'first write: two stale rows, oldest first' ($c -match 'OUTCOMES TO CLOSE -- 2 quote-log rows older than 30 days' -and $c.LastIndexOf('| 7.13.23 | Gloves') -lt $c.LastIndexOf('| 9.14.26 | V-belts')) $true
+Check 'first write: flags incl. bullet, closed dropped' ($c -match 'worksheet rows overwritten' -and $c -match 'bullet flag one' -and $c -notmatch 'old radio bug') $true
+
+$kelly = Join-Path (Join-Path $tree 'CARB - Air Resource Board - 888161763') 'Kelly Peng'
+New-Item -ItemType Directory -Force -Path (Join-Path (Join-Path $kelly '10.12.26') 'SacHQ') | Out-Null
+Set-Content -Path (Join-Path $kelly 'quote-log.md') -Value @('| Date | Item | Quote # | Vehicle | Value | Outcome |', '|---|---|---|---|---|---|', '| 10.28.26 | Office supplies | SQ-105283 | OPEN | 190.76 | logged |')
+$c = AddedContext (RunPost (Join-Path (Join-Path (Join-Path $kelly '10.12.26') 'SacHQ') 'quote.pdf') 's1')
+Check 'two-level agency: CLAUDE.md missing, no close-out' ($c -match 'MISSING: CLAUDE\.md, FLAGS\.md -- create from' -and $c -notmatch 'OUTCOMES TO CLOSE') $true
+
+$o = RunPost (Join-Path $joe 'quote-log.md') 's1'
+Check 'silent: file directly in the buyer folder' ($o -eq '') $true
+$o = RunPost (Join-Path (Join-Path $joe 'AIU-21') 'form.pdf') 's1'
+Check 'silent: deal folder without a date' ($o -eq '') $true
+
+# Once per buyer per session: same temp dir, second write silent.
+$t = Join-Path $root 'tmp-once'
+New-Item -ItemType Directory -Force -Path $t | Out-Null
+$env:TMPDIR = $t; $env:TEMP = $t; $env:TMP = $t
+$pj = @{ hook_event_name='PostToolUse'; tool_name='Write'; session_id='once'; tool_input=@{ file_path = (Join-Path (Join-Path $joe '9.14.26') 'form.pdf') } }
+$first = Run $ctx $pj
+$again = Run $ctx $pj
+Check 'once per buyer per session' ($first -ne '' -and $again -eq '') $true
+
 Remove-Item -Recurse -Force $root
 Write-Host ""
 if ($fails -eq 0) { Write-Host "ALL PASS"; exit 0 } else { Write-Host "$fails FAILED"; exit 1 }

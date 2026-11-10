@@ -124,11 +124,44 @@ failure mode to review for. The questions that pay:
 
 | When | What |
 |---|---|
-| Every PR | `check_marketplace.py` clean; `WARN` triaged, not ignored |
+| Every PR | `check_marketplace.py` clean; `WARN` triaged, not ignored; `claude plugin validate .` passes; every changed plugin bumped |
 | Before adding a skill | Run `docs/evals/` routing; add queries for the new skill **and** one that should go to a sibling |
 | After editing any description | Re-run the anonymized routing eval; descriptions are the routing table |
 | When a model ships | `refresh_models.py` opens a PR for `models.json`; update the two prose copies it names |
 | Quarterly | Re-verify `REGISTRY.md` statuses and the cert expiries in `vendor_profile.json` against primary sources |
+
+### Branches and versions
+
+Anthropic's marketplace docs are the authority for the version rules
+(<https://code.claude.com/docs/en/plugins/host-marketplace.md>, "Release a new version").
+
+- **A changed plugin is a bumped plugin, in the same PR.** Our plugins set `version` in
+  `plugin.json`, so a machine keeps its cached copy until that string changes. PRs #60 and
+  #70 existed only to ship merged work that had not been bumped.
+- **`version` lives in `plugin.json` only** for a plugin in this repo. Set it on the
+  marketplace entry too and `plugin.json` silently wins.
+- **Display fields live in `plugin.json` only** for a plugin in this repo. A
+  `description`, `author` or `keywords` set on a relative-path entry in `marketplace.json`
+  overrides `plugin.json` in `/plugin`, so the two drift (on 2026-11-06, seven of eight
+  had). Pinned externals keep their entry fields, because nothing else is readable before
+  install. One exception once #71 lands: the bootstraps read an entry's `keywords` to skip
+  `maintainer` plugins, so a local maintainer-tier plugin keeps that one keyword on its
+  entry, or it ships to reps.
+- **One version number, one PR.** Before claiming a version, check the open PRs. When two
+  PRs claim the same number, the second to merge merges `main` into its branch and takes
+  the next one. Never rebase a pushed branch: landing it needs a force-push, which managed
+  settings deny.
+- **Branch names say the kind of change**: `feat/`, `fix/`, `docs/`, `commons/`,
+  `chore/`, or a session's own `claude/<name>`. One branch, one PR. A merged branch is
+  never reused; follow-up work starts a new branch from `main`.
+- **Stacked PRs are retargeted to `main`** the moment the PR under them merges, or closed
+  if the PR above already carries their commits.
+- **A head branch is deleted when its PR merges or closes.** Turn on Settings → General →
+  "Automatically delete head branches" so this is not a chore.
+- **A branch holding real customer data never reaches GitHub.** Fixtures are scrubbed
+  before the first push, not "before merge".
+- **Removing or renaming a plugin** adds a `renames` entry in `marketplace.json` (old
+  name → new name, or `null`). Never edit an existing `renames` entry; append.
 
 **Two rules that are not negotiable here.** Never vendor Anthropic's own skills — pin
 them, as `document-skills` is pinned; a vendored copy stops receiving upstream fixes.
