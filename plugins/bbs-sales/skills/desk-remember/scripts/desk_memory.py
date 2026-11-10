@@ -5,6 +5,16 @@
   add    --at PATH --level N --author NAME --kind KIND --text "..." [--wider N] [--date D]
                                         append one line to that folder's LEARNED.md
   show   --at PATH                      the lines a session opened at PATH would be given
+  retire --at PATH --level N --text "..." --by NAME [--date D]
+                                        move one replaced line out of that folder's LEARNED.md
+                                        into LEARNED-archive.md (append-only, never shown),
+                                        stamped with who retired it and when
+  merge  --at PATH --level N [--copy FILE]
+                                        fold a OneDrive conflict copy (LEARNED-<device>.md) back
+                                        into LEARNED.md: entry lines only, duplicates dropped, each
+                                        line re-checked against REFUSE_TABLE; the copy is removed
+                                        only when every line in it is accounted for, and the
+                                        output says so
 
 --level and --wider are the numbers `where` prints (1 = the nearest folder). A dated deal folder
 is never a level: what is true for one deal belongs in its RFQ.md, not in memory.
@@ -19,7 +29,8 @@ Importable: another desk or plugin may reuse ENTRY, REFUSE_TABLE, POINTER_PATTER
 check_author rather than build a second mechanism.
 The line format is read by hooks/desk-memory.py and desk-memory.ps1: change all three together.
 
-Exit 0 = done. Exit 2 = refused, with one plain sentence on stdout saying why. Stdlib only.
+Run through bbs-fill (the bbs-tools launcher) so saving a note needs no Allow click: Parker,
+2026-11-10 (R7, A3). Exit 0 = done. Exit 2 = refused, with one plain sentence on stdout saying why. Stdlib only.
 """
 import argparse
 import datetime
@@ -54,6 +65,21 @@ HEADER = [
     "profile. Format: `- date | who said it | kind | what`.",
     "",
 ]
+ARCHIVE = "LEARNED-archive.md"
+ARCHIVE_HEADER = [
+    "# Retired notes",
+    "",
+    "Lines moved out of LEARNED.md because something replaced them. Never shown to a session;",
+    "kept so nothing a rep said is lost. Append-only. Format: the original line, then",
+    "`| retired: <date> by <who>`.",
+    "",
+]
+# OneDrive keeps both versions of a non-Office file in conflict and appends the device name to the
+# local copy ("Report-JOHNS-SURFACE.txt"):
+# https://learn.microsoft.com/troubleshoot/sharepoint/sync/troubleshoot-sync-issues
+# hooks/desk-memory.py and .ps1 carry the same pattern; test_desk_memory.py fails when they differ.
+CONFLICT_PATTERN = r"^LEARNED-.+\.md$"
+CONFLICT = re.compile(CONFLICT_PATTERN, re.I)
 # What memory may not hold, as (pattern, the plain reason given to the rep). The patterns are
 # plain strings valid in Python and .NET regex: hooks/desk-memory.py and desk-memory.ps1 carry
 # the same list (and POINTER) and withhold a matching line on read; test_desk_memory.py fails
@@ -251,6 +277,152 @@ def cmd_add(args):
     return 0
 
 
+def rep_level(lv, number, what="change"):
+    """The level row, refusing an agency or the whole desk (Parker's, R7 A2)."""
+    n, d, name, depth, rep_ok = pick(lv, number, "level")
+    if not rep_ok:
+        raise Refused(f"a {what} to {name} changes what every rep under it is told, so it goes through "
+                      "Parker. Tell him; he makes it at the monthly review")
+    return n, d, name, depth, rep_ok
+
+
+def read_text(path):
+    with open(path, "rb") as fh:
+        raw = fh.read()
+    bom = raw.startswith(b"\xef\xbb\xbf")
+    return raw.decode("utf-8-sig", "replace"), bom
+
+
+def statement(m):
+    return " ".join(m.group(4).split()).lower()
+
+
+def refused_reason(m):
+    """The writer's reason when an entry line holds what a note may not, as the hooks test it."""
+    probe = POINTER.sub("", m.group(4) + (m.group(5) or ""))
+    for pat, why in REFUSE:
+        if pat.search(probe):
+            return why
+    return None
+
+
+def append_lines(path, lines, header):
+    """Append-only: one short line each, so a sync conflict costs at most the lines in flight."""
+    new = not os.path.exists(path)
+    existing = ""
+    if not new:
+        existing, _ = read_text(path)
+    with open(path, "ab") as fh:
+        if new:
+            fh.write(("\n".join(header) + "\n").encode("utf-8"))
+        elif existing and not existing.endswith(("\n", "\r")):
+            fh.write(b"\n")
+        for line in lines:
+            fh.write((line + "\n").encode("utf-8"))
+
+
+def conflict_copies(d):
+    try:
+        names = os.listdir(d)
+    except OSError:
+        return []
+    return sorted(n for n in names if CONFLICT.match(n) and n.lower() != ARCHIVE.lower()
+                  and os.path.isfile(os.path.join(d, n)))
+
+
+def cmd_retire(args):
+    prof, lv = levels(args.at)
+    n, d, name, depth, _ = rep_level(lv, args.level)
+    who = check_author(args.by)
+    date = check_date(args.date)
+    want = " ".join((args.text or "").split()).lower()
+    if not want:
+        raise Refused("say which line to retire: give its words, as `show` prints them")
+    path = d + os.sep + prof["file"]
+    if not os.path.isfile(path):
+        raise Refused(f"there is no {prof['file']} for {name}, so there is nothing to retire")
+    text, bom = read_text(path)
+    parts = re.split(r"(\r\n|\n|\r)", text)
+    lines = parts[0::2]
+    hits = []
+    for i, l in enumerate(lines):
+        m = ENTRY.match(l)
+        if m:
+            hits.append((i, l, statement(m)))
+    exact = [h for h in hits if h[2] == want]
+    pickd = exact if exact else [h for h in hits if want in h[2]]
+    if not pickd:
+        raise Refused(f"no line for {name} says that. Run `show` and copy the words of the line to retire")
+    if len(pickd) > 1:
+        raise Refused(f"{len(pickd)} lines for {name} match that. Give more of the words, so exactly one matches")
+    i, line, _ = pickd[0]
+    archived = f"{line} | retired: {date} by {who}"
+    archive = d + os.sep + ARCHIVE
+    # The archive first: if the rewrite below fails, the line is in both files, never in neither.
+    append_lines(archive, [archived], ARCHIVE_HEADER)
+    del parts[2 * i:2 * i + 2]
+    out = "".join(parts)
+    tmp = path + ".retire-tmp"
+    with open(tmp, "wb") as fh:
+        fh.write((b"\xef\xbb\xbf" if bom else b"") + out.encode("utf-8"))
+    os.replace(tmp, path)
+    print(f"Retired for {name}: the line is out of {path}")
+    print(f"and kept, never shown, in {archive}:")
+    print(archived)
+    return 0
+
+
+def cmd_merge(args):
+    prof, lv = levels(args.at)
+    n, d, name, depth, _ = rep_level(lv, args.level, "merge")
+    copies = conflict_copies(d)
+    if args.copy:
+        copies = [c for c in copies if c.lower() == os.path.basename(args.copy).lower()]
+        if not copies:
+            raise Refused(f"{args.copy} is not a OneDrive conflict copy of {prof['file']} in {name}'s folder")
+    if not copies:
+        print(f"No conflict copy of {prof['file']} in {d}; nothing to merge.")
+        return 0
+    path = d + os.sep + prof["file"]
+    said = set()
+    if os.path.isfile(path):
+        text, _ = read_text(path)
+        said = {statement(m) for m in map(ENTRY.match, re.split(r"\r\n|\n|\r", text)) if m}
+    for c in copies:
+        cpath = d + os.sep + c
+        text, _ = read_text(cpath)
+        add, dup, held, skipped = [], 0, [], []
+        for k, l in enumerate(re.split(r"\r\n|\n|\r", text), 1):
+            m = ENTRY.match(l)
+            if m:
+                why = refused_reason(m)
+                if why:
+                    held.append((k, why))
+                elif statement(m) in said:
+                    dup += 1
+                else:
+                    said.add(statement(m))
+                    add.append(l)
+            elif l.startswith("- "):
+                skipped.append(k)
+        if add:
+            append_lines(path, add, HEADER)
+        print(f"Merged {c} into {path}: {len(add)} added, {dup} already there.")
+        for l in add:
+            print("+ " + l)
+        for k, why in held:
+            print(f"  line {k} of {c} was NOT merged: {why}.")
+        for k in skipped:
+            print(f"  line {k} of {c} was NOT merged: it is not in the entry format.")
+        if held or skipped:
+            print(f"Kept {cpath}: {len(held) + len(skipped)} of its lines were not merged. Show the rep the "
+                  "reasons above; they delete the copy by hand once they have looked at it.")
+        else:
+            os.remove(cpath)
+            print(f"Removed {cpath}: every line in it is now in {prof['file']}.")
+    return 0
+
+
 def cmd_show(args):
     here = os.path.dirname(os.path.abspath(__file__))
     hook = os.path.normpath(os.path.join(here, "..", "..", "..", "hooks", "desk-memory.py"))
@@ -277,6 +449,18 @@ def main(argv=None):
     a.add_argument("--date")
     a.set_defaults(fn=cmd_add)
     s = sub.add_parser("show"); s.add_argument("--at", required=True); s.set_defaults(fn=cmd_show)
+    r = sub.add_parser("retire")
+    r.add_argument("--at", required=True)
+    r.add_argument("--level", type=int, required=True)
+    r.add_argument("--text", required=True)
+    r.add_argument("--by", required=True)
+    r.add_argument("--date")
+    r.set_defaults(fn=cmd_retire)
+    g = sub.add_parser("merge")
+    g.add_argument("--at", required=True)
+    g.add_argument("--level", type=int, required=True)
+    g.add_argument("--copy")
+    g.set_defaults(fn=cmd_merge)
     args = ap.parse_args(argv)
     try:
         return args.fn(args)

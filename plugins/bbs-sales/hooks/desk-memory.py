@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
-"""SessionStart: put what reps asked Claude to remember for this folder in front of Claude.
+"""Put what reps asked Claude to remember for a folder in front of Claude. Two ways in:
 
-Reads LEARNED.md in the session's folder and in each folder above it, up to the quote-desk
-tree folder, nearest first. It walks up and never sideways, so a session in one buyer's folder
-is never handed another buyer's or another agency's lines. A session opened one level above the
-tree (the desk root the workspace opens) gets the desk-wide file only.
+  SessionStart  LEARNED.md in the session's folder and in each folder above it, up to the
+                quote-desk tree folder, nearest first. A session opened one level above the tree
+                (the desk root the workspace opens) gets the desk-wide file only. On a compact,
+                this session's first-touch markers are cleared so the buyer notes come back too.
+  first touch   called from desk-context.py on PostToolUse (one process per tool call, not two):
+                the first Read, Write or Edit of a file under a buyer's (or an institution's)
+                folder shows that folder's chain, once per folder per session (temp-dir marker
+                keyed on session_id, sanitised as desk-context does). Folders the session-start
+                notes already covered (the cwd chain) are left out, so nothing is shown twice.
+
+It walks up and never sideways, so a session in one buyer's folder is never handed another
+buyer's or another agency's lines. The only directory it lists is each level's own folder, for
+the names of OneDrive conflict copies of LEARNED.md (LEARNED-<device>.md); it never opens one,
+and says one is there so the rep can merge it (desk_memory.py merge).
 
 Only lines in the entry format are shown; anything else in the file is counted and skipped, so
 pasted text never reaches context through this hook. A line in the format that holds what a note
@@ -22,11 +32,22 @@ import json
 import os
 import re
 import sys
+import tempfile
 
 TREE = "All RFQ's by Agency"
 FILE = "LEARNED.md"
 PER_LEVEL = 12
 MAX_UP = 8
+ARCHIVE = "LEARNED-archive.md"
+# OneDrive keeps both versions of a non-Office file in conflict and appends the device name to the
+# local copy ("Report-JOHNS-SURFACE.txt"): https://learn.microsoft.com/troubleshoot/sharepoint/sync/troubleshoot-sync-issues
+CONFLICT = re.compile(r"^LEARNED-.+\.md$", re.I)
+MARKERS = "bbs-desk-memory"
+# A dated deal folder: the same three shapes as desk-context.py and the writer's DEAL.
+DEAL = re.compile(r"^\s*[0-9]{1,2}\.[0-9]{1,2}\.(?:[0-9]{2}|[0-9]{4})(?![0-9])"
+                  r"|[ _-][0-9]{1,2}\.[0-9]{1,2}\.(?:[0-9]{2}|[0-9]{4})\s*$"
+                  r"|[ _-][0-9]{4}-[0-9]{2}-[0-9]{2}\s*$")
+TREE_RE = re.compile(re.escape(TREE), re.I | re.A)
 ENTRY = re.compile(
     r"^- ([0-9]{4}-[0-9]{2}-[0-9]{2}) \| ([^|]{1,60}) \| (preference|change|watch-out) \| ([^|]{1,300})"
     r"( \| wider: [^|]{1,120})?$")
@@ -71,12 +92,26 @@ def read_lines(path):
         return split_lines(fh.read().decode("utf-8-sig", "replace"))
 
 
-def level_block(path, label):
-    """Lines to print for one LEARNED.md, or [] when it holds no entry."""
+def conflicts(d):
+    """Names of OneDrive conflict copies of LEARNED.md in folder d, sorted; never opened."""
     try:
-        lines = read_lines(path)
+        names = os.listdir(d)
     except OSError:
         return []
+    return sorted(n for n in names if CONFLICT.match(n) and n.lower() != ARCHIVE.lower()
+                  and os.path.isfile(d + os.sep + n))
+
+
+def level_block(d, label):
+    """Lines to print for folder d's LEARNED.md, or [] when it holds no entry and no conflict copy."""
+    path = d + os.sep + FILE
+    lines = []
+    if os.path.isfile(path):
+        try:
+            lines = read_lines(path)
+        except OSError:
+            lines = []
+    cc = conflicts(d)
     ents = []
     skipped = 0
     withheld = 0
@@ -91,7 +126,7 @@ def level_block(path, label):
             ents.append((int(l[2:12].replace("-", "")) * 100000 + i, l))
         elif l.startswith("- "):
             skipped += 1
-    if not ents and not skipped and not withheld:
+    if not ents and not skipped and not withheld and not cc:
         return []
     ents.sort(key=lambda e: e[0], reverse=True)
     out = [f"{label} -- {path}:"]
@@ -102,6 +137,9 @@ def level_block(path, label):
         out.append(f"({skipped} lines skipped: not in the entry format)")
     if withheld:
         out.append(f"({withheld} lines withheld: they hold what a note may not)")
+    if cc:
+        out.append(f"(OneDrive conflict copy here, its lines not shown until merged: {', '.join(cc)}. "
+                   "Tell the rep and offer to merge it with the desk-remember skill.)")
     return out
 
 
@@ -120,36 +158,132 @@ def base(d):
     return d[last_sep(d) + 1:]
 
 
-def collect(cwd):
+def chain(cwd):
+    """[(folder, label)] from cwd up to the tree folder, nearest first; [] when cwd is not placed."""
     d = strip_seps(cwd)
     tree = TREE.lower()
     # One level above the tree (the desk root the workspace opens): the desk-wide file only.
     if tree not in d.lower():
         below = d + os.sep + TREE
         if os.path.isdir(below):
-            return level_block(below + os.sep + FILE, "DESK-WIDE")
+            return [(below, "DESK-WIDE")]
         return []
-    blocks = []
-    reached = False
+    out = []
     for n in range(MAX_UP):
         is_tree = base(d).lower() == tree
-        label = "DESK-WIDE" if is_tree else ("THIS FOLDER" if n == 0 else f"{n} UP")
-        f = d + os.sep + FILE
-        if os.path.isfile(f):
-            blocks.append(level_block(f, label))
+        out.append((d, "DESK-WIDE" if is_tree else ("THIS FOLDER" if n == 0 else f"{n} UP")))
         if is_tree:
-            reached = True
-            break
+            return out
         i = last_sep(d)
         if i <= 0:
             break
         d = d[:i]
-    if not reached:
-        return []           # could not place the folder under the tree: show nothing
+    return []               # could not place the folder under the tree: show nothing
+
+
+def collect(cwd):
     out = []
-    for b in blocks:
-        out.extend(b)
+    for d, label in chain(cwd):
+        out.extend(level_block(d, label))
     return out
+
+
+def safe(s):
+    return re.sub(r"[^A-Za-z0-9]+", "-", s)
+
+
+def same(d):
+    return strip_seps(d).replace("\\", "/").lower()
+
+
+def touched(p):
+    """(folder, its path below the tree) for a file under a buyer or institution folder, else None.
+
+    The folder is the file's own, cut above a dated deal folder (a deal is never a level), and must
+    be at least two below the tree: an agency file or a deal at agency level is not a first touch."""
+    end = -1
+    for m in TREE_RE.finditer(p):
+        a, b = m.start(), m.end()
+        if (a == 0 or p[a - 1] in "/\\") and b < len(p) and p[b] in "/\\":
+            end = b
+            break
+    if end < 0:
+        return None
+    sep = p[end]
+    comps = [c for c in re.split(r"[\\/]+", p[end + 1:]) if c != ""]
+    if not comps or any(c.startswith(".") for c in comps):
+        return None
+    folder = []
+    for c in comps[:-1]:
+        if DEAL.search(c):
+            break
+        folder.append(c)
+    if len(folder) < 2:
+        return None
+    d = p[:end] + sep + sep.join(folder)
+    if not os.path.isdir(d):
+        return None
+    return d, folder
+
+
+def first_touch(h):
+    """Lines for desk-context.py's PostToolUse reply, or [] when there is nothing new to show."""
+    ti = h.get("tool_input")
+    p = ti.get("file_path") if isinstance(ti, dict) else None
+    if not isinstance(p, str) or not p.strip():
+        return []
+    t = touched(p)
+    if not t:
+        return []
+    d, folder = t
+    cwd = h.get("cwd")
+    shown = {same(x) for x, _ in chain(cwd)} if isinstance(cwd, str) and cwd else set()
+    sid = h.get("session_id")
+    mdir = None
+    if isinstance(sid, str) and sid.strip():
+        mdir = os.path.join(tempfile.gettempdir(), MARKERS)
+    blocks = []
+    marks = []
+    for n, (dd, lab) in enumerate(chain(d)):
+        rel = "/".join(folder[:len(folder) - n])
+        if same(dd) in shown:
+            continue
+        marker = os.path.join(mdir, safe(sid) + "--" + safe(rel or "DESK")) if mdir else None
+        if marker and os.path.exists(marker):
+            continue
+        b = level_block(dd, "DESK-WIDE" if lab == "DESK-WIDE" else rel)
+        if b:
+            blocks.extend(b)
+            if marker:
+                marks.append(marker)
+    if not blocks:
+        return []
+    for marker in marks:
+        try:
+            os.makedirs(os.path.dirname(marker), exist_ok=True)
+            open(marker, "w").close()
+        except OSError:
+            pass            # no marker: the notes repeat, they never block
+    return [HEAD, f"FIRST TOUCH -- {'/'.join(folder)} (once per session; folders the session-start "
+                  "notes already covered are left out):"] + blocks
+
+
+def reset_markers(sid):
+    """After a compact the context is gone: let this session's first touches show again."""
+    if not isinstance(sid, str) or not sid.strip():
+        return
+    mdir = os.path.join(tempfile.gettempdir(), MARKERS)
+    pre = safe(sid) + "--"
+    try:
+        names = os.listdir(mdir)
+    except OSError:
+        return
+    for n in names:
+        if n.startswith(pre):
+            try:
+                os.remove(os.path.join(mdir, n))
+            except OSError:
+                pass
 
 
 def main():
@@ -162,6 +296,10 @@ def main():
         return
     if not isinstance(h, dict):
         return
+    if h.get("hook_event_name") == "PostToolUse":
+        return              # wired through desk-context.py, which calls first_touch()
+    if h.get("source") == "compact":
+        reset_markers(h.get("session_id"))
     d = h.get("cwd")
     if not isinstance(d, str) or not d or not os.path.isdir(d):
         return
