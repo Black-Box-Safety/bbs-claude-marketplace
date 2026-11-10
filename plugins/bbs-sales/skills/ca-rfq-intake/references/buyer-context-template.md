@@ -36,6 +36,13 @@ Write the "learned" lines only when something actually surprised you. A file of
 generic statements is worse than a short one, because it costs a read and returns
 nothing.
 
+## LEARNED.md
+
+Not created at intake. It appears the first time a rep tells Claude to remember something
+about this buyer (`desk-remember` writes it, one dated line per statement), and its lines are
+shown at the start of every session in this folder. `CLAUDE.md` above stays the short,
+settled picture of the buyer; `LEARNED.md` is where new things land first.
+
 ## quote-log.md
 
 ```markdown

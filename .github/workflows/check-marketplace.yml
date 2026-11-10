@@ -85,6 +85,18 @@ jobs:
           python3 plugins/bbs-sales/hooks/tests/parity.py | tail -3
           test "${PIPESTATUS[0]}" = "0"
 
+      # Desk memory: the writer's refusals (no price, account, cert or contract fact in a note)
+      # and the isolation loop (a note saved for one buyer is shown there and not in a sibling
+      # folder), then the SessionStart hook's two halves against each other.
+      - name: Desk memory (writer, isolation, hook parity)
+        env:
+          BBS_REQUIRE_PS: "1"
+        run: |
+          python3 plugins/bbs-sales/skills/desk-remember/scripts/test_desk_memory.py | tail -3
+          test "${PIPESTATUS[0]}" = "0"
+          python3 plugins/bbs-sales/hooks/tests/desk_memory_parity.py | tail -3
+          test "${PIPESTATUS[0]}" = "0"
+
       # bbs-fill is allowed by managed settings as `Bash(bbs-fill *)`, so its refusals are the
       # control: every way past them is a way past auto mode. The tests also fail when a
       # skill line or packet profile names a script that is not on its allow-list.
