@@ -62,7 +62,10 @@ norm, is_ascii, money, spec_token = item.norm, item.is_ascii, item.money, item.s
 cost_source_problem = item.cost_source_problem
 
 EXT_DOC_MAX, DESC_MAX = 35, 100
-DROPSHIP_ID = "006fd057-c685-ef11-ac23-6045bdecc5e4"   # location DROPSHIP, the customer-card default
+# The id of BC's Location card DROPSHIP ("Drop Ship Location"), the customer-card default location.
+# Source: the locations API, `locations?$filter=code eq 'DROPSHIP'` (matched 2026-11-10). If the
+# card is ever re-created its id changes; re-read it there.
+DROPSHIP_ID = "006fd057-c685-ef11-ac23-6045bdecc5e4"
 # CONTRACT (shortcut dimension 1) values, from BC-WRITE-SOP-RULES.md section 1 (verified against
 # General Ledger Setup). Change the SOP, this set and test_bc_quote_entry.py together.
 CONTRACT_CODES = frozenset({"OPEN", "NASPO", "NPPGOV", "GSA", "OMNIA", "EMRKT", "ICPT", "UCOP", "BODYARMOR",
