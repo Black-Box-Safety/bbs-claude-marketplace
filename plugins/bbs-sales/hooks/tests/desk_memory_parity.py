@@ -187,6 +187,7 @@ def main():
         put(os.path.join(hotel, "LEARNED.md"), (e("2026-11-01", "Rep Two", "preference", "Hotel wants a call first.") + nl).encode())
         put(os.path.join(hotel, "LEARNED-REP-LAPTOP.md"), (e("2026-11-02", "Rep One", "preference", "conflict-only line") + nl).encode())
         put(os.path.join(hotel, "LEARNED-archive.md"), (e("2026-01-02", "Rep One", "preference", "archived line") + " | retired: 2026-11-03 by Rep Two" + nl).encode())
+        put(os.path.join(hotel, "LEARNED-archive-REP-LAPTOP.md"), (e("2026-01-03", "Rep One", "preference", "archive copy line") + " | retired: 2026-11-04 by Rep Two" + nl).encode())
         put(os.path.join(india, "learned-REP-DESKTOP-1.md"), (e("2026-11-02", "Rep One", "preference", "india conflict line") + nl).encode())
         put(os.path.join(other, "LEARNED.md"), (e("2026-05-05", "Rep One", "preference", "decoy outside the desk") + nl).encode())
 
@@ -245,7 +246,8 @@ def main():
             ("json array: silent", b"[1,2]", lambda o: o == ""),
             ("conflict copy named, its lines and the archive not shown", start(hotel),
              lambda o: "Hotel wants a call first." in o and "conflict copy here" in o and "LEARNED-REP-LAPTOP.md" in o
-             and "conflict-only line" not in o and "archived line" not in o and "LEARNED-archive.md" not in o),
+             and "conflict-only line" not in o and "archived line" not in o and "LEARNED-archive" not in o
+             and "archive copy line" not in o),
             ("conflict copy alone still gets a block", start(india),
              lambda o: "THIS FOLDER -- " in o and "learned-REP-DESKTOP-1.md" in o and "india conflict line" not in o),
             ("PostToolUse sent to desk-memory itself: silent", json.dumps({"hook_event_name": "PostToolUse", "cwd": alpha,

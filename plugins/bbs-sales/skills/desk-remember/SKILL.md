@@ -179,10 +179,14 @@ offer to merge it:
 bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" merge --at "<folder>" --level 1
 ```
 
-It adds each line that is not already there, checks every line against the list above, and
-prints what it added. Show the rep that output as it is. If every line in the copy is
+It adds each line that is not already there, leaves out a note that was already retired (and says
+so: "retired on <date> by <who>; not merged"), checks every line against the list above, and
+prints what it added. A OneDrive copy of the archive (`LEARNED-archive-<computer>.md`) is folded
+into the archive the same way; Claude never offers it as a note file, and its lines are never
+shown. Show the rep that output as it is. If every line in the copy is
 accounted for, it removes the copy and says it did. If it held any line back (one that breaks
-the list, or one not in the note format), it keeps the copy, says which lines and why, and the
+the list, or any other text that is not a note, such as a sentence typed without the dash), it
+keeps the copy, says which lines and why, and the
 rep deletes the copy by hand once they have looked. Never delete a copy yourself.
 
 ## Showing what is remembered

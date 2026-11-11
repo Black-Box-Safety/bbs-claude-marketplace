@@ -38,10 +38,11 @@ TREE = "All RFQ's by Agency"
 FILE = "LEARNED.md"
 PER_LEVEL = 12
 MAX_UP = 8
-ARCHIVE = "LEARNED-archive.md"
 # OneDrive keeps both versions of a non-Office file in conflict and appends the device name to the
 # local copy ("Report-JOHNS-SURFACE.txt"): https://learn.microsoft.com/troubleshoot/sharepoint/sync/troubleshoot-sync-issues
-CONFLICT = re.compile(r"^LEARNED-.+\.md$", re.I)
+# The archive and its own conflict copies are left out: never shown, never offered for a merge
+# into LEARNED.md. Same pattern as the writer's CONFLICT_PATTERN and desk-memory.ps1.
+CONFLICT = re.compile(r"^LEARNED-(?!archive).+\.md$", re.I)
 MARKERS = "bbs-desk-memory"
 # A dated deal folder: the same three shapes as desk-context.py and the writer's DEAL.
 DEAL = re.compile(r"^\s*[0-9]{1,2}\.[0-9]{1,2}\.(?:[0-9]{2}|[0-9]{4})(?![0-9])"
@@ -98,8 +99,7 @@ def conflicts(d):
         names = os.listdir(d)
     except OSError:
         return []
-    return sorted(n for n in names if CONFLICT.match(n) and n.lower() != ARCHIVE.lower()
-                  and os.path.isfile(d + os.sep + n))
+    return sorted(n for n in names if CONFLICT.match(n) and os.path.isfile(d + os.sep + n))
 
 
 def level_block(d, label):

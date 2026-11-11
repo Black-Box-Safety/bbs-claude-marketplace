@@ -31,10 +31,11 @@ $TREE = "All RFQ's by Agency"
 $FILE = 'LEARNED.md'
 $PER_LEVEL = 12
 $MAX_UP = 8
-$ARCHIVE = 'LEARNED-archive.md'
 # OneDrive keeps both versions of a non-Office file in conflict and appends the device name to the
 # local copy ("Report-JOHNS-SURFACE.txt"): https://learn.microsoft.com/troubleshoot/sharepoint/sync/troubleshoot-sync-issues
-$CONFLICT = '^LEARNED-.+\.md$'
+# The archive and its own conflict copies are left out: never shown, never offered for a merge
+# into LEARNED.md. Same pattern as the writer's CONFLICT_PATTERN and desk-memory.py.
+$CONFLICT = '^LEARNED-(?!archive).+\.md$'
 $MARKERS = 'bbs-desk-memory'
 # A dated deal folder: the same three shapes as desk-context and the writer's DEAL.
 $DEAL = '^\s*[0-9]{1,2}\.[0-9]{1,2}\.(?:[0-9]{2}|[0-9]{4})(?![0-9])|[ _-][0-9]{1,2}\.[0-9]{1,2}\.(?:[0-9]{2}|[0-9]{4})\s*$|[ _-][0-9]{4}-[0-9]{2}-[0-9]{2}\s*$'
@@ -82,7 +83,7 @@ function Get-Conflicts([string]$d) {
   try { $files = [System.IO.Directory]::GetFiles($d) } catch { return @() }
   foreach ($f in $files) {
     $n = [System.IO.Path]::GetFileName($f)
-    if ([regex]::IsMatch($n, $CONFLICT, $MEM_ICASE) -and -not [string]::Equals($n, $ARCHIVE, $ORDI)) { [void]$names.Add($n) }
+    if ([regex]::IsMatch($n, $CONFLICT, $MEM_ICASE)) { [void]$names.Add($n) }
   }
   $arr = [string[]]$names.ToArray([string])
   [Array]::Sort($arr, [System.StringComparer]::Ordinal)

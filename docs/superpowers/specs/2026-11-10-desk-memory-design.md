@@ -241,10 +241,21 @@ The pattern check is a floor, not a ceiling: it cannot tell "delivery expected i
   (https://learn.microsoft.com/troubleshoot/sharepoint/sync/troubleshoot-sync-issues, read
   2026-11-10), so a conflict copy is `LEARNED-<device>.md`. The hook reads the exact name only,
   so a conflict copy is never shown, and neither are its lines until merged; it names the copy
-  in its output (slice 2). `merge` (slice 2) adds each entry line not already there (same
-  statement = duplicate), re-checks every line against the refusal table, prints what it added
-  and what it held back and why, and removes the copy only when every line in it is accounted
-  for, saying so. `LEARNED-archive.md` matches the shape and is excluded by name.
+  in its output (slice 2). The archive and its own copies (`LEARNED-archive-<device>.md`) are
+  left out of the pattern in the writer and both hooks: never shown, never offered as a copy of
+  `LEARNED.md`.
+- `merge` (slice 2) folds archive copies into `LEARNED-archive.md` first (append-only, exact
+  lines de-duplicated), then each `LEARNED-<device>.md` into `LEARNED.md`. It adds each entry
+  line whose statement is not already there and **was not retired**: a statement in the archive
+  and not in `LEARNED.md` stays out and is reported as "retired on <date> by <who>; not merged",
+  which is the case `retire` on one machine and an append on another produces. It re-checks
+  every line against the refusal table. Any other non-blank line that is not one of the file's
+  header lines (a typed sentence, a malformed bullet) is reported as not merged. It removes a
+  copy only when every line in it is accounted for (added, already there, or retired), and says
+  so; otherwise it keeps the copy and the rep deletes it by hand.
+- `retire` writes the archive first and never twice: when `LEARNED.md` cannot be rewritten (a
+  file OneDrive has open), it says the line is in both files for now, and a retry finishes
+  without a second archive line.
 - The writer never rewrites a file in slice 1. `retire` and `promote` will, on one small file,
   and are Parker-or-rep actions run one at a time.
 

@@ -10,11 +10,12 @@
                                         into LEARNED-archive.md (append-only, never shown),
                                         stamped with who retired it and when
   merge  --at PATH --level N [--copy FILE]
-                                        fold a OneDrive conflict copy (LEARNED-<device>.md) back
-                                        into LEARNED.md: entry lines only, duplicates dropped, each
-                                        line re-checked against REFUSE_TABLE; the copy is removed
-                                        only when every line in it is accounted for, and the
-                                        output says so
+                                        fold OneDrive conflict copies back in: archive copies
+                                        (LEARNED-archive-<device>.md) into LEARNED-archive.md, then
+                                        LEARNED-<device>.md into LEARNED.md: entry lines only,
+                                        duplicates dropped, retired notes kept retired, each line
+                                        re-checked against REFUSE_TABLE; a copy is removed only when
+                                        every line in it is accounted for, and the output says so
 
 --level and --wider are the numbers `where` prints (1 = the nearest folder). A dated deal folder
 is never a level: what is true for one deal belongs in its RFQ.md, not in memory.
@@ -77,9 +78,14 @@ ARCHIVE_HEADER = [
 # OneDrive keeps both versions of a non-Office file in conflict and appends the device name to the
 # local copy ("Report-JOHNS-SURFACE.txt"):
 # https://learn.microsoft.com/troubleshoot/sharepoint/sync/troubleshoot-sync-issues
+# The archive and its own conflict copies (LEARNED-archive-<device>.md) are left out: they are
+# never shown, and merge folds an archive copy into the archive, never into LEARNED.md.
 # hooks/desk-memory.py and .ps1 carry the same pattern; test_desk_memory.py fails when they differ.
-CONFLICT_PATTERN = r"^LEARNED-.+\.md$"
+CONFLICT_PATTERN = r"^LEARNED-(?!archive).+\.md$"
 CONFLICT = re.compile(CONFLICT_PATTERN, re.I)
+ARCHIVE_COPY = re.compile(r"^LEARNED-archive-.+\.md$", re.I)
+# An archive line: the original entry, then who retired it and when.
+RETIRED = re.compile(r"^(.*) \| retired: ([0-9]{4}-[0-9]{2}-[0-9]{2}) by ([^|]{1,60})$")
 # What memory may not hold, as (pattern, the plain reason given to the rep). The patterns are
 # plain strings valid in Python and .NET regex: hooks/desk-memory.py and desk-memory.ps1 carry
 # the same list (and POINTER) and withhold a matching line on read; test_desk_memory.py fails
@@ -326,8 +332,37 @@ def conflict_copies(d):
         names = os.listdir(d)
     except OSError:
         return []
-    return sorted(n for n in names if CONFLICT.match(n) and n.lower() != ARCHIVE.lower()
-                  and os.path.isfile(os.path.join(d, n)))
+    return sorted(n for n in names if CONFLICT.match(n) and os.path.isfile(os.path.join(d, n)))
+
+
+def archive_copies(d):
+    try:
+        names = os.listdir(d)
+    except OSError:
+        return []
+    return sorted(n for n in names if ARCHIVE_COPY.match(n) and os.path.isfile(os.path.join(d, n)))
+
+
+def split(text):
+    return re.split(r"\r\n|\n|\r", text)
+
+
+def is_header(l, header):
+    t = l.strip()
+    return t == "" or t in {h.strip() for h in header}
+
+
+def retired_notes(archive):
+    """{statement: (date, who)} for every note in the archive file, latest retirement last."""
+    out = {}
+    if os.path.isfile(archive):
+        text, _ = read_text(archive)
+        for l in split(text):
+            r = RETIRED.match(l)
+            m = ENTRY.match(r.group(1)) if r else None
+            if m:
+                out[statement(m)] = (r.group(2), r.group(3).strip())
+    return out
 
 
 def cmd_retire(args):
@@ -359,13 +394,30 @@ def cmd_retire(args):
     archived = f"{line} | retired: {date} by {who}"
     archive = d + os.sep + ARCHIVE
     # The archive first: if the rewrite below fails, the line is in both files, never in neither.
-    append_lines(archive, [archived], ARCHIVE_HEADER)
+    # A retry after such a failure finds the line already archived and does not add it again.
+    already = False
+    if os.path.isfile(archive):
+        atext, _ = read_text(archive)
+        already = any(l.startswith(line + " | retired: ") for l in split(atext))
+    if not already:
+        append_lines(archive, [archived], ARCHIVE_HEADER)
     del parts[2 * i:2 * i + 2]
     out = "".join(parts)
     tmp = path + ".retire-tmp"
-    with open(tmp, "wb") as fh:
-        fh.write((b"\xef\xbb\xbf" if bom else b"") + out.encode("utf-8"))
-    os.replace(tmp, path)
+    try:
+        with open(tmp, "wb") as fh:
+            fh.write((b"\xef\xbb\xbf" if bom else b"") + out.encode("utf-8"))
+        os.replace(tmp, path)
+    except OSError as e:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        print(f"Not finished: the line is in {archive}, but {path} could not be rewritten "
+              f"({e.strerror or e}), so for now it is in both files and still shown. Close anything that "
+              "has the file open (OneDrive, an editor) and run the same retire again; the archive will not "
+              "get a second copy.")
+        return 2
     print(f"Retired for {name}: the line is out of {path}")
     print(f"and kept, never shown, in {archive}:")
     print(archived)
@@ -376,42 +428,20 @@ def cmd_merge(args):
     prof, lv = levels(args.at)
     n, d, name, depth, _ = rep_level(lv, args.level, "merge")
     copies = conflict_copies(d)
+    acopies = archive_copies(d)
     if args.copy:
-        copies = [c for c in copies if c.lower() == os.path.basename(args.copy).lower()]
-        if not copies:
-            raise Refused(f"{args.copy} is not a OneDrive conflict copy of {prof['file']} in {name}'s folder")
-    if not copies:
-        print(f"No conflict copy of {prof['file']} in {d}; nothing to merge.")
+        want = os.path.basename(args.copy).lower()
+        copies = [c for c in copies if c.lower() == want]
+        acopies = [c for c in acopies if c.lower() == want]
+        if not copies and not acopies:
+            raise Refused(f"{args.copy} is not a OneDrive conflict copy of {prof['file']} or {ARCHIVE} in {name}'s folder")
+    if not copies and not acopies:
+        print(f"No conflict copy of {prof['file']} or {ARCHIVE} in {d}; nothing to merge.")
         return 0
     path = d + os.sep + prof["file"]
-    said = set()
-    if os.path.isfile(path):
-        text, _ = read_text(path)
-        said = {statement(m) for m in map(ENTRY.match, re.split(r"\r\n|\n|\r", text)) if m}
-    for c in copies:
-        cpath = d + os.sep + c
-        text, _ = read_text(cpath)
-        add, dup, held, skipped = [], 0, [], []
-        for k, l in enumerate(re.split(r"\r\n|\n|\r", text), 1):
-            m = ENTRY.match(l)
-            if m:
-                why = refused_reason(m)
-                if why:
-                    held.append((k, why))
-                elif statement(m) in said:
-                    dup += 1
-                else:
-                    said.add(statement(m))
-                    add.append(l)
-            elif l.startswith("- "):
-                skipped.append(k)
-        if add:
-            append_lines(path, add, HEADER)
-        print(f"Merged {c} into {path}: {len(add)} added, {dup} already there.")
-        for l in add:
-            print("+ " + l)
-        for k, why in held:
-            print(f"  line {k} of {c} was NOT merged: {why}.")
+    archive = d + os.sep + ARCHIVE
+
+    def finish(cpath, c, target, held, skipped):
         for k in skipped:
             print(f"  line {k} of {c} was NOT merged: it is not in the entry format.")
         if held or skipped:
@@ -419,7 +449,69 @@ def cmd_merge(args):
                   "reasons above; they delete the copy by hand once they have looked at it.")
         else:
             os.remove(cpath)
-            print(f"Removed {cpath}: every line in it is now in {prof['file']}.")
+            print(f"Removed {cpath}: every line in it is accounted for in {target}.")
+
+    # 1. Archive copies first, into the archive: append-only, never shown, so nothing is refused here.
+    #    Folding them first means a note retired on the other machine stays retired in step 2.
+    present = set()
+    if os.path.isfile(archive):
+        atext, _ = read_text(archive)
+        present = set(split(atext))
+    for c in acopies:
+        cpath = d + os.sep + c
+        text, _ = read_text(cpath)
+        add, dup, skipped = [], 0, []
+        for k, l in enumerate(split(text), 1):
+            r = RETIRED.match(l)
+            if r and ENTRY.match(r.group(1)):
+                if l in present:
+                    dup += 1
+                else:
+                    present.add(l)
+                    add.append(l)
+            elif not is_header(l, ARCHIVE_HEADER):
+                skipped.append(k)
+        if add:
+            append_lines(archive, add, ARCHIVE_HEADER)
+        print(f"Merged {c} into {archive}: {len(add)} added, {dup} already there. (Retired notes; never shown.)")
+        finish(cpath, c, ARCHIVE, [], skipped)
+
+    # 2. Copies of LEARNED.md, into LEARNED.md.
+    said = set()
+    if os.path.isfile(path):
+        text, _ = read_text(path)
+        said = {statement(m) for m in map(ENTRY.match, split(text)) if m}
+    retired = retired_notes(archive)
+    for c in copies:
+        cpath = d + os.sep + c
+        text, _ = read_text(cpath)
+        add, dup, held, gone, skipped = [], 0, [], [], []
+        for k, l in enumerate(split(text), 1):
+            m = ENTRY.match(l)
+            if m:
+                why = refused_reason(m)
+                st = statement(m)
+                if why:
+                    held.append((k, why))
+                elif st in said:
+                    dup += 1
+                elif st in retired:
+                    gone.append((k, retired[st]))      # accounted for: it is in the archive
+                else:
+                    said.add(st)
+                    add.append(l)
+            elif not is_header(l, HEADER):
+                skipped.append(k)
+        if add:
+            append_lines(path, add, HEADER)
+        print(f"Merged {c} into {path}: {len(add)} added, {dup} already there.")
+        for l in add:
+            print("+ " + l)
+        for k, (date, who) in gone:
+            print(f"  line {k} of {c} was retired on {date} by {who}; not merged.")
+        for k, why in held:
+            print(f"  line {k} of {c} was NOT merged: {why}.")
+        finish(cpath, c, f"{prof['file']} or {ARCHIVE}" if gone else prof["file"], held, skipped)
     return 0
 
 

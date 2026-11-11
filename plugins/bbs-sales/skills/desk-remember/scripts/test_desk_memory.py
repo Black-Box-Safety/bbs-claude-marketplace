@@ -360,6 +360,96 @@ def main():
         rc, out, _ = run("merge", "--at", fox, "--level", "2")
         check(rc == 2 and "Parker" in out, "merge at agency level is Parker's (R7 A2)", out)
 
+        # --- Rex's review of #84: merge must keep retirements, typed text and archive copies -----
+        golf = os.path.join(agency_d, "Buyer Golf")
+        os.makedirs(golf)
+        f_g = os.path.join(golf, "LEARNED.md")
+        add(golf, 1, "Wants one PDF per quote.", date="2026-11-01")
+        add(golf, 1, "Prefers morning calls.", date="2026-11-02")
+        # The copy another machine kept: the old file plus its own new line ...
+        cp_g = os.path.join(golf, "LEARNED-REP2-LAPTOP.md")
+        with open(f_g, "rb") as fh:
+            old = fh.read()
+        with open(cp_g, "wb") as fh:
+            fh.write(old + b"- 2026-11-03 | Rep Two | preference | Rep Two line for Golf.\n")
+        # ... while this machine retired a line.
+        retire_out = run("retire", "--at", golf, "--level", "1", "--text", "Prefers morning calls.",
+                         "--by", "Rep Two", "--date", "2026-11-04")
+        rc, out, _ = run("merge", "--at", golf, "--level", "1")
+        body = open(f_g, encoding="utf-8").read()
+        check(rc == 0 and "Prefers morning calls." not in body and "Rep Two line for Golf." in body,
+              "REX#84-1 merge does not bring a retired note back", out + body)
+        check("was retired on 2026-11-04 by Rep Two; not merged" in out and "1 added" in out,
+              "REX#84-1 merge says the line was retired, when and by whom", out)
+        check(not os.path.exists(cp_g) and f"Removed {cp_g}" in out,
+              "REX#84-1 a copy whose only extra lines are new or retired is accounted for and removed", out)
+        o = session(golf)[1]
+        check("Prefers morning calls." not in o and "Rep Two line for Golf." in o, "REX#84-1 the retired note stays unshown", o)
+
+        # 2. A typed sentence without the bullet is not dropped, and the copy is kept.
+        cp_g2 = os.path.join(golf, "LEARNED-REP3-DESKTOP.md")
+        with open(f_g, "rb") as fh:
+            cur = fh.read()
+        typed = "Buyer moved to the Sacramento office in October, ask before shipping."
+        with open(cp_g2, "wb") as fh:
+            fh.write(cur + (typed + "\n").encode("utf-8"))
+        rc, out, _ = run("merge", "--at", golf, "--level", "1")
+        check(rc == 0 and os.path.isfile(cp_g2) and "Kept " in out and "Removed" not in out,
+              "REX#84-2 a copy with a typed line that is not an entry is kept", out)
+        check(f"was NOT merged: it is not in the entry format" in out and "every line in it is now" not in out,
+              "REX#84-2 merge names the typed line as not merged", out)
+        check(open(cp_g2, encoding="utf-8").read().endswith(typed + "\n"), "REX#84-2 the typed sentence is still on disk")
+        os.remove(cp_g2)
+
+        # 3. A conflict copy of the archive is not a copy of LEARNED.md: it is folded into the
+        #    archive (append-only), never shown, never sent to the rep to delete.
+        arc_g = os.path.join(golf, "LEARNED-archive.md")
+        arc_cp = os.path.join(golf, "LEARNED-archive-REP2-LAPTOP.md")
+        with open(arc_cp, "w", encoding="utf-8") as fh:
+            fh.write("\n".join(desk_memory.ARCHIVE_HEADER) + "\n")
+            fh.write("- 2026-10-20 | Rep Two | preference | Old gate code rule. | retired: 2026-11-05 by Rep Two\n")
+        check(not desk_memory.CONFLICT.match("LEARNED-archive-REP2-LAPTOP.md") and not desk_memory.CONFLICT.match("learned-ARCHIVE.md")
+              and desk_memory.CONFLICT.match("LEARNED-REP2-LAPTOP.md"), "REX#84-3 the conflict pattern leaves the archive and its copies out")
+        o = session(golf)[1]
+        check("conflict copy" not in o and "Old gate code" not in o, "REX#84-3 the hook does not offer an archive copy for merge", o)
+        # The same line retired on the other machine must not come back from a LEARNED.md copy either.
+        cp_g3 = os.path.join(golf, "LEARNED-REP2-PHONE.md")
+        with open(cp_g3, "w", encoding="utf-8") as fh:
+            fh.write("- 2026-10-20 | Rep Two | preference | Old gate code rule.\n")
+        rc, out, _ = run("merge", "--at", golf, "--level", "1")
+        abody = open(arc_g, encoding="utf-8").read()
+        check(rc == 0 and "Old gate code rule. | retired: 2026-11-05 by Rep Two" in abody and not os.path.exists(arc_cp)
+              and f"Removed {arc_cp}" in out, "REX#84-3 an archive copy is folded into the archive and removed, and the output says so", out)
+        check("Old gate code rule." not in open(f_g, encoding="utf-8").read() and "was retired on 2026-11-05 by Rep Two; not merged" in out,
+              "REX#84-3 a line retired only in the archive copy is not brought back", out)
+        rc, out, _ = run("merge", "--at", golf, "--level", "1")
+        check(open(arc_g, encoding="utf-8").read() == abody, "REX#84-3 folding the archive again adds nothing", out)
+
+        # 5. retire: when LEARNED.md cannot be rewritten, say the line is in both files, and a
+        #    retry does not archive it twice.
+        import contextlib
+        import io
+        add(golf, 1, "Calls on Fridays only.", date="2026-11-06")
+        real_replace = os.replace
+
+        def boom(a, b):
+            raise PermissionError(13, "The process cannot access the file")
+        buf = io.StringIO()
+        desk_memory.os.replace = boom
+        try:
+            with contextlib.redirect_stdout(buf):
+                rc5 = desk_memory.main(["retire", "--at", golf, "--level", "1", "--text", "Calls on Fridays only.",
+                                        "--by", "Rep Two", "--date", "2026-11-07"])
+        finally:
+            desk_memory.os.replace = real_replace
+        msg = buf.getvalue()
+        check(rc5 == 2 and "Nothing was changed" not in msg and "both" in msg and "Calls on Fridays only." in open(f_g, encoding="utf-8").read(),
+              "REX#84-5 a failed rewrite says the line is in both files, never 'nothing was changed'", msg)
+        check(not any(n.endswith(".retire-tmp") for n in os.listdir(golf)), "REX#84-5 no temp file is left behind")
+        rc, out, _ = run("retire", "--at", golf, "--level", "1", "--text", "Calls on Fridays only.", "--by", "Rep Two", "--date", "2026-11-07")
+        check(rc == 0 and open(arc_g, encoding="utf-8").read().count("Calls on Fridays only.") == 1,
+              "REX#84-5 the retry finishes the retire without archiving the line twice", out)
+
         # --- the format has one definition per reader; they must agree -----------------------
         pat = desk_memory.ENTRY.pattern
         py = open(HOOK, encoding="utf-8").read()
@@ -387,9 +477,8 @@ def main():
         check(all(ord(c) < 128 for c in ps), "desk-memory.ps1 is ASCII (Windows PowerShell 5.1 reads it as ANSI)")
         check(f'TREE = "{desk_memory.DESKS["ca-state"]["tree"]}"' in py and f'$TREE = "{desk_memory.DESKS["ca-state"]["tree"]}"' in ps
               and f'FILE = "{desk_memory.DESKS["ca-state"]["file"]}"' in py, "the hooks read the tree and file the writer writes")
-        check(hook_mod.CONFLICT.pattern == desk_memory.CONFLICT_PATTERN and f"$CONFLICT = '{desk_memory.CONFLICT_PATTERN}'" in ps
-              and hook_mod.ARCHIVE == desk_memory.ARCHIVE and f"$ARCHIVE = '{desk_memory.ARCHIVE}'" in ps,
-              "writer and both hooks agree on the conflict-copy pattern and the archive name")
+        check(hook_mod.CONFLICT.pattern == desk_memory.CONFLICT_PATTERN and f"$CONFLICT = '{desk_memory.CONFLICT_PATTERN}'" in ps,
+              "writer and both hooks agree on the conflict-copy pattern (which leaves the archive and its copies out)")
     finally:
         shutil.rmtree(root, ignore_errors=True)
     print("\nall pass" if fails == 0 else f"\n{fails} FAILED")
