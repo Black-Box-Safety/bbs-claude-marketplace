@@ -58,10 +58,18 @@ def check_entry(root, check, alpha, bravo, outside):
     with open(os.path.join(HOOKS, "hooks.json"), encoding="utf-8") as fh:
         data = json.load(fh)
     groups = data["hooks"]["PostToolUse"]
-    check(len(groups) == 1 and len(groups[0]["hooks"]) == 1, "PostToolUse: one entry, one process per tool call")
-    m = groups[0]["matcher"]
+    # Desk memory adds no process of its own: exactly one PostToolUse command runs desk-context
+    # (through desk-post.sh), and none runs desk-memory directly. Other entries (rfq-record) are
+    # their own concern.
+    cmds = [(g, hk["command"]) for g in groups for hk in g.get("hooks", [])]
+    ours = [(g, c) for g, c in cmds if "desk-post.sh" in c]
+    check(len(ours) == 1 and not any("desk-context" in c or "desk-memory" in c for _, c in cmds if "desk-post.sh" not in c),
+          "PostToolUse: one entry runs desk-context (via desk-post.sh), none runs desk-memory on its own", repr(cmds))
+    if not ours:
+        return
+    g, cmd = ours[0]
+    m = g["matcher"]
     check(set(m.split("|")) == {"Read", "Write", "Edit", "MultiEdit"}, "PostToolUse matcher: Read|Write|Edit|MultiEdit", m)
-    cmd = groups[0]["hooks"][0]["command"]
     sh = shutil.which("sh")
     if not sh:
         print("SKIP  hooks.json entry: no sh")

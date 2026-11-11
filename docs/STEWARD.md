@@ -222,15 +222,12 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
-- **Desk memory (`desk-remember`, `desk-memory` hook, `LEARNED.md`) — seven items RULED
-  2026-11-10** (R7, below: A1–A7 accepted as recommended; was "OPEN, seven items ASSUMED").
-  Built at Parker's request of 2026-11-10. The spec's "Open for Parker"
-  list (`docs/superpowers/specs/2026-11-10-desk-memory-design.md`) is the single home: who may
-  write a note without review, who approves agency-wide and desk-wide notes, whether saving a
-  note runs without an Allow click (`bbs-fill` allow list; a control change), restamping the
-  desk-root `CLAUDE.md`, stale thresholds, the file name, contact changes. Nothing in it
-  changes a signer, a form ID, a certification claim or a price rule; notes are refused when
-  they carry one.
+- **Maintainer-tier commons entries (`taste-skill`, PR #71) — RULED 2026-10-28.** Parker, in
+  session, option (a): both bootstraps skip any `marketplace.json` entry keyworded
+  `maintainer`, and Parker installs it on his own machine by hand. Managed settings are not
+  touched (a `false` there would also block it for Parker). Record: `docs/COMMONS.md`,
+  "Maintainer-tier entries"; `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`,
+  `enabledPlugins` row.
 
 - **Email signatures — RULED 2026-10-30.** Parker, in session, with his own Outlook
   signature export in hand. A rep's signature is their real Outlook rendering with the
@@ -242,6 +239,16 @@ Write it up with evidence and move to the next slice. Do not idle.
   carries the attribute-free form and the reply says so; it never drops the block. Recipe:
   `bbs-voice-template` step 3b and `references/signature-template.html`; `bbs-sourcing`
   Step 8 now points at the rep's assets instead of a block that was never written.
+
+- **Desk memory (`desk-remember`, `desk-memory` hook, `LEARNED.md`) — seven items RULED
+  2026-11-10** (R7, below: A1–A7 accepted as recommended; was "OPEN, seven items ASSUMED").
+  Built at Parker's request of 2026-11-10. The spec's "Open for Parker"
+  list (`docs/superpowers/specs/2026-11-10-desk-memory-design.md`) is the single home: who may
+  write a note without review, who approves agency-wide and desk-wide notes, whether saving a
+  note runs without an Allow click (`bbs-fill` allow list; a control change), restamping the
+  desk-root `CLAUDE.md`, stale thresholds, the file name, contact changes. Nothing in it
+  changes a signer, a form ID, a certification claim or a price rule; notes are refused when
+  they carry one.
 
 - **`bc-item-entry`: rep-facing item creation in Business Central (PR #64) — RULED
   2026-10-14.** Parker, in session. What was ruled, and where each part lives
@@ -817,6 +824,13 @@ Write it up with evidence and move to the next slice. Do not idle.
   Vercel and Supabase denies Parker approved for #53 on 2026-10-02 do not ship; the payroll
   denies do. No `ask` rules for the Vercel purchase or domain tools are added: Parker said
   "allowed", and whether he wants `ask` there is a separate question the steward put to him.
+  - **R9 amendment — RULED 2026-11-11.** Parker, in the steward session, 2026-11-11: "Yes,
+    ask before Vercel purchases." Vercel purchases and domain transfers ask first; still
+    allowed. The Vercel connector's `buy_*` tools and `create_or_transfer_domain` are in
+    `permissions.ask` (Vercel-scoped `buy_*` rules, plus any-prefix rules for the two exact
+    tool names; never `mcp__*__buy_*`) and set to `ask` in the console; none is denied.
+    Supabase stays fully allowed. Names and their status: `MANAGED-SETTINGS.md`, "Vercel
+    purchases ask first" (PR #53).
 - **Parker approves every merge — RULED 2026-11-10.** Parker, in session, choosing
   "Parker approves each" over "Rex merges, steward reports" and "Parker merges by hand":
   Rex reviews and posts "Cleared" or "Request changes — do not merge"; the steward brings
@@ -968,6 +982,51 @@ Write it up with evidence and move to the next slice. Do not idle.
     mkdir X`; an unquoted `>>` into a FILLED path containing spaces. **Ask (Parker's call):**
     `Caltrans District 8` is refused as a near-duplicate of `Caltrans District 7`, because the
     two share every word but one. Is a numbered-district sibling a different buyer?
+- **Connector access: everyone reads, writing to a shared space is by request — RULED
+  2026-10-02.** Parker, in session: "I want everyone to have access to all of the
+  connectors and items provided in BBS Claude Marketplace. Our team is small enough that
+  there is no reason to isolate the information." Asked how live writes should behave:
+  "everyone should have read access, but not write access. They have to request write
+  access to anything that acts as a shared information space, or canonical space, for the
+  company." QuickBooks payroll: "Everyone, block payroll" (every `qbo_payroll_*` tool
+  denied and console-blocked, admins included). ~~Vercel: block purchases (`buy_*`,
+  `create_or_transfer_domain`) and `delete_project`, admins included. Supabase spending,
+  asked the same day ("block Supabase spending too"): `create_project`, `create_branch`
+  and `restore_project` (each adds billing), denied and console-blocked, admins included;
+  no skill uses them.~~ *Superseded by R9, 2026-11-10:* Parker, in session, "we don't need
+  payroll. I want vercel and supabase to be allowed", then "Yes A" to keeping payroll
+  blocked. The Vercel and Supabase denies are out of `bbs-managed-settings.json` and the
+  console list; the payroll denies stay. Vercel purchases and domain transfers ask first
+  (see R9's entry, "R9 amendment — RULED 2026-11-11"). Team-rollout page: flip connector rows to Ready today now. Every
+  plugin was already enabled for everyone (`enabledPlugins`). Homes:
+  `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md` (matrix and "Enforcing write by
+  request"), `bbs-managed-settings.json` `permissions.deny` and `permissions.ask`,
+  `docs/ADMIN-RUNBOOK.md` §3.
+  Managed settings and console blocks are org-wide, so write-by-request is enforced in
+  each system or by a read-only connection; **OPEN for Parker:** how each connector signs
+  in, the CRM's `crm_update_record` (already on everyone's account), and the new deny
+  names' live-fire check ~~(`mcp__claude_ai_Vercel__` and `mcp__claude_ai_Supabase__` are
+  inferred from the naming of the others)~~ (*Superseded by R9, 2026-11-10:* no Vercel or
+  Supabase deny remains; the check is a payroll read). The 27 `qbo_payroll_*` names were
+  re-checked against the QuickBooks connector's tool list on 2026-11-10 and match. Since
+  2026-11-11 the managed deny also carries `qbo_payroll_*` globs (`mcp__*__`,
+  `mcp__Intuit_QuickBooks__` and `mcp__claude_ai_Intuit_QuickBooks__`), so in managed
+  settings a payroll tool Intuit adds later is covered too. Only the admin console still
+  needs each payroll tool named, because it takes names, not globs. Cursor plugins are unchanged (invariant 5).
+  **Signing is excluded** (Rex, PR #53 review): the ruling is about information and
+  shared-space writes, so who signs stays R1 and R1a and no connector grant changes it;
+  SignNow grants no one signing by request. **Closed** (Parker, in session): QuickBooks is
+  hardly used, so no further QuickBooks denies. **Signed off** (Parker, in session,
+  2026-10-02): "I approve the deny list changes" (payroll, ~~Vercel, Supabase~~; Rex E1;
+  the Vercel and Supabase part *Superseded by R9, 2026-11-10*), and
+  Microsoft 365 is assigned to Rachelle ("yes it is assigned").
+- **Rachelle does not sign through Claude — RULED 2026-10-02.** Parker, in session, in the
+  brief for her team-rollout card: "Signing stays off her page. Rachelle does not sign
+  through Claude. Leave out packets, signing and form filling." She is not one of the R1a
+  delegates, so this matches R1a; her card and jobs-map rows carry no signing, packet or
+  form-filling job, and tile 3 ("Outside Sales, it doesn't sign for you") covers her.
+  `/bbs-my-voice` learns only from her own Sent Items, so drafting in Jackson's voice is
+  shown as Not built yet.
 
 ---
 

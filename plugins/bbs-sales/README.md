@@ -261,7 +261,7 @@ One more that is not a rule but behaves like one: the `Customers/State of CA Age
 
 ## Hooks (v1.1)
 
-Deterministic guards shipped with the plugin. Each ships twice, as a PowerShell script and a
+Deterministic guards shipped with the plugin. Each guard below ships twice, as a PowerShell script and a
 Python script that decide identically (`hooks/tests/parity.py` proves it, and CI runs it), so
 they fire on Windows and on Mac rep machines without any per-machine setup. The shell Claude
 Code runs hooks through picks the interpreter: `pwsh` 7, else Windows PowerShell, else
@@ -273,10 +273,15 @@ call went ahead unguarded, instead of looking guarded.
 | `guard-tree.ps1` / `.py` | Before Bash / PowerShell / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/`, including a shell delete or a redirect into a submitted packet (reading one stays allowed) |
 | `desk-context.ps1` / `.py` | Session start inside a buyer folder | Puts the last rows of `quote-log.md` and the latest `FLAGS.md` entries in front of Claude before the first prompt |
 | `desk-memory.ps1` / `.py` | Session start inside the tree, or at the desk root just above it; and, through `desk-context`'s PostToolUse entry in the same process, the first Read, Write or Edit under a buyer's folder (`desk-post.sh` decides in the shell, from the file path alone, whether an interpreter needs to start) | Shows what reps asked Claude to remember: the `LEARNED.md` lines in the session's folder and in each folder above it, nearest first; on first touch of a buyer's folder, that buyer's chain once per session, minus the folders already shown at session start. Names a OneDrive conflict copy (`LEARNED-<device>.md`) without showing its lines. It walks up and never sideways, so one buyer's notes never show in another buyer's folder. Lines that are not in the entry format are counted and skipped, and a line that holds what a note may not (a price, a contact detail, an instruction to skip a review) is withheld and counted. Its own parity test: `hooks/tests/desk_memory_parity.py` |
+| `rfq-record-hook.py` | After Write / Edit of an `RFQ.md` in the tree | Not a twin and not a block. Runs `python3` first (or a Python 3 `python`, which is what the Windows bootstrap installs) and is the only validator: checks the record against the v2 format and writes `rfq-state.json` beside it. The write has already happened; on a problem Claude is told what to fix. Without Python 3, `rfq-record-hook.ps1` checks nothing and shows "RFQ record check needs python3; this edit was not checked" |
 
 A denial shows up as a permission refusal with a one-line reason Claude relays. Test locally:
 `python3 plugins/bbs-sales/hooks/tests/parity.py` (both halves, when PowerShell is present),
 or `pwsh -File plugins/bbs-sales/hooks/tests/run-tests.ps1` for the PowerShell half alone.
+
+## The RFQ record (v2)
+
+An `RFQ.md` is now the machine record of a deal, not just notes: a fixed header, a Lines table, a Pricing table, and a Status table that moves through the stages, with the Gap report, Flags and Stated requirements kept as prose. `scripts/rfq_record.py` is the one parser and CLI (`validate`, `compile`, `current-stage`, `set-stage`, `set-header`, `upsert-pricing`, `migrate`); `compile` writes an `rfq-state.json` beside the record. The `rfq-record-hook` is a PostToolUse check: it runs after Claude writes an `RFQ.md`, so the write has already happened. If the file breaks the format, the hook tells Claude what is wrong and Claude is told to fix the file; it does not stop a malformed record reaching disk. It has one validator, `rfq-record-hook.py` over `rfq_record.py`, so it needs `python3`: on a machine without it, the rep sees "RFQ record check needs python3; this edit was not checked" and no `rfq-state.json` is written. A v1 record passes the hook with a notice (no check, no sidecar) until it is migrated; `migrate --dry-run` reports whether it converts cleanly. The reference for the exact table headers and rules is `plugins/bbs-sales/skills/ca-rfq-intake/references/rfq-record-v2.md`.
 
 ## Rollout guide
 
