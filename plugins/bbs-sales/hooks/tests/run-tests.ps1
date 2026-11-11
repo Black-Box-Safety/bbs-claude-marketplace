@@ -188,6 +188,32 @@ $first = Run $ctx $pj
 $again = Run $ctx $pj
 Check 'once per buyer per session' ($first -ne '' -and $again -eq '') $true
 
+# 17. rfq-record-hook.ps1 validates nothing (the one validator is rfq-record-hook.py; hooks.json
+#     runs python3 first). For an RFQ.md under the tree it must say the check did not run, whatever
+#     the record holds; elsewhere it must be silent. parity.py asserts the same notice text.
+$rfqHook = Join-Path (Split-Path -Parent $here) 'rfq-record-hook.ps1'
+$rfqNotice = 'bbs-sales: RFQ record check needs python3; this edit was not checked. Install Python 3 (rerun the bootstrap) so RFQ.md is validated and rfq-state.json is written.'
+$rfqDeal = Join-Path (Join-Path (Join-Path $tree 'CMD - 880000001') 'Pat Example') 'widgets 10.27.26'
+$rfqOther = Join-Path (Join-Path (Join-Path $root 'Customers') 'Bechtel') 'x'
+New-Item -ItemType Directory -Force -Path $rfqDeal | Out-Null
+New-Item -ItemType Directory -Force -Path $rfqOther | Out-Null
+function RunRfq($path) {
+  [IO.File]::WriteAllText($path, "# RFQ`n**Stage:** Sent`n")
+  $json = @{ hook_event_name='PostToolUse'; tool_name='Write'; tool_input=@{ file_path = $path } } | ConvertTo-Json -Compress -Depth 5
+  $err = Join-Path $root 'rfq-err.txt'
+  $outText = ($json | & $exe -NoProfile -ExecutionPolicy Bypass -File $rfqHook 2> $err | Out-String).Trim()
+  $rc = $LASTEXITCODE
+  $errText = ''
+  if (Test-Path $err) { $errText = [IO.File]::ReadAllText($err) }
+  $msg = ''
+  if ($outText) { try { $msg = ($outText | ConvertFrom-Json).systemMessage } catch { $msg = "unparseable: $outText" } }
+  $state = Test-Path (Join-Path (Split-Path -Parent $path) 'rfq-state.json')
+  return "$rc|$($errText.Trim())|$state|$msg"
+}
+Check 'rfq-record ps: notice for an RFQ.md in the tree' (RunRfq (Join-Path $rfqDeal 'RFQ.md')) "0||False|$rfqNotice"
+Check 'rfq-record ps: silent outside the tree' (RunRfq (Join-Path $rfqOther 'RFQ.md')) '0||False|'
+Check 'rfq-record ps: silent for another file in the tree' (RunRfq (Join-Path $rfqDeal 'notes.md')) '0||False|'
+
 Remove-Item -Recurse -Force $root
 Write-Host ""
 if ($fails -eq 0) { Write-Host "ALL PASS"; exit 0 } else { Write-Host "$fails FAILED"; exit 1 }
