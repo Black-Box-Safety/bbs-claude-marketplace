@@ -2,7 +2,7 @@
 name: naspo-quote
 description: >-
   Run a complete California state agency RFQ response end to end and deliver both halves: live
-  Grainger pricing for the requested item numbers, the BBS sales quote PDF, and the filled CA
+  Grainger pricing for the requested item numbers, the BBS sales quote in BC, and the filled CA
   compliance packet (OBS Line-Item Cost Worksheet, CalRecycle 74, DGS PD 843, Darfur OBS 1500,
   OBS 1000 GenAI, Bidder Declaration GSPD-05-105). Use whenever a CDCR institution, CalVet
   home, CSU/UC campus, Caltrans district or any State of California agency asks for pricing on
@@ -84,10 +84,9 @@ rep's own sign-in. NASPO-specific values on that spec:
 
 The quote number is the `SQ-######` BC assigns when the header is created, read back by the
 script. Never propose a number and never look for one in the Customers folder; the local
-900001 series is retired (ruling 2026-09-28). The rep releases the quote in BC and the customer
-document is BC's own print; the certification line on that print is the rep's to check against
-the channel rule (DVBE on California state business). `bbs-quote-builder` renders a copy of an
-existing BC quote only when the rep asks for one.
+900001 series is retired (ruling 2026-09-28). The rep releases the quote in BC, then must
+print the quote from BC (the customer document), then proof it per R5: DVBE 2009473 only, never SB or SDVOSB, and tax (`bc-quote-entry` §7). The rep sends it. No copy of the quote is
+rendered in Claude (Parker, 2026-11-11).
 
 ## 4. Fill the compliance packet
 

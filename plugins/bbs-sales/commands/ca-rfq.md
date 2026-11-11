@@ -140,8 +140,9 @@ Otherwise:
 
 **The customer's quote is a Business Central sales quote, created through the BC write path.
 It is not a PDF generated in Claude.** Ruled by Parker, in session, 2026-10-16, while running
-the CAL FIRE Atwater helmet-cover RFQ; the earlier practice of rendering the customer document
-with `bbs-quote-builder` is retired as the quote desk's path. Two halves, in this order:
+the CAL FIRE Atwater helmet-cover RFQ. Rendering the customer document in Claude is retired
+entirely: Parker, in session, 2026-11-11, "I want to get rid of bbs quote builder and give reps
+the ability to make items then quotes in BC. That has been working." Two halves, in this order:
 
 1. **Items first, and never twice.** Every line's item number is looked up in BC
    (`bc_find_item`) before anything is written. A number that exists is quoted as it is:
@@ -170,9 +171,8 @@ split, quote by quote"; `bc-quote-entry` enforces it. Body armor and CSU/UC keep
 
 **Gates.** The quote number is the SQ number BC assigned on creation, read back from BC;
 nothing is generated or predicted. No item is created as a side effect of quoting. The rep
-releases the quote in BC (that is where tax is calculated) and the customer document is the
-PDF BC prints from the released quote. `bbs-quote-builder` runs only when the rep asks for a
-Claude-rendered copy of a quote that already exists in BC.
+releases the quote in BC (that is where tax is calculated), and then the rep must print the quote from BC (the customer document), then proof it per R5: DVBE 2009473 only, never SB or SDVOSB, and tax. The rep sends it. There is no Claude-rendered copy of
+a quote.
 
 ## Gate 6 — Fill and sign the packet
 

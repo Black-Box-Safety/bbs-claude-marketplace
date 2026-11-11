@@ -23,7 +23,7 @@ $packages = @(
   @{ Id = 'Python.Python.3.12';      Why = 'the `python` the form-fill, quote, reconciliation and BC item-entry scripts run on; pypdf/pymupdf/openpyxl/msal/msal-extensions install into it below' },
   @{ Id = 'DuckDB.cli';              Why = 'query price lists and SCPRS exports instead of reading them whole' },
   @{ Id = 'jqlang.jq';               Why = 'JSON plumbing for scripts and hooks' },
-  @{ Id = 'TheDocumentFoundation.LibreOffice'; Why = 'soffice: quote-builder PDF export and document-skills conversion' },
+  @{ Id = 'TheDocumentFoundation.LibreOffice'; Why = 'soffice: document-skills conversion (Word and slides to PDF)' },
   # Cmd: skip winget when the command already resolves. The VS Code extension and the Desktop
   # app bundle their own Claude, and a second, winget-managed copy beside a native install is
   # the conflicting-installations case Claude Code's docs warn about.
@@ -230,11 +230,11 @@ if ([Environment]::GetEnvironmentVariable('SAM_GOV_API_KEY', 'User')) {
   $secure = $null
 }
 
-# Some skills need npm libraries, not winget packages: bbs-quote-builder builds the quote
-# .docx with `docx`, and the pptx skill builds decks with `pptxgenjs`. If npm still does not
+# Some skills need npm libraries, not winget packages: the docx skill builds Word files with
+# `docx`, and the pptx skill builds decks with `pptxgenjs`. If npm still does not
 # resolve, these finish on the rerun the closing line asks for.
 $npmPackages = @(
-  @{ Name = 'docx';      Why = 'bbs-quote-builder builds the quote .docx with it' },
+  @{ Name = 'docx';      Why = 'the docx skill builds Word files with it' },
   @{ Name = 'pptxgenjs'; Why = 'the pptx skill builds slide decks with it' }
 )
 if (Get-Command npm -ErrorAction SilentlyContinue) {
@@ -254,8 +254,7 @@ if (Get-Command npm -ErrorAction SilentlyContinue) {
     }
   }
   # Node's require() never looks in the npm global folder on its own, so a global `docx` is
-  # invisible to build_quote.js (and to /bbs-checkup, which resolves it from that script's
-  # folder) without NODE_PATH. Point it there, once, for this user.
+  # invisible to the scripts that use it (and to /bbs-checkup's probe) without NODE_PATH. Point it there, once, for this user.
   $npmRoot = (npm root -g 2>$null | Select-Object -First 1)
   if ($npmRoot) {
     $npmRoot = $npmRoot.Trim()

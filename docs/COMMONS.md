@@ -328,8 +328,8 @@ because selection does not work.
 - **Windows hook shell**, above: untested and the highest blast radius in the tier.
 - **LibreOffice** is now in both bootstraps (`scripts/bbs-setup.ps1` via winget
   `TheDocumentFoundation.LibreOffice`, `scripts/bbs-setup.sh` via `brew install --cask
-  libreoffice`). Three pinned document skills plus `bbs-quote-builder` still reference
-  `soffice`. Behaviour on a rep's Windows box is unverified until a pilot run.
+  libreoffice`). Three pinned document skills still reference `soffice` (`bbs-quote-builder`
+  did too, until its retirement on 2026-11-11). Behaviour on a rep's Windows box is unverified until a pilot run.
 - **Account-synced personal copies** of `docx`, `pdf`, `xlsx` and `pptx` compete with the
   pinned copies. Account-side; no repo change fixes it.
 

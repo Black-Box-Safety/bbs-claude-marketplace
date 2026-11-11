@@ -145,8 +145,9 @@ gate. Tax lives on the released quote, and a person releases.
   second; both run through `bbs-fill` without an Allow prompt because the rep's named sign-off
   on the review sheet is the gate (Parker, 2026-10-16, for both; for this script also R3,
   2026-11-10, which holds only while the NASPO gate does).
-- Rendering a PDF copy of a quote that already exists in BC is `bbs-quote-builder`, only when
-  a rep asks for one; the customer document is the PDF BC prints from the released quote.
+- The customer document is the PDF BC prints from the released quote. The rep must
+  print the quote from BC (the customer document), then proof it per R5: DVBE 2009473 only, never SB or SDVOSB, and tax. No copy is rendered in Claude; the quote builder was retired
+  (Parker, in session, 2026-11-11).
 - Sales orders, invoices, purchase orders and vendor quotes are out of scope and out of the
   write scope Parker authorized (create items, patch Vendor No., create sales quotes and
   lines).

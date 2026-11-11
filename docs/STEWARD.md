@@ -222,6 +222,16 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
+- **`bbs-quote-builder` retired; items then quotes in BC — RULED 2026-11-11.** Parker, in
+  session, 2026-11-11: "I want to get rid of bbs quote builder and give reps the ability to
+  make items then quotes in BC. That has been working." Relayed by the steward and confirmed
+  by Parker in #68's worker session the same day. #68 replaces the old quote path: the skill
+  is deleted, and the rep workflow is `bc-item-entry` for any missing item, `bc-quote-entry`
+  for the sales quote and its lines, then BC's own print as the customer document, proofed
+  per R5 and sent by the rep. Every live pointer is repointed. **Open action for Parker:**
+  delete the account-synced `anthropic-skills:bbs-quote-builder` in claude.ai → Settings →
+  Capabilities → Skills (`HANDOFF.md`); until then it keeps the retired path alive in Parker's
+  sessions.
 - **Quote creation moves into Business Central — RULED 2026-10-16; the skill is #68.** Parker,
   in session, while running the CAL FIRE Atwater helmet-cover RFQ: the customer quote is
   created as a BC sales quote, not rendered as a PDF in Claude, and an item already in BC is

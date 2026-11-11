@@ -157,3 +157,15 @@ not carry its own phrasings when names are hidden. That is a separate fix to the
 description, not part of adding the daily skill. Results:
 `docs/evals/results-2026-10-21-daily-weekly-*.json` and
 `docs/evals/results-2026-10-20-weekly-on-main-anonymized.json`.
+
+## Retiring `bbs-quote-builder` — 11 November 2026 (bbs-sales 0.11.0)
+
+Parker, in session, 2026-11-11: "I want to get rid of bbs quote builder and give reps the
+ability to make items then quotes in BC. That has been working." The skill is deleted, so the
+rows above that name it are history. The quote path is now `bc-item-entry` for any missing
+item, `bc-quote-entry` for the quote, and BC's own print as the customer document. Of the
+three routing queries that expected the builder, the one that asks to quote a list of items
+(`quote-1`) now expects `bc-quote-entry`, whose description took over "make a quote" and
+"quote these items". The two that ask for a PDF of a quote already in BC (`item-sib-1`,
+`quote-entry-sib-1`) now expect no skill: the answer is to print it from BC, and firing
+`bc-quote-entry` there would try to create a second quote, which its duplicate gate stops.

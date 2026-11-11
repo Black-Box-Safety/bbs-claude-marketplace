@@ -96,8 +96,7 @@ The signature is a fact about the person, not a design job: read it, do not comp
    Signature exports routinely lose the image (Parker's arrived as a 48×48 placeholder and
    his live sent mail has an empty logo cell). The stacked color mark lives in SharePoint
    at `Black Box Safety - MASTER/MARKETING/BBS Logo/Black Box Safety Logo/BBS Brand Logos+®
-   PNGs USE THESE/Logos Color/Stacked/Logo Color Stacked 2.png` and matches the mark on
-   every quote PDF. Embed it as a data URI or save it beside the HTML.
+   PNGs USE THESE/Logos Color/Stacked/Logo Color Stacked 2.png`. Embed it as a data URI or save it beside the HTML.
 4. **Write the three renderings** into `assets/`: the full HTML, the connector-safe HTML
    (the Microsoft 365 connector's outbound allowlist, probed 2026-10-30, admits only `p`,
    `br`, `a[href]`, `b`, `i`, lists, headings, tables, `div`, `code`, `pre`, `hr`; no

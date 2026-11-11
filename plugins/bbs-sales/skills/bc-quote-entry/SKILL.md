@@ -5,12 +5,12 @@ description: >-
   header and lines, from a spec the rep has reviewed and approved by name, under the rep's
   own sign-in. Use this skill whenever a BBS rep has priced an RFQ and wants the quote in
   BC: "create the quote in BC", "build the sales quote for this RFQ", "put these lines on a
-  BC quote for Cal Fire", "enter the quote so I can release it", "make the SQ", or when
-  /ca-rfq or naspo-quote reaches the build-the-quote step. Every line's item must already
+  BC quote for Cal Fire", "make a quote", "quote these items", "make the SQ", or when
+  /ca-rfq or naspo-quote reaches the build-the-quote step. It is the only quote path. Every line's item must already
   exist in BC; a missing item stops and is entered through bc-item-entry first. The quote
   number is the one BC assigns, read back. Do NOT use it to create or edit items
-  (bc-item-entry), to release, convert, send or print the quote (a person does that in BC),
-  to render a PDF copy of an existing BC quote (bbs-quote-builder), or for sales orders,
+  (bc-item-entry), to release, convert, send or print the quote (a person does that in BC; the
+  customer document is BC's own print, never a Claude-rendered copy), or for sales orders,
   invoices or purchase orders.
 requires: [business-central, python3, msal, msal-extensions]
 ---
@@ -206,9 +206,8 @@ same reminder for the same three cases (`needs_printout_proof`, tested). Which r
 salesperson, external document number, before any line exists) and the **quote read-back**
 (every line, and the total excluding tax, after the lines). Both read BC's data, not BC's
 printout; neither sees the certification line or the tax, which is why the proof is the
-rep's. If the rep wants a
-Claude-rendered copy of the quote as well, that is `bbs-quote-builder`, on the SQ number BC
-assigned, after the quote exists.
+rep's. There is no Claude-rendered copy of the quote: the quote builder that made one was
+retired (Parker, in session, 2026-11-11), and BC's print is the only customer document.
 
 ## When sign-in or BC says no
 

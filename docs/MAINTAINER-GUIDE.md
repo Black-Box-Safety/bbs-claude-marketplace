@@ -195,13 +195,12 @@ Picked up by whoever works here next.
   `grainger_price` call was ever executed against a real account. Verify `account.sellRule`
   really comes back, and that the account-resolution step behaves as written, before a rep
   relies on it.
-- **`bbs-quote-builder` prices a line tagged `source: "grainger"` at cost only when the
-  spec says so** (`pricing.graingerAtCost: true`, or method `at-cost`); `false` sends it
-  through the method; saying neither is an error. Which channel is at cost is canon's
-  "Grainger sell rule, by channel" (`canonical-facts.md`). The rule only reaches tagged lines: an
-  untagged Grainger line is priced by the method. The mitigation is prose —
-  `grainger-pricing` names the tag, and the builder's step 9 checks the echoed Grainger
-  count against the lines priced through `grainger-pricing`.
+- **Grainger at cost is enforced only where the contract says NASPO.** `bc-quote-entry`
+  stops any `contract: NASPO` line whose price is not exactly its cost (R3), so a NASPO
+  quote cannot carry a markup. A Grainger line on a quote whose spec names another contract
+  is priced as the rep wrote it; which channel is at cost is canon's "Grainger sell rule, by
+  channel" (`canonical-facts.md`). The retired `bbs-quote-builder` (2026-11-11) used a
+  per-quote `graingerAtCost` flag instead; that path is gone.
 - **`ca-form-filler` Path B claims the OBS inspector reads any CA form PDF.** Inherited
   from the pre-merge skill and never tested against a non-OBS packet.
 - **The OBS 4007(B) path has never been run against a real Rev. 08/2025 packet** —

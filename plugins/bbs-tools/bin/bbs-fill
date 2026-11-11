@@ -44,7 +44,6 @@ ALLOWED=(
   "ca-form-filler/scripts/render_pages.py"
   "naspo-quote/scripts/fill_ca_forms.py"
   "naspo-quote/scripts/inspect_form.py"
-  "bbs-quote-builder/scripts/build_quote.js"
   "sam-gov-opportunities/scripts/sam_opportunities.py"
   "usaspending-awards/scripts/usaspending_awards.py"
   "bc-item-entry/scripts/bc_item_entry.py"

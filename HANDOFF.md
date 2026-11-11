@@ -29,9 +29,10 @@ counterpart by that name**, and they contradict what replaced them:
 | `grainger-cart-info` | `rfq-item-extract` | Competes for cart-PDF extraction |
 | `grainger-screenshot` | `rfq-item-extract` | Competes for screenshot extraction |
 | `dwr-pdf-info` | `rfq-item-extract` | Competes for DWR RFQ extraction |
+| `bbs-quote-builder` (`anthropic-skills:bbs-quote-builder`) | `bc-item-entry` then `bc-quote-entry`; BC's own print is the customer document. Retired 2026-11-11 (Parker, in session: "I want to get rid of bbs quote builder and give reps the ability to make items then quotes in BC. That has been working.") | **Builds a Claude-rendered quote PDF on letterhead**, outside BC and its NASPO at-cost gate. Still triggers on "make a quote" and "put this on our letterhead" |
 
-The remaining ten still shadow a marketplace skill of the same name: `bbs-deck-voice`
-(now in `bbs-foundations`), `bbs-po-status`, `bbs-pricelist-import`, `bbs-quote-builder`,
+The remaining nine still shadow a marketplace skill of the same name: `bbs-deck-voice`
+(now in `bbs-foundations`), `bbs-po-status`, `bbs-pricelist-import`,
 `bbs-rebate-profitability`, `bbs-sourcing`, `ca-form-filler`, `dgs-bpo-item-check`,
 `so-search`, `vendor-quote-email`.
 
@@ -67,11 +68,14 @@ in every case.
 
 ## Order
 
-1. **The five orphans first.** They are pure contradiction — the thing they duplicated no
+1. **The six orphans first.** Delete each in claude.ai → Settings → Capabilities → Skills.
+   They are pure contradiction — the thing they duplicated no
    longer exists, so nothing is lost and a live wrong instruction goes away.
    `bbs-b2b-pricing` is the most urgent: it is the only one that will send a rep down a
    retired pricing path.
-2. **Then the ten shadows**, as each is exercised. Lower risk — the marketplace copy says
+   `bbs-quote-builder` joined them on 2026-11-11, when the marketplace skill was retired: a
+   synced copy would keep a retired quote path alive in Parker's own sessions.
+2. **Then the nine shadows**, as each is exercised. Lower risk — the marketplace copy says
    substantially the same thing, it is just the maintained one.
 
 After each deletion, confirm in a fresh session that the skill is gone and the marketplace

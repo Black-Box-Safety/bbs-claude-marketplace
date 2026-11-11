@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-22-b19800" alt="22 skills">
+  <img src="https://img.shields.io/badge/skills-21-b19800" alt="21 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
@@ -33,7 +33,7 @@ between two of these.
 | 2 | Get the items out of whatever they sent | `rfq-item-extract` — one skill for a DWR RFQ PDF, a saved Grainger cart PDF, or a screenshot of a cart or table |
 | 3 | Can we even sell it on this vehicle? | `dgs-bpo-item-check` — is the Grainger part on the active DGS BPO |
 | 4 | Price it | `grainger-pricing` (the authorized path — the Grainger MCP) · `bbs-sourcing` (competitive bids needing real vendor outreach, dispatching `supplier-scout` for items BBS has never sourced) · `vendor-quote-email` (one vendor, one ask) |
-| 5 | Build the customer's quote | Business Central itself (`/ca-rfq` Gate 5) — item numbers checked with `bc_find_item` and entered through `bc-item-entry` only when missing, then the quote header and lines through `bc-quote-entry` after the rep approves its review sheet by name; a person releases and prints from BC. `bbs-quote-builder` only renders a copy of an existing BC quote |
+| 5 | Build the customer's quote | Business Central itself (`/ca-rfq` Gate 5) — item numbers checked with `bc_find_item` and entered through `bc-item-entry` only when missing, then the quote header and lines through `bc-quote-entry` after the rep approves its review sheet by name; a person releases it, prints it from BC (the customer document), proofs it per R5 (DVBE 2009473 only, never SB or SDVOSB, and tax) and sends it |
 | 6 | Fill the compliance packet | `ca-form-filler` — every CA form, with the CDCR OBS 4007(B) Packet-B as its scripted path · `naspo-quote` runs a whole NASPO response and calls it for the paperwork |
 | 7 | Go find the next one | `grainger-promo-page` (outbound campaign). Federal deck copy is `bbs-deck-voice`, in `bbs-foundations` |
 
@@ -73,7 +73,7 @@ The work splits into inbound and outbound.
 
 Creating a second folder for a buyer who already has one is the expensive mistake, because the next quote's precedent search misses it. Search by buyer name and by item before creating anything.
 
-**`naspo-quote`** reads the buyer folder, pulls live Grainger pricing on the institution's account, builds the quote PDF, and fills and signs the compliance packet: OBS Line-Item Cost Worksheet, CalRecycle 74, DGS PD 843, Darfur OBS 1500, OBS 1000 GenAI, and Bidder Declaration GSPD-05-105. It renders every page and looks at it before delivering, because these forms clip long values silently.
+**`naspo-quote`** reads the buyer folder, pulls live Grainger pricing on the institution's account, creates the quote in Business Central through `bc-quote-entry` (BC's print is the customer document), and fills and signs the compliance packet: OBS Line-Item Cost Worksheet, CalRecycle 74, DGS PD 843, Darfur OBS 1500, OBS 1000 GenAI, and Bidder Declaration GSPD-05-105. It renders every page and looks at it before delivering, because these forms clip long values silently.
 
 **`grainger-promo-page`** runs the other direction. An agency already buys a given list of items, usually direct or from a competitor. Routing the same items at the same contract price through Black Box Safety turns that spend into reportable DVBE participation, and the skill's job is to make that concrete: real prices, real photos, real availability, and a quote builder a buyer can use without typing an email. The pricing-verification step matters because the sheet a rep sends is not always actually the lowest price: the skill checks every line against the agency's own Grainger account and prints whichever number is lower, because "lowest when you quote" is usually what the rep promised the buyer. SCPRS segmentation is what makes this more than a mailshot: instead of one blast, the skill sizes three buyer segments from the SCPRS warehouse (buys the prime direct, buys the category elsewhere, has BBS history but drifted) so the page goes to the people it can actually move, each with the wedge that fits their situation. And nothing ships before the brand compliance gate runs on the rendered page, same as any other piece, because an implied endorsement or an unregistered discount claim is a compliance problem the gate can catch just as easily on a webpage as on a PDF. The CAL FIRE H2 2026 build is the reference example: it was built once against a real agency hot list, and the errors it turned up (unpriced lines, a sheet that lost to the account price on more than a dozen lines, mismatched item descriptions) are written up in the skill's own worked example rather than repeated here.
 

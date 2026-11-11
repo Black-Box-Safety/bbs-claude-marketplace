@@ -81,8 +81,9 @@ use `localStorage`; the hash carries the selection.
   Black Box Safety: purchasing, AR, accounting and body armor.", icon `compass`.
 - Source file: `docs/explainers/2026-10-01-team-rollout/bbs-claude-toolkit.html`.
   Supporting file: publish `bbs_logo.png` from
-  `plugins/bbs-sales/skills/bbs-quote-builder/assets/bbs_logo.png` via `files`
-  (`{"bbs_logo.png": "plugins/bbs-sales/skills/bbs-quote-builder/assets/bbs_logo.png"}`).
+  `docs/explainers/2026-10-01-team-rollout/bbs_logo.png` via `files`
+  (`{"bbs_logo.png": "docs/explainers/2026-10-01-team-rollout/bbs_logo.png"}`). It moved here
+  from the quote builder's assets when that skill was retired (2026-11-11).
 - **Data-driven cards.** Put people, roles, rows, statuses and "coming next" items in one
   JavaScript object at the top of the script, and render every card from it. Removing
   Joyce must be deleting one entry. The page must render its general sections even if

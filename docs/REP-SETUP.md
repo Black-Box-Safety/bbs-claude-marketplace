@@ -109,7 +109,6 @@ Everything not listed is pure Claude plus connectors.
 |---|---|
 | `ca-form-filler` | `pypdf`, `pymupdf`, `pdftotext` (poppler) |
 | `naspo-quote` | `pypdf`, `pymupdf`, `pdftotext` (poppler) |
-| `bbs-quote-builder` | Node, the `docx` library, and LibreOffice (`soffice`) for the PDF |
 | `grainger-promo-page` | `pdftotext` (poppler) |
 | `dgs-bpo-item-check` | nothing — it ships its own 19,390-part lookup |
 

@@ -156,9 +156,9 @@ The single home for whether a Grainger line may carry markup. Skills point here.
 | Prime contractors (e.g. Bechtel) | **Grainger lines may be marked up.** Before pricing, the rep asks BBS's Grainger account manager for a discount on the items, prices from that discounted cost, then applies whatever markup the rep chooses. No markup figure is set — never invent one — and never invent a discount | Parker, in session, 2026-09-28: "For primes, grainger products can be increased. reps should ask for a discount from our grainger account manager first." |
 | National and local cooperative contracts (Sourcewell, NPPGov, UC/OMNIA, local co-ops), direct federal, private | **Open for Parker.** Do not infer a rule from the rows above; ask the rep | — |
 
-Where a quote spec records which rule applied (the quote builder's per-quote
-`pricing.graingerAtCost`), it is `true` on a California state-schedule / NASPO LPA quote
-and `false` on a prime quote. On an open channel it is not set by inference.
+On a quote created through `bc-quote-entry` the NASPO row is enforced: a `contract: NASPO`
+line whose price is not exactly its cost stops the check (R3, 2026-11-10). On an open
+channel no rule is set by inference.
 
 **Customer quote numbers are the Business Central SQ number** (Parker, in session,
 2026-09-28: "use BC SQ number"). The local `900001` series is retired.
@@ -168,7 +168,10 @@ session, 2026-10-16). Item numbers are checked in BC before anything is written 
 existing item is never re-created; a missing item goes through `bc-item-entry`; the quote
 header and lines are created through the BC write path after the rep approves the review
 sheet by name in the chat; a person releases the quote in BC and the customer document is
-BC's own print. `bbs-quote-builder` renders a copy of an existing BC quote only when asked.
+BC's own print. No copy of a quote is rendered in Claude: the quote builder was retired
+(Parker, in session, 2026-11-11: "I want to get rid of bbs quote builder and give reps the
+ability to make items then quotes in BC. That has been working."). The rep prints the quote
+from BC, proofs it per R5 (DVBE 2009473 only, never SB or SDVOSB, and tax) and sends it.
 Order of operations: `/ca-rfq` Gate 5.
 
 **Salesperson follows the account split, quote by quote** (Parker, in session, 2026-10-16): on a
@@ -246,7 +249,7 @@ marketplace repo, which does not ship to rep machines.
 | Who signs the rep-signed lines (OBS 4007(B)/(C) bidder, Darfur, CalRecycle 74, OBS 1000) | 2026-09-28, widened 2026-10-01 | `ca-form-rules.md`, "Rep-signed lines and delegated signatures" |
 | Grainger sell rule — California state schedules (incl. the NASPO LPA); primes | 2026-09-18 / 2026-09-28 | "Grainger sell rule, by channel", above |
 | Customer quote number | 2026-09-28 | Systems of record, above |
-| Customer quote is created in BC, not rendered in Claude; existing items never re-created | 2026-10-16 | Systems of record, above; `/ca-rfq` Gate 5 |
+| Customer quote is created in BC, not rendered in Claude; existing items never re-created | 2026-10-16; `bbs-quote-builder` retired 2026-11-11 | Systems of record, above; `/ca-rfq` Gate 5 |
 | Quote salesperson follows the Kim/Aanya split (KQUEZON / AANYA), never CA STATE TEAM | 2026-10-16; confirmed 2026-11-10 (R4) | Systems of record, above; `/ca-rfq` Gate 5 |
 | Delegated signatures: the six, the limit incl. tax, PNG of record, "complete the packet" is the approval | 2026-10-01 | `ca-form-rules.md`, "Rep-signed lines and delegated signatures" |
 | Owner declarations (PD 843, CV 012, STD 204, STD 205) stay Jackson's whoever runs the packet | 2026-10-01 | `ca-form-rules.md`, "Who signs what" |
