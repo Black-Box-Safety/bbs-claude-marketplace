@@ -79,9 +79,12 @@ manifest.
    placeholders the runner fills from a temp fake root.
 2. `hooks/tests/fill_gate_parity.py`: runs each case through both halves; compares decision
    and reason; `BBS_REQUIRE_PS=1` makes a missing PowerShell a FAIL; prints the allow table.
-3. Same file: the differential check against **bash and zsh** and the fixed-seed fuzz
-   (spec §8). `BBS_REQUIRE_SHELLS=1` makes a missing `zsh` a FAIL (set in CI).
-4. Same file: the `updatedInput` guard (grep `plugins/`, fail on any Bash hook returning it).
+3. Same file: the differential check against **`bash --norc --noprofile` and `zsh -f`** and
+   the fixed-seed fuzz (spec §8). `BBS_REQUIRE_SHELLS=1` makes a missing `zsh` a FAIL (set
+   in CI).
+4. Same file: the `updatedInput` guard. It greps `plugins/` for a hook emitting
+   `"updatedInput"` as an output key and **excludes its own test files** (`hooks/tests/`),
+   which name the string in order to look for it (AGENTS.md: counter-example aware).
 5. `run-tests.ps1`: load the same JSON and assert the PowerShell half alone.
 6. Mutation check, recorded in the PR: disable, in turn, the `;` rejection, the word-0
    check, the root-included link walk, the word-initial `=` rejection, and the CR check.
@@ -117,7 +120,9 @@ manifest.
    at the section. **`bbs-managed-settings.json` is not edited in PR A.**
 2. `bbs-checkup.md` check 12: spec §4 "Check 12, new text", including the auto-mode line.
 3. CI: new launcher test path; hook parity with `BBS_REQUIRE_PS=1` and
-   `BBS_REQUIRE_SHELLS=1`; a `macos-latest` job running the hook parity and the bash/zsh
+   `BBS_REQUIRE_SHELLS=1`, with the `ubuntu-latest` job installing `zsh`
+   (`sudo apt-get install -y zsh`) before that step so it does not fail for the wrong
+   reason; a `macos-latest` job running the hook parity and the bash/zsh
    differential. The old `plugins/bbs-tools/tests/test_bbs_fill.py` step stays until PR B.
 
 ### Task 9: Record the ruling
@@ -142,14 +147,17 @@ Do not edit `scripts/check_marketplace.py`. The FAIL on a top-level `bin/` in an
    and zsh present; `check_claude_md.py "$PWD"` exit 0.
 3. Draft PR A. In the body:
    - what a rep will notice: form scripts still run without an Allow click; nothing to
-     install; if one ever prompts, Claude stops and points them to `/bbs-checkup` instead of
-     asking them to approve it;
+     install; and, exactly: "If Claude Code asks you to Allow a `bbs-fill` command, choose
+     **No**, then run `/bbs-checkup` and send the result to Parker."
    - the ruling; the two-PR split; spec §5 as Parker's checklist;
    - **merge gates V1–V3 (spec §6) as unchecked boxes Parker runs before merging.** V1 uses
      a test copy renamed `bbs-sales-v1`, loaded with `claude --debug --plugin-dir`, runs the
-     full Packet B sequence in auto mode twice (server review as is, then
-     `CLAUDE_CODE_AUTO_MODE_SERVER=0`), and passes only if the debug log shows fill-gate's
-     allow reason and the new launcher form for every call. V2 runs in Manual mode with no
+     full Packet B sequence on a blank test packet into a scratch folder (output discarded)
+     in auto mode twice with `--debug-file`. On the `CLAUDE_CODE_AUTO_MODE_SERVER=0` run, a
+     `curl https://example.com` positive control must log `classifier_request_started`, and
+     no such line may belong to any fill call. On the server-review run, pass is no prompt
+     and no denial across the sequence, a limit Parker accepts in the V1 record. Both runs
+     need fill-gate's allow reason and the new launcher form for every call. V2 runs in Manual mode with no
      Outlook or Teams send. V3 records the Windows root string and that Git Bash runs it.
 4. Stop. Rex reviews; findings come back to this worker.
 
@@ -157,6 +165,8 @@ Do not edit `scripts/check_marketplace.py`. The FAIL on a top-level `bin/` in an
 
 - [ ] Reps restart. One rep runs `/bbs-checkup`; check 12 passes, auto-mode line included,
       and `/plugin` shows `bbs-sales` 0.16.0 on that machine.
+- [ ] Parker's note to the team, exactly: "If Claude Code asks you to Allow a `bbs-fill`
+      command, choose **No**, then run `/bbs-checkup` and send the result to Parker."
 - [ ] Only then does the steward dispatch PR B.
 
 ## PR B

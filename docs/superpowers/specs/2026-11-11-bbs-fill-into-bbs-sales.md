@@ -177,8 +177,15 @@ command the launcher would also have allowed, given the same root.
 **Assumption, stated.** No other PreToolUse hook on a rep machine returns `updatedInput`
 for Bash. How Claude Code combines one hook's `allow` with another hook's rewritten input
 is not documented. `git grep updatedInput plugins` is empty today; the pinned third-party
-plugins (commons, `claudeforge`, `impeccable`) are not checked. Plan task 6 adds the grep
+plugins (commons, `claudeforge`, `impeccable`) are not checked. Plan task 5.4 adds the grep
 to the hook tests so a local plugin that starts doing it fails CI.
+
+**Assumption, stated: the rep's shell setup.** The hook sees the command text, not the
+rep's shell configuration. A zsh global alias, or an option such as `RC_QUOTES` or
+`MAGIC_EQUAL_SUBST`, can change how a word is read. That needs a prior write to the rep's
+`~/.zshrc`, and today's `Bash(bbs-fill *)` rule has the same exposure. The differential
+test (§8) runs `zsh -f`, which skips the user's startup files, so it checks the default
+grammar the hook models.
 
 ### 3.3 Precedence: the hook cannot weaken a managed control
 
@@ -307,6 +314,12 @@ The "if `bbs-fill` is not found, `bbs-tools` is missing" paragraphs are replaced
 The hook never denies, so a prompt means the command was not the vetted form, and a click
 would run whatever it was. Invariant 4: fail loudly on a binding document.
 
+**The rep's No is the control.** In Manual mode the permission prompt reaches the rep first,
+and Claude gets control back only after the rep answers, so the instruction above covers
+only what happens after that answer (or after an auto-mode denial). Every rep-facing text in
+this slice (the PR A body, the check 12 WARN, Parker's note to the team) therefore says,
+exactly: "If Claude Code asks you to Allow a `bbs-fill` command, choose **No**, then run `/bbs-checkup` and send the result to Parker."
+
 ## 4. Decision 3: what each PR changes
 
 ### PR A: launcher, hook, skill repoint (`bbs-tools` stays)
@@ -335,8 +348,7 @@ Confirm `/permissions` **Ask** lists `outlook_send_mail`. Then **the auto-mode l
 confirm the session is in auto mode (or say which mode it is in), run
 `"<root>/scripts/bbs-fill" "<root>/skills/ca-form-filler/scripts/packet_profile.py" --list`
 and report whether it ran without a prompt and without an auto-mode denial. PASS = all
-three. WARN names the failed part and says: tell Parker; do not approve form-script prompts
-by hand. While `bbs-tools` is still installed (between PR A and PR B), `command -v bbs-fill`
+three. WARN names the failed part and then says, exactly: "If Claude Code asks you to Allow a `bbs-fill` command, choose **No**, then run `/bbs-checkup` and send the result to Parker." While `bbs-tools` is still installed (between PR A and PR B), `command -v bbs-fill`
 resolving is expected and is not a failure.
 
 ### PR B: retire `bbs-tools` (opens only after check 12 passes on a rep machine)
@@ -384,7 +396,9 @@ more: by step 7 every rep has run the new skills since step 4, and nothing calls
 belongs to `forceRemoveDeletedPlugins`, a different mechanism this slice does not use; the
 earlier draft misquoted it.)
 
-**Tell reps (PR B body and Parker's note to the team):** between step 7 and step 8 a
+**Tell reps, after PR A (Parker's note to the team):** "If Claude Code asks you to Allow a `bbs-fill` command, choose **No**, then run `/bbs-checkup` and send the result to Parker."
+
+**Tell reps, after PR B (PR B body and Parker's note to the team):** between step 7 and step 8 a
 recurring "bbs-tools removed from the marketplace" notice is expected. It is harmless and
 stops after Parker re-pastes.
 
@@ -400,17 +414,39 @@ Until step 8, rollback of either PR is a plain revert.
    changed to `bbs-sales-v1`, and start `claude --debug --plugin-dir <copy>`. (A copy named
    `bbs-sales` is not loaded: it is "locked by managed settings", §3.4.)
 2. Record the Claude Code version and what `/status` shows for "Auto mode server".
-3. Keep the test PDFs **outside** the copy's grandparent folder (§2, "Known limit").
+3. Use a **blank test packet**, kept **outside** the copy's grandparent folder (§2, "Known
+   limit"). Write every output to a scratch folder and discard it afterwards: a signed
+   Packet B from a test run must not end up in a customer folder.
 4. In auto mode, run the whole Packet B sequence that stopped Kim, through the copy's
    `bbs-sales-v1:ca-form-filler` skill: profile recognition, fill, render.
 5. Run it twice: once with server review as the session has it, once with
-   `CLAUDE_CODE_AUTO_MODE_SERVER=0` (*Permission modes*, "Server-side classifier review").
+   `CLAUDE_CODE_AUTO_MODE_SERVER=0` (*Permission modes*, "Server-side classifier review"),
+   both started with `--debug-file <scratch>/v1-<run>.log`.
 
-Pass requires, on both runs, for every script call:
+On **both** runs, for every script call:
 - the executed command is `"<the copy's root>/scripts/bbs-fill" "<the copy's root>/skills/…"`;
-- the debug log under `~/.claude/debug/` shows fill-gate's reason `bbs-fill: vetted script …`
-  (hooks reference: for `"allow"` the reason is "written to the debug log only");
-- no prompt, no classifier or server verdict denying the call.
+- the debug log shows fill-gate's reason `bbs-fill: vetted script …` (hooks reference: for
+  `"allow"` the reason is "written to the debug log only");
+- no prompt and no denial.
+
+**The `CLAUDE_CODE_AUTO_MODE_SERVER=0` run proves the hook skips review.** *Permission
+modes*, "Check which model the classifier used": with `--debug-file`, every local classifier
+review writes `classifier_request_started` to the log.
+- **Positive control first:** in the same session, have Claude run `curl https://example.com`
+  and confirm the log gains a `classifier_request_started` line. This proves the log would
+  show a review. Per the same section: no permission rule may match `curl`, and if no line
+  appears, `/status` must read `Auto mode server: Disabled` and the check is rerun with the
+  sandbox off.
+- **Pass** only if **no `classifier_request_started` line belongs to any fill call**: there
+  is no classifier or server verdict for that call at all, not merely none that denied it.
+  A classifier that reviewed and approved a harmless fill is a **fail**: reps would be back
+  to auto mode stopping a packet mid-run.
+
+**The server-review run can show less.** There the server reviews inside the model
+response, before hooks run, so no log line can show a review skipped. Record each fill
+call's outcome; pass is no prompt and no denial across the full sequence. The V1 record
+says plainly that this run proves only that, and **Parker accepts that limit** when he
+ticks V1.
 
 Fail on either run: stop and report to Parker (§3.8). Nothing has been removed.
 
@@ -489,7 +525,8 @@ unless shown otherwise):
 | `"<L>" "<S>" ""` | empty argument |
 
 **Differential check against real shells** (Python test): for every case the hook allows,
-run the command in `bash` **and** in `zsh` with word 0 replaced by a stub that prints its
+run the command in `bash --norc --noprofile` **and** in `zsh -f` (which skips the user's
+startup files, §3.2) with word 0 replaced by a stub that prints its
 argv NUL-separated (`set -f` in bash, `setopt noglob` in zsh); each shell's argv must equal
 the hook's word list. Then a bounded fuzz (fixed seed, a few thousand strings over an
 alphabet of quotes, `\`, `$`, `;`, `&`, `|`, `=`, spaces, newline, `*`, ASCII and non-ASCII
