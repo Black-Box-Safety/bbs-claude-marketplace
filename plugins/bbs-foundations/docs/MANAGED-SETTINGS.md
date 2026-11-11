@@ -18,15 +18,15 @@ when that file changes, change the block.
 | `enabledPlugins` | `bbs-foundations`, `bbs-claude-coach`, `bbs-sales`, `bbs-marketing`, `bbs-back-office`, `bbs-website`, `bbs-tools`, `agent-team`, `claudeforge`, `impeccable`, plus the commons: `superpowers-chrome`, `caveman`, `document-skills` — all on, for everyone | Nine people. The cost of an unused plugin is a few lines of context; the cost of a rep missing the quote-desk skill is a lost bid. Literacy (`bbs-claude-coach`) and post-award (`bbs-back-office`) are company-wide too. `bbs-website` is advisory, so a rep having it costs nothing. `bbs-marketing` added 2026-10-01: it shipped in #39 without a row here, so neither managed settings nor the bootstrap installed it. The bootstraps install every plugin in `marketplace.json` unless this list sets it `false`. `bbs-tools` (2026-10-01) carries only the `bbs-fill` launcher the allow rule below names. `agent-team` (2026-10-13, Parker in session): company-neutral roster and steward skills, on for everyone so any program can use them |
 | _(no `mcpServers`)_ | Grainger, BC, SCPRS, CRM, M365 are all claude.ai connectors (ruled 2026-09-13) | Connectors are assigned in the admin console, never configured per machine. The local `grainger-api` stdio server stays on admin machines only; a `mcpServers` entry here would show red in `/mcp` on every rep machine that lacks it |
 | `permissions.allow` | Read-only git/gh and file tools without prompts + the superpowers-chrome browser tool (full browser access is a ruling; prompts per click would defeat it). Since 2026-10-01 (R4): `Bash(bbs-fill *)` — the vetted form and quote scripts, through the `bbs-tools` launcher, which runs only allow-listed scripts (since 2026-10-16 that list includes the Business Central item-entry script; the rep's named sign-off on its review sheet is the gate, see "Business Central writes" below); the read-only Grainger MCP and BC MCP Custom API tools; Outlook **draft** creation and editing. Since 2026-10-13 (Parker in session, with `agent-team`): the steward's session tools — `Agent` (subagents), and the cloud session tools `create_session`, `send_message`, `get_session`, `list_sessions`, `list_events`, `get_event`, `set_session_title`, `set_session_tags`, `subscribe_pr_activity`, `unsubscribe_pr_activity` under the `mcp__claude-code-remote__` prefix — so a `project-steward` session can launch child sessions, read their transcripts, and be woken by PR events without a prompt per step. An allow rule cannot be scoped to one skill, so these apply to every session on the machine; Rex's review of PR #63 flagged that and Parker ruled it stands (2026-10-13, `docs/STEWARD.md`): these tools cannot send, order, or write to a system of record. The irreversible or loop-capable ones went to `ask` instead: `interrupt_session`, `send_later` (it wraps `create_trigger`, so each firing could schedule the next), `list_triggers`, `delete_trigger` (deletes every session the routine started). `create_trigger` and `archive_session` stay on the default prompt. The prefix is the one observed in a claude.ai cloud session on 2026-10-13; confirm it in `/permissions` on a rep machine after the first paste, and fix it here if a desktop session names the server differently. Bare `Read` "matches all file reads" (permissions docs, *Match all uses of a tool*; checked 2026-10-02): Claude Code reads any file the person can open without a prompt, the synced MASTER library included, and also `~/.ssh`, browser profiles and other projects. Whether to narrow it is OPEN (`docs/STEWARD.md`, 2026-10-02). **Never** `Bash(python:*)` or a path-pattern rule: a `*` matches anything, so such a rule would let a crafted command run arbitrary Python past auto mode | Fewer prompts on the actions that cannot break anything, and auto mode no longer stops a rep mid-packet (Kim, 2026-10-01) |
-| `permissions.ask` | Since 2026-10-13 the steward's interrupt, one-shot check-in and routine-delete session tools (see allow). Push, PR create/merge, Vercel deploy, Shopify theme push; Outlook calendar event create/update/delete, which email invites, updates and cancellations to attendees (Parker, 2026-10-01); since 2026-10-02 the Outlook and Teams send-class tools (send, forward, meeting responses, inbox rules, auto-replies, the three Teams sends; also `ask` in the admin console), so Claude can send but every send waits for a person's Allow (Parker, 2026-10-02) | Plan → approve → execute is doctrine; this makes the tool enforce it |
-| `permissions.deny` | `rm -rf`, force-push, hard reset, `gh repo delete`, reading `.env` files: `Read(**/.env)` and siblings cover the session folder and below, and since 2026-10-02 `Read(~/**/.env)` and siblings cover the whole home folder (Parker, ruling (c)); a `.env` outside both (elsewhere on `C:\` outside the home folder, or on another drive) is not covered | The irreversible actions and the secret files, plus the send-class tools that stay off: Outlook `send_draft` (its Allow prompt shows only a message id, not the email; Parker, 2026-10-02), SignNow invites and QuickBooks estimate/invoice/payment-link sends. The Outlook and Teams sends are in `permissions.ask` (row above). Deny rules apply in auto mode too, before its classifier, and hold over users' mods. `Read(**/.env)` does not block `.env.example` |
+| `permissions.ask` | Since 2026-10-13 the steward's interrupt, one-shot check-in and routine-delete session tools (see allow). Push, PR create (PR merge moved to `deny` 2026-11-10, R1), Vercel deploy, Shopify theme push; Outlook calendar event create/update/delete, which email invites, updates and cancellations to attendees (Parker, 2026-10-01); since 2026-10-02 the Outlook and Teams send-class tools (send, forward, meeting responses, inbox rules, auto-replies, the three Teams sends; also `ask` in the admin console), so Claude can send but every send waits for a person's Allow (Parker, 2026-10-02) | Plan → approve → execute is doctrine; this makes the tool enforce it |
+| `permissions.deny` | `rm -rf`, force-push, hard reset, `gh repo delete`, reading `.env` files: `Read(**/.env)` and siblings cover the session folder and below, and since 2026-10-02 `Read(~/**/.env)` and siblings cover the whole home folder (Parker, ruling (c)); a `.env` outside both (elsewhere on `C:\` outside the home folder, or on another drive) is not covered | The irreversible actions and the secret files, plus the send-class tools that stay off: Outlook `send_draft` (its Allow prompt shows only a message id, not the email; Parker, 2026-10-02), SignNow invites and QuickBooks estimate/invoice/payment-link sends. Since 2026-11-10 (R1), the GitHub merge and auto-merge tools and `gh pr merge`: agents never merge, Parker clicks Merge in the GitHub UI (see "Agents never merge" below). The Outlook and Teams sends are in `permissions.ask` (row above). Deny rules apply in auto mode too, before its classifier, and hold over users' mods. `Read(**/.env)` does not block `.env.example` |
 | `env.CAVEMAN_DEFAULT_MODE=off` | Caveman stays off until a rep types `/caveman` | The plugin's own default is `full`; without this every rep session — including customer-email drafting — would start terse |
 | `env.CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS=600000` | Plugin and marketplace clones get ten minutes, not the 120 s default | A large plugin overran 120 s on a laptop whose antivirus scans every file. Moved here from the bootstrap's saved copy (2026-10-01) so it lives in one place; the bootstrap still sets it for its own install run |
 | `env.CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE=1` | A winget- or Homebrew-installed Claude Code updates itself | A native install ignores it. Moved from the Windows bootstrap's saved copy (2026-10-01) |
 | `pluginConfigs` → `cc-plugin-sec-default@builtin` → `allowManagedModsOnly: true` | Only the organization's own mods load; a mod a user installs, loads with `--plugin-dir`, or Claude writes mid-session does not (Parker, 2026-10-02) | A user's mod can approve a call an `ask` rule would prompt for, so without this the per-send Allow could be skipped. Plugins' `hooks/hooks.json` hooks (ours) are not mods and keep running. A mod in a plugin from a GitHub marketplace counts as a user's and stops loading; as of 2026-10-02 none of ours or the pinned commons ship one (`impeccable` and `claudeforge` track moving branches, so recheck when they update) |
 | `channelsEnabled: true` | Channels are allowed for the organization (managed-only key) | It was set in the console's live copy (v12) and missing here, so pasting this file would have turned channels off (Parker, 2026-10-02) |
 | `disableBypassPermissionsMode` | Nobody can run `--dangerously-skip-permissions` | For a team that is not native with AI, the permission prompt is the seatbelt |
-| `claudeMd` | Company memory injected into **every** session on every machine | The nine rules that hold everywhere, the exact strings, the systems of record, and where the detail lives. Managed-settings-only field, so it cannot be overridden by a repo file. This is the fastest path to "the same answer Parker would give" |
+| `claudeMd` | Company memory injected into **every** session on every machine | The ten rules that hold everywhere (the Business Central write boundary added 2026-11-10, R2), the exact strings, the systems of record, and where the detail lives. Managed-settings-only field, so it cannot be overridden by a repo file. This is the fastest path to "the same answer Parker would give" |
 | `companyAnnouncements` | One rotating line at startup | Onboarding by repetition |
 | `autoUpdatesChannel: stable` | Skip release-candidate builds | Fewer surprises on machines nobody is debugging |
 | `cleanupPeriodDays: 60` | Transcripts kept two months | Long enough to `/resume` a quote thread from last month |
@@ -157,14 +157,62 @@ superseded; its reasoning (a write to a system of record deserves a second contr
 answered by the sheet, not by the click. Taking the script back off the list is a reversal
 and needs Parker, in a reviewed PR.
 
-`bc_quote_entry.py` (`bbs-sales` / `bc-quote-entry`, the sales-quote half, 2026-10-16) is on the
-`ALLOWED` list under a narrower ruling: Parker, 2026-11-10 (R3), allowed it **only once its check
-stops a NASPO quote priced above cost**, because Grainger on NASPO sells at cost and a markup
-there is a wrong number on a binding quote. That gate exists (`validate_spec`, tested in
-`test_bc_quote_entry.py`, `NaspoAtCost`); removing or weakening it means taking the script off
-the list in the same PR. Otherwise it follows the item ruling: its `check` writes a review sheet
-with every header field and line Business Central will receive, and its `commit` carries the
-rep's name and the sheet's token. The two are the only scripts in the marketplace that write to Business Central.
+**Quote creation, and the line in company memory (2026-11-10, R2).** Parker, in session,
+2026-11-10, adopting R2, then "Add bc quote entry to managed settings". `bc-quote-entry`
+(#68) may create a sales quote, its ship-to and its lines in Business Central; it never
+releases, sends, converts or posts, and it runs only after the rep approves the review
+sheet by name. The `claudeMd` block now carries one rule naming the whole BC write
+boundary (items, Vendor No. on items, sales quotes and their lines; the PM
+Claude/BC-Write-API scripts and the `bc-item-entry` and `bc-quote-entry` skills; named
+approval in the chat; never release, send, convert or post). Before this the company memory named no
+BC write rule, only the systems-of-record line. Detail stays here, not in `claudeMd`:
+`bc_quote_entry.py` **is** on the `bbs-fill` allow list under R3 (Parker, 2026-11-10), which
+allowed it only once its check stops every NASPO line whose price is not exactly its cost.
+That gate exists in #68 (`validate_spec`, tested in `test_bc_quote_entry.py`, `NaspoAtCost`);
+removing or weakening it takes the script off the list in the same PR. Like `bc_item_entry.py`
+above, its `check` writes a review sheet with every header field and line Business Central will
+receive, and its `commit` carries the rep's name and the sheet's token. A proof read-back of the
+quote printout stays mandatory (R5). The organization instruction in the claude.ai admin console is a separate place,
+which also covers claude.ai chats, and needs the same `bc-quote-entry` edit by hand;
+re-pasting this file does not change it.
+
+## Agents never merge (2026-11-10, R1)
+
+Ruling (Parker, in session, 2026-11-10, adopting the steward's R1; `docs/STEWARD.md`,
+*Already open for Parker*): agents never merge a pull request. Rex reviews and posts
+"Cleared — awaiting Parker's merge approval"; Parker clicks Merge in the GitHub UI. Every
+agent posts as Parker's own GitHub account, so no agent can prove Parker approved a merge,
+and a sentence in an agent file is a request, not a control. So `permissions.deny` carries:
+
+| Rule | Covers | Name status |
+|---|---|---|
+| `mcp__github__merge_pull_request`, `mcp__github__enable_pr_auto_merge` | The GitHub MCP server as a claude.ai cloud session names it | **Verified**: both appear under these names in a cloud session's tool list, 2026-11-10 |
+| `mcp__claude_ai_GitHub__merge_pull_request`, `mcp__claude_ai_GitHub__enable_pr_auto_merge` | A claude.ai GitHub connector that Claude Code fetches itself (terminal, VS Code) | **Inferred** from the documented `mcp__claude_ai_<server>__<tool>` form and the connector's display name "GitHub"; not observed on a rep machine |
+| `mcp__plugin_github_github__merge_pull_request`, `mcp__plugin_github_github__enable_pr_auto_merge` | A `github` plugin bundling a server keyed `github` | **Inferred** from the documented `mcp__plugin_<plugin>_<server>__<tool>` form; no BBS machine is known to have such a plugin |
+| `mcp__*__merge_pull_request`, `mcp__*__enable_pr_auto_merge` | Any server, whatever its prefix | Documented: deny rules accept a glob in the tool-name position that must match the full name (permissions docs, *Tool name wildcards*, checked 2026-11-10). This is the catch-all for a prefix guessed wrong above |
+| `Bash(gh pr merge:*)` | The `gh` CLI, including `gh pr merge --auto` | Moved from `ask` to `deny`: an `ask` would let an agent put a merge in front of Parker as one more Allow click |
+
+A deny on a name that does not exist is a silent no-op, which is why the glob is there.
+After the re-paste, confirm in `/permissions` on Parker's machine that the GitHub tools
+are listed as denied, and in one cloud session that asking Claude to merge a test PR is
+refused rather than prompted.
+
+**What it does not cover.** `gh api` (a `PUT .../pulls/<n>/merge` call), `git push` to
+`main`, and any GitHub tool on a surface managed settings do not reach (the Desktop
+**chat** window and Cowork; see "What is deliberately not here"). `git push` stays in
+`ask`; branch protection on `main` (a required PR and the `invariants` check) is the
+control there. Nor does it cover the GitHub MCP tools that write commits straight to a
+branch: `push_files`, `create_or_update_file`, and `update_pull_request_branch`. Pointed at
+`main`, those are stopped only by branch protection on `main` with admin bypass **off**
+(agents act as Parker's own account, an admin, so with bypass on they would pass); that
+setting is the backstop for every path in this paragraph. Taking a PR out of draft (`gh pr ready`, `update_pull_request`) is not a
+merge and is not denied here; `AGENTS.md` and the agent files still forbid it.
+
+**Where it reaches.** Server-managed settings from the admin console reach Anthropic-hosted
+cloud sessions (web, mobile, and cloud sessions started from Desktop), except Claude Tag
+sessions; a device-deployed `managed-settings.json` does not reach them (*settings*,
+"Settings in cloud sessions"; *model-config*, "Surface coverage"; checked 2026-11-10).
+Nothing reaches any machine until Parker re-pastes this file in the admin console.
 
 ## Empowerment posture (2026-09-11)
 

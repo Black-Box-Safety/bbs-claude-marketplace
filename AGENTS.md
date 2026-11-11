@@ -122,10 +122,12 @@ Which is why `requires:` is mandatory rather than inferred — see the working r
 
 ## Working rules
 
-- **Branch, PR, review, Parker, merge.** Never commit to `main`. A PR is merged only after
-  review by an agent that did not write it **and** Parker's approval of that PR, by number
-  (ruled 2026-11-10; `docs/STEWARD.md`, "Parker approves every merge"). No agent takes a
-  PR out of draft on its own.
+- **Branch, PR, review, Parker merges.** Never commit to `main`. A PR is merged only after
+  review by an agent that did not write it, and **only Parker merges**, by clicking Merge in
+  the GitHub UI. Agents never merge: every agent posts as Parker's GitHub account, so none
+  can prove he approved, and managed settings deny the GitHub merge and auto-merge tools
+  (ruled 2026-11-10, R1; `docs/STEWARD.md`, "Agents never merge"). No agent takes a PR out
+  of draft on its own.
 - **Pin, never vendor**, anything from Anthropic or a third party — a vendored copy stops
   receiving upstream fixes.
 - **Portable paths only.** `${CLAUDE_PLUGIN_ROOT}` and `$SKILL_DIR`. Never `/mnt/skills/`,
