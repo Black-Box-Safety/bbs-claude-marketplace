@@ -10,7 +10,8 @@ description: >-
   exist in BC; a missing item stops and is entered through bc-item-entry first. The quote
   number is the one BC assigns, read back. Do NOT use it to create or edit items
   (bc-item-entry), to release, convert, send or print the quote (a person does that in BC; the
-  customer document is BC's own print, never a Claude-rendered copy), or for sales orders,
+  customer document is BC's own print, never a Claude-rendered copy), for a quote that
+  already has an SQ number (the rep prints that one from BC), or for sales orders,
   invoices or purchase orders.
 requires: [business-central, python3, msal, msal-extensions]
 ---
