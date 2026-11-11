@@ -111,7 +111,7 @@ PR body's asks.
 
 ### Task 11 — Versions, gates, PR
 
-1. Versions (steward, 2026-11-11): `bbs-sales` **0.16.0** (#77 merged at 0.13.0; #68 holds 0.14.0, #84 holds 0.15.0), `bbs-foundations` **0.5.1**;
+1. Versions (steward, 2026-11-11): `bbs-sales` **0.16.0** (#77 merged at 0.13.0; #68 holds 0.14.0, #84 holds 0.15.0), `bbs-foundations` **0.5.3** (#72 holds 0.5.0, #68 0.5.1, #84 0.5.2);
    ask the steward for marketplace `metadata.version` if it moves.
 2. Full local gate: `check_marketplace.py` exit 0; launcher tests; hook parity with pwsh
    present; `check_claude_md.py "$PWD"` exit 0.
