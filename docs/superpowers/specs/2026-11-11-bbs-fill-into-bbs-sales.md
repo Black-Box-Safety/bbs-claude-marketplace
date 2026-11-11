@@ -309,7 +309,7 @@ lines. If either has been closed instead of merged, its entry is **not** carried
 goes on the list only by its own ruling and reviewed PR). #77 also edits
 `bbs-sales/hooks/hooks.json`; whichever lands second merges `main` in, keeping both entries.
 
-Versions (allocated by the steward, 2026-11-11): **`bbs-sales` 0.14.0, `bbs-foundations` 0.5.1.**
+Versions (allocated by the steward, 2026-11-11): **`bbs-sales` 0.16.0, `bbs-foundations` 0.5.1.**
 
 #68 also retires `bbs-quote-builder` and drops `build_quote.js` from `ALLOWED`
 (Parker, 2026-11-11). The implementation takes `ALLOWED` from `main` as #68 left it and does
