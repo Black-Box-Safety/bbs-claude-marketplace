@@ -971,7 +971,11 @@ Write it up with evidence and move to the next slice. Do not idle.
   no skill uses them.~~ *Superseded by R9, 2026-11-10:* Parker, in session, "we don't need
   payroll. I want vercel and supabase to be allowed", then "Yes A" to keeping payroll
   blocked. The Vercel and Supabase denies are out of `bbs-managed-settings.json` and the
-  console list; the payroll denies stay. Team-rollout page: flip connector rows to Ready today now. Every
+  console list; the payroll denies stay. **R9 amendment, Parker, 2026-11-11: Vercel purchases and domain transfers ask first; still allowed.** Parker, in
+  session: "Yes, ask before Vercel purchases." The Vercel connector's purchase and
+  domain-transfer tools (`buy_domain` and any other `buy_*`, and `create_or_transfer_domain`;
+  checked 2026-11-11) are in `permissions.ask` and set to `ask` in the console, never
+  `deny`. Supabase stays fully allowed. Team-rollout page: flip connector rows to Ready today now. Every
   plugin was already enabled for everyone (`enabledPlugins`). Homes:
   `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md` (matrix and "Enforcing write by
   request"), `bbs-managed-settings.json` `permissions.deny`, `docs/ADMIN-RUNBOOK.md` §3.

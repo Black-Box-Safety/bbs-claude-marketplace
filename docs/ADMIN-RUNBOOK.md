@@ -121,7 +121,9 @@ console's connector tool controls (per-tool "Tool permission restrictions"):
   console takes tool names, not globs: set each named tool, and when a connector adds a
   payroll tool, set it too);
 - set to **`ask`** every Microsoft 365 tool that `permissions.ask` names (the Outlook and
-  Teams sends, meeting responses, inbox rules, auto-replies). Org `ask` makes Claude Code
+  Teams sends, meeting responses, inbox rules, auto-replies), and the Vercel connector's
+  `buy_*` tools and `create_or_transfer_domain` (R9 amendment, Parker, 2026-11-11:
+  Vercel purchases and domain transfers ask first; still allowed). Org `ask` makes Claude Code
   prompt on every call, even in auto mode, and no allow rule or remembered answer skips it.
   For Microsoft 365, first make sure the tenant has approved the connector's write
   permissions: if it was approved before those were added, an Entra Global Administrator or

@@ -92,7 +92,11 @@
       "mcp__claude-code-remote__interrupt_session",
       "mcp__claude-code-remote__send_later",
       "mcp__claude-code-remote__list_triggers",
-      "mcp__claude-code-remote__delete_trigger"
+      "mcp__claude-code-remote__delete_trigger",
+      "mcp__claude_ai_Vercel__buy_*",
+      "mcp__claude_ai_Vercel__create_or_transfer_domain",
+      "mcp__Vercel__buy_*",
+      "mcp__Vercel__create_or_transfer_domain"
     ],
     "deny": [
       "Bash(rm -rf:*)",
