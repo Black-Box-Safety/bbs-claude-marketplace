@@ -260,25 +260,28 @@ hook pair, not by copying the skill. Only the CA desk is built.
 
 ## Open for Parker
 
-Each is ASSUMED as recommended so the build could continue. None changes a binding document.
+Each was ASSUMED as recommended so the build could continue. None changes a binding document.
+All seven are **RULED 2026-11-10** as recommended (Parker, in the steward session: "Follow
+recommendations…"; `docs/STEWARD.md`, R7). The ASSUMED wording is kept below as the record.
 
 1. **Who may write a note without review.** Recommended and ASSUMED: any rep, at buyer and
-   institution level, with their name on it.
-2. **Who approves agency-wide and desk-wide notes.** Recommended and ASSUMED: Parker only, at
+   institution level, with their name on it, and Parker sees new lines in the monthly
+   review (added with R7). **RULED 2026-11-10.**
+2. **Who approves agency-wide and desk-wide notes.** **RULED 2026-11-10.** Recommended and ASSUMED: Parker only, at
    the monthly review; the writer refuses those levels for now. This matches PR #75's "agency
    and desk-root files change only by a ruling from Parker".
-3. **No Allow click to save a note.** Slice 1 runs the script with plain `python`, so a rep
+3. **No Allow click to save a note.** **RULED 2026-11-10.** Slice 1 runs the script with plain `python`, so a rep
    sees one permission prompt per note. Recommended: add `desk-remember/scripts/desk_memory.py`
    to the `bbs-fill` allow list in slice 2. It writes one line into the tree and cannot send,
    price or sign. ASSUMED: not allow-listed until ruled; it is a control change and needs the
    second reviewer.
-4. **Restamp the desk-root `CLAUDE.md`** from `workspace/DESK-CLAUDE-template.md`. The template
+4. **Restamp the desk-root `CLAUDE.md`** from `workspace/DESK-CLAUDE-template.md`. **RULED 2026-11-10.** The template
    gained the "what reps asked you to remember" section and the stay-in-this-buyer's-folder
    rule; they reach no machine until the file on SharePoint is replaced. Not a repo change.
-5. **Stale thresholds.** ASSUMED: flag at 12 months, propose archive at 18.
-6. **The file name `LEARNED.md`.** ASSUMED. Changing it later means changing the writer, both
+5. **Stale thresholds.** **RULED 2026-11-10.** ASSUMED: flag at 12 months, propose archive at 18.
+6. **The file name `LEARNED.md`.** **RULED 2026-11-10.** ASSUMED. Changing it later means changing the writer, both
    hook halves and the test that ties them together.
-7. **Contact changes.** ASSUMED: "buyer moved to Folsom" is a fine note; the phone, email and
+7. **Contact changes.** **RULED 2026-11-10.** ASSUMED: "buyer moved to Folsom" is a fine note; the phone, email and
    ship-to themselves stay in the buyer's `CLAUDE.md` header, which the skill tells Claude to
    fix in the same turn. Enforced: the writer refuses a phone number or email address and the
    hook withholds one.
