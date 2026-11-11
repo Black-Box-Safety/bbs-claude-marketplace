@@ -1,2 +1,5 @@
 # Shell scripts must stay LF so macOS bash can run them after a Windows checkout.
 *.sh text eol=lf
+
+# Test fixtures must stay LF so exact-string replacements in run-tests.ps1 match.
+plugins/bbs-sales/scripts/tests/fixtures/*.md text eol=lf

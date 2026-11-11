@@ -2,6 +2,7 @@
 
 Copy into the deal folder as `RFQ.md` at intake. Later stages append; nothing here gets
 rewritten silently. A field you can't fill gets `[FLAG: why]`, never a guess.
+Stages, line stages and strategies are the enums in `rfq-record-v2.md`; the hook rejects anything else.
 
 ```markdown
 # RFQ — <buyer> / <institution> — <item>, <M.D.YY>
@@ -16,6 +17,11 @@ rewritten silently. A field you can't fill gets `[FLAG: why]`, never a guess.
 **Solicitation #:** <number, or "none issued — reference BBS quote">
 **Vehicle:** <NASPO MRO LPA 7-25-51-02.03 | DGS BPO | competitive>
 **Pricing rule:** <at cost, no markup | bid — margin is the rep's call>
+**Rep:** <Kim Quezon | Aanya Samarasinghe>
+**CRM RFQ:** <RFQ-00xxxx | [not in CRM]>
+**BC quote:** <SQ-10xxxx | none>
+**PC quote:** <Q 1xxxx | none>
+**Stage:** logged
 
 ## Lines (<n> items)
 
@@ -24,6 +30,12 @@ rewritten silently. A field you can't fill gets `[FLAG: why]`, never a guess.
 | 1 | | | | | grainger / catalog / sourcing / FLAG |
 
 Source states <n> lines; <n> captured.
+
+## Pricing
+
+| # | Vendor | Vendor ref | Cost | Sell | Strategy | Lead | Line stage | Evidence |
+|---|---|---|---|---|---|---|---|---|
+| 1 | [sourcing] | | | | | | open | |
 
 ## Forms the buyer requires
 
@@ -39,11 +51,14 @@ Source states <n> lines; <n> captured.
 
 ## Status
 
-| Stage | State | Date |
+| Stage | Date | Evidence |
 |---|---|---|
-| Logged | done | <date> |
-| Priced | | |
-| Packet built | | |
-| Sent | | |
-| Outcome | | |
+| logged | <YYYY-MM-DD> | RFQ.md created |
+| sourcing | | |
+| priced | | |
+| quote built | | |
+| packet built | | |
+| delivered to rep | | |
+| sent | | |
+| outcome | | |
 ```
