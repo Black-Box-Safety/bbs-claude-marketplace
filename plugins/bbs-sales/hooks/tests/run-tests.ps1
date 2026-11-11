@@ -204,7 +204,7 @@ function RunRfq($path) {
   $outText = ($json | & $exe -NoProfile -ExecutionPolicy Bypass -File $rfqHook 2> $err | Out-String).Trim()
   $rc = $LASTEXITCODE
   $errText = ''
-  if (Test-Path $err) { $errText = [string](Get-Content -Raw -Path $err) }
+  if (Test-Path $err) { $errText = [IO.File]::ReadAllText($err) }
   $msg = ''
   if ($outText) { try { $msg = ($outText | ConvertFrom-Json).systemMessage } catch { $msg = "unparseable: $outText" } }
   $state = Test-Path (Join-Path (Split-Path -Parent $path) 'rfq-state.json')
