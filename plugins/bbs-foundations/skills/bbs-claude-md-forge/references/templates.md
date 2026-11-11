@@ -92,8 +92,9 @@ signer correct per line, never a third party's signature>
 ```
 
 A **site file** under it: identity of the site (ship-to modes, gates, POC), buyers who
-issue there, a folder index table (folder · RFQ · category · outcome), site-specific
-gotchas, `@../CLAUDE.md` at column one near the top.
+issue there, a folder index table (folder · RFQ · category), site-specific
+gotchas, `@../CLAUDE.md` at column one near the top. Quote outcomes (won, lost, no-bid,
+the SQ number) are never kept in a CLAUDE.md, at either level (Parker, R6, 2026-11-10).
 
 ## `plugin` — a directory under `plugins/` in a marketplace repo
 
