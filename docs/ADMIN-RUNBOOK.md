@@ -55,7 +55,17 @@ without the rep touching a settings file. Nothing is merged into a rep's own
    send rail:** ask Claude to send you a test email with a long body — expect an Allow prompt,
    not a silent send, and check that the prompt shows the recipients, subject and the whole
    body; approve it and check it arrives (`/permissions` should list the send tools under
-   Ask). Rules on wrong tool names fail silently, so this test is not optional. Repeat it once on the pilot rep's machine. The Desktop
+   Ask). Rules on wrong tool names fail silently, so this test is not optional. Repeat it once on the pilot rep's machine. **Live-fire
+   the payroll deny:** ask Claude to list the company's employees through QuickBooks, here
+   and once in a claude.ai cloud session; both must be refused, not prompted and not
+   answered (R9, 2026-11-10; the prefixes differ by surface, see MANAGED-SETTINGS.md,
+   "Payroll and send denies"). In the deployment note, record the prefix each session
+   showed for the tool (`/permissions`, or the refusal message): `mcp__claude_ai_…`,
+   `mcp__Intuit_QuickBooks__…` or a server id. If either returns data, set the payroll
+   tools to `blocked` in the console (§3) and tell the steward. **Live-fire the Vercel
+   ask:** ask Claude to buy a domain through Vercel; expect an Allow prompt, then decline
+   it (R9 amendment, 2026-11-11). If it buys without asking, set `buy_domain` to `blocked`
+   in the console and tell the steward. The Desktop
    app's **Code** tab is tested after the console blocks in §3, not here: there connectors
    arrive from the app and our ask and deny rules are not documented to match. **Cursor Agent chat is not covered by managed settings.** The stamped
    `.cursor/rules/bbs-invariants.mdc` is the control there; do not treat a Claude Code
@@ -96,19 +106,29 @@ Add the monthly reading to the metrics review (MEASUREMENT.md).
 
 ## 3. Connector assignments (one-time, then per new hire)
 
-Per the matrix in MANAGED-SETTINGS.md: everyone gets BC MCP (Custom API, read-only, interim),
-M365, Grainger, Sales CRM; CA-book reps add SCPRS; BC Chat Connector is retired — unassign it;
-Supabase/Shopify/Vercel/QuickBooks stay admin-only.
+Per the matrix in MANAGED-SETTINGS.md (ruled 2026-10-02): **everyone reads every
+connector; writing to a shared space is granted per person, on request.** BC Chat Connector
+is retired — unassign it. Before assigning a write-capable connector to everyone, confirm
+how it signs in ("Enforcing write by request" in MANAGED-SETTINGS.md): if it uses one
+shared credential, everyone gets a read-only connection and only approved writers get the
+write-capable one. When someone asks for write access, grant it in that system (or assign
+them the write-capable connection) and note who and when in the deployment note.
 
 **Set the send tools in the console too (ruled 2026-10-02).** In the claude.ai admin
 console's connector tool controls (per-tool "Tool permission restrictions"):
 
 - set to **`blocked`** every connector tool that
   `plugins/bbs-foundations/docs/bbs-managed-settings.json` `permissions.deny` names (its
-  `mcp__claude_ai_<connector>__<tool>` entries; currently Outlook send-draft and the
-  SignNow and QuickBooks send-class tools);
+  `mcp__claude_ai_<connector>__<tool>` entries and the `mcp__*__<tool>` globs; currently
+  Outlook send-draft, the SignNow and QuickBooks send-class tools, every QuickBooks
+  `qbo_payroll_*` tool (admins included, ruled 2026-10-02 and kept by R9, 2026-11-10), and
+  the GitHub `merge_pull_request` and `enable_pr_auto_merge` tools (R1, 2026-11-10). The
+  console takes tool names, not globs: set each named tool, and when a connector adds a
+  payroll tool, set it too);
 - set to **`ask`** every Microsoft 365 tool that `permissions.ask` names (the Outlook and
-  Teams sends, meeting responses, inbox rules, auto-replies). Org `ask` makes Claude Code
+  Teams sends, meeting responses, inbox rules, auto-replies), and the Vercel connector's
+  `buy_domain` (and any other `buy_*` tool it lists) and `create_or_transfer_domain` (R9 amendment, Parker, 2026-11-11:
+  Vercel purchases and domain transfers ask first; still allowed). Org `ask` makes Claude Code
   prompt on every call, even in auto mode, and no allow rule or remembered answer skips it.
   For Microsoft 365, first make sure the tenant has approved the connector's write
   permissions: if it was approved before those were added, an Entra Global Administrator or
