@@ -6,11 +6,11 @@ description: >-
   own sign-in. Use this skill whenever a BBS rep has priced an RFQ and wants the quote in
   BC: "create the quote in BC", "build the sales quote for this RFQ", "put these lines on a
   BC quote for Cal Fire", "make a quote", "quote these items", "make the SQ", or when
-  /ca-rfq or naspo-quote reaches the build-the-quote step. It is the only quote path. Every line's item must already
+  /ca-rfq or naspo-quote reaches the build-the-quote step. Every line's item must already
   exist in BC; a missing item stops and is entered through bc-item-entry first. The quote
   number is the one BC assigns, read back. Do NOT use it to create or edit items
-  (bc-item-entry), to release, convert, send or print the quote (a person does that in BC; the
-  customer document is BC's own print, never a Claude-rendered copy), for a quote that
+  (bc-item-entry), to release, convert, send or print the quote (a person does that in BC, and
+  BC's print is the customer document), for a quote that
   already has an SQ number (the rep prints that one from BC), or for sales orders,
   invoices or purchase orders.
 requires: [business-central, python3, msal, msal-extensions]
