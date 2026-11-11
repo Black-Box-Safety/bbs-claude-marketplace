@@ -15,11 +15,11 @@ when that file changes, change the block.
 | Block | Purpose | Why it matters for a small team |
 |---|---|---|
 | `extraKnownMarketplaces` | Registers **one** BBS marketplace | Two marketplaces named after forks confused install instructions in August. The doctrine that fires when a skill runs ships inside the plugins themselves (`hooks/hooks.json`), so no second marketplace is needed for it |
-| `enabledPlugins` | `bbs-foundations`, `bbs-claude-coach`, `bbs-sales`, `bbs-marketing`, `bbs-back-office`, `bbs-website`, `bbs-tools`, `agent-team`, `claudeforge`, `impeccable`, plus the commons: `superpowers-chrome`, `caveman`, `document-skills` — all on, for everyone | Nine people. The cost of an unused plugin is a few lines of context; the cost of a rep missing the quote-desk skill is a lost bid. Literacy (`bbs-claude-coach`) and post-award (`bbs-back-office`) are company-wide too. `bbs-website` is advisory, so a rep having it costs nothing. `bbs-marketing` added 2026-10-01: it shipped in #39 without a row here, so neither managed settings nor the bootstrap installed it. The bootstraps install every plugin in `marketplace.json` unless this list sets it `false`. `bbs-tools` (2026-10-01) carries only the `bbs-fill` launcher the allow rule below names. `agent-team` (2026-10-13, Parker in session): company-neutral roster and steward skills, on for everyone so any program can use them |
+| `enabledPlugins` | `bbs-foundations`, `bbs-claude-coach`, `bbs-sales`, `bbs-marketing`, `bbs-back-office`, `bbs-website`, `bbs-tools`, `agent-team`, `claudeforge`, `impeccable`, plus the commons: `superpowers-chrome`, `caveman`, `document-skills` — all on, for everyone | Nine people. The cost of an unused plugin is a few lines of context; the cost of a rep missing the quote-desk skill is a lost bid. Literacy (`bbs-claude-coach`) and post-award (`bbs-back-office`) are company-wide too. `bbs-website` is advisory, so a rep having it costs nothing. `bbs-marketing` added 2026-10-01: it shipped in #39 without a row here, so neither managed settings nor the bootstrap installed it. The bootstraps install every plugin in `marketplace.json` unless this list sets it `false` or its entry carries the `maintainer` keyword (maintainer-tier, Parker installs by hand: `docs/COMMONS.md`, Parker 2026-10-28; `taste-skill` is the first). `bbs-tools` (2026-10-01) carries only the `bbs-fill` launcher the allow rule below names. `agent-team` (2026-10-13, Parker in session): company-neutral roster and steward skills, on for everyone so any program can use them |
 | _(no `mcpServers`)_ | Grainger, BC, SCPRS, CRM, M365 are all claude.ai connectors (ruled 2026-09-13) | Connectors are assigned in the admin console, never configured per machine. The local `grainger-api` stdio server stays on admin machines only; a `mcpServers` entry here would show red in `/mcp` on every rep machine that lacks it |
 | `permissions.allow` | Read-only git/gh and file tools without prompts + the superpowers-chrome browser tool (full browser access is a ruling; prompts per click would defeat it). Since 2026-10-01 (R4): `Bash(bbs-fill *)` — the vetted form and quote scripts, through the `bbs-tools` launcher, which runs only allow-listed scripts (since 2026-10-16 that list includes the Business Central item-entry script; the rep's named sign-off on its review sheet is the gate, see "Business Central writes" below); the read-only Grainger MCP and BC MCP Custom API tools; Outlook **draft** creation and editing. Since 2026-10-13 (Parker in session, with `agent-team`): the steward's session tools — `Agent` (subagents), and the cloud session tools `create_session`, `send_message`, `get_session`, `list_sessions`, `list_events`, `get_event`, `set_session_title`, `set_session_tags`, `subscribe_pr_activity`, `unsubscribe_pr_activity` under the `mcp__claude-code-remote__` prefix — so a `project-steward` session can launch child sessions, read their transcripts, and be woken by PR events without a prompt per step. An allow rule cannot be scoped to one skill, so these apply to every session on the machine; Rex's review of PR #63 flagged that and Parker ruled it stands (2026-10-13, `docs/STEWARD.md`): these tools cannot send, order, or write to a system of record. The irreversible or loop-capable ones went to `ask` instead: `interrupt_session`, `send_later` (it wraps `create_trigger`, so each firing could schedule the next), `list_triggers`, `delete_trigger` (deletes every session the routine started). `create_trigger` and `archive_session` stay on the default prompt. The prefix is the one observed in a claude.ai cloud session on 2026-10-13; confirm it in `/permissions` on a rep machine after the first paste, and fix it here if a desktop session names the server differently. Bare `Read` "matches all file reads" (permissions docs, *Match all uses of a tool*; checked 2026-10-02): Claude Code reads any file the person can open without a prompt, the synced MASTER library included, and also `~/.ssh`, browser profiles and other projects. Whether to narrow it is OPEN (`docs/STEWARD.md`, 2026-10-02). **Never** `Bash(python:*)` or a path-pattern rule: a `*` matches anything, so such a rule would let a crafted command run arbitrary Python past auto mode | Fewer prompts on the actions that cannot break anything, and auto mode no longer stops a rep mid-packet (Kim, 2026-10-01) |
-| `permissions.ask` | Since 2026-10-13 the steward's interrupt, one-shot check-in and routine-delete session tools (see allow). Push, PR create (PR merge moved to `deny` 2026-11-10, R1), Vercel deploy, Shopify theme push; Outlook calendar event create/update/delete, which email invites, updates and cancellations to attendees (Parker, 2026-10-01); since 2026-10-02 the Outlook and Teams send-class tools (send, forward, meeting responses, inbox rules, auto-replies, the three Teams sends; also `ask` in the admin console), so Claude can send but every send waits for a person's Allow (Parker, 2026-10-02) | Plan → approve → execute is doctrine; this makes the tool enforce it |
-| `permissions.deny` | `rm -rf`, force-push, hard reset, `gh repo delete`, reading `.env` files: `Read(**/.env)` and siblings cover the session folder and below, and since 2026-10-02 `Read(~/**/.env)` and siblings cover the whole home folder (Parker, ruling (c)); a `.env` outside both (elsewhere on `C:\` outside the home folder, or on another drive) is not covered | The irreversible actions and the secret files, plus the send-class tools that stay off: Outlook `send_draft` (its Allow prompt shows only a message id, not the email; Parker, 2026-10-02), SignNow invites and QuickBooks estimate/invoice/payment-link sends. Since 2026-11-10 (R1), the GitHub merge and auto-merge tools and `gh pr merge`: agents never merge, Parker clicks Merge in the GitHub UI (see "Agents never merge" below). The Outlook and Teams sends are in `permissions.ask` (row above). Deny rules apply in auto mode too, before its classifier, and hold over users' mods. `Read(**/.env)` does not block `.env.example` |
+| `permissions.ask` | Since 2026-10-13 the steward's interrupt, one-shot check-in and routine-delete session tools (see allow). Push, PR create (PR merge moved to `deny` 2026-11-10, R1), Vercel deploy; since 2026-11-11 Vercel purchases and domain transfers (`buy_*` and `create_or_transfer_domain` under the `mcp__claude_ai_Vercel__` and `mcp__Vercel__` prefixes, and `buy_domain` and `create_or_transfer_domain` under any prefix; R9 amendment, see "Vercel purchases ask first" below), and the eight Microsoft 365 sends under any prefix (see "Microsoft 365 sends" below); Shopify theme push; Outlook calendar event create/update/delete, which email invites, updates and cancellations to attendees (Parker, 2026-10-01); since 2026-10-02 the Outlook and Teams send-class tools (send, forward, meeting responses, inbox rules, auto-replies, the three Teams sends; also `ask` in the admin console), so Claude can send but every send waits for a person's Allow (Parker, 2026-10-02) | Plan → approve → execute is doctrine; this makes the tool enforce it |
+| `permissions.deny` | `rm -rf`, force-push, hard reset, `gh repo delete`, reading `.env` files: `Read(**/.env)` and siblings cover the session folder and below, and since 2026-10-02 `Read(~/**/.env)` and siblings cover the whole home folder (Parker, ruling (c)); a `.env` outside both (elsewhere on `C:\` outside the home folder, or on another drive) is not covered | The irreversible actions and the secret files, plus the send-class tools that stay off: Outlook `send_draft` (its Allow prompt shows only a message id, not the email; Parker, 2026-10-02), SignNow invites and QuickBooks estimate/invoice/payment-link sends. Since 2026-11-10 (R1), the GitHub merge and auto-merge tools and `gh pr merge`: agents never merge, Parker clicks Merge in the GitHub UI (see "Agents never merge" below). Since 2026-10-02 (Parker, connector access; kept by R9, 2026-11-10): every QuickBooks `qbo_payroll_*` tool, for everyone, admins included. Since 2026-11-11, `mcp__*__` globs back up the payroll and send denies, because a connector's tool prefix differs by surface (see "Payroll and send denies: which names are verified" below). 68 deny entries in all. The Outlook and Teams sends are in `permissions.ask` (row above). Deny rules apply in auto mode too, before its classifier, and hold over users' mods. `Read(**/.env)` does not block `.env.example` |
 | `env.CAVEMAN_DEFAULT_MODE=off` | Caveman stays off until a rep types `/caveman` | The plugin's own default is `full`; without this every rep session — including customer-email drafting — would start terse |
 | `env.CLAUDE_CODE_PLUGIN_GIT_TIMEOUT_MS=600000` | Plugin and marketplace clones get ten minutes, not the 120 s default | A large plugin overran 120 s on a laptop whose antivirus scans every file. Moved here from the bootstrap's saved copy (2026-10-01) so it lives in one place; the bootstrap still sets it for its own install run |
 | `env.CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE=1` | A winget- or Homebrew-installed Claude Code updates itself | A native install ignores it. Moved from the Windows bootstrap's saved copy (2026-10-01) |
@@ -82,17 +82,60 @@ useful error.
 `mcpServers` here covers only local stdio servers. The connectors the team reaches through
 claude.ai (Claude Code, Desktop, and the web app all share them) are enabled per user or
 per organization in **claude.ai → Settings → Connectors**, and that is where the alignment
-Parker asked for actually happens. Of the connectors on Parker's account today:
+Parker asked for actually happens.
 
-| Connector | Who should have it | Why |
-|---|---|---|
-| Business Central — BC MCP (Custom API) (read-only: `bc_customer_snapshot`, `bc_find_item`, …) | **Everyone** | Quote of record, AR, open orders. Read-only, so no approval risk. Replaced the retired `bbs-bc-mcp-proxy`. **Interim** until Microsoft's official BC MCP works in Claude Code; tool names change at the swap (grep list in the v1.1 backlog). BC Chat Connector retired 2026-09-13 |
-| BBS Sales CRM MCP | **Everyone** | Pipeline of record (ruled 2026-09-13) |
-| Microsoft 365 (Outlook, SharePoint, Teams search) | **Everyone** | RFQ intake, bid history in `MASTER/Customers`, sent-mail sampling for `/bbs-my-voice` |
-| Grainger (`grainger_search` / `grainger_price` / `grainger_availability`) | **Everyone who quotes** | Per-account pricing is doctrine; this is how they get it without the open web |
-| ca-procurement-intel / SCPRS (`explore_sql`, `play_*`) | **Reps on the CA state book** | Competitive intelligence and buyer segments for promo pages |
-| Supabase | **Site maintainers only**, read-only where possible | The catalog is the source of truth; a mass UPDATE from a rep's session is the failure mode |
-| Shopify admin, Vercel, Firecrawl, Dataverse, QuickBooks, SignNow, Adobe | **Parker / Griffin only** | Admin, deploy, finance, or single-purpose. Not team tools |
+**Everyone reads every connector; writing to a shared space is by request** (Parker, in
+session, 2026-10-02; `docs/STEWARD.md`, "Connector access"). The team is small, so no
+information is walled off by role. What is held back is the ability to *change* a space the
+whole company relies on: the catalog, the storefront, the site, the books, the pipeline,
+SharePoint. A person who needs to write to one asks Parker, and Parker grants it to that
+person. **Signing is not on that list**: who signs which line is R1 and R1a, recorded in
+`plugins/bbs-sales/references/ca-form-rules.md`, "Delegated signatures", and no connector
+grant changes it. QuickBooks payroll is blocked for everyone, admins included (managed
+`permissions.deny` plus the console `blocked` control, `docs/ADMIN-RUNBOOK.md` §3). Vercel
+and Supabase are not blocked: R9 (Parker, in session, 2026-11-10) took out the purchase,
+project-deletion and billing denies the 2026-10-02 ruling had added. R9 amendment, Parker, 2026-11-11: Vercel purchases and domain transfers ask first; still allowed. Supabase
+stays fully allowed. A person's own Outlook drafts and own calendar are not
+shared spaces: drafts stay allowed, invites stay `ask`.
+
+Of the connectors on Parker's account today:
+
+| Connector | Read | Write to the shared space | Why |
+|---|---|---|---|
+| Business Central — BC MCP (Custom API) (read-only: `bc_customer_snapshot`, `bc_find_item`, …) | **Everyone** | None: the connector has no write tools | Quote of record, AR, open orders. **Interim** until Microsoft's official BC MCP works in Claude Code; tool names change at the swap (grep list in the v1.1 backlog), and the new tools must be re-checked for writes. BC Chat Connector retired 2026-09-13 |
+| Grainger (`grainger_search` / `grainger_price` / `grainger_availability`) | **Everyone** | None: read tools only | Per-account pricing is doctrine; this is how it is read without the open web |
+| ca-procurement-intel / SCPRS (`explore_sql`, `play_*`) | **Everyone** | By request | Competitive intelligence and buyer segments |
+| Microsoft 365 (Outlook, SharePoint, Teams search) | **Everyone** | Own Outlook drafts: everyone. SharePoint writes: by request, through the person's SharePoint permissions | It signs in as the person (it reads their own mailbox), so SharePoint's own permissions decide who can write. Send, forward and Teams messages wait for a person's Allow on every send (`permissions.ask`); `send_draft` stays denied |
+| BBS Sales CRM MCP | **Everyone** | By request | Pipeline of record (ruled 2026-09-13). It exposes `crm_update_record`; see "Enforcing write by request" |
+| Supabase | **Everyone**, through a read-only connection | By request | The catalog is the source of truth; a mass UPDATE from a quote session is the failure mode. Creating a project or branch and restoring a paused project are not denied (R9); whether they prompt first is open with Parker |
+| Shopify admin, Vercel, Firecrawl, Dataverse, Adobe | **Everyone** | By request | Storefront, site, crawl, data and design. Vercel purchases and domain transfers ask first; still allowed (R9 amendment, Parker, 2026-11-11). Project deletion is not denied (R9) |
+| SignNow | **Everyone**, once Parker confirms its remaining tools cannot place a signature | **Not by request.** Who signs is R1 and R1a (`ca-form-rules.md`, "Delegated signatures"); the send and invite tools stay denied | Signing is a binding-document rule, not a shared-space write |
+| QuickBooks | **Everyone**, payroll excluded | By request | The books. Every `qbo_payroll_*` tool is denied and blocked for everyone, admins included: payroll is personnel data |
+
+### Enforcing write by request
+
+Managed settings and the console `blocked` control are **org-wide**: they cannot give one
+person write access and withhold it from another. So the per-person switch lives in one of
+two places, and which one depends on how the connector signs in.
+
+1. **The connector signs in as the person.** That system's own permissions decide, and
+   Parker grants write there (a SharePoint site permission, a staff role). Microsoft 365
+   works this way.
+2. **The connector signs in with one shared credential.** Everyone assigned to it can do
+   whatever that credential can. Read for everyone then needs a **read-only connection**
+   (a read-only key, role or mode) assigned to everyone, with the write-capable connection
+   assigned only to the people approved for write. Until a connector's read-only path is
+   confirmed, its write-capable connection goes only to approved writers and its read for
+   everyone waits.
+
+Which way each connector signs in is not recorded in this repo. **Parker confirms it per
+connector** (Supabase, Shopify admin, Vercel, Sales CRM, SCPRS, QuickBooks, SignNow,
+Dataverse, Adobe, Firecrawl) before assigning it to everyone. The Sales CRM is already on
+everyone's account and exposes `crm_update_record`; no skill in this repo writes to the CRM.
+
+The ruling covers claude.ai connectors. **Cursor plugins are unchanged**: Outlook and Teams
+there are send-capable with no org-wide deny, so they stay off rep machines
+(`AGENTS.md` invariant 5, `docs/CURSOR-SETUP.md`).
 
 The `claudeMd` block already tells every session which system of record answers which
 question, so a teammate with the right connectors gets routed correctly without reading this.
@@ -175,6 +218,70 @@ receive, and its `commit` carries the rep's name and the sheet's token. A proof 
 quote printout stays mandatory (R5). The organization instruction in the claude.ai admin console is a separate place,
 which also covers claude.ai chats, and needs the same `bc-quote-entry` edit by hand;
 re-pasting this file does not change it.
+
+## Payroll and send denies: which names are verified (2026-11-11)
+
+A deny on a name that does not exist blocks nothing and reports nothing. The same
+connector tool shows up under different prefixes on different surfaces: a claude.ai cloud
+session named QuickBooks `mcp__Intuit_QuickBooks__` (Rex's review session, 2026-11-11),
+another cloud session named it by a server id (`mcp__0af04a37-…__`, 2026-11-10), and
+Claude Code on a desktop is documented to use `mcp__claude_ai_<server>__<tool>`. So
+`permissions.deny` carries the named rules and a glob for each tool:
+
+| Rule | Covers | Name status |
+|---|---|---|
+| 27 × `mcp__claude_ai_Intuit_QuickBooks__qbo_payroll_<tool>` | Claude Code fetching the QuickBooks connector itself (terminal, VS Code, Desktop Code tab) | **Tool parts verified**: all 27 match a cloud session's QuickBooks tool list, 2026-11-10. **Prefix inferred** from the documented `mcp__claude_ai_<server>__<tool>` form; not observed on a rep machine |
+| `mcp__claude_ai_Intuit_QuickBooks__qbo_payroll_*` | The same, plus payroll tools Intuit adds later | Trailing-`*` form documented (`mcp__github__get_*`); prefix inferred as above |
+| `mcp__Intuit_QuickBooks__qbo_payroll_*` | A claude.ai cloud session | **Verified** prefix: seen in a cloud session's tool list, 2026-11-11 |
+| `mcp__*__qbo_payroll_*` | Any server, whatever its prefix, including a server id | Deny rules accept a glob in the tool-name position that must match the full name (permissions docs, *Tool name wildcards*, checked 2026-11-11). **Two `*` in one rule is not stated in the docs**, so the two single-`*` rules above stay as the documented cover |
+| `mcp__claude_ai_Microsoft_365__outlook_send_draft`, the four `mcp__claude_ai_SignNow__…` sends, the four `mcp__claude_ai_Intuit_QuickBooks__qbo_sales_send_…` sends | Claude Code fetching the connector itself | **Inferred** prefix (documented form); tool parts verified for Outlook and QuickBooks in a cloud session's tool list, 2026-11-10. No SignNow connector was in that session |
+| `mcp__*__outlook_send_draft`, `mcp__*__send_invite`, `mcp__*__send_invite_reminder`, `mcp__*__create_embedded_invite`, `mcp__*__create_embedded_sending`, `mcp__*__qbo_sales_send_estimate`, `mcp__*__qbo_sales_send_invoice`, `mcp__*__qbo_sales_send_invoice_reminder`, `mcp__*__qbo_sales_send_payment_link` | Any server | One `*`, the same documented shape as `mcp__*__merge_pull_request` below. The SignNow globs carry generic tool names, so they would also deny a same-named tool on another server; none is connected today |
+
+None of these globs matches the eight Outlook and Teams sends that stay in
+`permissions.ask` (`outlook_send_mail`, `outlook_forward_mail`, `outlook_respond_to_event`,
+`outlook_create_filter`, `outlook_set_vacation` and the three Teams sends). A match check
+against the cloud session's tool names, every `ask` entry and the `claude_ai` and
+`Intuit_QuickBooks` forms of each tool found none (2026-11-11, PR #53). Deny beats ask, so a
+glob that caught one would turn a send people may Allow into one nobody can make.
+
+The payroll denies hold only where managed settings reach. The ADMIN-RUNBOOK §1 live-fire
+runs a payroll read on Parker's machine **and** in a cloud session; both must be refused.
+
+## Vercel purchases ask first (2026-11-11, R9 amendment)
+
+R9 amendment, Parker, 2026-11-11: Vercel purchases and domain transfers ask first; still allowed. Parker, in session: "Yes, ask before Vercel purchases." The Vercel
+connector's tool list in a claude.ai cloud session on 2026-11-11 had two tools that buy or
+move something: `buy_domain` and `create_or_transfer_domain`. The 2026-10-02 list also
+had `buy_addon`, `buy_credits`, `buy_credits_endpoint`, `buy_domains`, `buy_pro` and
+`buy_single_domain`; they were not in the 2026-11-11 list, and the `buy_*` glob covers them
+if they return. The reads (`get_purchase_quote`, `get_domain_price`, `get_order`) and
+`accept_project_transfer_request` (a project, not a domain) are not included.
+`permissions.ask` carries:
+
+| Rule | Name status |
+|---|---|
+| `mcp__claude_ai_Vercel__buy_*`, `mcp__claude_ai_Vercel__create_or_transfer_domain` | **Inferred** prefix from the documented `mcp__claude_ai_<server>__<tool>` form; tool parts verified in a cloud session's list, 2026-11-11 |
+| `mcp__Vercel__buy_*`, `mcp__Vercel__create_or_transfer_domain` | **Verified**: a claude.ai cloud session listed `mcp__Vercel__buy_domain` and `mcp__Vercel__create_or_transfer_domain`, 2026-11-11 |
+| `mcp__*__buy_domain`, `mcp__*__create_or_transfer_domain` | Any prefix, including a server id (another cloud session listed Vercel as `mcp__274876ca-…__`, 2026-11-10). One `*`, the documented shape |
+
+The `buy_*` globs are scoped to the Vercel server, never `mcp__*__buy_*`, which could
+catch another connector's purchase tool. The two any-prefix rules name the exact tool, so
+they reach only a tool of that name. No deny rule matches any of these names (deny would
+win and turn a purchase into a refusal), and nothing matches a Supabase tool: Supabase stays
+fully allowed. Set the same two tools to `ask` in the admin console too (ADMIN-RUNBOOK §3).
+
+## Microsoft 365 sends: ask on every prefix (2026-11-11)
+
+The eight Outlook and Teams send tools in `permissions.ask` were named under
+`mcp__claude_ai_Microsoft_365__` only, so a session that named the server differently got
+no prompt. A cloud session listed them as `mcp__Microsoft_365__…` on 2026-11-11 and as a
+server id on 2026-11-10. `permissions.ask` now also carries one-`*` rules for the same eight
+tools: `mcp__*__outlook_send_mail`, `mcp__*__outlook_forward_mail`,
+`mcp__*__outlook_respond_to_event`, `mcp__*__outlook_create_filter`,
+`mcp__*__outlook_set_vacation`, `mcp__*__teams_send_chat_message`,
+`mcp__*__teams_send_channel_message` and `mcp__*__teams_reply_channel_message`. Each names
+one exact tool and catches nothing else, and no deny rule catches any of them
+(match check, PR #53, 2026-11-11). 33 ask entries in all.
 
 ## Agents never merge (2026-11-10, R1)
 
