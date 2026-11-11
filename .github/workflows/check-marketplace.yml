@@ -73,6 +73,16 @@ jobs:
             test "${PIPESTATUS[0]}" = "0"
           done
 
+      # The customer-folder reminder ships as customer-folder.ps1 and customer-folder.py
+      # (bbs-foundations) and the two must emit identical bytes, markers and all: a Mac runs
+      # the Python half, Windows the PowerShell half. Same BBS_REQUIRE_PS=1 rule as above.
+      - name: Customer-folder hook parity (customer-folder.ps1 == customer-folder.py)
+        env:
+          BBS_REQUIRE_PS: "1"
+        run: |
+          python3 plugins/bbs-foundations/hooks/tests/customer_folder_parity.py | tail -3
+          test "${PIPESTATUS[0]}" = "0"
+
       # The quote-desk guards ship as guard-tree.ps1/.py and desk-context.ps1/.py, and the two
       # halves must decide identically: a Mac runs the Python half, Windows the PowerShell half.
       # BBS_REQUIRE_PS=1 makes a missing pwsh a failure, so this proves parity rather than
