@@ -79,6 +79,16 @@ carries several separate items:
 - "I believe that changed the general nature of the RFP a little bit because
   initially it was just focused on replenishment."
 
+**Layout (read from Sent Items 2026-10-30).** His vendor requests follow one skeleton:
+greeting; one paragraph of opener and context ending in "...get a quote from you on the
+following:"; the items as a numbered list or a three-column table; any item question
+directly under it; "Items would ship to:" with the address on line breaks; "Some quick
+notes:" with two to four requests; the deadline as a question with its reason ("Our bid is
+due the next day."); "Please let me know if you have any questions. Thank you!"; then
+`Best,`. One blank line between every block, nothing bold in the body. The house version is
+`email-format.md`, which also carries his ruling of 2026-10-30 on questions to a buyer:
+only the ones the documents cannot answer, grouped and spaced, never nineteen in one list.
+
 ## Closers
 
 - "Please let me know if you have any questions."
@@ -115,6 +125,16 @@ Sourcewell Body Armor Contract: 091924-BBS
 ```
 
 Internal notes to teammates get no block, or just "Parker".
+
+**Rendered signature (2026-10-30).** The block above is the text form. His live skill
+also carries `assets/signature.html` (the Outlook rendering: two-cell table, stacked logo
+behind a gold rule, name in gold, cert line, three contract lines with links, logo embedded),
+`assets/signature-outlook-draft.html` (the same block with no attributes and no image, the
+only form the Microsoft 365 connector's draft tools accept) and `assets/signature.txt`. All
+three were read from his sent mail, not designed. The logo is `Logo Color Stacked 2.png`
+from the marketing folder, because the image in his Outlook signature had gone missing: his
+export carried a 48×48 placeholder and his sent mail an empty logo cell. The recipe is
+`bbs-voice-template` step 3b and `signature-template.html`.
 
 **Corrected 2026-09-22, deliberately diverging from the corpus.** Emails sampled on
 2026-09-01 carry `CA SB/DVBE 2009473` in this block. That is no longer accurate — OSDS
