@@ -201,23 +201,55 @@ function Get-Touched([string]$p) {
   return [pscustomobject]@{ Dir = $d; Folder = [string[]]$folder.ToArray([string]) }
 }
 
+function Get-DirMarker([string]$p, [string]$mdir, [string]$sid) {
+  # The folder-done marker hooks/desk-post.sh checks before starting an interpreter on a Read.
+  # Key: the file's folder below the first "by Agency" (any case), every run of characters other
+  # than A-Z a-z 0-9 turned into one "-", "-" at either end dropped. Same computation as the
+  # shell's and desk-memory.py's dir_marker: change all three together.
+  $m = [regex]::Match($p, 'by agency', $MEM_ICASE)
+  if (-not $m.Success) { return $null }
+  $rest = $p.Substring($m.Index + $m.Length)
+  $i = Last-Sep $rest
+  $d = $rest
+  if ($i -ge 0) { $d = $rest.Substring(0, $i) }
+  return [System.IO.Path]::Combine($mdir, (Get-MemSafe $sid) + '--dir--' + (Get-MemSafe $d).Trim('-'))
+}
+
+function Set-Marker([string]$path) {
+  try {
+    [void][System.IO.Directory]::CreateDirectory([System.IO.Path]::GetDirectoryName($path))
+    [System.IO.File]::WriteAllText($path, '')
+  } catch { }
+}
+
 function Get-MemoryFirstTouch($h) {
   # Lines for desk-context.ps1's PostToolUse reply, or nothing when there is nothing new to show.
+  # Whatever it decides, it then marks the file's folder done for this session, so the next Read
+  # there ends in hooks/desk-post.sh without starting an interpreter.
   $ti = $h.tool_input
   $p = $null
   if ($null -ne $ti) { $p = $ti.file_path }
   if (-not ($p -is [string]) -or [string]::IsNullOrWhiteSpace($p)) { return @() }
+  $sid = $h.session_id
+  $mdir = $null
+  if (($sid -is [string]) -and -not [string]::IsNullOrWhiteSpace($sid)) {
+    $mdir = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), $MARKERS)
+  }
+  $out = @(Get-TouchLines $p $h $sid $mdir)
+  if ($mdir) {
+    $dm = Get-DirMarker $p $mdir $sid
+    if ($dm) { Set-Marker $dm }
+  }
+  return @($out)
+}
+
+function Get-TouchLines([string]$p, $h, $sid, $mdir) {
   $t = Get-Touched $p
   if ($null -eq $t) { return @() }
   $folder = @($t.Folder)
   $cwd = $h.cwd
   $shown = @{}
   if (($cwd -is [string]) -and $cwd) { foreach ($x in @(Get-Chain $cwd)) { $shown[(Get-Same $x.Dir)] = $true } }
-  $sid = $h.session_id
-  $mdir = $null
-  if (($sid -is [string]) -and -not [string]::IsNullOrWhiteSpace($sid)) {
-    $mdir = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), $MARKERS)
-  }
   $blocks = New-Object System.Collections.ArrayList
   $marks = New-Object System.Collections.ArrayList
   $chain = @(Get-Chain $t.Dir)
@@ -241,12 +273,7 @@ function Get-MemoryFirstTouch($h) {
     }
   }
   if ($blocks.Count -eq 0) { return @() }
-  foreach ($marker in $marks) {
-    try {
-      [void][System.IO.Directory]::CreateDirectory([System.IO.Path]::GetDirectoryName($marker))
-      [System.IO.File]::WriteAllText($marker, '')
-    } catch { }
-  }
+  foreach ($marker in $marks) { Set-Marker $marker }
   $out = New-Object System.Collections.ArrayList
   [void]$out.Add($HEAD)
   [void]$out.Add("FIRST TOUCH -- " + ($folder -join '/') + " (once per session; folders the session-start notes already covered are left out):")

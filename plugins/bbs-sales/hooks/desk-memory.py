@@ -226,22 +226,60 @@ def touched(p):
     return d, folder
 
 
+BY_AGENCY = re.compile(r"by agency", re.I)
+
+
+def dir_marker(p, mdir, sid):
+    """The folder-done marker hooks/desk-post.sh checks before starting an interpreter on a Read.
+
+    Key: the file's folder below the first "by Agency" (any case), every run of characters other
+    than A-Z a-z 0-9 turned into one "-", "-" at either end dropped. Same computation as the
+    shell's and desk-memory.ps1's Get-DirMarker: change all three together."""
+    m = BY_AGENCY.search(p)
+    if not m:
+        return None
+    rest = p[m.end():]
+    i = last_sep(rest)
+    d = rest[:i] if i >= 0 else rest
+    return os.path.join(mdir, safe(sid) + "--dir--" + safe(d).strip("-"))
+
+
+def mark(path):
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        open(path, "w").close()
+    except OSError:
+        pass                # no marker: the notes repeat (or the shell starts the interpreter), never blocks
+
+
 def first_touch(h):
-    """Lines for desk-context.py's PostToolUse reply, or [] when there is nothing new to show."""
+    """Lines for desk-context.py's PostToolUse reply, or [] when there is nothing new to show.
+
+    Whatever it decides, it then marks the file's folder done for this session, so the next Read
+    there ends in hooks/desk-post.sh without starting an interpreter."""
     ti = h.get("tool_input")
     p = ti.get("file_path") if isinstance(ti, dict) else None
     if not isinstance(p, str) or not p.strip():
         return []
+    sid = h.get("session_id")
+    mdir = None
+    if isinstance(sid, str) and sid.strip():
+        mdir = os.path.join(tempfile.gettempdir(), MARKERS)
+    out = touch_lines(p, h, sid, mdir)
+    if mdir:
+        dm = dir_marker(p, mdir, sid)
+        if dm:
+            mark(dm)
+    return out
+
+
+def touch_lines(p, h, sid, mdir):
     t = touched(p)
     if not t:
         return []
     d, folder = t
     cwd = h.get("cwd")
     shown = {same(x) for x, _ in chain(cwd)} if isinstance(cwd, str) and cwd else set()
-    sid = h.get("session_id")
-    mdir = None
-    if isinstance(sid, str) and sid.strip():
-        mdir = os.path.join(tempfile.gettempdir(), MARKERS)
     blocks = []
     marks = []
     for n, (dd, lab) in enumerate(chain(d)):
@@ -259,11 +297,7 @@ def first_touch(h):
     if not blocks:
         return []
     for marker in marks:
-        try:
-            os.makedirs(os.path.dirname(marker), exist_ok=True)
-            open(marker, "w").close()
-        except OSError:
-            pass            # no marker: the notes repeat, they never block
+        mark(marker)
     return [HEAD, f"FIRST TOUCH -- {'/'.join(folder)} (once per session; folders the session-start "
                   "notes already covered are left out):"] + blocks
 

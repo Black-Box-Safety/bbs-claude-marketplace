@@ -47,11 +47,14 @@ def e(date, who, kind, text, wider=None):
     return f"- {date} | {who} | {kind} | {text}" + (f" | wider: {wider}" if wider else "")
 
 
-def check_entry(root, check):
-    """Run the real PostToolUse command from hooks.json through sh, with stub interpreters on PATH.
+def check_entry(root, check, alpha, bravo, outside):
+    """Run the real PostToolUse command from hooks.json (hooks/desk-post.sh) through sh, with stub
+    interpreters on PATH that log what reached them.
 
-    A Read outside the tree must start none of them (the cost on a non-desk path is one `cat` and
-    one `case`); a path in the tree must reach the first one found with stdin intact."""
+    Nothing may start for a Read outside the tree, whatever the cwd or the file's text says; a desk
+    path must reach the first interpreter with stdin intact; and a Read in a folder an interpreter
+    already handled this session must end in the shell, which proves the shell computes the same
+    folder-done marker name as desk-memory.py and desk-memory.ps1."""
     with open(os.path.join(HOOKS, "hooks.json"), encoding="utf-8") as fh:
         data = json.load(fh)
     groups = data["hooks"]["PostToolUse"]
@@ -70,25 +73,80 @@ def check_entry(root, check):
         with open(os.path.join(stub, name), "w") as fh:
             fh.write('#!/bin/sh\nprintf "%%s " "%s" >> "%s"\ncat >> "%s"\nprintf "\\n" >> "%s"\n' % (name, log, log, log))
         os.chmod(os.path.join(stub, name), 0o755)
+    real = {"python3": os.path.join(root, "realpy"), "pwsh": os.path.join(root, "realps")}
+    os.makedirs(real["python3"])
+    os.symlink(PY, os.path.join(real["python3"], "python3"))
+    if PS:
+        os.makedirs(real["pwsh"])
+        os.symlink(PS, os.path.join(real["pwsh"], "pwsh"))
     base_path = os.pathsep.join(p for p in ("/usr/bin", "/bin") if os.path.isdir(p))
-    v = dict(os.environ)
-    v.update({"PATH": stub + os.pathsep + base_path, "CLAUDE_PLUGIN_ROOT": os.path.dirname(HOOKS)})
+    tmp = os.path.join(root, "entry-tmp")
+    os.makedirs(tmp)
 
-    def go(path):
+    def env(bindir, t=tmp):
+        v = dict(os.environ)
+        for k in ("TEMP", "TMP"):
+            v.pop(k, None)
+        v.update({"PATH": bindir + os.pathsep + base_path, "CLAUDE_PLUGIN_ROOT": os.path.dirname(HOOKS), "TMPDIR": t})
+        return v
+
+    def raw(path, sid="s1", tool="Read", cwd=None, content=None, response_first=False):
+        h = {"hook_event_name": "PostToolUse", "tool_name": tool, "session_id": sid, "tool_input": {"file_path": path}}
+        if cwd:
+            h["cwd"] = cwd
+        if content is not None:
+            resp = {"type": "text", "file": {"filePath": path, "content": content}}
+            h = ({"tool_response": resp} | h) if response_first else (h | {"tool_response": resp})
+        return json.dumps(h)
+
+    def go(r, bindir=stub, t=tmp):
         if os.path.exists(log):
             os.remove(log)
-        raw = json.dumps({"hook_event_name": "PostToolUse", "tool_name": "Read", "session_id": "s1",
-                          "tool_input": {"file_path": path}})
-        p = subprocess.run([sh, "-c", cmd], input=raw.encode("utf-8"), capture_output=True, env=v, timeout=30)
+        p = subprocess.run([sh, "-c", cmd], input=r.encode("utf-8"), capture_output=True, env=env(bindir, t), timeout=120)
         got = open(log, encoding="utf-8").read() if os.path.exists(log) else ""
-        return p.returncode, raw, got
+        return p.returncode, got, p.stdout.decode("utf-8", "replace")
 
-    rc, _raw, got = go(os.path.join(root, "projects", "notes.md"))
-    check(rc == 0 and got == "", "hooks.json: a Read outside the desk starts no interpreter", repr(got))
-    rc, raw, got = go(os.path.join(root, "Customers", "All RFQ's by Agency", "Agency A", "Buyer", "quote-log.md"))
-    check(rc == 0 and got == "pwsh " + raw + "\n", "hooks.json: a desk path reaches pwsh with stdin intact", repr(got[:200]))
-    rc, raw, got = go("C:\\Desk\\all rfq's BY AGENCY\\A\\B\\x.md")
-    check(rc == 0 and got.startswith("pwsh "), "hooks.json: the tree name matches in any case and with backslashes", repr(got[:200]))
+    elsewhere = os.path.join(root, "projects", "notes.md")
+    rc, got, _ = go(raw(elsewhere))
+    check(rc == 0 and got == "", "entry: a Read outside the desk starts no interpreter", repr(got))
+    rc, got, _ = go(raw(elsewhere, cwd=alpha))
+    check(rc == 0 and got == "", "entry: a cwd inside the tree does not make an outside Read a desk touch", repr(got))
+    said = "Spend by agency, FY25\n" + json.dumps({"file_path": os.path.join(alpha, "x.md")})
+    rc, got, _ = go(raw(elsewhere, content=said))
+    check(rc == 0 and got == "", "entry: a file whose text says 'by agency' (and names a desk file_path) starts nothing", repr(got))
+    rc, got, _ = go(raw(elsewhere, content=said, response_first=True))
+    check(rc == 0 and got == "", "entry: the same with tool_response before tool_input", repr(got))
+    r = raw(os.path.join(root, "Customers", "All RFQ's by Agency", "Agency A", "Buyer", "quote-log.md"))
+    rc, got, _ = go(r)
+    check(rc == 0 and got == "pwsh " + r + "\n", "entry: a desk path reaches pwsh with stdin intact", repr(got[:200]))
+    rc, got, _ = go(raw("C:\\Desk\\all rfq's BY AGENCY\\A\\B\\x.md"))
+    check(rc == 0 and got.startswith("pwsh "), "entry: the tree name matches in any case and with backslashes", repr(got[:200]))
+
+    # Folder done: once an interpreter has handled a folder, the next Read there ends in the shell.
+    a_file = os.path.join(alpha, "quote-log.md")
+    for who, bindir in (("python3", real["python3"]), ("pwsh", real["pwsh"])):
+        if who == "pwsh" and not PS:
+            continue
+        t = os.path.join(root, "entry-" + who)
+        os.makedirs(t)
+        rc, _, out = go(raw(a_file, sid="s9", cwd=outside), bindir, t)
+        check(rc == 0 and "FIRST TOUCH" in out, f"entry: {who} shows the first touch", out[:200])
+        rc, got, _ = go(raw(os.path.join(alpha, "RFQ.md"), sid="s9"), stub, t)
+        check(got == "", f"entry: after {who} handled the folder, the next Read there starts nothing", repr(got[:120]))
+        rc, got, _ = go(raw(os.path.join(bravo, "x.md"), sid="s9"), stub, t)
+        check(got.startswith("pwsh "), f"entry: a Read in another buyer's folder still runs ({who} markers)", repr(got[:80]))
+        rc, got, _ = go(raw(os.path.join(alpha, "RFQ.md"), sid="s9", tool="Write"), stub, t)
+        check(got.startswith("pwsh "), f"entry: a Write in a handled folder still runs ({who} markers)", repr(got[:80]))
+        rc, got, _ = go(raw(os.path.join(alpha, "RFQ.md"), sid="s10"), stub, t)
+        check(got.startswith("pwsh "), f"entry: another session's Read in the folder still runs ({who} markers)", repr(got[:80]))
+        win = "C:\\Desk\\All RFQ's by Agency\\Agency Z\\Buyer Z\\x.md"
+        go(raw(win, sid="s9"), bindir, t)
+        rc, got, _ = go(raw(win.replace("x.md", "y.md"), sid="s9"), stub, t)
+        check(got == "", f"entry: the shell and {who} agree on the marker for a Windows path", repr(got[:120]))
+    if PS:
+        names = lambda w: sorted(os.listdir(os.path.join(root, "entry-" + w, "bbs-desk-memory")))
+        check(names("python3") == names("pwsh"), "entry: python3 and pwsh write the same marker names",
+              f"{names('python3')} vs {names('pwsh')}")
 
 
 def main():
@@ -356,7 +414,7 @@ def main():
                           f"ps rc={prc} ps={pout[:400]!r} py={out[:400]!r} err={perr.strip()[:300]!r}")
 
         # ---- The hooks.json entry itself: a path outside the tree starts no interpreter. ----
-        check_entry(root, check)
+        check_entry(root, check, alpha, bravo, other)
     finally:
         shutil.rmtree(root, ignore_errors=True)
 

@@ -87,8 +87,13 @@ Where the hook has to carry it, and why `LEARNED.md` is not a `CLAUDE.md`:
   builds that into PR #75's PostToolUse entry: the first Read, Write or Edit of a file under a
   buyer's (or institution's) folder shows that folder's chain, once per folder per session,
   leaving out the folders the session-start notes already covered. The entry's matcher gained
-  `Read`; a shell `case` on the raw hook input exits before any interpreter starts unless the
-  input names the tree, so a Read anywhere else costs one `cat` and one `case`. Markers are
+  `Read`, so it now runs `hooks/desk-post.sh` first. One `grep` reads only the `file_path`,
+  `session_id` and `tool_name` values; the shell exits before any interpreter starts unless the
+  path names the tree, or when the Read is in a folder desk-memory already handled this session
+  (a folder-done marker the shell can test). A `cwd` inside the tree, or a file whose text says
+  "by agency", is not a desk touch. Measured on Linux (median of 20-50 runs of the real entry,
+  dash): a Read outside the desk 7 ms, a repeat Read in a handled folder 9 ms; before this, the
+  last two cases started pwsh (380-540 ms). Windows Git Bash and PowerShell 5.1 are unmeasured. Markers are
   #75's pattern (temp dir, keyed on the sanitised session id) and are cleared on `/compact`,
   when the context they stood for is gone.
 
