@@ -41,7 +41,7 @@ only consumer:
 |---|---|
 | `ca-form-filler` | `fill_obs_packet.py`, `fill_packet_c.py`, `packet_profile.py`, `render_pages.py` |
 | `naspo-quote` | `fill_ca_forms.py`, `inspect_form.py` |
-| `bbs-quote-builder` | `build_quote.js` (the brief did not list this consumer; it is on the list and is carried) |
+| ~~`bbs-quote-builder`~~ | ~~`build_quote.js`~~: **not carried.** #68 deletes the skill and removes the entry (Parker, 2026-11-11, per the steward). The launcher's `.js` → `node` branch stays, unused, so a future vetted `.js` needs no launcher change |
 | `sam-gov-opportunities` | `sam_opportunities.py` |
 | `usaspending-awards` | `usaspending_awards.py` |
 | `bc-item-entry` | `bc_item_entry.py` |
@@ -69,7 +69,7 @@ Every guarantee the launcher gives today is kept, unchanged unless stated:
 
 | Guarantee | Today (`bbs-tools/bin/bbs-fill`) | After |
 |---|---|---|
-| `ALLOWED` list, by `<skill>/scripts/<file>` | yes | **same list**, plus #68's and #84's entries carried over (§7). Stays the single home of the list: the hook reads it from the launcher (§3.4), never a copy |
+| `ALLOWED` list, by `<skill>/scripts/<file>` | yes | **the list as it stands on `main` after #68 and #84** (§7): their two entries added, `bbs-quote-builder/scripts/build_quote.js` gone. Stays the single home of the list: the hook reads it from the launcher (§3.4), never a copy |
 | Where the script may sit | the `bbs-sales` plugin of the **same marketplace cache**, any version folder | **stricter: the launcher's own plugin root**, `<root>/skills/<ALLOWED>`, where `<root>` is `real(dirname(self))/..`. A script from another installed version of `bbs-sales` is refused |
 | Symlink / `..` resolution of the script | `real()` | same |
 | Version folder may not be a link | yes | becomes "the plugin root may not be a link" |
@@ -229,7 +229,7 @@ reference says `"allow"` "skips the permission prompt"; *Permission modes* says,
 ("How the classifier evaluates actions") lists allow, ask and deny **rules** in step 1 and
 does not mention a hook `"allow"`. **I found no sentence saying a hook `"allow"` skips the
 auto-mode classifier.** [FLAG: unverified — must be proven on a real machine in auto mode
-before merge.] This is merge gate V1 (§6); if it fails, the slice stops and goes back to
+before merge.] This is merge gate V1 (§6), confirmed by the steward 2026-11-11: Parker runs one real fill in auto mode from the branch before the implementation PR merges; if it fails, the slice stops and goes back to
 Parker, and nothing has been removed yet.
 
 ## 4. Decision 3: retiring `bbs-tools`
@@ -257,8 +257,9 @@ The bootstraps (`scripts/bbs-setup.ps1`, `scripts/bbs-setup.sh`) name no plugin:
 install every `marketplace.json` entry, so removing the entry is enough.
 
 **Checker.** `scripts/check_marketplace.py` belongs to the review side (CLAUDE.md). This
-slice does not edit it. It is asked (plan, task 10) to add one FAIL: a plugin with a
-top-level `bin/` directory, so this failure is caught in CI rather than by org sync.
+slice does not edit it. A FAIL on a plugin with a top-level `bin/` directory, so this
+failure is caught in CI rather than by org sync, is a review-side follow-up (steward,
+2026-11-11), outside this slice.
 
 ## 5. Order of operations: never prompting, never blocked
 
@@ -308,9 +309,11 @@ lines. If either has been closed instead of merged, its entry is **not** carried
 goes on the list only by its own ruling and reviewed PR). #77 also edits
 `bbs-sales/hooks/hooks.json`; whichever lands second merges `main` in, keeping both entries.
 
-Versions are the steward's to allocate. `bbs-sales` holds 0.10.1–0.13.0 across open PRs,
-so this slice needs the next free number (0.14.0 proposed); `bbs-foundations` needs one
-above #72's 0.5.0.
+Versions (allocated by the steward, 2026-11-11): **`bbs-sales` 0.14.0, `bbs-foundations` 0.5.1.**
+
+#68 also retires `bbs-quote-builder` and drops `build_quote.js` from `ALLOWED`
+(Parker, 2026-11-11). The implementation takes `ALLOWED` from `main` as #68 left it and does
+**not** re-add that entry.
 
 ## 8. Tests
 
@@ -369,7 +372,7 @@ every string the hook accepts.
 - Any change to what is on `ALLOWED`.
 - Cowork / claude.ai Chat behaviour of the form skills: hooks and the Bash tool there are
   not verified by this design; the slice only makes `bbs-sales` installable there.
-- The checker change (asked of the review side, §4).
+- The checker change (a review-side follow-up, §4).
 
 ## Docs read 2026-11-11
 

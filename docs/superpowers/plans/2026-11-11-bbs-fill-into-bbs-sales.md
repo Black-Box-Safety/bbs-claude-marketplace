@@ -18,8 +18,9 @@ task that touches a skill, README or manifest.
    `git ls-files -s` shows `100755`.
 2. `git mv plugins/bbs-tools/tests/test_bbs_fill.py plugins/bbs-sales/scripts/tests/test_bbs_fill.py`
    (create the folder if #77 has not).
-3. Check: `ALLOWED` on the branch equals `ALLOWED` on `main` byte for byte, #68's and #84's
-   entries included.
+3. Check: `ALLOWED` on the branch equals `ALLOWED` on `main` byte for byte: #68's and #84's
+   entries included, and **`bbs-quote-builder/scripts/build_quote.js` absent** (#68 retires
+   that skill, Parker 2026-11-11). Do not re-add it. Drop it from any test fixture too.
 
 ### Task 2 — Re-anchor the launcher on its own plugin root (spec §2)
 
@@ -102,18 +103,19 @@ task that touches a skill, README or manifest.
 session: \"Yes … to the tools fix as a separate slice\"." plus one line of what it approved
 and a pointer to the spec. Nothing restated.
 
-### Task 10 — Ask the review side for the checker FAIL
+### Task 10 — Checker FAIL: not in this slice
 
-Do not edit `scripts/check_marketplace.py`. In the PR body, ask Rex / the Cursor side for a
-FAIL on a top-level `bin/` in any `plugins/*` (spec §4), with counter-example awareness.
+Do not edit `scripts/check_marketplace.py`. The FAIL on a top-level `bin/` in any
+`plugins/*` (spec §4) is a review-side follow-up (steward, 2026-11-11); leave it out of the
+PR body's asks.
 
 ### Task 11 — Versions, gates, PR
 
-1. Versions from the steward: `bbs-sales` (0.14.0 proposed), `bbs-foundations` (above
-   0.5.0), marketplace `metadata.version`.
+1. Versions (steward, 2026-11-11): `bbs-sales` **0.14.0**, `bbs-foundations` **0.5.1**;
+   ask the steward for marketplace `metadata.version` if it moves.
 2. Full local gate: `check_marketplace.py` exit 0; launcher tests; hook parity with pwsh
    present; `check_claude_md.py "$PWD"` exit 0.
-3. Draft PR. Body: what a rep will notice ("form scripts run without an Allow click, as
+3. Draft PR. **V1 is a merge gate** (steward, 2026-11-11). Body: what a rep will notice ("form scripts run without an Allow click, as
    before; nothing to install"), the ruling, the deploy order (spec §5) as a checklist for
    Parker, merge gates V1–V3 (spec §6) as unchecked boxes **Parker runs before merging**:
    - load the branch's `bbs-sales` with `claude --plugin-dir <checkout>/plugins/bbs-sales`
