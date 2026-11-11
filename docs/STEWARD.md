@@ -10,15 +10,16 @@ The operating manual for `.claude/agents/steward.md`. Read `AGENTS.md` first.
 scope → brief → dispatch worker → worker opens PR
       → steward reviews with a fresh reviewer
       → findings back to the SAME worker → worker tends
-      → Rex clears → steward asks Parker per PR → Parker approves by number → merge
+      → Rex clears → steward brings cleared PRs to Parker → Parker merges in the GitHub UI
 ```
 
 Four properties make it worth running:
 
 - **A session ends at a PR, not a merge.** The agent that wrote the change never approves
   it.
-- **The reviewer did not write the code, and Parker approves the merge.** There is no
-  standing authorization to merge (ruled 2026-11-10, "Parker approves every merge").
+- **The reviewer did not write the code, and only Parker merges.** Agents never merge;
+  Parker clicks Merge in the GitHub UI, and managed settings deny the merge tools (ruled
+  2026-11-10, "Agents never merge", R1).
 - **Findings return to the original worker**, which still holds the context. A fresh
   session re-deriving the change is slower and gets it less right.
 - **The steward is woken by the PR**, not by polling. Subscribe to PR activity when the
@@ -221,6 +222,16 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
+- **Desk memory (`desk-remember`, `desk-memory` hook, `LEARNED.md`) — seven items RULED
+  2026-11-10** (R7, below: A1–A7 accepted as recommended; was "OPEN, seven items ASSUMED").
+  Built at Parker's request of 2026-11-10. The spec's "Open for Parker"
+  list (`docs/superpowers/specs/2026-11-10-desk-memory-design.md`) is the single home: who may
+  write a note without review, who approves agency-wide and desk-wide notes, whether saving a
+  note runs without an Allow click (`bbs-fill` allow list; a control change), restamping the
+  desk-root `CLAUDE.md`, stale thresholds, the file name, contact changes. Nothing in it
+  changes a signer, a form ID, a certification claim or a price rule; notes are refused when
+  they carry one.
+
 - **Email signatures — RULED 2026-10-30.** Parker, in session, with his own Outlook
   signature export in hand. A rep's signature is their real Outlook rendering with the
   stacked logo from the marketing folder (`MARKETING/BBS Logo/.../Logos Color/Stacked/Logo
@@ -231,14 +242,6 @@ Write it up with evidence and move to the next slice. Do not idle.
   carries the attribute-free form and the reply says so; it never drops the block. Recipe:
   `bbs-voice-template` step 3b and `references/signature-template.html`; `bbs-sourcing`
   Step 8 now points at the rep's assets instead of a block that was never written.
-- **Desk memory (`desk-remember`, `desk-memory` hook, `LEARNED.md`) — OPEN, seven items
-  ASSUMED, 2026-11-10.** Built at Parker's request of 2026-11-10. The spec's "Open for Parker"
-  list (`docs/superpowers/specs/2026-11-10-desk-memory-design.md`) is the single home: who may
-  write a note without review, who approves agency-wide and desk-wide notes, whether saving a
-  note runs without an Allow click (`bbs-fill` allow list; a control change), restamping the
-  desk-root `CLAUDE.md`, stale thresholds, the file name, contact changes. Nothing in it
-  changes a signer, a form ID, a certification claim or a price rule; notes are refused when
-  they carry one.
 
 - **`bc-item-entry`: rep-facing item creation in Business Central (PR #64) — RULED
   2026-10-14.** Parker, in session. What was ruled, and where each part lives
@@ -741,12 +744,86 @@ Write it up with evidence and move to the next slice. Do not idle.
   `purchaseOrderLines` cannot be queried without its parent. `requires:` is
   `business-central` for both; the retired `bc-mcp-proxy` is required by nothing.
   `bbs-rebate-profitability` stays on CData; this ruling does not cover it.
+- **Rulings of 2026-11-10 (R1–R9) — RULED 2026-11-10.** Parker's words, in the steward session, 2026-11-10, after reading R1–R9 with the steward's recommendations: "Follow recommendations except for the last one we don't need payroll. I want vercel and supabase to be allowed". R1–R8 adopt
+  the steward's recommendation as written; R9 is his exception, clarified the same day.
+- **R1. Agents never merge — RULED 2026-11-10.**
+  Adopted recommendation: "Block agents from merging, using managed settings. Agents could no longer call merge or auto-merge. Rex still reviews; you click Merge in GitHub. Every agent posts as your GitHub account, so an agent can't prove you approved. This makes the rule a hard block instead of an instruction. The cost: no “merge #82” replies, like the one I just did for you." → "Yes". "You click Merge in GitHub" is the recommendation's wording. Managed settings deny the GitHub merge and
+  auto-merge tools (`permissions.deny` in `bbs-managed-settings.json`; the names, which are
+  verified and which inferred, are in `MANAGED-SETTINGS.md`, "Agents never merge"), and
+  `gh pr merge` moves from `ask` to `deny`. Rex reviews and posts "Cleared — awaiting
+  Parker's merge approval"; Parker clicks Merge in the GitHub UI. Why: every agent posts as
+  Parker's GitHub account (pjm3wv), so no agent can prove Parker approved; a deny is a
+  control, a sentence is a request. Supersedes the "An agent may execute the merge only
+  with his approval quoted in its brief" wording that #82 put in `.claude/agents/rex.md`,
+  `.claude/agents/steward.md`, this file and `AGENTS.md` (Rex's open question M1); all four
+  now say agents never merge and Parker merges in the UI. **Open action for Parker:**
+  re-paste managed settings in the admin console; until then the deny reaches no machine.
+- **R2. Quote creation in Business Central through `bc-quote-entry` (#68) is allowed —
+  RULED 2026-11-10.** Adopted recommendation (with "Follow recommendations…"): "Yes. Record it on main and add `bc-quote-entry` to the organization
+  instruction. It only creates the quote and its lines; it never releases, sends, converts
+  or posts." It writes only the quote, its ship-to and its lines; it never
+  releases, sends, converts or posts; and it runs only after the rep approves the review
+  sheet by name. Parker, in session, 2026-11-10, further: "Add bc quote entry to managed
+  settings". So the `claudeMd` block in `bbs-managed-settings.json` gains one rule naming
+  the BC write boundary, with `bc-quote-entry` beside `bc-item-entry` (record:
+  `MANAGED-SETTINGS.md`, "Business Central writes"). `bc_quote_entry.py` is not added to
+  the `bbs-fill` allow list here (R3). **Open actions for Parker (both RULED):** re-paste
+  managed settings after merge; and amend the organization instruction in the admin
+  console, a separate place that also covers claude.ai chats, to name both the
+  `bc-item-entry` and `bc-quote-entry` skills, as the adopted recommendation says. No repo
+  change does the second.
+- **R3. `bc_quote_entry.py` may go on the `bbs-fill` allow list — RULED 2026-11-10.**
+  Adopted recommendation: "No Allow click for the quote-entry script. The rep's named review sheet stays the approval step." → "Yes, only after #68 forces NASPO lines to sell at cost. Today it lets a markup through, and I confirmed that in the code." No
+  Allow click, but **only after** #68 enforces NASPO lines at cost, per the rule in
+  `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`, "Grainger sell rule, by channel". The named review sheet stays the gate. Until that check
+  ships in #68, the script stays off the list.
+- **R4. Salesperson split on the Kim/Aanya California state book — RULED 2026-11-10.**
+  Adopted recommendation: "Who is salesperson on a state quote. Kim's 18 agencies get KQUEZON, all others AANYA, and PMARSHALL never." → "Confirm the rule and the list of 18. Keep one copy of the list in the shared facts file instead of five." The CA state book scope from canon (body armor and CSU/UC outside the book) is applied here as an existing ruling, not a new one.
+  Within that book, `KQUEZON` for Kim's 18 agencies, `AANYA` for all others, `PMARSHALL`
+  never on a state quote. What is outside the book (body armor and CSU/UC) is canon's,
+  `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`, "CA state book scope" (RULED 2026-09-28); this split does not reach it. The list of 18 has
+  one home, `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`;
+  everything else points at it, and the test reads it. As of this entry the list is not
+  yet in canon on `main`; it lands with the work that uses it, not re-keyed anywhere else.
+- **R5. Proof read-back of the BC quote printout stays mandatory — RULED 2026-11-10.**
+  Adopted recommendation: "DVBE wording on the BC quote printout. #68 drops the old check that the certification line says DVBE only." → "Keep a proof read-back required until someone confirms BC's printout says DVBE only, never SB."
+  Until someone verifies that BC's sales-quote report prints DVBE only, never SB, for
+  California state customers.
+- **R6. #72 is narrowed — RULED 2026-11-10.**
+  Adopted recommendation: "Customer-folder CLAUDE.md upkeep (#72). Sessions would update a customer folder's CLAUDE.md without being asked and record quote outcomes there." → "Narrow it. Outcomes already live in quote-log.md (#75). Notes should reuse #81's format and filters, so there is one memory system, not two." Quote outcomes live only in `quote-log.md`
+  (#75). Durable customer-folder notes reuse #81's desk-memory entry format and refusal
+  table, so there is one memory mechanism, not two.
+- **R7. Desk memory (#81) "Open for Parker" items 1–7 accepted as recommended — RULED
+  2026-11-10.**
+  Adopted recommendation: "Desk memory's A1–A7 (#81)." → "Yes as listed in my last message. A3 waits for the next slice, and A4 is your SharePoint step." The items, in their own wording and each now marked RULED 2026-11-10, live
+  once: `docs/superpowers/specs/2026-11-10-desk-memory-design.md`, "Open for Parker". Not
+  restated here. **Open actions for Parker:** item 2 (approving agency-wide and desk-wide
+  notes at the monthly review) and item 4 (restamp the desk-root `CLAUDE.md` on SharePoint;
+  #81 has merged, so it is due).
+- **R8. Duplicate PRs: keep #71 and close #78; keep #74 and close #73 — RULED
+  2026-11-10.**
+  Adopted recommendation: "Duplicate PR pairs." → "Keep #71 and close #78; keep #74 and close #73. Close each only after its useful content is copied over." Each close happens only after its unique content is ported; the ports are
+  dispatched separately. Parker closes; no agent closes a PR.
+- **R9. Payroll stays blocked; Vercel and Supabase tools are allowed — RULED 2026-11-10.**
+  Adopted recommendation: "Revive #53, the payroll, Vercel and Supabase blocks. You approved these on 2 Oct, but they never merged." → "Yes. Without it, any session with the QuickBooks connector can read payroll." Adopted with Parker's changes: "except for the last one we don't need payroll. I want vercel and supabase to be allowed", then "Yes A", where A was "Block it. Nobody needs payroll access through Claude, so keep the 27 payroll tools blocked."
+  Parker's exception to the steward's last recommendation ("we don't need payroll. I want
+  vercel and supabase to be allowed"), then, asked about payroll in the steward session,
+  "Yes A". So: the QuickBooks payroll tools (`qbo_payroll_*`) are denied; the Vercel and
+  Supabase connector tools are **not** denied, and the Vercel and Supabase denies #53
+  proposed are dropped. Implementation lives in #53, revived by a separate worker; this
+  entry records the ruling only. Note: as of this entry `main`'s managed settings do not
+  yet deny the payroll tools (#53 adds them), so "payroll blocked" holds only once #53
+  merges and Parker re-pastes managed settings. R9 allows Vercel and Supabase, so the
+  Vercel and Supabase denies Parker approved for #53 on 2026-10-02 do not ship; the payroll
+  denies do. No `ask` rules for the Vercel purchase or domain tools are added: Parker said
+  "allowed", and whether he wants `ask` there is a separate question the steward put to him.
 - **Parker approves every merge — RULED 2026-11-10.** Parker, in session, choosing
   "Parker approves each" over "Rex merges, steward reports" and "Parker merges by hand":
   Rex reviews and posts "Cleared" or "Request changes — do not merge"; the steward brings
   cleared PRs to Parker; nothing merges into `main`, leaves draft, or closes until Parker
-  approves that PR by number. An agent may execute the merge only with his approval quoted
-  in its brief. A general instruction ("merge the valuable ones", "use Rex") is not
+  approves that PR by number. ~~An agent may execute the merge only with his approval quoted
+  in its brief.~~ *Superseded 2026-11-10 by "Agents never merge" (R1), above: no agent
+  merges; Parker merges in the GitHub UI.* A general instruction ("merge the valuable ones", "use Rex") is not
   approval. Supersedes the 2026-10-02 entry below. Why: on 2026-11-10, between 07:13 and
   07:24 UTC, a steward session read Parker's "deal with the many branches… merge the
   valuable ones… utilize Rex" as authority, told its Rex that "draft status alone is not a
@@ -894,4 +971,4 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-10-02.
+Owner: Parker Marshall. Last verified 2026-10-02; rulings register updated 2026-11-10.
