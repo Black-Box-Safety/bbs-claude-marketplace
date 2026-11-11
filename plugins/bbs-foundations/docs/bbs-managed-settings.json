@@ -96,7 +96,17 @@
       "mcp__claude_ai_Vercel__buy_*",
       "mcp__claude_ai_Vercel__create_or_transfer_domain",
       "mcp__Vercel__buy_*",
-      "mcp__Vercel__create_or_transfer_domain"
+      "mcp__Vercel__create_or_transfer_domain",
+      "mcp__*__buy_domain",
+      "mcp__*__create_or_transfer_domain",
+      "mcp__*__outlook_send_mail",
+      "mcp__*__outlook_forward_mail",
+      "mcp__*__outlook_respond_to_event",
+      "mcp__*__outlook_create_filter",
+      "mcp__*__outlook_set_vacation",
+      "mcp__*__teams_send_chat_message",
+      "mcp__*__teams_send_channel_message",
+      "mcp__*__teams_reply_channel_message"
     ],
     "deny": [
       "Bash(rm -rf:*)",

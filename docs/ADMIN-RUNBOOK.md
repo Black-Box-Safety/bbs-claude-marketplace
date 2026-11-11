@@ -59,8 +59,13 @@ without the rep touching a settings file. Nothing is merged into a rep's own
    the payroll deny:** ask Claude to list the company's employees through QuickBooks, here
    and once in a claude.ai cloud session; both must be refused, not prompted and not
    answered (R9, 2026-11-10; the prefixes differ by surface, see MANAGED-SETTINGS.md,
-   "Payroll and send denies"). If either returns data, set the payroll tools to `blocked`
-   in the console (§3) and tell the steward. The Desktop
+   "Payroll and send denies"). In the deployment note, record the prefix each session
+   showed for the tool (`/permissions`, or the refusal message): `mcp__claude_ai_…`,
+   `mcp__Intuit_QuickBooks__…` or a server id. If either returns data, set the payroll
+   tools to `blocked` in the console (§3) and tell the steward. **Live-fire the Vercel
+   ask:** ask Claude to buy a domain through Vercel; expect an Allow prompt, then decline
+   it (R9 amendment, 2026-11-11). If it buys without asking, set `buy_domain` to `blocked`
+   in the console and tell the steward. The Desktop
    app's **Code** tab is tested after the console blocks in §3, not here: there connectors
    arrive from the app and our ask and deny rules are not documented to match. **Cursor Agent chat is not covered by managed settings.** The stamped
    `.cursor/rules/bbs-invariants.mdc` is the control there; do not treat a Claude Code
@@ -122,7 +127,7 @@ console's connector tool controls (per-tool "Tool permission restrictions"):
   payroll tool, set it too);
 - set to **`ask`** every Microsoft 365 tool that `permissions.ask` names (the Outlook and
   Teams sends, meeting responses, inbox rules, auto-replies), and the Vercel connector's
-  `buy_*` tools and `create_or_transfer_domain` (R9 amendment, Parker, 2026-11-11:
+  `buy_domain` (and any other `buy_*` tool it lists) and `create_or_transfer_domain` (R9 amendment, Parker, 2026-11-11:
   Vercel purchases and domain transfers ask first; still allowed). Org `ask` makes Claude Code
   prompt on every call, even in auto mode, and no allow rule or remembered answer skips it.
   For Microsoft 365, first make sure the tenant has approved the connector's write
