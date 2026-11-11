@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Remind a session working in a customer folder to keep that customer's CLAUDE.md —
+"""Remind a session working in a customer folder to offer upkeep of that customer's CLAUDE.md —
 the python3 twin of customer-folder.ps1.
 
 Same events, same output bytes (tests/customer_folder_parity.py proves it):
@@ -13,7 +13,7 @@ Same events, same output bytes (tests/customer_folder_parity.py proves it):
 A customer folder is a child of a folder named Customers whose parent's name ends in
 "Black Box Safety - MASTER" (the Mac and Windows OneDrive shapes both do). Two are not
 this hook's: State of CA Agencies is the bbs-sales quote desk, whose learning lives in
-buyer-level CLAUDE.md, quote-log.md and FLAGS.md (ca-rfq-intake), and a folder named
+buyer-level CLAUDE.md, quote-log.md, FLAGS.md and LEARNED.md (bbs-sales), and a folder named
 "DO NOT USE ..." is a dead tree. Both stay silent. Stdlib only.
 Always exit 0, never print to stderr: a hook error must never block a tool. The texts
 live in customer-folder/*.md; this script re-keys nothing.

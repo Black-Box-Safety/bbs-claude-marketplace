@@ -36,6 +36,13 @@ Write the "learned" lines only when something actually surprised you. A file of
 generic statements is worse than a short one, because it costs a read and returns
 nothing.
 
+## LEARNED.md
+
+Not created at intake. It appears the first time a rep tells Claude to remember something
+about this buyer (`desk-remember` writes it, one dated line per statement), and its lines are
+shown at the start of every session in this folder. `CLAUDE.md` above stays the short,
+settled picture of the buyer; `LEARNED.md` is where new things land first.
+
 ## quote-log.md
 
 ```markdown
@@ -46,5 +53,10 @@ nothing.
 | 8.27.26 | Metal detectors ×15 | SQ-###### | NASPO | $2,630.40 | sent |
 ```
 
-One row per request, oldest last. Outcome is `sent`, `won`, `lost`, or `no answer` —
-and `lost` is worth a clause on why, because that's the row the next quote learns from.
+One row per request. Row order does not matter: the desk-context hook sorts by the Date
+cell (`M.D.YY` or `YYYY-MM-DD`) and shows the newest first. Outcome is `sent`, `won`, `lost`, or
+`no answer`. Name the source in the cell (`won - SO <number> per BC <date>`), and give `lost`
+a clause on why, because that's the row the next quote learns from. A row older than 30 days
+that still says `sent` is listed for close-out on the first write in this buyer's next deal
+folder; if the outcome can't be sourced from Business Central or this folder, write
+`[FLAG: why]` in the cell, never a guess.

@@ -1,4 +1,5 @@
-# Remind a session working in a customer folder to keep that customer's CLAUDE.md. Two events:
+# Remind a session working in a customer folder to offer upkeep of that customer's CLAUDE.md.
+# It asks before any write (R6). Two events:
 #   SessionStart  — cwd is the place. Inside MASTER/Customers/<customer>/: no CLAUDE.md between
 #                   cwd and the customer root -> customer-folder/missing.md; one there ->
 #                   customer-folder/present.md naming the nearest.
@@ -10,7 +11,7 @@
 # A customer folder is a child of a folder named Customers whose parent's name ends in
 # "Black Box Safety - MASTER" (the Mac and Windows OneDrive shapes both do). Two are not this
 # hook's: State of CA Agencies is the bbs-sales quote desk, whose learning lives in buyer-level
-# CLAUDE.md, quote-log.md and FLAGS.md (ca-rfq-intake), and a folder named "DO NOT USE ..." is a
+# CLAUDE.md, quote-log.md, FLAGS.md and LEARNED.md (bbs-sales), and a folder named "DO NOT USE ..." is a
 # dead tree. Both stay silent. Prints
 #   {"hookSpecificOutput":{"hookEventName":"<event>","additionalContext":"<text>"}}
 # or nothing. Always exit 0: a hook error must never block a tool.
