@@ -36,12 +36,20 @@ MODELS_JSON = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 # There is deliberately no trailing lookahead: `claude-3-…` ends on a hyphen, and
 # `(?![\w-])` would drop that whole stale family. The greedy tail already runs to
 # the end of the hyphenated run, so a real ID is never cut short.
-# A run that sits between two path separators is a directory name, not a model ID:
-# the stamped buyer stubs cite `docs/claude-md/generation-plan.md`, and `claude-md`
-# FAILed 70 times in one customer tree. Only the both-sides case is refused, so
-# `anthropic/claude-3-opus` and `claude-3-opus/claude-3-sonnet` are still checked.
-ANY_CLAUDE_ID = re.compile(r"(?<![\w-])(?!(?<=[/\\])[\w-]+[/\\])claude-[a-z0-9]+(?:-[a-z0-9]+)*\b")
+ANY_CLAUDE_ID = re.compile(r"(?<![\w-])claude-[a-z0-9]+(?:-[a-z0-9]+)*\b")
 DATE_SUFFIXED = re.compile(r"\bclaude-[a-z0-9-]+-20\d{6}\b")
+# The match stays wide; the outcome is narrowed instead. A match that sits between two
+# path separators (`docs/claude-md/generation-plan.md`) is a directory name, so it
+# skips only the unknown_model FAIL. A superseded ID keeps its stale_model FAIL, and a
+# known-not-adopted ID keeps its unadopted_model WARN, wherever it appears, including
+# between separators: `a/claude-opus-4-8/b` is still stale_model.
+PATH_SEPARATORS = "/\\"
+
+
+def is_path_segment(raw, m):
+    """True when the match has a path separator immediately on both sides."""
+    return (m.start() > 0 and raw[m.start() - 1] in PATH_SEPARATORS
+            and m.end() < len(raw) and raw[m.end()] in PATH_SEPARATORS)
 
 
 def load_models():
@@ -167,7 +175,8 @@ def check_file(path, all_files):
             base = re.sub(r"-20\d{6}$", "", dated)
             F("dated_model", i,
               f"{dated} — model IDs carry no date suffix; write {base}")
-        for found in ANY_CLAUDE_ID.findall(raw):
+        for m in ANY_CLAUDE_ID.finditer(raw):
+            found = m.group(0)
             if DATE_SUFFIXED.match(found) or found in CURRENT_MODELS:
                 continue
             if found in SUPERSEDED_MODELS:
@@ -177,6 +186,8 @@ def check_file(path, all_files):
                 W("unadopted_model", i,
                   f"{found} is a real model BBS has not adopted; current set is "
                   f"{' / '.join(sorted(CURRENT_MODELS))}")
+            elif is_path_segment(raw, m):
+                continue
             else:
                 F("unknown_model", i,
                   f"{found} is not a known model ID; current set is "
