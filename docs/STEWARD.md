@@ -222,15 +222,12 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
-- **Desk memory (`desk-remember`, `desk-memory` hook, `LEARNED.md`) — seven items RULED
-  2026-11-10** (R7, below: A1–A7 accepted as recommended; was "OPEN, seven items ASSUMED").
-  Built at Parker's request of 2026-11-10. The spec's "Open for Parker"
-  list (`docs/superpowers/specs/2026-11-10-desk-memory-design.md`) is the single home: who may
-  write a note without review, who approves agency-wide and desk-wide notes, whether saving a
-  note runs without an Allow click (`bbs-fill` allow list; a control change), restamping the
-  desk-root `CLAUDE.md`, stale thresholds, the file name, contact changes. Nothing in it
-  changes a signer, a form ID, a certification claim or a price rule; notes are refused when
-  they carry one.
+- **Maintainer-tier commons entries (`taste-skill`, PR #71) — RULED 2026-10-28.** Parker, in
+  session, option (a): both bootstraps skip any `marketplace.json` entry keyworded
+  `maintainer`, and Parker installs it on his own machine by hand. Managed settings are not
+  touched (a `false` there would also block it for Parker). Record: `docs/COMMONS.md`,
+  "Maintainer-tier entries"; `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`,
+  `enabledPlugins` row.
 
 - **Email signatures — RULED 2026-10-30.** Parker, in session, with his own Outlook
   signature export in hand. A rep's signature is their real Outlook rendering with the
@@ -242,6 +239,16 @@ Write it up with evidence and move to the next slice. Do not idle.
   carries the attribute-free form and the reply says so; it never drops the block. Recipe:
   `bbs-voice-template` step 3b and `references/signature-template.html`; `bbs-sourcing`
   Step 8 now points at the rep's assets instead of a block that was never written.
+
+- **Desk memory (`desk-remember`, `desk-memory` hook, `LEARNED.md`) — seven items RULED
+  2026-11-10** (R7, below: A1–A7 accepted as recommended; was "OPEN, seven items ASSUMED").
+  Built at Parker's request of 2026-11-10. The spec's "Open for Parker"
+  list (`docs/superpowers/specs/2026-11-10-desk-memory-design.md`) is the single home: who may
+  write a note without review, who approves agency-wide and desk-wide notes, whether saving a
+  note runs without an Allow click (`bbs-fill` allow list; a control change), restamping the
+  desk-root `CLAUDE.md`, stale thresholds, the file name, contact changes. Nothing in it
+  changes a signer, a form ID, a certification claim or a price rule; notes are refused when
+  they carry one.
 
 - **`bc-item-entry`: rep-facing item creation in Business Central (PR #64) — RULED
   2026-10-14.** Parker, in session. What was ruled, and where each part lives
