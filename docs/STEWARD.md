@@ -222,6 +222,24 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
+- **Maintainer-tier commons entries (`taste-skill`, PR #71) — RULED 2026-10-28.** Parker, in
+  session, option (a): both bootstraps skip any `marketplace.json` entry keyworded
+  `maintainer`, and Parker installs it on his own machine by hand. Managed settings are not
+  touched (a `false` there would also block it for Parker). Record: `docs/COMMONS.md`,
+  "Maintainer-tier entries"; `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`,
+  `enabledPlugins` row.
+
+- **Email signatures — RULED 2026-10-30.** Parker, in session, with his own Outlook
+  signature export in hand. A rep's signature is their real Outlook rendering with the
+  stacked logo from the marketing folder (`MARKETING/BBS Logo/.../Logos Color/Stacked/Logo
+  Color Stacked 2.png`), read out of their sent mail and kept in their personal
+  `<first>-voice` skill under `assets/`; never a company-wide block typed into a shared
+  skill, which is how `SB/DVBE` outlived the 2026-09-22 ruling. The Microsoft 365
+  connector's draft tools reject images and inline styles, so a connector-created draft
+  carries the attribute-free form and the reply says so; it never drops the block. Recipe:
+  `bbs-voice-template` step 3b and `references/signature-template.html`; `bbs-sourcing`
+  Step 8 now points at the rep's assets instead of a block that was never written.
+
 - **Desk memory (`desk-remember`, `desk-memory` hook, `LEARNED.md`) — seven items RULED
   2026-11-10** (R7, below: A1–A7 accepted as recommended; was "OPEN, seven items ASSUMED").
   Built at Parker's request of 2026-11-10. The spec's "Open for Parker"

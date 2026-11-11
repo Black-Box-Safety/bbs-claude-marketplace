@@ -1,0 +1,39 @@
+<!--
+  BBS email signature template. Fill the {{PLACEHOLDERS}} from the person's own Outlook
+  signature (read it out of their Sent Items HTML; never from memory) and save the result
+  as <first>-voice/assets/signature.html. The layout, fonts and colors below are the
+  company signature as Outlook renders it (Parker Marshall's sent mail, read 2026-10-30):
+  a two-cell table, the stacked logo behind a gold rule, the name in gold, then the
+  certification line and the three contract vehicles. Do not restyle it.
+
+  {{LOGO_SRC}}: the stacked color mark from the marketing folder, SharePoint
+    "Black Box Safety - MASTER/MARKETING/BBS Logo/Black Box Safety Logo/
+     BBS Brand Logos+® PNGs USE THESE/Logos Color/Stacked/Logo Color Stacked 2.png",
+    the same mark bbs-quote-builder prints on every quote PDF. Embed it as a data URI
+    (data:image/png;base64,...) or reference a sibling file. Never redraw, recolor or crop it.
+
+  The certification and contract strings are the exact strings from canonical-facts.md.
+  Every rep carries both certifications in the signature block; body copy follows the
+  channel (SDVOSB federal, DVBE California).
+
+  The Microsoft 365 connector's outbound allowlist (probed 2026-10-30) rejects style,
+  class and id attributes and <img>, so an Outlook draft created by Claude cannot carry
+  this rendering. For that channel strip every attribute except href and drop the logo
+  cell; the text, bold labels and links survive. Save that as signature-outlook-draft.html.
+-->
+<table style="border-collapse:collapse;border-spacing:0;color:rgb(33,33,33)"><tbody><tr>
+<td style="border-right:2.25pt solid rgb(148,127,50);padding:0 5.25pt 0 0;vertical-align:top;width:139px;height:103px">
+  <a href="https://blackboxsafety.com/" style="text-decoration:none"><img src="{{LOGO_SRC}}" width="95" height="100" alt="Black Box Safety" style="display:block;border:0;width:95px;height:100px"></a>
+</td>
+<td style="padding:0 0 0 9pt;vertical-align:middle">
+  <div style="margin:0;font-family:Arial,sans-serif;font-size:13.5pt;color:rgb(148,127,50)"><b>{{FULL_NAME}}, {{TITLE}}</b></div>
+  <div style="margin:0;font-family:Arial,sans-serif;font-size:10.5pt">mobile:{{MOBILE}}</div>
+  <div style="margin:0;font-family:Arial,sans-serif;font-size:10.5pt">phone: 1.619.499.7943</div>
+  <div style="margin:0;font-family:Calibri,Arial,sans-serif;font-size:10pt">linktree: <a href="https://linktr.ee/black_box_safety_inc" style="color:rgb(5,99,193)">linktr.ee/black_box_safety_inc</a></div>
+  <div style="margin:0;font-family:Arial,sans-serif;font-size:10.5pt">web: <a href="https://blackboxsafety.com/?utm_source=referral&amp;utm_medium=email&amp;utm_content=signature" style="color:rgb(17,15,44)">blackboxsafety.com</a></div>
+  <div style="margin:0;font-family:Arial,sans-serif;font-size:10.5pt"><a href="{{LINKEDIN_URL}}" style="color:rgb(5,99,193)">LinkedIn</a></div>
+</td></tr></tbody></table>
+<div style="margin:0;font-family:Arial,sans-serif;font-size:9pt;color:rgb(148,127,50)"><b>VA CVE SDVOSB UEI</b> FRK5MJD35GN5 &bull; <b>CA DVBE</b> 2009473</div>
+<div style="margin:0;font-family:Arial,sans-serif;font-size:10pt;color:rgb(33,33,33)"><b>California MRO Statewide Contract: LPA # </b><a href="https://caleprocure.ca.gov/PSRelay/ZZ_PO.ZZ_CTR_SUP_CMP.GBL?Page=ZZ_CTR_SUP_PG&amp;Action=U&amp;SETID=STATE&amp;CNTRCT_ID=7-25-51-02.03" style="color:rgb(5,99,193)"><b>7-25-51-02.03</b></a></div>
+<div style="margin:0;font-family:Arial,sans-serif;font-size:10pt;color:rgb(33,33,33)"><b>California Body Armor Contract: LPA # </b><a href="https://caleprocure.ca.gov/PSRelay/ZZ_PO.ZZ_CTR_SUP_CMP.GBL?Page=ZZ_CTR_SUP_PG&amp;Action=U&amp;SETID=STATE&amp;CNTRCT_ID=1-23-84-07" style="color:rgb(5,99,193)"><b>1-23-84-07</b></a></div>
+<div style="margin:0;font-family:Arial,sans-serif;font-size:10pt;color:rgb(33,33,33)"><b>Sourcewell Body Armor Contract: </b><a href="https://www.sourcewell-mn.gov/cooperative-purchasing/091924-BBS" style="color:rgb(5,99,193)"><b>091924-BBS</b></a></div>
