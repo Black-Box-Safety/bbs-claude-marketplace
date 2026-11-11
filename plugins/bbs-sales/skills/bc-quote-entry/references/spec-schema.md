@@ -52,7 +52,7 @@ the check because BC would reject or ignore the PATCH. All ASCII.
 | `qty` | yes | Greater than zero |
 | `uom` | yes | A unit of measure code that exists in BC, usually `EA` |
 | `unitCost` | yes | Greater than zero: BBS's cost for one unit from `costSource`. Not written to BC; it is the basis the sheet's GM% and the price gate use. Shown beside the card's cost when the two differ |
-| `unitPrice` | yes | Greater than zero, never below `unitCost`. On `NASPO`, equal to `unitCost` to the cent, always. Elsewhere, equal to `unitCost` only with `zeroMarginOk` on the line or the spec. A zero stops: by SOP a zero price means nobody priced the line |
+| `unitPrice` | yes | Greater than zero, never below `unitCost`. On `NASPO`, exactly equal to `unitCost`, always: no fraction of a cent added. A price that is not whole cents prints on the review sheet with every digit and a NOT WHOLE CENTS mark, because that is what BC receives. Elsewhere, equal to `unitCost` only with `zeroMarginOk` on the line or the spec. A zero stops: by SOP a zero price means nobody priced the line |
 | `zeroMarginOk` | no | `true` when this line sells at cost and the rep has seen that on the sheet |
 
 Everything else on the header is fixed or inherited: `documentDate` is the day of the commit,
@@ -103,7 +103,7 @@ Every value below is synthetic.
 ```
 
 A NASPO spec differs in two places: `"contract": "NASPO"`, and every line's `unitPrice` equal
-to its `unitCost` to the cent (the Grainger price read on the buying institution's own
+to its `unitCost` exactly (the Grainger price read on the buying institution's own
 account), with `pricingBasis` saying so. The check stops on any NASPO line priced above
 cost; `zeroMarginOk` is not needed. A CAL FIRE or CDCR
 spec differs in one: `"agency": "CAL FIRE"` makes the salesperson `KQUEZON`, and the check

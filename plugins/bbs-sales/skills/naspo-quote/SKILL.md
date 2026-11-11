@@ -74,7 +74,7 @@ rep's own sign-in. NASPO-specific values on that spec:
 
 | Field | Value |
 |---|---|
-| line `unitPrice` | the Grainger `unitPrice` — CA state schedule, at cost, no markup. `unitCost` is the same number, so the spec carries `zeroMarginOk: true` at the top level and `pricingBasis` says "Grainger at cost on NASPO" |
+| line `unitPrice` | the Grainger `unitPrice` — CA state schedule, at cost, no markup. `unitCost` is the same number, exactly; `bc-quote-entry` stops any NASPO line priced above it, even by a fraction of a cent. No `zeroMarginOk` is needed. `pricingBasis` says "Grainger at cost on NASPO" |
 | `contract` (CONTRACT, dimension 1) | `NASPO` |
 | `externalDocumentNumber` | the solicitation number off the worksheet header |
 | `book`, `agency`, `salesperson` | `ca-state`, the agency, and the owner's code: `KQUEZON` for Kim Quezon's agencies, `AANYA` for every other state agency; never `CA STATE TEAM` or `PMARSHALL` on a new quote (Parker, 2026-10-16). Which agencies are Kim's is listed once, in `bbs-foundations` `references/canonical-facts.md`, "Salesperson follows the account split, quote by quote"; `bc-quote-entry`'s check enforces it |

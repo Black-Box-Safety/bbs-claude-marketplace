@@ -39,10 +39,12 @@ file, not a credential.
 import argparse
 import datetime as dt
 import json
+import math
 import os
 import re
 import sys
 import urllib.parse
+from decimal import Decimal, InvalidOperation
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ITEM_SCRIPTS = os.path.join(os.path.dirname(os.path.dirname(HERE)), "bc-item-entry", "scripts")
@@ -125,16 +127,77 @@ ITEM_MISSING = ("not in Business Central. Nothing is created or patched from her
                 "bc-item-entry (vendor, sourced cost, named review), then run check again.")
 
 
+CENT = Decimal("0.01")
+
+
+def exact(v):
+    """The number exactly as the spec wrote it, as a Decimal, or None. str() of a float parsed from
+    JSON is its shortest round-trip form, so 89.505 stays 89.505 and is never rounded to a cent."""
+    if v is None or isinstance(v, bool) or v == "":
+        return None
+    try:
+        d = Decimal(str(v).strip())
+    except (InvalidOperation, ValueError):
+        return None
+    return d if d.is_finite() else None
+
+
 def at_cost(price, cost):
-    """True when the price equals the cost to the cent."""
-    return round(price * 100) == round(cost * 100)
+    """True only when the price is exactly the cost. The NASPO gate, the 0% margin stop and the sheet's
+    AT COST flag all use this one test, so the sheet can never say AT COST over a sub-cent markup."""
+    p, c = exact(price), exact(cost)
+    return p is not None and c is not None and p == c
+
+
+def whole_cents(v):
+    d = exact(v)
+    return d is not None and d == d.quantize(CENT)
+
+
+def exact_text(v):
+    """money() when whole cents, else every digit the spec carries."""
+    return money(v) if whole_cents(v) else f"{exact(v):,}"
+
+
+def price_text(v):
+    """money() when the value is whole cents; otherwise the exact value BC will receive, marked."""
+    if v is None or whole_cents(v):
+        return money(v)
+    return f"{exact_text(v)} (NOT WHOLE CENTS: BC receives exactly this)"
+
+
+def needs_printout_proof(header):
+    """R5 (Parker, 2026-11-10): the rep proofs BC's printout on every California public quote until
+    someone verifies BC prints DVBE only there. California state (book ca-state), the CA Body Armor
+    LPA (contract BA-CA) and California higher ed (book higher-ed: CSU and UC). It is a proof read,
+    not a claim; whether R5's scope includes CSU and UC is with Parker, so it errs on reading."""
+    return header.get("book") in ("ca-state", "higher-ed") or header.get("contract") == "BA-CA"
 
 
 def num_or_none(v):
+    if isinstance(v, bool):
+        return None
     try:
-        return float(v) if v not in (None, "") else None
+        f = float(v) if v not in (None, "") else None
     except (TypeError, ValueError):
         return None
+    return f if f is None or math.isfinite(f) else None
+
+
+def nonfinite_fields(obj, path=""):
+    """Every field holding NaN or Infinity. Python's json reads both, so a spec can carry them."""
+    out = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            out += nonfinite_fields(v, f"{path}.{k}" if path else str(k))
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj, 1):
+            out += nonfinite_fields(v, f"{path}[{i}]")
+    elif isinstance(obj, float) and not math.isfinite(obj):
+        out.append((path, obj))
+    elif isinstance(obj, str) and obj.strip().lower() in ("nan", "inf", "-inf", "infinity", "-infinity"):
+        out.append((path, obj))
+    return out
 
 
 def normalize_agency(text):
@@ -239,6 +302,8 @@ def validate_spec(spec, uoms):
     that one check (tests), the live check never passes an empty set.
     """
     errs, warns = [], []
+    for where, v in nonfinite_fields(spec):
+        errs.append(f"{where} is {v}, which is not a number. Write the actual number from the source document")
     for k in TOP_REQUIRED:
         if k not in spec or spec[k] in (None, "") or (isinstance(spec[k], (list, dict)) and not spec[k]):
             errs.append(f"{k} is required")
@@ -374,14 +439,16 @@ def validate_spec(spec, uoms):
                 errs.append(f"{tag}: unitPrice must be a number greater than 0 (SOP: a zero price means nobody priced "
                             f"the line; never a silent zero)")
             elif cost is not None and cost > 0:
-                if price < cost - 0.005:
-                    errs.append(f"{tag}: unitPrice {money(price)} is below unitCost {money(cost)}")
+                if exact(price) < exact(cost):
+                    errs.append(f"{tag}: unitPrice {price_text(ln.get('unitPrice'))} is below unitCost "
+                                f"{price_text(ln.get('unitCost'))}")
                 elif contract == "NASPO" and not at_cost(price, cost):
                     # Canon, "Grainger sell rule, by channel" (RULED for California state and the
                     # NASPO LPA): on NASPO the Grainger price is the customer price, never marked up.
                     errs.append(f"{tag}: this is a NASPO quote, and on NASPO BBS sells Grainger at cost, never marked "
-                                f"up. unitPrice {money(price)} must equal unitCost {money(cost)} to the cent. Set the "
-                                f"price to the cost, or if this is not a NASPO order, fix the contract")
+                                f"up. unitPrice {exact_text(ln.get('unitPrice'))} must be exactly "
+                                f"unitCost {exact_text(ln.get('unitCost'))}, with no fraction of a cent added. Set the price to the "
+                                f"cost, or if this is not a NASPO order, fix the contract")
                 elif at_cost(price, cost) and contract != "NASPO" and not (ln.get("zeroMarginOk") or spec_zero_ok):
                     errs.append(f"{tag}: unitPrice equals unitCost (0% margin); set zeroMarginOk: true on the line, or "
                                 f"on the spec when every line sells at cost by contract (Grainger on NASPO)")
@@ -391,7 +458,7 @@ def validate_spec(spec, uoms):
             ext_price = round(qty * price, 2) if qty and price else None
             lines.append({"line": lno, "number": num, "description": desc, "qty": qty, "uom": uom, "unitCost": cost,
                           "unitPrice": price, "extPrice": ext_price, "gm": gm,
-                          "atCost": bool(cost and price and abs(price - cost) < 0.005)})
+                          "atCost": bool(cost and price and at_cost(price, cost))})
     elif "lines" in spec:
         errs.append("lines must be a non-empty list")
 
@@ -612,7 +679,8 @@ def review_sheet(bc, header, lines, cust, cards, notes, warns, token, spec_path)
         gm = f"{ln['gm']:.1f}" + (" AT COST" if ln["atCost"] else "") if ln["gm"] is not None else "-"
         qty = f"{ln['qty']:g}"
         out.append(f"| {ln['line']} | {ln['number']} | {ln['description'].replace('|', '/')} | {qty} | {ln['uom']} | "
-                   f"{money(ln['unitCost'])} | {money(ln['unitPrice'])} | {money(ln['extPrice'])} | {gm} | {card_text} |")
+                   f"{price_text(ln['unitCost'])} | {price_text(ln['unitPrice'])} | {money(ln['extPrice'])} | {gm} | "
+                   f"{card_text} |")
     out.append(f"| | | **Total excl. tax** | | | | | **{money(header['total'])}** | | |")
     if notes:
         out += ["", "Notes from the owner and item gates (not blocking):"] + [f"- {n}" for n in notes]
@@ -801,7 +869,7 @@ def cmd_commit(args):
         landed.append(ln["line"])
         record(event="line-created", line=ln["line"], number=ln["number"], qty=ln["qty"], uom=ln["uom"],
                unitPrice=ln["unitPrice"], unitCost=ln["unitCost"])
-        print(f"  {ln['line'] * 10000:>6}  {ln['number']:20} x{ln['qty']:<6g} @ {money(ln['unitPrice']):>10} "
+        print(f"  {ln['line'] * 10000:>6}  {ln['number']:20} x{ln['qty']:<6g} @ {price_text(ln['unitPrice']):>10} "
               f"= {money(ln['extPrice']):>11}  {ln['description']}")
 
     # [D] read-back
@@ -822,7 +890,7 @@ def cmd_commit(args):
           f"{norm(doc.get('status'))} - approved by {who}. Log: {log_path}")
     print("NEXT: a person reviews the quote in BC, releases it (tax), prints the PDF there and sends it. "
           "Nothing here releases or sends.")
-    if header.get("book") == "ca-state":
+    if needs_printout_proof(header):
         # Parker, 2026-11-10 (R5): mandatory until someone verifies BC prints DVBE only for California.
         print("PROOF BEFORE SENDING (mandatory): on the PDF BC prints from the released quote, the certification "
               "line reads DVBE 2009473 only, never SB or SDVOSB, and the tax matches the agency's worksheet. "

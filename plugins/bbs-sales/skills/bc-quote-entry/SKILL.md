@@ -36,7 +36,7 @@ Vendor No., and create sales quotes and their lines. Nothing else, ever: no rele
    `bc-item-entry` first.
 2. **Price has a basis.** Every line carries a cost greater than zero with the document it
    came from, and a price that is never below it. On a `NASPO` quote every line's price
-   must equal its cost to the cent: Grainger on NASPO sells at cost, never marked up, and a
+   must equal its cost exactly, with no fraction of a cent added: Grainger on NASPO sells at cost, never marked up, and a
    markup stops the check. Elsewhere a price equal to cost needs `zeroMarginOk` on the line,
    or on the spec. A zero price stops. The lines sum to the total.
 3. **One quote per external document number.** The agency's solicitation or PO number goes
@@ -131,8 +131,9 @@ bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/bc-quote-entry/scripts/bc_quote_entry.py"
 
 **Every run of this script goes through `bbs-fill`**, exactly as written: the managed
 settings allow `Bash(bbs-fill *)` and nothing broader, and the script is on the launcher's
-allow list by the same ruling as `bc_item_entry.py` (Parker, 2026-10-16: the rep's sign-off
-on the sheet is the gate, with no Allow click on top). Run it from the rep's working folder,
+allow list under R3 (Parker, 2026-11-10), which allowed it only because the check stops every
+NASPO line whose price is not exactly its cost. The rep's sign-off on the sheet is the gate, with
+no Allow click on top. Run it from the rep's working folder,
 never `cd` first, and never chain another command onto the line. If `bbs-fill` is not found,
 the `bbs-tools` plugin is not installed; say so rather than running the script with `python3`
 directly.
@@ -186,8 +187,11 @@ from the released quote, proof it (below), send it. Nothing here releases, print
 
 **Proof the BC printout before it goes out — mandatory** (Parker, 2026-11-10, R5; it stays
 until someone verifies that BC's print layout puts DVBE, and only DVBE, on every California
-quote). On a California state quote the rep reads the PDF BC printed from the released quote
-and confirms:
+quote). On every California public quote the rep reads the PDF BC printed from the released
+quote and confirms. That is a `ca-state` quote, a CA Body Armor LPA quote (`contract: BA-CA`),
+and a CSU or UC quote (`book: higher-ed`). Whether R5 reaches CSU and UC is with Parker; until
+Parker answers, the proof is read there too, because it is a proof read, not a claim, and BBS uses
+DVBE language with California higher ed.
 
 - **The certification line reads `DVBE 2009473` only.** Never SB, never SDVOSB, never
   "small business" on a California quote. If it reads anything else, stop: do not send, and
@@ -196,8 +200,8 @@ and confirms:
 - **Tax is right.** Tax appears only after release. It matches the agency's worksheet: none
   where the worksheet says no sales tax, the ship-to's rate otherwise.
 
-Say this to the rep in the close-out on every `ca-state` quote; the commit output prints the
-same reminder. Which read-backs this skill already does, so the rep knows what is left: the
+Say this to the rep in the close-out on each of those quotes; the commit output prints the
+same reminder for the same three cases (`needs_printout_proof`, tested). Which read-backs this skill already does, so the rep knows what is left: the
 **header read-back** (customer, ship-to, payment terms, shipment method, CONTRACT,
 salesperson, external document number, before any line exists) and the **quote read-back**
 (every line, and the total excluding tax, after the lines). Both read BC's data, not BC's

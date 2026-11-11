@@ -247,7 +247,7 @@ marketplace repo, which does not ship to rep machines.
 | Grainger sell rule — California state schedules (incl. the NASPO LPA); primes | 2026-09-18 / 2026-09-28 | "Grainger sell rule, by channel", above |
 | Customer quote number | 2026-09-28 | Systems of record, above |
 | Customer quote is created in BC, not rendered in Claude; existing items never re-created | 2026-10-16 | Systems of record, above; `/ca-rfq` Gate 5 |
-| Quote salesperson follows the Kim/Aanya split (KQUEZON / AANYA), never CA STATE TEAM | 2026-10-16 | Systems of record, above; `/ca-rfq` Gate 5 |
+| Quote salesperson follows the Kim/Aanya split (KQUEZON / AANYA), never CA STATE TEAM | 2026-10-16; confirmed 2026-11-10 (R4) | Systems of record, above; `/ca-rfq` Gate 5 |
 | Delegated signatures: the six, the limit incl. tax, PNG of record, "complete the packet" is the approval | 2026-10-01 | `ca-form-rules.md`, "Rep-signed lines and delegated signatures" |
 | Owner declarations (PD 843, CV 012, STD 204, STD 205) stay Jackson's whoever runs the packet | 2026-10-01 | `ca-form-rules.md`, "Who signs what" |
 | Who signs OBS 1000 (GenAI factsheet): rep-signed | 2026-10-01 | `ca-form-rules.md`, "Who signs what" |

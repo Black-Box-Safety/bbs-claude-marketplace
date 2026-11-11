@@ -96,7 +96,8 @@ accepts them because they exist; the sheet names the code so the rep sees it.
   `bc-item-entry`'s: verbal, estimate, approx, roughly, about, ballpark, phone, from memory,
   guess, last time, typical, TBD, later, in any form. **[script]**
 - Price below cost stops **[script]**.
-- On `contract: NASPO` every line's `unitPrice` must equal its `unitCost` to the cent, and a
+- On `contract: NASPO` every line's `unitPrice` must equal its `unitCost` exactly (no fraction of a cent
+  added; 89.505 over a cost of 89.50 stops), and a
   markup stops the check **[script]**: the Grainger price is the customer price on NASPO,
   never marked up (canon, `canonical-facts.md` "Grainger sell rule, by channel"). No
   `zeroMarginOk` is needed on a NASPO quote; `pricingBasis` still says "Grainger at cost on
@@ -142,7 +143,8 @@ gate. Tax lives on the released quote, and a person releases.
   or a change the rep makes in BC.
 - The item half is `bc-item-entry`. Two skills write to Business Central and this is the
   second; both run through `bbs-fill` without an Allow prompt because the rep's named sign-off
-  on the review sheet is the gate (Parker, 2026-10-16).
+  on the review sheet is the gate (Parker, 2026-10-16, for both; for this script also R3,
+  2026-11-10, which holds only while the NASPO gate does).
 - Rendering a PDF copy of a quote that already exists in BC is `bbs-quote-builder`, only when
   a rep asks for one; the customer document is the PDF BC prints from the released quote.
 - Sales orders, invoices, purchase orders and vendor quotes are out of scope and out of the

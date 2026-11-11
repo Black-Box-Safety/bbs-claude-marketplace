@@ -218,7 +218,7 @@ class NaspoAtCost(unittest.TestCase):
 
     def test_naspo_markup_is_refused(self):
         errs = errors(self.naspo(95.50))
-        self.assertTrue(any("NASPO" in e and "never marked up" in e and "must equal unitCost" in e for e in errs), errs)
+        self.assertTrue(any("NASPO" in e and "never marked up" in e and "must be exactly unitCost" in e for e in errs), errs)
 
     def test_naspo_one_cent_over_is_refused(self):
         self.assertTrue(any("never marked up" in e for e in errors(self.naspo(89.51))))
@@ -246,9 +246,92 @@ class NaspoAtCost(unittest.TestCase):
         self.assertEqual(len([e for e in errs if "never marked up" in e]), 1)
         self.assertTrue(any(e.startswith("line 2:") for e in errs))
 
+    def test_naspo_sub_cent_markup_is_refused(self):
+        # Rex, 2026-11-11: both rounded to the same cent and passed, and commit would have sent 89.505.
+        for price in (89.504, 89.505, 89.5001):
+            errs = errors(self.naspo(price))
+            self.assertTrue(any("never marked up" in e and "must be exactly unitCost 89.50" in e for e in errs),
+                            (price, errs))
+
+    def test_naspo_sub_cent_given_as_string_is_refused(self):
+        s = self.naspo(89.50); s["lines"][0]["unitPrice"] = "89.505"
+        self.assertTrue(any("never marked up" in e for e in errors(s)))
+
+    def test_naspo_at_cost_written_two_ways_passes(self):
+        s = self.naspo(89.50); s["lines"][0]["unitPrice"] = "89.50"; s["lines"][0]["unitCost"] = 89.5
+        self.assertEqual(errors(s), [])
+
+    def test_at_cost_flag_uses_the_gate_test(self):
+        # The sheet's AT COST flag and the gate are one definition: 89.505 over 89.50 is not at cost.
+        s = self.naspo(89.505)
+        _, lines, _, _ = m.validate_spec(s, UOMS)
+        self.assertFalse(lines[0]["atCost"])
+        s = spec(); s["lines"][0].update(unitPrice=89.505, zeroMarginOk=True)
+        s["quoteTotalExclTax"] = round(30 * 89.505, 2)
+        _, lines, errs, _ = m.validate_spec(s, UOMS)
+        self.assertEqual(errs, [])            # off NASPO a sub-cent markup is a markup, not a stop
+        self.assertFalse(lines[0]["atCost"])
+
+    def test_below_cost_by_a_fraction_of_a_cent_stops(self):
+        s = spec(); s["lines"][0]["unitPrice"] = 89.499; s["quoteTotalExclTax"] = round(30 * 89.499, 2)
+        self.assertTrue(any("below unitCost" in e for e in errors(s)))
+
+    def test_sheet_shows_the_exact_price_bc_receives(self):
+        s = spec(); s["lines"][0]["unitPrice"] = 95.505; s["quoteTotalExclTax"] = round(30 * 95.505, 2)
+        header, lines, errs, warns = m.validate_spec(s, UOMS)
+        self.assertEqual(errs, [])
+        bc = types.SimpleNamespace(mode="delegated", mode_text="rep", conn={"environment": "Production"},
+                                   company_display="BBS", sources={k: "test" for k in m.item.CONNECTION_KEYS})
+        sheet = m.review_sheet(bc, header, lines, {}, {}, [], warns, "TOKEN", "spec.json")
+        self.assertIn("95.505 (NOT WHOLE CENTS: BC receives exactly this)", sheet)
+        s = spec()
+        header, lines, _, warns = m.validate_spec(s, UOMS)
+        self.assertNotIn("NOT WHOLE CENTS", m.review_sheet(bc, header, lines, {}, {}, [], warns, "T", "s.json"))
+
     def test_non_naspo_markup_passes(self):
         for contract in ("OPEN", "NPPGOV", "OMNIA", "GSA"):
             self.assertEqual(errors(spec(contract=contract)), [], contract)
+
+
+class NonFinite(unittest.TestCase):
+    """Python's json reads NaN and Infinity. They stop with a sentence, never a traceback."""
+
+    def test_nan_and_infinity_stop_plainly(self):
+        for bad in (float("nan"), float("inf"), float("-inf")):
+            for field in ("unitPrice", "unitCost", "qty"):
+                s = spec(); s["lines"][0][field] = bad
+                errs = errors(s)
+                self.assertTrue(any(f"lines[1].{field} is" in e and "not a number" in e for e in errs), (field, errs))
+        s = spec(quoteTotalExclTax=float("nan"))
+        self.assertTrue(any("quoteTotalExclTax is nan, which is not a number" in e for e in errors(s)))
+
+    def test_nan_from_a_real_json_file(self):
+        raw = json.dumps(spec()).replace('"unitPrice": 95.5', '"unitPrice": NaN')
+        self.assertIn("NaN", raw)
+        self.assertTrue(any("not a number" in e for e in errors(json.loads(raw))))
+
+
+class PrintoutProof(unittest.TestCase):
+    """R5: the proof-the-printout reminder covers every California public quote."""
+
+    def test_ca_state(self):
+        self.assertTrue(m.needs_printout_proof({"book": "ca-state", "contract": "NASPO"}))
+
+    def test_ca_body_armor_lpa(self):
+        self.assertTrue(m.needs_printout_proof({"book": "body-armor", "contract": "BA-CA"}))
+
+    def test_california_higher_ed(self):
+        self.assertTrue(m.needs_printout_proof({"book": "higher-ed", "contract": "OMNIA"}))
+
+    def test_not_for_other_books_or_national_armor(self):
+        self.assertFalse(m.needs_printout_proof({"book": "other", "contract": "GSA"}))
+        self.assertFalse(m.needs_printout_proof({"book": "body-armor", "contract": "BA-SRCWL"}))
+        self.assertFalse(m.needs_printout_proof({"book": "body-armor", "contract": "BODYARMOR"}))
+
+    def test_commit_prints_it(self):
+        src = open(m.__file__, encoding="utf-8").read()
+        self.assertIn("if needs_printout_proof(header):", src)
+        self.assertIn("DVBE 2009473 only, never SB or SDVOSB", src)
 
 
 class Owner(unittest.TestCase):
