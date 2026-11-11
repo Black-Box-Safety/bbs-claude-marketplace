@@ -5,8 +5,8 @@ description: >-
   sessions, dispatched to a worker agent, reviewed, and merged — a night of autonomous
   work, a multi-part build, or any change big enough that "who reviews this" is a real
   question. It scopes one slice per session, writes the brief, dispatches, reviews the
-  resulting PR with an agent that did not write it, sends the findings back, and merges
-  when they are cleared. Do NOT use it to do the work itself — it dispatches and reviews,
+  resulting PR with an agent that did not write it, sends the findings back, and brings
+  cleared PRs to Parker, who merges each one in the GitHub UI. Do NOT use it to do the work itself — it dispatches and reviews,
   and a steward that writes the change cannot review it.
 model: opus
 effort: high
@@ -30,8 +30,8 @@ Read `@AGENTS.md` first; it is the contract. Read `docs/STEWARD.md` for the loop
 ## What you are responsible for
 
 Scoping work into sessions, writing the brief for each, dispatching a worker agent,
-reviewing what comes back, and merging it. You own sequencing, acceptance criteria, and
-the decision to ship. You do not own the implementation.
+reviewing what comes back, and bringing it to Parker to merge. You own sequencing, acceptance criteria, and
+the call that a PR is ready for Parker. You do not own the implementation.
 
 **You never write the change you review.** The moment you edit the branch, you have
 disqualified yourself as its reviewer and must dispatch a fresh reviewer instead. This is
@@ -76,11 +76,20 @@ The brief is a prompt and prompts are code. Every brief carries:
 
 ```
 scope → brief → dispatch → worker opens PR → you review (fresh reviewer)
-   → findings back to the same worker → worker tends → you merge
+   → findings back to the same worker → worker tends → Rex clears
+   → you bring cleared PRs to Parker → Parker merges in the GitHub UI
 ```
 
 Subscribe to the PR so the session wakes you when it moves. Review with `/code-review
-<PR> high`. Merge only when the findings are cleared and the checks are green.
+<PR> high`. A clear plus green checks makes a PR **ready for Parker**, not merged
+(`docs/STEWARD.md`, "Agents never merge", RULED 2026-11-10, R1).
+
+**No agent merges.** Parker clicks Merge in the GitHub UI; managed settings deny the merge
+and auto-merge tools, and no brief you write can grant merge to Rex or anyone else. Do not
+turn a general ask ("clean up the branches", "merge the valuable ones", "use Rex") into
+authority to close or take a PR out of draft. If you are unsure whether he approved a PR, he
+did not. Tell Parker about every GitHub write an agent you dispatched makes, as it happens,
+and read Rex's report before you tell him the state of the queue.
 
 Send findings back to **the same worker** — it holds the context and will fix faster and
 more correctly than a fresh session re-deriving the change.
@@ -112,8 +121,11 @@ anything.
 
 ## What you may decide, and what you may not
 
-**Yours:** sequencing, scope, whether a done condition is met, whether a PR merges, when
-to split a slice, when to send findings back rather than accept.
+**Yours:** sequencing, scope, whether a done condition is met, which PRs are ready to put
+to Parker, when to split a slice, when to send findings back rather than accept.
+
+**Parker's, always:** whether a PR merges, whether it leaves draft, whether it closes, and
+whether a branch is deleted. Ask him per PR; he does the merge himself, in the GitHub UI.
 
 **Parker's — stop and write it up, do not resolve it:**
 

@@ -129,49 +129,90 @@ Check 'acronym typo agency folder denied' (Decision $o) 'deny'
 $o = Run $ctx @{ hook_event_name='SessionStart'; source='startup'; cwd = $outside }
 Check 'session context silent outside tree with quote-log' ($o -eq '') $true
 
-# 16. rfq-record-hook: same fixtures as parity.py; exit code and stderr first line.
+# 16. PostToolUse: first write in a dated deal folder (3-level and 2-level agencies). parity.py holds the
+#     full matrix; these prove the PowerShell half on its own. BBS_TODAY pins today; the temp dir is
+#     fresh per run so markers never leak between cases.
+$env:BBS_TODAY = '2026-10-30'
+function RunPost($path, $sid) {
+  $t = Join-Path $root ("tmp-" + [guid]::NewGuid().ToString('N'))
+  New-Item -ItemType Directory -Force -Path $t | Out-Null
+  $env:TMPDIR = $t; $env:TEMP = $t; $env:TMP = $t
+  $p = @{ hook_event_name='PostToolUse'; tool_name='Write'; tool_input=@{ file_path = $path } }
+  if ($sid) { $p.session_id = $sid }
+  return (Run $ctx $p)
+}
+function AddedContext($out) {
+  if (-not $out) { return '' }
+  try { return ($out | ConvertFrom-Json).hookSpecificOutput.additionalContext } catch { return "unparseable: $out" }
+}
+$joe = Join-Path (Join-Path $cdcr 'CAL - Calipatria State Prison - 887895116') 'Joe Ketner'
+New-Item -ItemType Directory -Force -Path (Join-Path $joe '9.14.26') | Out-Null
+Set-Content -Path (Join-Path $joe 'CLAUDE.md') -Value '# Joe Ketner'
+Set-Content -Path (Join-Path $joe 'quote-log.md') -Value @(
+  '| Date | Item | Quote # | Vehicle | Value | Outcome |',
+  '|---|---|---|---|---|---|',
+  '| 9.14.26 | V-belts | 900021 | OBS 4007(A) | 3668.70 | priced, awaiting signature |',
+  '| 10.7.26 | Refrigerants | SQ-105100 | OBS 4007(B) | 23981.10 | packet signed, not sent |',
+  '| 2026-03-04 | Nitrile gloves | SQ-1001 | NASPO | 2400 | won |',
+  '| 7.13.23 | Gloves | SQ-0001 | NASPO | 100 | sent |'
+)
+Set-Content -Path (Join-Path $joe 'FLAGS.md') -Value @(
+  '| Date | What | Status |', '|---|---|---|',
+  '| 2026-10-23 | worksheet rows overwritten | open |',
+  '| 10.2.26 | old radio bug | closed 10.3.26 |',
+  '- 9.20.26 bullet flag one'
+)
+$c = AddedContext (RunPost (Join-Path (Join-Path $joe '9.14.26') 'form.pdf') 's1')
+Check 'first write names the buyer files' ($c -match 'BUYER DESK -- first write in 9\.14\.26 for CDCR \(ALL\)/CAL - Calipatria State Prison - 887895116/Joe Ketner' -and $c -match 'quote-log\.md --') $true
+Check 'first write: precedent newest first' ($c.IndexOf('| 10.7.26 |') -ge 0 -and $c.IndexOf('| 10.7.26 |') -lt $c.IndexOf('| 9.14.26 |') -and $c.IndexOf('| 9.14.26 |') -lt $c.IndexOf('| 2026-03-04 |')) $true
+Check 'first write: two stale rows, oldest first' ($c -match 'OUTCOMES TO CLOSE -- 2 quote-log rows older than 30 days' -and $c.LastIndexOf('| 7.13.23 | Gloves') -lt $c.LastIndexOf('| 9.14.26 | V-belts')) $true
+Check 'first write: flags incl. bullet, closed dropped' ($c -match 'worksheet rows overwritten' -and $c -match 'bullet flag one' -and $c -notmatch 'old radio bug') $true
+
+$kelly = Join-Path (Join-Path $tree 'CARB - Air Resource Board - 888161763') 'Kelly Peng'
+New-Item -ItemType Directory -Force -Path (Join-Path (Join-Path $kelly '10.12.26') 'SacHQ') | Out-Null
+Set-Content -Path (Join-Path $kelly 'quote-log.md') -Value @('| Date | Item | Quote # | Vehicle | Value | Outcome |', '|---|---|---|---|---|---|', '| 10.28.26 | Office supplies | SQ-105283 | OPEN | 190.76 | logged |')
+$c = AddedContext (RunPost (Join-Path (Join-Path (Join-Path $kelly '10.12.26') 'SacHQ') 'quote.pdf') 's1')
+Check 'two-level agency: CLAUDE.md missing, no close-out' ($c -match 'MISSING: CLAUDE\.md, FLAGS\.md -- create from' -and $c -notmatch 'OUTCOMES TO CLOSE') $true
+
+$o = RunPost (Join-Path $joe 'quote-log.md') 's1'
+Check 'silent: file directly in the buyer folder' ($o -eq '') $true
+$o = RunPost (Join-Path (Join-Path $joe 'AIU-21') 'form.pdf') 's1'
+Check 'silent: deal folder without a date' ($o -eq '') $true
+
+# Once per buyer per session: same temp dir, second write silent.
+$t = Join-Path $root 'tmp-once'
+New-Item -ItemType Directory -Force -Path $t | Out-Null
+$env:TMPDIR = $t; $env:TEMP = $t; $env:TMP = $t
+$pj = @{ hook_event_name='PostToolUse'; tool_name='Write'; session_id='once'; tool_input=@{ file_path = (Join-Path (Join-Path $joe '9.14.26') 'form.pdf') } }
+$first = Run $ctx $pj
+$again = Run $ctx $pj
+Check 'once per buyer per session' ($first -ne '' -and $again -eq '') $true
+
+# 17. rfq-record-hook.ps1 validates nothing (the one validator is rfq-record-hook.py; hooks.json
+#     runs python3 first). For an RFQ.md under the tree it must say the check did not run, whatever
+#     the record holds; elsewhere it must be silent. parity.py asserts the same notice text.
 $rfqHook = Join-Path (Split-Path -Parent $here) 'rfq-record-hook.ps1'
-$fx = Join-Path (Split-Path -Parent (Split-Path -Parent $here)) 'scripts\tests\fixtures'
-$good = [IO.File]::ReadAllText((Join-Path $fx 'v2_naspo_full.md')) -replace "`r`n","`n"
-$rfqDeal = Join-Path $tree 'CMD - 880000001\Pat Example\widgets 10.27.26'
-$rfqOther = Join-Path $root 'Customers\Bechtel\x'
+$rfqNotice = 'bbs-sales: RFQ record check needs python3; this edit was not checked. Install Python 3 (rerun the bootstrap) so RFQ.md is validated and rfq-state.json is written.'
+$rfqDeal = Join-Path (Join-Path (Join-Path $tree 'CMD - 880000001') 'Pat Example') 'widgets 10.27.26'
+$rfqOther = Join-Path (Join-Path (Join-Path $root 'Customers') 'Bechtel') 'x'
 New-Item -ItemType Directory -Force -Path $rfqDeal | Out-Null
 New-Item -ItemType Directory -Force -Path $rfqOther | Out-Null
-function RunRfq($content, $path) {
-  [IO.File]::WriteAllText($path, $content)
-  $json = @{ hook_event_name='PostToolUse'; tool_name='Write'; tool_input=@{ file_path = $path; content = $content } } | ConvertTo-Json -Compress -Depth 5
+function RunRfq($path) {
+  [IO.File]::WriteAllText($path, "# RFQ`n**Stage:** Sent`n")
+  $json = @{ hook_event_name='PostToolUse'; tool_name='Write'; tool_input=@{ file_path = $path } } | ConvertTo-Json -Compress -Depth 5
   $err = Join-Path $root 'rfq-err.txt'
-  $outText = ($json | & $exe -NoProfile -ExecutionPolicy Bypass -File $rfqHook 2> $err) -join "`n"
-  $first = ''
-  if (Test-Path $err) { $first = (Get-Content -Path $err -TotalCount 1) }
-  return @{ rc = $LASTEXITCODE; first = [string]$first; out = [string]$outText }
+  $outText = ($json | & $exe -NoProfile -ExecutionPolicy Bypass -File $rfqHook 2> $err | Out-String).Trim()
+  $rc = $LASTEXITCODE
+  $errText = ''
+  if (Test-Path $err) { $errText = [string](Get-Content -Raw -Path $err) }
+  $msg = ''
+  if ($outText) { try { $msg = ($outText | ConvertFrom-Json).systemMessage } catch { $msg = "unparseable: $outText" } }
+  $state = Test-Path (Join-Path (Split-Path -Parent $path) 'rfq-state.json')
+  return "$rc|$($errText.Trim())|$state|$msg"
 }
-$firstLine = 'bbs-sales rfq-record: 1 problem(s) in RFQ.md'
-$badStatus = $good.Replace('| sent |', '| Sent |')
-$badHeader = $good.Replace('**Stage:** delivered to rep', '**Stage:** Sent')
-$v1 = [IO.File]::ReadAllText((Join-Path $fx 'v1_cmd_hvac.md')) -replace "`r`n","`n"
-$r = RunRfq $good (Join-Path $rfqDeal 'RFQ.md')
-Check 'rfq-record valid_v2' ("$($r.rc)|$($r.first)") '0|'
-$r = RunRfq $badStatus (Join-Path $rfqDeal 'RFQ.md')
-Check 'rfq-record bad_status_enum' ("$($r.rc)|$($r.first)") "2|$firstLine"
-$r = RunRfq $badHeader (Join-Path $rfqDeal 'RFQ.md')
-Check 'rfq-record bad_header_stage' ("$($r.rc)|$($r.first)") "2|$firstLine"
-$r = RunRfq $badStatus (Join-Path $rfqOther 'RFQ.md')
-Check 'rfq-record not_an_rfq_path' ("$($r.rc)|$($r.first)") '0|'
-# Windows backslash path: Join-Path already yields backslashes on Windows.
-$r = RunRfq $badStatus ((Join-Path $rfqDeal 'RFQ.md').Replace('/', '\'))
-Check 'rfq-record windows_backslash_path' ("$($r.rc)|$($r.first)") "2|$firstLine"
-$r = RunRfq $v1 (Join-Path $rfqDeal 'RFQ.md')
-Check 'rfq-record v1_record passes with notice' ("$($r.rc)|$($r.first)|$($r.out -match 'legacy format' -and $r.out -match 'migrate')") '0||True'
-$quoted = $good.Replace("## Flags`n", "## Flags`n`nOld header: ``| Stage | State | Date |``.`n")
-$r = RunRfq $quoted (Join-Path $rfqDeal 'RFQ.md')
-Check 'rfq-record v2_quotes_v1_header accepted' ("$($r.rc)|$($r.first)|$($r.out)") '0||'
-$legacy = ($good -replace '(?s)\n## Status.*$', "`n") -replace '\*\*Stage:\*\*[^\n]*\n', ''
-$r = RunRfq $legacy (Join-Path $rfqDeal 'RFQ.md')
-Check 'rfq-record legacy_no_status_section passes with notice' ("$($r.rc)|$($r.first)|$($r.out -match 'legacy format')") '0||True'
-$brokenStatus = $good.Replace('| Stage | Date | Evidence |', '| Stage | When | Evidence |')
-$r = RunRfq $brokenStatus (Join-Path $rfqDeal 'RFQ.md')
-Check 'rfq-record v2_with_stage_but_broken_status rejected' ("$($r.rc)") '2'
+Check 'rfq-record ps: notice for an RFQ.md in the tree' (RunRfq (Join-Path $rfqDeal 'RFQ.md')) "0||False|$rfqNotice"
+Check 'rfq-record ps: silent outside the tree' (RunRfq (Join-Path $rfqOther 'RFQ.md')) '0||False|'
+Check 'rfq-record ps: silent for another file in the tree' (RunRfq (Join-Path $rfqDeal 'notes.md')) '0||False|'
 
 Remove-Item -Recurse -Force $root
 Write-Host ""

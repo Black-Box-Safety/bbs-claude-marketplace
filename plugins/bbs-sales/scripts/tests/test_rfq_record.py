@@ -1,10 +1,14 @@
 import json
 import os
 import re
+import sys
 import tempfile
 import unittest
 
-import rfq_record
+# Run from anywhere, including CI's `python3 -m unittest discover -s plugins/bbs-sales/scripts/tests`.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import rfq_record  # noqa: E402
 
 
 FIX = os.path.join(os.path.dirname(__file__), "fixtures")

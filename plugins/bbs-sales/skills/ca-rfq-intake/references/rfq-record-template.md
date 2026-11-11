@@ -15,7 +15,7 @@ Stages, line stages and strategies are the enums in `rfq-record-v2.md`; the hook
 
 **Due:** <date time TZ>          **Submit via:** <email address | portal | their sheet>
 **Solicitation #:** <number, or "none issued — reference BBS quote">
-**Vehicle:** <NASPO ValuePoint 07-25-51-02.3 | DGS BPO | competitive>
+**Vehicle:** <NASPO MRO LPA 7-25-51-02.03 | DGS BPO | competitive>
 **Pricing rule:** <at cost, no markup | bid — margin is the rep's call>
 **Rep:** <Kim Quezon | Aanya Samarasinghe>
 **CRM RFQ:** <RFQ-00xxxx | [not in CRM]>

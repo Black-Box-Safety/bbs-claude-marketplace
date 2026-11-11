@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """PostToolUse hook: validate an RFQ.md under "All RFQ's by Agency" and compile rfq-state.json.
 
-The Python half of rfq-record-hook.ps1. Reads the hook JSON on stdin. Acts only when
+Reads the hook JSON on stdin. Acts only when
 tool_input.file_path, backslashes turned to slashes, contains "/All RFQ's by Agency/" and ends
 with "/RFQ.md"; anything else exits 0 silently.
 
@@ -9,9 +9,10 @@ A v1 record (Status header "| Stage | State | Date |" inside the ## Status secti
 no sidecar, stdout {"systemMessage": ...} telling the rep to try `migrate --dry-run`.
 On a parse or validation failure: stderr "bbs-sales rfq-record: <n> problem(s) in RFQ.md", then
 one problem per line, exit 2 (PostToolUse stderr is fed back to Claude). On success it writes
-rfq-state.json beside the record and exits 0 silently. The PowerShell twin checks shape only and
-writes nothing; the two agree on pass/fail and on the first stderr line (hooks/tests/parity.py).
-Change both or neither. Stdlib only. Fails open on unreadable input.
+rfq-state.json beside the record and exits 0 silently. This is the ONLY validator: hooks.json runs
+python3 first, and rfq-record-hook.ps1 (run only when python3 is missing) validates nothing and
+returns a "needs python3; this edit was not checked" notice instead. Stdlib only. Fails open on
+unreadable input.
 """
 import json
 import os
