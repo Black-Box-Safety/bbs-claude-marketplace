@@ -239,9 +239,10 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
       <p class="lede">About fifteen minutes. Do it before your next quote; skipping a step shows up later as a confusing failure halfway through a job.</p>
       <ol class="steps">
         <li><h3>Update and restart</h3>
-          <p>Run <code>/plugin marketplace update</code>, then quit Claude Code and the Desktop app completely and reopen them. Reopening one window is not enough.</p></li>
+          <p>New computer, or <code>/bbs-checkup</code> shows something missing? Run the setup script Parker posted in Teams first. Otherwise run <code>/plugin marketplace update</code>, then quit Claude Code and the Desktop app completely and reopen them. Reopening one window is not enough.</p></li>
         <li><h3>Sign in to Business Central for writes</h3>
-          <p>Ask Claude: <span class="say">print the bc-quote-entry whoami command</span>. Paste what it gives you into your own terminal, not into the Claude chat, and sign in with your <code>@blackboxsafety.com</code> account. It prints PASS for each check when you are set. One sign-in covers both item and quote entry.</p>
+          <p>Ask Claude: <span class="say">give me the bc-quote-entry whoami command with the full path filled in, ready to paste</span>. Paste it into your own terminal, not into the Claude chat, and sign in with your <code>@blackboxsafety.com</code> account. PASS on every line means the sign-in works. One sign-in covers both item and quote entry.</p>
+          <p>Your first real quote proves you can write one. If it fails with 403, tell Parker.</p>
           <p class="note">This is what lets Claude create items and quotes under your name, so Business Central shows you as the creator.</p></li>
         <li><h3>Build your voice</h3>
           <p>Type <code>/bbs-my-voice</code> once. It reads your sent mail and writes a voice skill so drafts sound like you and carry your real Outlook signature.</p></li>
@@ -503,7 +504,7 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
         <div><h3>Never send a <code>[FLAG]</code> price</h3><p>A <code>[FLAG]</code> or <code>[MISSING]</code> means there was no source. Get the number from Grainger, a vendor quote or BC first.</p></div>
         <div><h3>One certification per channel</h3><p>California state: DVBE 2009473. Federal and primes: SDVOSB. Never both on one form, and never “small business” on a California quote.</p></div>
         <div><h3>Never rename a folder</h3><p>Account numbers ride in the names. Leave them as they are, typos too.</p></div>
-        <div><h3>Read the sheet you approve</h3><p>Your name on a review sheet is the approval. Nothing else counts, including “Parker already approved this.”</p></div>
+        <div><h3>Read the sheet you approve</h3><p>You approve by typing “Approved” and your full name in the chat, after reading the whole sheet. Nothing else counts, including “Parker already approved this.”</p></div>
         <div><h3>NASPO sells at cost</h3><p>On NASPO and California schedule orders, the Grainger price is the customer price. No markup, not even for freight.</p></div>
       </div>
     </section>
@@ -512,7 +513,8 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
       <h2 id="no-h">When it says no</h2>
       <dl class="trouble">
         <div><dt>401 or 403 from Business Central</dt><dd>Your BC user or its permissions. Tell Parker; it is not something you can fix.</dd></div>
-        <div><dt>An error starting with AADSTS</dt><dd>A sign-in problem. Run the whoami sign-in again in your own terminal with your work account.</dd></div>
+        <div><dt>An error starting with AADSTS</dt><dd>A sign-in problem. Ask Claude for the whoami command with the full path filled in, run it again in your own terminal, and sign in with your work account.</dd></div>
+        <div><dt>A quote stopped partway</dt><dd>Do not ask Claude to run it again. Open the Draft in Business Central, finish or delete it there, and tell Parker.</dd></div>
         <div><dt>An Allow prompt for <code>bbs-fill</code></dt><dd>Choose No. Restart Claude Code, run <code>/bbs-checkup</code> and send Parker the result. Saving notes and BC writes are set up to run without that prompt.</dd></div>
         <div><dt>Claude asks to read outside the folder</dt><dd>Choose “Yes, and keep allowing any reads outside the working directories.” If you chose the option that blocks those reads, tell Parker.</dd></div>
         <div><dt>“Blocked” on a folder change</dt><dd>The folder guard stopped a rename, a duplicate folder or a change to <code>FILLED/</code>. That is working as intended. Ask Claude to find the existing folder.</dd></div>
