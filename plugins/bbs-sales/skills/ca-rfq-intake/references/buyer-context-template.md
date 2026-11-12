@@ -54,9 +54,9 @@ settled picture of the buyer; `LEARNED.md` is where new things land first.
 ```
 
 One row per request. Row order does not matter: the desk-context hook sorts by the Date
-cell (`M.D.YY` or `YYYY-MM-DD`) and shows the newest first. Outcome is `sent` or one of the final
-outcomes in `rfq-record-v2.md` (`won`, `lost`, `no answer`, `no bid`, `cancelled`). Name the source in the cell (`won - SO <number> per BC <date>`), and give `lost`
-a clause on why, because that's the row the next quote learns from. A row older than 30 days
+cell (`M.D.YY` or `YYYY-MM-DD`) and shows the newest first. Outcome is `sent` or a final outcome
+from `rfq-record-v2.md` in the `ca-rfq-intake` skill. Name the source in the cell
+(`won - SO <number> per BC <date>`), and give `lost` a clause on why, because that's the row the next quote learns from. A row older than 30 days
 that still says `sent` is listed for close-out on the first write in this buyer's next deal
 folder; if the outcome can't be sourced from Business Central or this folder, write
 `[FLAG: why]` in the cell, never a guess.

@@ -135,7 +135,7 @@ QUOTE_LOG = """# Quote log — {buyer}
 | Date | Item | Quote # | Vehicle | Value | Outcome |
 |---|---|---|---|---|---|
 
-Outcome is `sent`, `won`, `lost`, `no answer`, `no bid`, or `cancelled`. On a loss, add a clause on why —
+Outcome is `sent` or a final outcome from rfq-record-v2.md (ca-rfq-intake skill). On a loss, add a clause on why —
 that is the row the next quote learns from.
 """
 
