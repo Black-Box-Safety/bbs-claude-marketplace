@@ -1,6 +1,6 @@
 # SAM.gov opportunities skill — plan
 
-Spec: `docs/superpowers/specs/2026-10-02-sam-gov-opportunities-design.md`.
+Spec: `docs/archive/superpowers/specs/2026-10-02-sam-gov-opportunities-design.md`.
 
 ## PR 1 (review side): registry entry
 

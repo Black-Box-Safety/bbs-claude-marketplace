@@ -1,7 +1,7 @@
 # Skill Dependency Declaration — Plan
 
 **Date:** 2026-09-16
-**Spec:** `docs/superpowers/specs/2026-09-16-skill-dependency-declaration-design.md`
+**Spec:** `docs/archive/superpowers/specs/2026-09-16-skill-dependency-declaration-design.md`
 **Slice:** `docs/STEWARD.md` §5 — Dependency completeness
 **Branch:** `claude/slice-5-dependency-declaration`
 

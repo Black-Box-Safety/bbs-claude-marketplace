@@ -64,7 +64,7 @@ practice. Both are certification or pricing rulings on binding documents.
 - **SB checkbox on CDCR Packet B — RULED 2026-09-22.** Parker ruled in session that OSDS
   2009473 carries DVBE only and BBS is not a California small business, having exceeded the
   state SB revenue threshold. The box is **`/Off`**, which is what `fill_obs_packet.py:138`
-  already writes and what `docs/superpowers/specs/2026-09-16-ca-form-filler-packet-profiles-design.md:111`
+  already writes and what `docs/archive/superpowers/specs/2026-09-16-ca-form-filler-packet-profiles-design.md:111`
   specifies. Closed — `/ca-rfq` Gate 1 no longer stops on it. Fact and reasoning:
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`,
   "Small-business status is channel-dependent".
@@ -203,6 +203,12 @@ For anything that is a build rather than an edit, write the spec to
 `docs/superpowers/specs/` and the plan to `docs/superpowers/plans/` before implementing,
 and reference both from the PR. The repo already works this way.
 
+When the work a spec and plan describe is finished (its last PR merged, or the work
+dropped), move both to `docs/archive/superpowers/` in the next docs PR and repoint every
+live link to them in the same PR. A spec whose work is still open stays in
+`docs/superpowers/`. RULED 2026-11-12, Parker, in session: "Yes do both", answering whether
+to add this rule; the archive layout is the one #91 chose.
+
 Full `superpowers` is ruled **Parker-only** (`docs/COMMONS.md`) because its session hook
 injects a large mandatory block. Steward sessions may use it; never push it to rep
 installs.
@@ -266,6 +272,14 @@ Write it up with evidence and move to the next slice. Do not idle.
 
   **Open actions for Parker:** item 10 (admin console); delete the throwaway artifact "SPIKE
   Decisions DB Test" when convenient.
+- **`bbs-fill` into `bbs-sales`, gated by a hook; `bbs-tools` retired — RULED 2026-11-11.**
+  Parker, in session: "Yes … to the tools fix as a separate slice". It approves moving the
+  launcher out of `bbs-tools`' top-level `bin/` (claude.ai org sync rejects one) into
+  `bbs-sales/scripts/`, replacing the PATH-name allow rule with a vetted-command PreToolUse
+  hook (`fill-gate`), and retiring `bbs-tools`. Shipped as two PRs, which is sequencing inside
+  this ruling (Rex, review of #85 at 8eff944): PR A (launcher, hook, skills) and PR B
+  (retirement and re-paste, after `/bbs-checkup` check 12 passes on a rep machine). Design:
+  `docs/superpowers/specs/2026-11-11-bbs-fill-into-bbs-sales.md`.
 - **`bbs-quote-builder` retired; items then quotes in BC — RULED 2026-11-11.** Parker, in
   session, 2026-11-11: "I want to get rid of bbs quote builder and give reps the ability to
   make items then quotes in BC. That has been working." Relayed by the steward and confirmed
@@ -834,6 +848,9 @@ Write it up with evidence and move to the next slice. Do not idle.
   `.claude/agents/steward.md`, this file and `AGENTS.md` (Rex's open question M1); all four
   now say agents never merge and Parker merges in the UI. **Open action for Parker:**
   re-paste managed settings in the admin console; until then the deny reaches no machine.
+  *(Re-pasted 2026-11-12 (Parker: "managed settings are in").)*
+  - Pointer: a bounded exception ran 2026-11-11 to the 2026-11-12 re-paste — see "Steward
+    merge authority for the 2026-11-10/11 queue — RULED 2026-11-11", below.
 - **R2. Quote creation in Business Central through `bc-quote-entry` (#68) is allowed —
   RULED 2026-11-10.** Adopted recommendation (with "Follow recommendations…"): "Yes. Record it on main and add `bc-quote-entry` to the organization
   instruction. It only creates the quote and its lines; it never releases, sends, converts
@@ -956,7 +973,7 @@ Write it up with evidence and move to the next slice. Do not idle.
   - **PRs.** Both registry entries (`sam-gov`, `usaspending`) are in the review-side PR
     [Black-Box-Safety/bbs-claude-marketplace#51](https://github.com/Black-Box-Safety/bbs-claude-marketplace/pull/51).
     The skills PR is stacked on it.
-  - **Design.** `docs/superpowers/specs/2026-10-02-sam-gov-opportunities-design.md`.
+  - **Design.** `docs/archive/superpowers/specs/2026-10-02-sam-gov-opportunities-design.md`.
 
   Parker's rulings, in session, 2026-10-02:
   - **(a) USAspending comes into the marketplace.** "I want it to incorporate and create a
@@ -1089,10 +1106,80 @@ Write it up with evidence and move to the next slice. Do not idle.
   2026-10-02): "I approve the deny list changes" (payroll, ~~Vercel, Supabase~~; Rex E1;
   the Vercel and Supabase part *Superseded by R9, 2026-11-10*), and
   Microsoft 365 is assigned to Rachelle ("yes it is assigned").
+- **Archive order: #87 before #91 — RULED 2026-11-12.** Parker, in session, chose to keep
+  #91 and close #92 ("keep 91, close 92"), then "Yes do both" to merging #87 (bbs-sales
+  0.16.0) before the archive PR. #87 adds links to the bbs-fill-into-bbs-sales spec and
+  plan, so #91 is rebased on #87 and checked for those links before Parker merges it. The
+  rule for when a spec is archived is under "Build discipline".
+  **Outcome, 2026-11-12:** the order did not hold. #91 merged at 18:21 UTC and #93 at
+  18:23, both before #87. Nothing broke: #91 left the bbs-fill-into-bbs-sales spec and plan
+  in `docs/superpowers/` (their work is still open, so the Build discipline rule keeps them
+  there), and every docs path #87 adds resolves on `main` plus #87 (Rex, check of
+  `merge-tree`). #87 then merged `main` in and carries this note.
 - **Sessions start on Opus at medium effort — RULED 2026-11-12.** Parker, in session:
   "make sure all sessions are starting with opus on medium as default. Fable just crushed my
   tokens". Managed settings set `model: "opus"` and `effortLevel: "medium"`; the five
   `.claude/agents/` definitions run at `effort: medium`. A default, not a lock.
+- **Steward merge authority for the 2026-11-10/11 queue — RULED 2026-11-11; ended
+  2026-11-12.** Parker, in the steward session: "Once Rex reviews, I want you to merge them if
+  they are ready and in the best order", "merge 68 when Rex clears it", and "merge the rest as
+  Rex clears them too". What it covered: the steward squash-merged the Rex-cleared PRs #83,
+  #74, #71, #53, #77, #76 and #72, each at its cleared head. It was bounded to that queue and
+  ended once the R1 managed-settings deny went live: Parker, in the steward session on
+  2026-11-12, after the steward sent him the file from `main` `5ae15f3` (#86): "managed
+  settings are in". From then on R1 holds without exception: Parker merges in the GitHub UI.
+  **Still open:** the live test of that paste — a payroll read is blocked, a Vercel purchase
+  asks, and a new session opens on Opus at medium.
+- **BC writers: Kim, Aanya, Griffin and Joey — RULED 2026-11-11.** Parker, in the steward session: "Kim, Aanya, griffin and Joey should have
+  write permission matching the skills we ahve". Asked how reps connect to BC — "(a) Each rep
+  signs in through the app (delegated) — BC records the rep as creator; rep's own BC
+  permissions matter" or "(b) The app writes as itself (app-only, the app's secret)" — he
+  answered: "One we are doing a I am getting confused". On quote writes, his words: "no reps
+  have write BC quote permission, it has been workign", then "becuase they are on the same API
+  connection through the app". So Parker reports quote writes working; as item (b) of the #68
+  entry above says, the first live delegated quote commit under a rep's own BC permissions is
+  what confirms it, and that item stays open. **Connection method:** asked again on
+  2026-11-12, Parker said "I can't remember how we have it set up, I haven't changed it",
+  then "I have to click a Microsoft auth on my profile I know that". An interactive Microsoft
+  sign-in under his own profile is delegated sign-in, so the method is recorded as (a),
+  delegated, which is what `rep-setup.md` and the 2026-10-14 ruling expect. The "same API
+  connection through the app" sentence above does not change that; each rep's own `whoami`
+  printing their own work account confirms (a) for that rep. Still to confirm per rep: item rights, and each
+  rep's one-time `whoami`. Setup and the confirmation steps:
+  `plugins/bbs-sales/skills/bc-item-entry/references/rep-setup.md`.
+- **Folders become the statement of record — RULED 2026-11-12.** Parker, in the session that
+  built the sales handbook (PR #88): "The dashboard and quote log should be connected. I want
+  to move from the CRM being the statement of record to our folders." This decides item 9.1
+  of the folder-first RFQ pipeline spec (cited from #77; original on SharePoint under State of
+  CA Agencies `docs/superpowers/specs/`, scrubbed repo copy
+  `docs/superpowers/specs/2026-10-30-rfq-pipeline-folder-first-design.md`, section 9 item 1).
+  **Open action:** update `ca-state-sales-grounding`, the desk `CLAUDE.md`, and every file
+  that names Dynamics/the CRM as the pipeline record. Not done in the PR that recorded this.
+  `git grep -n -i "statement of record\|pipeline of record\|system of record for pipeline\|Dynamics 365 for pipeline"`
+  on 2026-11-12 finds:
+  - `REGISTRY.md:28` — CRM connector row, "pipeline of record"
+  - `docs/CURSOR-SETUP.md:92` — "BBS Sales CRM MCP (pipeline of record)"
+  - `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md:110` — CRM row, "Pipeline of record"
+  - `plugins/bbs-foundations/docs/bbs-managed-settings.json:196` — `claudeMd`, "Dynamics 365
+    for pipeline" (needs Parker's re-paste after the change)
+  - `scripts/check_marketplace.py:598` — comment, "the pipeline of record" (review side)
+
+  `ca-state-sales-grounding` is account-synced through Parker's claude.ai and is not in git
+  (`plugins/bbs-sales/README.md`), so a grep cannot see it; Parker updates it in claude.ai. The grep finds no hit in `workspace/DESK-CLAUDE-template.md`; check its CRM wording by
+  hand when the update runs.
+- **Open actions for Parker — listed 2026-11-12.**
+  - Restamp the SharePoint desk-root `CLAUDE.md` from `workspace/DESK-CLAUDE-template.md`; it
+    still names the retired `/ca-rfq-log` and `/ca-rfq-quote`. Already open as R7 item 4,
+    above.
+  - Delete the account-synced `bbs-quote-builder` copy in claude.ai. Already open under
+    "`bbs-quote-builder` retired; items then quotes in BC — RULED 2026-11-11", above.
+  - Run the routing eval owed on `bc-quote-entry`. Already open under "Quote creation moves
+    into Business Central — RULED 2026-10-16; the skill is #68", above ("a full run on the
+    final description is still owed").
+  - Refresh `models.json` (stale since 2026-09-15; it still lists `claude-opus-5`) via
+    `refresh_models.py` or `.github/workflows/refresh-models.yml`.
+  - Review-side checker gaps for Cursor to add: a plugin missing its `description`, and canon
+    strings repeated in shipped `.html` assets.
 - **Rachelle does not sign through Claude — RULED 2026-10-02.** Parker, in session, in the
   brief for her team-rollout card: "Signing stays off her page. Rachelle does not sign
   through Claude. Leave out packets, signing and form filling." She is not one of the R1a
@@ -1103,4 +1190,4 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-10-02; rulings register updated 2026-11-10.
+Owner: Parker Marshall. Last verified 2026-10-02; rulings register updated 2026-11-12.

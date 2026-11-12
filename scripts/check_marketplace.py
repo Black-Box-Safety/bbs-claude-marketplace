@@ -52,18 +52,18 @@ NONPORTABLE = [
 ]
 
 # Documentation that records history rather than instructing a skill.
-ARCHIVE_DIRS = ("docs/superpowers/", "docs/assessments/", "docs/evals/results-")
+ARCHIVE_DIRS = ("docs/superpowers/", "docs/archive/", "docs/assessments/", "docs/evals/results-")
 
 # Session and cutover records. Their job is to describe defects — naming a bad
 # path or a retired skill is the content, not a bug. Exempted from the scans
 # that look for those, consistently, rather than by piling special-case words
 # into the counter-example regex.
-NARRATIVE = ("HANDOFF.md", "docs/SESSION-HANDOFF")
+NARRATIVE = ("HANDOFF.md", "docs/SESSION-HANDOFF", "docs/archive/session-handoffs/")
 
 
 def is_narrative(path):
     r = rel(path)
-    return r == "HANDOFF.md" or r.startswith("docs/SESSION-HANDOFF")
+    return r == "HANDOFF.md" or r.startswith(("docs/SESSION-HANDOFF", "docs/archive/session-handoffs/"))
 
 # A line that names a bad value in order to warn about it is correct content, not
 # a defect. Without this the checker flags its own fixes and gets ignored, which

@@ -17,7 +17,7 @@
 | `MARKETING/bbs-marketing/` | Local git repo on the SharePoint desk. No GitHub remote. Brand registry, rights ledger, `brand_check.py`, and six real program folders. `templates/`, `company/`, and `archive/` are empty. `CLAUDE.md` still says `programs/` holds only a `_TEMPLATE`. |
 | `MARKETING/claude-marketing/joey-marketing/` | Joey's `csu-marketing` skill. Its own `CLAUDE.md` says live work moved to `bbs-marketing` and this kit is read-only. Paths inside the skill still point at a retired `claude-csu/` tree. |
 | `plugins/bbs-sales/skills/grainger-promo-page/` | The live promo-page skill. A second copy sits in `bbs-marketing/.claude/skills/bbs-grainger-promo-page/`. |
-| `docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md` § Marketing desk | Already calls for a `bbs-marketing` plugin, a root `CLAUDE.md`, Joey's skill as the seed, and moving `grainger-promo-page` in v1.1. |
+| `docs/archive/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md` § Marketing desk | Already calls for a `bbs-marketing` plugin, a root `CLAUDE.md`, Joey's skill as the seed, and moving `grainger-promo-page` in v1.1. |
 | ICM paper, §3.1–3.3 | Five principles and a five-layer folder. Sequential, human-reviewed, repeatable work. Local scripts for the parts that are not judgment. |
 
 ## What a rep can do when this ships

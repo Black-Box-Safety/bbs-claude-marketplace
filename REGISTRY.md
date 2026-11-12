@@ -23,7 +23,7 @@ Last verified: 2026-09-18 (workspace catalog: quote desk, web, admin).
 | `bbs-rfq-automation` | **parked** | Dataverse app is not the rep destination; ruled invariants live in doctrine |
 | `bbs-agent` | **archived** | FY2026 campaign over; one commit |
 | `BBS-ICM-Sales` | **archived** | Unmodified public fork; idea absorbed |
-| BC MCP (Custom API) connector | **canon** | Interim Business Central access until Microsoft's official BC MCP is usable in Claude Code; swap list in `docs/superpowers/plans/2026-09-13-v1.1-backlog.md` |
+| BC MCP (Custom API) connector | **canon** | Interim Business Central access until Microsoft's official BC MCP is usable in Claude Code; swap list in `docs/archive/superpowers/plans/2026-09-13-v1.1-backlog.md` |
 | BC Chat Connector | **archived** | Retired 2026-09-13; redundant with BC MCP (Custom API). Remove from admin-console assignments |
 | BBS Sales CRM MCP connector | **canon** | Assigned to everyone (ruled 2026-09-13); pipeline of record |
 | Commons (pinned third-party plugins) | **canon** | `docs/COMMONS.md`; entries in `marketplace.json` under `category: commons`; refreshed quarterly |

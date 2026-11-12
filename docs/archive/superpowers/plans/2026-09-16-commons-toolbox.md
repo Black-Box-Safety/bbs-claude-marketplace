@@ -1,6 +1,6 @@
 # Plan — commons toolbox
 
-*Spec: `docs/superpowers/specs/2026-09-16-commons-toolbox-design.md`. Branch:
+*Spec: `docs/archive/superpowers/specs/2026-09-16-commons-toolbox-design.md`. Branch:
 `claude/commons-toolbox`, off `origin/main`.*
 
 ---
