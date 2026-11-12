@@ -11,7 +11,7 @@ description: >-
   is review-side. It proposes and opens a PR; it never merges, and it never writes a pin
   it did not read off the upstream.
 model: opus
-effort: high
+effort: medium
 memory: project
 color: teal
 ---

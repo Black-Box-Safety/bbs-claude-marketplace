@@ -201,6 +201,8 @@
     "Humans send quotes. Everything Claude drafts is a draft until a rep reviews it.",
     "Run /bbs-my-voice once so drafts sound like you, not like a chatbot."
   ],
+  "model": "opus",
+  "effortLevel": "medium",
   "autoUpdatesChannel": "stable",
   "cleanupPeriodDays": 60
 }
