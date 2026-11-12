@@ -1,6 +1,6 @@
 # bbs-quote-builder: Business Central SQ numbers — plan
 
-Spec: `docs/superpowers/specs/2026-09-28-quote-builder-bc-sq.md`. Branch
+Spec: `docs/archive/superpowers/specs/2026-09-28-quote-builder-bc-sq.md`. Branch
 `claude/quote-builder-bc-sq` off `origin/main` at `eccbab0`. Ends at a PR, not a merge.
 Not touched (another worker records the ruling there): `docs/STEWARD.md`,
 `canonical-facts.md`, `ca-form-rules.md`, `vendor_profile.json`.

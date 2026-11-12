@@ -16,7 +16,7 @@
 > session: a shared Sales card (Kim, Aanya, Joey, Griffin), a supplier-scout row, Griffin's
 > federal deck row, and SAM.gov under Coming next for Kim and Griffin. The page source
 > (`bbs-claude-toolkit.html`) is the current truth; what changed and what is still open is in
-> `docs/SESSION-HANDOFF-2026-10-01.md`. Re-running this prompt as written would drop Sales.
+> `docs/archive/session-handoffs/SESSION-HANDOFF-2026-10-01.md`. Re-running this prompt as written would drop Sales.
 >
 > **2026-10-02:** Rachelle's card (Admin and coordination, `#rachelle`) was added at Parker's
 > direction. She works in Jackson's mailbox and calendar too, which is Not built yet. Her

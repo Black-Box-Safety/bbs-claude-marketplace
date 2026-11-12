@@ -4,7 +4,7 @@
 Mac / work desktop) and are not in this machine's conversation archive (exhaustively
 searched: vector + text + raw grep, zero hits). This debrief is reconstructed from
 artifacts: skill files, repo trees, and commit messages. Companion to
-`docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md`.
+`docs/archive/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md`.
 
 ## Timeline (reconstructed)
 

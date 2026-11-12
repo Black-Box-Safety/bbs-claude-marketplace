@@ -182,7 +182,7 @@ installed.
 - the two `doctrine.ps1` copies differ, or the two `doctrine.py` copies differ.
 
 A new repo-wide scan, `retired_plugin_ref`, FAILs on the literal `skill-bus` anywhere
-outside `docs/superpowers/` and `docs/SESSION-HANDOFF-*` unless the mention is a
+outside `docs/superpowers/` and `docs/archive/session-handoffs/SESSION-HANDOFF-*` unless the mention is a
 counter-example. For this scan the qualifier must be **in the same sentence** as the name
 (split on `.`, `!`, `?`), not merely within the usual 200-character proximity: "Never guess
 a price. Then run /skill-bus:onboard to finish." is an instruction to run it and FAILs.
@@ -213,7 +213,7 @@ the two `hooks.json` files parse and the four doctrine files exist instead of lo
 `~/.claude/skill-bus.json`; check 1 no longer lists skill-bus as a plugin. `docs/STEWARD.md`
 records the ruling as resolved and opens the one thing a repo change cannot do; the admin
 runbook gets the per-machine uninstall steps. `docs/superpowers/` and
-`docs/SESSION-HANDOFF-2026-09-15.md` stay as history and are not edited.
+`docs/archive/session-handoffs/SESSION-HANDOFF-2026-09-15.md` stay as history and are not edited.
 
 ## Not in scope
 

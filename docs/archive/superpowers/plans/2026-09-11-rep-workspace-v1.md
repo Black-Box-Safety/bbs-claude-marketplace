@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the deployable v1 of the rep workspace — everything a Black Box Safety sales rep's machine needs, distributed via this marketplace repo and org managed settings, per `docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md`.
+**Goal:** Build the deployable v1 of the rep workspace — everything a Black Box Safety sales rep's machine needs, distributed via this marketplace repo and org managed settings, per `docs/archive/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md`.
 
 **Architecture:** All artifacts live in `bbs-claude-marketplace` (the canon). Rep machines receive them through two channels: server-managed settings pushed from the Claude admin console (permissions, company memory, plugin enablement) and marketplace plugins auto-updating from git. The rep's working surface is a versioned `.code-workspace` pointed at the OneDrive-synced SharePoint desk. Nothing is hand-configured per machine.
 
@@ -757,7 +757,7 @@ git commit -m "feat(docs): ADMIN-CLEANUP — one-time secrets/marketplace/skills
 
 **Files:**
 - Modify: `README.md` (root) — add rep-workspace pointers
-- Modify: `docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md` — status line
+- Modify: `docs/archive/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md` — status line
 
 - [ ] **Step 1: Edit root `README.md`** — after the existing "Setting it up (admins)" section, insert:
 
@@ -769,7 +769,7 @@ Sales reps: your entire setup is `docs/REP-SETUP.md` (~20 min). The VS Code work
 
 Admins: `docs/ADMIN-RUNBOOK.md` (deploy + operate), `docs/MEASUREMENT.md` (the 8 numbers),
 `docs/ADMIN-CLEANUP.md` (one-time hygiene), `REGISTRY.md` (what's canon vs archived).
-Design: `docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md`.
+Design: `docs/archive/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md`.
 ```
 
 - [ ] **Step 2: Update the spec header** status field to: `**Status:** v1 built (this repo, 2026-09-11) — deployment checklist: docs/ADMIN-RUNBOOK.md §0–§3`
@@ -796,7 +796,7 @@ Run: `python -m json.tool .claude-plugin/marketplace.json > /dev/null` and same 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add README.md docs/acceptance/README.md docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md
+git add README.md docs/acceptance/README.md docs/archive/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md
 git commit -m "docs: wire rep-desk docs into root README; acceptance folder; spec status → v1 built"
 ```
 
@@ -892,4 +892,4 @@ compliance and quality by a fresh-context agent.
   is a no-op (harmless, left as authored).
 - **Session rulings and proposals** (bbs-commons, full browser access, supplier-scout via
   Firecrawl, CLI tools, 13 hook candidates, headless runner, budget lens) live in
-  `docs/superpowers/plans/2026-09-13-v1.1-backlog.md`.
+  `docs/archive/superpowers/plans/2026-09-13-v1.1-backlog.md`.

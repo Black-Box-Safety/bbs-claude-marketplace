@@ -223,7 +223,7 @@ Managed settings ([`plugins/bbs-foundations/docs/bbs-managed-settings.json`](plu
 | The admin | [`docs/ADMIN-RUNBOOK.md`](docs/ADMIN-RUNBOOK.md) §0 → §3a | One morning |
 | Parker, trying Cursor (future; not rep onboarding) | [`docs/CURSOR-SETUP.md`](docs/CURSOR-SETUP.md) | As needed |
 | Maintaining the website | [`workspace/README.md`](workspace/README.md) (open `bbs-web`), then [`plugins/bbs-website/README.md`](plugins/bbs-website/README.md) and `/bbs-onboard` | ~15 min |
-| Changing a skill | [`plugins/bbs-website/docs/CONTRIBUTING.md`](plugins/bbs-website/docs/CONTRIBUTING.md) and the [design spec](docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md) | As needed |
+| Changing a skill | [`plugins/bbs-website/docs/CONTRIBUTING.md`](plugins/bbs-website/docs/CONTRIBUTING.md) and the [design spec](docs/archive/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md) | As needed |
 
 ## Repo layout
 

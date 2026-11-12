@@ -1,6 +1,6 @@
 # Plan — `/ca-rfq`, one orchestration contract
 
-*Spec: `docs/superpowers/specs/2026-09-16-ca-rfq-orchestration-design.md`. Branch:
+*Spec: `docs/archive/superpowers/specs/2026-09-16-ca-rfq-orchestration-design.md`. Branch:
 `claude/slice-2-ca-rfq-trigger`, off `origin/main`. Slice 2 of `docs/STEWARD.md`.*
 
 ---
@@ -82,8 +82,8 @@ Constraints held while writing:
 
 **Left alone, deliberately:**
 
-- `docs/superpowers/plans/2026-09-11-rep-workspace-v1.md` and
-  `docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md` — dated build records
+- `docs/archive/superpowers/plans/2026-09-11-rep-workspace-v1.md` and
+  `docs/archive/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md` — dated build records
   inside the checker's own `ARCHIVE_DIRS`. Rewriting a record to match the present is how it
   stops being a record.
 - `plugins/bbs-foundations/docs/bbs-managed-settings.json` — out of scope for this session,

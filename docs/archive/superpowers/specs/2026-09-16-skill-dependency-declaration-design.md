@@ -3,7 +3,7 @@
 **Date:** 2026-09-16
 **Author:** Claude Code (worker session), for Parker Marshall
 **Status:** Proposed — implements `docs/STEWARD.md` slice 5
-**Plan:** `docs/superpowers/plans/2026-09-16-skill-dependency-declaration.md`
+**Plan:** `docs/archive/superpowers/plans/2026-09-16-skill-dependency-declaration.md`
 
 ## Problem
 
