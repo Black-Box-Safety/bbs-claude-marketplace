@@ -9,7 +9,7 @@ description: >-
   signers), or to deploy managed settings — those escalate to Parker. It opens draft PRs
   and stops; it never force-pushes and never vendors third-party code.
 model: opus
-effort: high
+effort: medium
 memory: project
 color: indigo
 ---

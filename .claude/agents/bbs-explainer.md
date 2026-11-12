@@ -12,7 +12,7 @@ description: >-
   implementation prompt for another session. Do NOT use it to build the final artifact
   itself, to write or change skills, or to promise capabilities the repos do not ship.
 model: opus
-effort: high
+effort: medium
 color: teal
 ---
 

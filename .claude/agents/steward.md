@@ -9,7 +9,7 @@ description: >-
   cleared PRs to Parker, who merges each one in the GitHub UI. Do NOT use it to do the work itself — it dispatches and reviews,
   and a steward that writes the change cannot review it.
 model: opus
-effort: high
+effort: medium
 memory: project
 color: gold
 ---

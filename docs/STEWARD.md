@@ -1053,6 +1053,10 @@ Write it up with evidence and move to the next slice. Do not idle.
   2026-10-02): "I approve the deny list changes" (payroll, ~~Vercel, Supabase~~; Rex E1;
   the Vercel and Supabase part *Superseded by R9, 2026-11-10*), and
   Microsoft 365 is assigned to Rachelle ("yes it is assigned").
+- **Sessions start on Opus at medium effort — RULED 2026-11-12.** Parker, in session:
+  "make sure all sessions are starting with opus on medium as default. Fable just crushed my
+  tokens". Managed settings set `model: "opus"` and `effortLevel: "medium"`; the five
+  `.claude/agents/` definitions run at `effort: medium`. A default, not a lock.
 - **Rachelle does not sign through Claude — RULED 2026-10-02.** Parker, in session, in the
   brief for her team-rollout card: "Signing stays off her page. Rachelle does not sign
   through Claude. Leave out packets, signing and form filling." She is not one of the R1a
