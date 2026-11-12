@@ -87,7 +87,7 @@ Sources: <https://code.claude.com/docs/en/plugins/host-marketplace.md> and
   September ("Tonight's slices", PR #12) and the rulings register. Splitting it now would
   conflict with five open PRs that edit it. Split once the queue in §2 drains: the loop
   stays in STEWARD.md, rulings move to `docs/RULINGS.md`, finished slices are deleted.
-- Three `docs/SESSION-HANDOFF-*.md` files and a root `HANDOFF.md` overlap. Fold into one
+- Three `docs/archive/session-handoffs/SESSION-HANDOFF-*.md` files and a root `HANDOFF.md` overlap. Fold into one
   handoff once the personal-copy cutover in `HANDOFF.md` is done.
 
 ---

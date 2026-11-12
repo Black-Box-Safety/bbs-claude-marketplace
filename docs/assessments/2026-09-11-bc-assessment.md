@@ -3,7 +3,7 @@
 **Prepared 2026-09-11 from live read-only BC data (21 API calls), the rep-workspace rollout
 design, MANAGED-SETTINGS.md, and the naspo-quote skill.** Perspective: Microsoft SMB
 solutions architect (BC + AI). Companion to
-`docs/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md`.
+`docs/archive/superpowers/specs/2026-09-11-rep-workspace-rollout-design.md`.
 
 **Environment:** BC Production, company "Black Box Safety, Inc.", El Cajon CA. License
 experience: **Essentials**. Calendar fiscal year, USD. ~150 API v2.0 entity sets exposed

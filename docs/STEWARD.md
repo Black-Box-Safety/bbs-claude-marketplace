@@ -64,7 +64,7 @@ practice. Both are certification or pricing rulings on binding documents.
 - **SB checkbox on CDCR Packet B — RULED 2026-09-22.** Parker ruled in session that OSDS
   2009473 carries DVBE only and BBS is not a California small business, having exceeded the
   state SB revenue threshold. The box is **`/Off`**, which is what `fill_obs_packet.py:138`
-  already writes and what `docs/superpowers/specs/2026-09-16-ca-form-filler-packet-profiles-design.md:111`
+  already writes and what `docs/archive/superpowers/specs/2026-09-16-ca-form-filler-packet-profiles-design.md:111`
   specifies. Closed — `/ca-rfq` Gate 1 no longer stops on it. Fact and reasoning:
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`,
   "Small-business status is channel-dependent".
@@ -915,7 +915,7 @@ Write it up with evidence and move to the next slice. Do not idle.
   - **PRs.** Both registry entries (`sam-gov`, `usaspending`) are in the review-side PR
     [Black-Box-Safety/bbs-claude-marketplace#51](https://github.com/Black-Box-Safety/bbs-claude-marketplace/pull/51).
     The skills PR is stacked on it.
-  - **Design.** `docs/superpowers/specs/2026-10-02-sam-gov-opportunities-design.md`.
+  - **Design.** `docs/archive/superpowers/specs/2026-10-02-sam-gov-opportunities-design.md`.
 
   Parker's rulings, in session, 2026-10-02:
   - **(a) USAspending comes into the marketplace.** "I want it to incorporate and create a

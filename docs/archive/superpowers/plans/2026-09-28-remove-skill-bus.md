@@ -1,6 +1,6 @@
 # Remove skill-bus; doctrine moves to native plugin hooks — plan
 
-Spec: `docs/superpowers/specs/2026-09-28-remove-skill-bus.md`. Branch
+Spec: `docs/archive/superpowers/specs/2026-09-28-remove-skill-bus.md`. Branch
 `claude/remove-skill-bus` off `main` at `6f4ce16`. Ends at a PR, not a merge.
 
 ## 1. Extract the doctrine, byte-for-byte
@@ -64,7 +64,7 @@ skills/site-wiring-map/SKILL.md}`. `CLAUDE.md` / `AGENTS.md` do not mention it.
   item for the per-machine uninstall and the managed-settings re-paste.
 - `docs/ADMIN-RUNBOOK.md`: local uninstall steps; `docs/ADMIN-CLEANUP.md`: the
   marketplace line becomes "remove".
-- Historical: `docs/superpowers/**`, `docs/SESSION-HANDOFF-2026-09-15.md` untouched.
+- Historical: `docs/superpowers/**`, `docs/archive/session-handoffs/SESSION-HANDOFF-2026-09-15.md` untouched.
 
 ## 6. Verify, commit, PR
 

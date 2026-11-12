@@ -1,7 +1,7 @@
 # Spec — `/ca-rfq` as one orchestration contract
 
 *Written 2026-09-16, before implementation. Plan:
-`docs/superpowers/plans/2026-09-16-ca-rfq-orchestration.md`. Slice 2 of `docs/STEWARD.md`.*
+`docs/archive/superpowers/plans/2026-09-16-ca-rfq-orchestration.md`. Slice 2 of `docs/STEWARD.md`.*
 
 ---
 

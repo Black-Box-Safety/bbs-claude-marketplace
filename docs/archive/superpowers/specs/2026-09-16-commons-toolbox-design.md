@@ -1,6 +1,6 @@
 # Spec — the commons as a managed toolbox
 
-*Written 2026-09-16, before implementation. Plan: `docs/superpowers/plans/2026-09-16-commons-toolbox.md`.*
+*Written 2026-09-16, before implementation. Plan: `docs/archive/superpowers/plans/2026-09-16-commons-toolbox.md`.*
 
 ---
 

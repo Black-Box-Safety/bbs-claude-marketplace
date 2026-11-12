@@ -1,6 +1,6 @@
 # Plan — bbs-claude-coach + plugin-github expert
 
-*Spec: `docs/superpowers/specs/2026-09-17-bbs-claude-coach-design.md`. Branch:
+*Spec: `docs/archive/superpowers/specs/2026-09-17-bbs-claude-coach-design.md`. Branch:
 `cursor/bbs-claude-coach-25a0`, off `cursor/toolkit-framework-doc-cdf4`.*
 
 ---
