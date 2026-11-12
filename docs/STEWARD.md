@@ -1097,7 +1097,11 @@ Write it up with evidence and move to the next slice. Do not idle.
   CA Agencies `docs/superpowers/specs/`, scrubbed repo copy
   `docs/superpowers/specs/2026-10-30-rfq-pipeline-folder-first-design.md`, section 9 item 1).
   **Open action:** update `ca-state-sales-grounding`, the desk `CLAUDE.md`, and every file
-  that names Dynamics/the CRM as the pipeline record. Not done in the PR that recorded this.
+  that names Dynamics/the CRM as the pipeline record. Repo files done in the slice 1 PR
+  (`docs/folder-first-canon`) except `scripts/check_marketplace.py:598`, a comment on the
+  review side; still Parker's: `ca-state-sales-grounding` (claude.ai), the desk-root `CLAUDE.md`
+  restamp, and re-pasting the `claudeMd` from `bbs-managed-settings.json` plus the organization
+  instructions line in the admin console.
   `git grep -n -i "statement of record\|pipeline of record\|system of record for pipeline\|Dynamics 365 for pipeline"`
   on 2026-11-12 finds:
   - `REGISTRY.md:28` — CRM connector row, "pipeline of record"

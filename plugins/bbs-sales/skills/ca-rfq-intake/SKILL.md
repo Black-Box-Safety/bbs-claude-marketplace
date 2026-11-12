@@ -88,9 +88,9 @@ run record on day one, not the day before the deadline.
 
 Add a row to `../quote-log.md` in the buyer folder (create from
 `references/buyer-context-template.md` if absent) so the buyer's history stays in one
-readable place. The Supabase `rep_cockpit` pipeline in `ca-quote-hub` remains the
-tracker of record for deadlines across all buyers; this log is the local, human
-version that travels with the documents.
+readable place. The deal folder is the record of working state: `RFQ.md` holds the
+deadline, stage, sent date and outcome, and this log is the buyer-level summary that
+travels with the documents (ruled 2026-11-12; the CRM is a cross-check, not the record).
 
 Then say what you found and what's next — vehicle, deadline, line count, forms, and
 whether anything needs sourcing. Pricing and the cert packet are the `naspo-quote`

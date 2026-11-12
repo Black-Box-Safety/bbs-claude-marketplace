@@ -26,7 +26,7 @@ whole quote set aside. This skill keeps both halves in step.
 
 Work in the buyer's folder under
 `Customers/State of CA Agencies/All RFQ's by Agency/<Agency>/<Institution or Buyer>/<Item M.D.YY>/`.
-That folder is the document store; Supabase `rep_cockpit` is the tracker.
+That folder is the document store and, through its `RFQ.md`, the record of the deal's working state.
 
 ## 1. Read the buyer folder before asking anything
 

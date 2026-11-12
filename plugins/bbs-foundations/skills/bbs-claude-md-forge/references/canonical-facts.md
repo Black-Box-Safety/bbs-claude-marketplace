@@ -142,7 +142,8 @@ to fulfill unless BBS is a named reseller.
 | Revenue dashboard | Supabase `hkogytbgmaucjjaeqrgd` | |
 | Customer documents (RFQs, POs, packets) | **SharePoint** `Black Box Safety - MASTER/Customers/…` | Repos hold pointers and lessons, not the documents |
 | Grainger pricing | **Grainger MCP** — per buying account. The `b2b.blackboxsafety.com` punch-out it replaced is retired | Never the open web; never from memory. Whether a Grainger line is sold at cost depends on the channel — "Grainger sell rule, by channel" below is the one home |
-| Pipeline / outreach | Dynamics 365 Sales | |
+| California state RFQ working state, sent date and outcome included | **Deal folders**: `RFQ.md` (written only through `rfq_record.py`) and the buyer's `quote-log.md` | Ruled 2026-11-12. The Sales CRM is a cross-check, and stays the count source for reports, until Quote Velocity switches to folder sent dates (Parker, 2026-11-12: two weeks of matching counts and 90% of deals with a recorded sent date); then it is history |
+| Pipeline outside the California state desk; outreach | Dynamics 365 Sales | The 2026-11-12 ruling covers the California state RFQ desk |
 | Storefront | Shopify `bbs-supabase-test.myshopify.com`, theme "BBS — Field Manual" | Verify the live theme id with `shopify theme list` before pushing |
 | BBS form values (FEIN, permit, certs) | `plugins/bbs-sales/references/vendor_profile.json` | Skills resolve it as `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` and never re-key it |
 
@@ -249,6 +250,7 @@ marketplace repo, which does not ship to rep machines.
 | Who signs the rep-signed lines (OBS 4007(B)/(C) bidder, Darfur, CalRecycle 74, OBS 1000) | 2026-09-28, widened 2026-10-01 | `ca-form-rules.md`, "Rep-signed lines and delegated signatures" |
 | Grainger sell rule — California state schedules (incl. the NASPO LPA); primes | 2026-09-18 / 2026-09-28 | "Grainger sell rule, by channel", above |
 | Customer quote number | 2026-09-28 | Systems of record, above |
+| Deal folders, not the CRM, are the record of California state RFQ working state | 2026-11-12 | Systems of record, above |
 | Customer quote is created in BC, not rendered in Claude; existing items never re-created | 2026-10-16; `bbs-quote-builder` retired 2026-11-11 | Systems of record, above; `/ca-rfq` Gate 5 |
 | Quote salesperson follows the Kim/Aanya split (KQUEZON / AANYA), never CA STATE TEAM | 2026-10-16; confirmed 2026-11-10 (R4) | Systems of record, above; `/ca-rfq` Gate 5 |
 | Delegated signatures: the six, the limit incl. tax, PNG of record, "complete the packet" is the approval | 2026-10-01 | `ca-form-rules.md`, "Rep-signed lines and delegated signatures" |

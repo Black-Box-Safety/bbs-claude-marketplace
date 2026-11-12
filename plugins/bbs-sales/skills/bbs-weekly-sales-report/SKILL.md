@@ -10,7 +10,7 @@ description: >-
   per-rep question over a week — "how did Aanya do this week", "what did Kim quote", "did we
   submit everything that was due" — because Business Central's salesperson codes cannot
   split Aanya out of a shared bucket and its quote records miss most of the pipeline; the
-  Sales CRM is the pipeline. Do NOT use for a month, quarter or fiscal-year-to-date figure;
+  Sales CRM holds the RFQ counts until the folder switch. Do NOT use for a month, quarter or fiscal-year-to-date figure;
   those are booked-revenue questions for Business Central directly.
 requires: [sales-crm]
 degrades-without: [business-central, microsoft-365]
@@ -41,7 +41,7 @@ split rather than assuming it.
 
 | Connector | Used for | If it is absent |
 |---|---|---|
-| Dataverse / Sales CRM (`crm_list_records`, `crm_get_record`, `crm_list_attributes`) | `bbs_rfqs` — the pipeline, per rep | Stop. Say the pipeline section cannot be produced. Do **not** substitute Business Central quote counts for it; that is the specific error this skill exists to prevent. |
+| Dataverse / Sales CRM (`crm_list_records`, `crm_get_record`, `crm_list_attributes`) | `bbs_rfqs` — the RFQ counts, per rep, until the folder switch | Stop. Say the pipeline section cannot be produced. Do **not** substitute Business Central quote counts for it; that is the specific error this skill exists to prevent. |
 | Business Central (`bc_query_entity`, `bc_get_sales_document`, `bc_describe_entity`) | Booked orders and invoices for the week | Report the pipeline half and mark bookings "data pending". |
 | Outlook (`outlook_email_search`) | Parker's own outbound activity only | Omit the activity note. Never imply coverage of Kim's or Aanya's mail — there is no delegate access to their mailboxes. |
 
@@ -52,7 +52,11 @@ estimating around it.
 
 These are the reasons this skill exists rather than a generic weekly-report routine.
 
-**1. The Sales CRM is the pipeline, not Business Central.** Dataverse `bbs_rfqs`, read
+**1. The Sales CRM, not Business Central, holds the RFQ counts.** Since 2026-11-12 the deal
+folders (`RFQ.md`, `quote-log.md`) are the record of California state RFQ working state,
+sent and outcome included; until Quote Velocity switches to folder sent dates, the CRM stays
+this report's count source, and where a folder outcome and a CRM status disagree, the folder
+wins. Dataverse `bbs_rfqs`, read
 through the Sales CRM connector, is live and Kim and Aanya create records in it
 themselves. Many quotes never reach BC at all, so a BC quote count understates the week's
 pipeline — often badly. Query the CRM for anything about quotes, RFQs or response time.
