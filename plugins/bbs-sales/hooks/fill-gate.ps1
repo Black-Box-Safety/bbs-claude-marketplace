@@ -106,23 +106,25 @@ function Get-Canon([string]$path) {
 }
 
 function Get-Allowed([string]$launcher) {
-  try { $bytes = [IO.File]::ReadAllBytes($launcher) } catch { return $null }
-  if ([Array]::IndexOf($bytes, [byte]13) -ge 0) { return $null }
-  try { $text = (New-Object System.Text.UTF8Encoding($false, $true)).GetString($bytes) } catch { return $null }
-  $lines = $text.Split("`n")
+  try { $text = [IO.File]::ReadAllText($launcher, (New-Object System.Text.UTF8Encoding($false, $true))) }
+  catch { return (Write-Why ('allowed: cannot read ' + $launcher + ': ' + $_.Exception.Message)) }
+  if ($text.IndexOf([char]13) -ge 0) { return (Write-Why 'allowed: the launcher has a CR') }
+  $lines = $text -split "`n"
   $start = -1
-  for ($k = 0; $k -lt $lines.Length; $k++) { if ($lines[$k].Trim() -ceq 'ALLOWED=(') { $start = $k; break } }
-  if ($start -lt 0) { return $null }
+  for ($k = 0; $k -lt $lines.Count; $k++) { if ($lines[$k].Trim() -ceq 'ALLOWED=(') { $start = $k; break } }
+  if ($start -lt 0) { return (Write-Why 'allowed: no ALLOWED=( line') }
   $out = New-Object System.Collections.Generic.List[string]
-  for ($k = $start + 1; $k -lt $lines.Length; $k++) {
+  for ($k = $start + 1; $k -lt $lines.Count; $k++) {
     $s = $lines[$k].Trim()
-    if ($s -ceq ')') { if ($out.Count -gt 0) { return ,$out.ToArray() } else { return $null } }
+    if ($s -ceq ')') {
+      if ($out.Count -gt 0) { return ,$out.ToArray() }
+      return (Write-Why 'allowed: empty list')
+    }
     if ($s.Length -eq 0) { continue }
-    $m = [regex]::Match($s, $ENTRY)
-    if (-not $m.Success) { return $null }
-    $out.Add($m.Groups[1].Value)
+    if ($s -cnotmatch $ENTRY) { return (Write-Why ('allowed: malformed entry ' + $s)) }
+    $out.Add($Matches[1])
   }
-  return $null
+  return (Write-Why 'allowed: no closing )')
 }
 
 function Test-Link([string]$p) {
