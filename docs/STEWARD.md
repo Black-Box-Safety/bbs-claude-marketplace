@@ -222,6 +222,31 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
+- **`bbs-quote-builder` retired; items then quotes in BC — RULED 2026-11-11.** Parker, in
+  session, 2026-11-11: "I want to get rid of bbs quote builder and give reps the ability to
+  make items then quotes in BC. That has been working." Relayed by the steward and confirmed
+  by Parker in #68's worker session the same day. #68 replaces the old quote path: the skill
+  is deleted, and the rep workflow is `bc-item-entry` for any missing item, `bc-quote-entry`
+  for the sales quote and its lines, then BC's own print as the customer document, proofed
+  per R5 and sent by the rep. Every live pointer is repointed. **Open action for Parker:**
+  delete the account-synced `anthropic-skills:bbs-quote-builder` in claude.ai → Settings →
+  Capabilities → Skills (`HANDOFF.md`); until then it keeps the retired path alive in Parker's
+  sessions.
+- **Quote creation moves into Business Central — RULED 2026-10-16; the skill is #68.** Parker,
+  in session, while running the CAL FIRE Atwater helmet-cover RFQ: the customer quote is
+  created as a BC sales quote, not rendered as a PDF in Claude, and an item already in BC is
+  never re-created. What binds the skill is R2–R5 of 2026-11-10, below; not restated here.
+  The skill is `plugins/bbs-sales/skills/bc-quote-entry/` (`SKILL.md`, `quote-rules.md`,
+  `spec-schema.md`, `bc_quote_entry.py` and its tests), which replaces the per-deal scripts in
+  `PM Claude/BC-Write-API`. Pointers, current to #68's head: the NASPO gate is per R3 (no
+  `zeroMarginOk` on NASPO); Kim's 18 are read from
+  `canonical-facts.md` by the test, not copied; the printout proof (R5) is in `SKILL.md` §7 and
+  the commit output; the routing evals are `docs/evals/results-2026-11-11-*-anonymized.json`
+  (a full run on the final description is still owed). **Open for Parker:** (a)
+  SharePoint `BC-WRITE-SOP-RULES.md` §4.6–§4.7 still call the skill a follow-up. (b) No
+  delegated sales-quote write has been proven under a rep-class permission set
+  (`rep-setup.md` 5b covers the item write only).
+  - **R5 covers CSU and UC — RULED 2026-11-12.** Parker, in session: "yes CSU and UC".
 - **Maintainer-tier commons entries (`taste-skill`, PR #71) — RULED 2026-10-28.** Parker, in
   session, option (a): both bootstraps skip any `marketplace.json` entry keyworded
   `maintainer`, and Parker installs it on his own machine by hand. Managed settings are not

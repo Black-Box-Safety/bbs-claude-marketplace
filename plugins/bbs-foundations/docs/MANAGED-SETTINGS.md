@@ -209,9 +209,13 @@ boundary (items, Vendor No. on items, sales quotes and their lines; the PM
 Claude/BC-Write-API scripts and the `bc-item-entry` and `bc-quote-entry` skills; named
 approval in the chat; never release, send, convert or post). Before this the company memory named no
 BC write rule, only the systems-of-record line. Detail stays here, not in `claudeMd`:
-`bc_quote_entry.py` is **not** on the `bbs-fill` allow list, and goes on it only after #68
-enforces NASPO lines at cost (R3); a proof read-back of the quote printout stays mandatory
-(R5). The organization instruction in the claude.ai admin console is a separate place,
+`bc_quote_entry.py` **is** on the `bbs-fill` allow list under R3 (Parker, 2026-11-10), which
+allowed it only once its check stops every NASPO line whose price is not exactly its cost.
+That gate exists in #68 (`validate_spec`, tested in `test_bc_quote_entry.py`, `NaspoAtCost`);
+removing or weakening it takes the script off the list in the same PR. Like `bc_item_entry.py`
+above, its `check` writes a review sheet with every header field and line Business Central will
+receive, and its `commit` carries the rep's name and the sheet's token. A proof read-back of the
+quote printout stays mandatory (R5). The organization instruction in the claude.ai admin console is a separate place,
 which also covers claude.ai chats, and needs the same `bc-quote-entry` edit by hand;
 re-pasting this file does not change it.
 

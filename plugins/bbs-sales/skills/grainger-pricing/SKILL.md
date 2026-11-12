@@ -10,7 +10,7 @@ description: >-
   in stock and when it ships. Never price a Grainger item from the open web or from memory. Do
   NOT use to extract item numbers from a cart PDF, screenshot or DWR RFQ (rfq-item-extract
   produces the list this prices), to check DGS BPO eligibility (dgs-bpo-item-check), or to
-  build the quote document (bbs-quote-builder). If a rep says only "check these items", ask
+  create the quote in Business Central (bc-quote-entry). If a rep says only "check these items", ask
   whether they mean price or BPO eligibility.
 requires: [grainger]
 ---
@@ -40,8 +40,8 @@ pricing; if you cannot name it, ask the rep. What this skill does with each answ
 - **California state agency — a CA state schedule or the NASPO LPA:** at cost, per canon. Confirm it on
   the response — `account.sellRule` reads `at_cost` on every schedule today. If you ever
   see a different sell rule, stop and ask the rep rather than inventing a margin. Pass the
-  prices through to `bbs-quote-builder` as final; do not let its markup math touch a
-  Grainger line.
+  prices through to `bc-quote-entry` as final: on a NASPO quote its check stops any line whose
+  price is not exactly this cost.
 - **Prime contractor (e.g. Bechtel):** before pricing, remind the rep to ask BBS's Grainger
   account manager for a discount on these items first, and offer to write that request
   for the rep to send — text only; this skill sends nothing. Price from the discounted cost once the rep has it;
@@ -145,9 +145,9 @@ pack size, or the returned unit does not match it, flag the line rather than ass
   the list first.
 - **Eligibility** is a separate question → `dgs-bpo-item-check` tests the part numbers
   against the active DGS BPO. Being priceable and being on the BPO are not the same thing.
-- **The customer document** → `bbs-quote-builder`, with these prices passed through at
-  cost: mark every such line `"source": "grainger"` in its spec and state the channel's
-  rule there (`pricing.graingerAtCost`), or its margin math applies.
+- **The customer's quote** → `bc-quote-entry` creates it in Business Central, with these prices
+  as the line prices (exactly, on NASPO). The customer document is BC's own print; the rep
+  proofs it per R5 and sends it.
 - **A whole state RFQ response** → `naspo-quote` orchestrates pricing plus the compliance
   packet.
 

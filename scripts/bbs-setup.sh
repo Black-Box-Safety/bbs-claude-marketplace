@@ -77,8 +77,7 @@ install_cask() {
   fi
 }
 
-# Mirror of scripts/bbs-setup.ps1, plus LibreOffice (document-skills and
-# bbs-quote-builder call soffice).
+# Mirror of scripts/bbs-setup.ps1, plus LibreOffice (document-skills call soffice).
 install_formula git        "Claude Code hooks and git for the marketplace clone"
 install_formula node       "superpowers-chrome browsing skill needs Node"
 install_cask    google-chrome "the browser Claude drives for product research" "/Applications/Google Chrome.app"
@@ -88,7 +87,7 @@ install_formula pandoc     "Word attachments to markdown"
 install_formula uv         "Python runtime for form-fill and document-skills scripts, zero config"
 install_formula duckdb     "query price lists and SCPRS exports instead of reading them whole"
 install_formula jq         "JSON plumbing for scripts and hooks"
-install_cask    libreoffice "soffice: quote-builder PDF export and document-skills conversion" "/Applications/LibreOffice.app"
+install_cask    libreoffice "soffice: document-skills conversion (Word and slides to PDF)" "/Applications/LibreOffice.app"
 
 # The VS Code extension and the Desktop app bundle their own Claude; this script needs the
 # `claude` command itself, so it installs the cask only when nothing answers to that name.
@@ -139,7 +138,7 @@ else
       failed+=("python packages"); }
 fi
 
-# npm libraries: bbs-quote-builder builds the quote .docx with docx, the pptx skill decks with
+# npm libraries: the docx skill builds Word files with docx, the pptx skill decks with
 # pptxgenjs. Node's require() never looks in the global folder on its own, so NODE_PATH points
 # there. VS Code on a Mac reads the login shell's environment at launch, hence ~/.zprofile.
 if command -v npm >/dev/null 2>&1; then
