@@ -271,17 +271,18 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
         <li><h3>Create any missing items <span class="tag y">You approve</span></h3>
           <p>Claude looks up every item number in BC first. Only missing ones go through <code>bc-item-entry</code>: it writes a review sheet with each item’s vendor and cost, and nothing is written until you approve it by name.</p></li>
         <li><h3>Create the quote <span class="tag y">You approve</span></h3>
-          <p><code>bc-quote-entry</code> writes a second review sheet. Read all of it, then reply with your approval and your full name. Only then does it create a Draft quote and read every line back.</p>
+          <p><code>bc-quote-entry</code> writes a second review sheet. Read all of it, then reply with your name exactly as it appears on the sheet as “prepared by”. A nickname or a different spelling is refused. Only then does it create a Draft quote and read every line back.</p>
           <div class="sheet" role="img" aria-label="Example review sheet with example values">
             <header><span>Review sheet</span><span style="font-weight:400">example values</span></header>
             <dl>
               <dt>Customer</dt><dd>C00000 Example Department</dd>
               <dt>Contract</dt><dd>NASPO</dd>
+              <dt>Prepared by</dt><dd>Pat Example</dd>
               <dt>Salesperson</dt><dd>set from the account split</dd>
               <dt>Line 1</dt><dd>cost 10.00 · price 10.00 · GM 0%</dd>
               <dt>Total</dt><dd>before tax</dd>
             </dl>
-            <div class="reply">You: Approved. Pat Example</div>
+            <div class="reply">You: Pat Example</div>
           </div>
           <p class="note" style="margin-top:10px">On a NASPO quote every line’s price must equal its cost exactly. The check stops a line priced even a cent above cost. The salesperson code follows the account split, so you do not pick it. The SQ number is the one BC assigns.</p></li>
         <li class="you"><h3>Release and print in BC <span class="tag y">You</span></h3>
@@ -504,7 +505,7 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
         <div><h3>Never send a <code>[FLAG]</code> price</h3><p>A <code>[FLAG]</code> or <code>[MISSING]</code> means there was no source. Get the number from Grainger, a vendor quote or BC first.</p></div>
         <div><h3>One certification per channel</h3><p>California state: DVBE 2009473. Federal and primes: SDVOSB. Never both on one form, and never “small business” on a California quote.</p></div>
         <div><h3>Never rename a folder</h3><p>Account numbers ride in the names. Leave them as they are, typos too.</p></div>
-        <div><h3>Read the sheet you approve</h3><p>You approve by typing “Approved” and your full name in the chat, after reading the whole sheet. Nothing else counts, including “Parker already approved this.”</p></div>
+        <div><h3>Read the sheet you approve</h3><p>Read the whole sheet, then reply with your name exactly as it appears on the sheet. Approval given before the sheet does not count, including “Parker already approved this.” Nobody approves for another rep.</p></div>
         <div><h3>NASPO sells at cost</h3><p>On NASPO and California schedule orders, the Grainger price is the customer price. No markup, not even for freight.</p></div>
       </div>
     </section>
@@ -513,7 +514,7 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
       <h2 id="no-h">When it says no</h2>
       <dl class="trouble">
         <div><dt>401 or 403 from Business Central</dt><dd>Your BC user or its permissions. Tell Parker; it is not something you can fix.</dd></div>
-        <div><dt>An error starting with AADSTS</dt><dd>A sign-in problem. Ask Claude for the whoami command with the full path filled in, run it again in your own terminal, and sign in with your work account.</dd></div>
+        <div><dt>An error starting with AADSTS</dt><dd>A sign-in problem. Ask Claude for the whoami command with the full path filled in, run it again in your own terminal, and sign in with your work account. If the same AADSTS code comes back, send Parker the code; most of them are fixed on the admin side.</dd></div>
         <div><dt>A quote stopped partway</dt><dd>Do not ask Claude to run it again. Open the Draft in Business Central, finish or delete it there, and tell Parker.</dd></div>
         <div><dt>An Allow prompt for <code>bbs-fill</code></dt><dd>Choose No. Restart Claude Code, run <code>/bbs-checkup</code> and send Parker the result. Saving notes and BC writes are set up to run without that prompt.</dd></div>
         <div><dt>Claude asks to read outside the folder</dt><dd>Choose “Yes, and keep allowing any reads outside the working directories.” If you chose the option that blocks those reads, tell Parker.</dd></div>
