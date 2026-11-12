@@ -90,7 +90,7 @@ went and why.
 | Fact | Owning store | Who writes it | How other stores learn it |
 |---|---|---|---|
 | Sent date | `RFQ.md` Status `sent` row | `rfq_record.py record-event`, applied by `/ca-rfq-fold` or in a `/ca-rfq` session after the rep approves | Parser rewrites `rfq-state.json`; the scanner carries it to `rfqs.json`; the dashboard decision is marked folded; the `quote-log.md` row is patched in the same call. CRM and BC learn nothing. |
-| Outcome (`won`, `lost`, `no answer`, `no bid`) | `RFQ.md` Status `outcome` row | Same path | Same; the quote-log Outcome cell carries the enum value only. |
+| Outcome (one of `rfq_record.OUTCOMES`: `won`, `lost`, `no answer`, `no bid`, `cancelled`) | `RFQ.md` Status `outcome` row | Same path | Same; the quote-log Outcome cell carries the enum value only. |
 | Stage | `RFQ.md` header `Stage` (highest dated Status row) | Skills through the parser only (spec 5.3) | `rfq-state.json`, then the scanner. Inferred stages never reach sent or outcome. |
 | Lines and pricing | `RFQ.md` Pricing table | Pricing and sourcing skills through `upsert-pricing` | Scanner to `rfq_lines.json`. Once a BC quote exists, its lines are the binding copy. |
 | Quote value | Business Central sales quote total (excl. tax) | BC-Write-API after the rep approves (existing rule) | Page reads BC live by key, else the BC-import snapshot, else the Pricing sum. Each value is labelled with its source. Never the CRM value, and never copied into `quote-log.md` by the fold. |
@@ -155,11 +155,11 @@ rfq_record.py record-event <RFQ.md> sent|outcome --value <enum> --date YYYY-MM-D
 
 - Writes the `RFQ.md` Status row first. Evidence carries source, by, at and the key, for example
   `won - dashboard, <rep>, 2026-11-12T10:41-08:00 [dec:3f9a1c2e]` (fictional).
-- Then rewrites `rfq-state.json` (the parser already does this after every write).
+- Then rewrites `rfq-state.json` (the parser already does this after every write), adding
+  `decisions_applied` (the keys).
 - Then patches the buyer's `quote-log.md` row through a new stdlib module `quote_log.py`. The row is
   found by deal key, else by the BC or PC quote number. With no match it refuses; the review sheet
   proposes adding a row. It never matches by date proximity.
-- Adds `decisions_applied` (the keys) to `rfq-state.json`.
 - **Idempotent:** the same key already in Evidence means `RFQ.md` is skipped and only `quote-log.md`
   is re-checked. A run that died between the two writes can therefore be finished by running it again.
   Two files cannot be written atomically, so a failed second write fails loudly and names the file.
@@ -259,7 +259,8 @@ Proposed columns going forward:
 
 - **Deal:** the path below `All RFQ's by Agency/` with buying-account numbers written `[acct]`. This
   is the join key.
-- **Outcome:** blank until decided, then exactly one of `won`, `lost`, `no answer`, `no bid`. `sent`
+- **Outcome:** blank until decided, then exactly one value of `rfq_record.OUTCOMES` (`won`, `lost`, `no answer`, `no bid`,
+  `cancelled`). `sent`
   lives only in the Sent column, so one fact is not held twice.
 - **Outcome ref:** PO number, who won, or `n/a`.
 - **Value:** stays whatever intake wrote. The fold never touches it.
@@ -369,7 +370,7 @@ written to the rep's session for review.
 | # | Slice | Changes | Done when |
 |---|---|---|---|
 | 1 | `docs:` canon and doctrine | `canonical-facts.md` systems of record; managed-settings template; `ca-rfq-intake`, `naspo-quote`, `bbs-weekly-sales-report`, `bbs-daily-rep-summary`, `ca-territory-handoff` lines naming the CRM as pipeline record | Checker exits 0; the PR body lists the Parker console actions |
-| 2 | `fix:` outcome vocabulary | `desk-context.py` and `.ps1` `FINAL` gains `no bid` from one source; template wording; parity fixture | Parity and unit tests pass; a `no bid` row is no longer listed as stale |
+| 2 | `fix:` outcome vocabulary | `rfq_record.OUTCOMES` gains `cancelled` (ruled item 8); `desk-context.py` and `.ps1` `FINAL` gain `no bid` and `cancelled` from that one source; template wording; parity fixture covering both | Parity and unit tests pass; `no bid` and `cancelled` rows are no longer listed as stale; `set-stage outcome` accepts `cancelled` |
 | 3 | `fix(rfq-record):` parser checks | Section 6.1 checks in `set_stage`; `--correct`; `--force` trace; conflict-copy refusal; date-fill exception (6.4); tests with placeholder fixtures | Same-stage rewrite refused; repeated identical write is a no-op; outcome-before-sent refused; date fill allowed only into an empty lower row |
 | 4 | `feat:` quote-log module and `record-event` | New `scripts/quote_log.py`; `record-event`; `decisions_applied` in the sidecar; template columns (6.5); `outcome-closeout.md` and `ca-rfq-intake` step 5 write through the CLI | Tests cover rerun after a half-write, refused overwrite, no-match refusal, Value untouched |
 | 5 | `feat:` quote-log check in the record hook | `rfq-record-hook.py` matches `quote-log.md`; `.ps1` notice; `parity.py`; `hooks.json` description | A bad marked row exits 2; a legacy row warns; the `.ps1` notice is asserted |
@@ -417,7 +418,7 @@ Recommendation first on each.
 7. **quote-log.md columns change** (6.5), which touches the template, `desk-context` and its parity
    tests. *Recommend: yes, going forward only; older rows untouched.*
 8. **A value for a cancelled or no-award solicitation.** *Recommend: add `cancelled` to the outcome
-   enum, in one place (`rfq_record.OUTCOMES`), with a checker fixture.* Until ruled, the fold refuses to
+   enum, in one place (`rfq_record.OUTCOMES`), with a checker fixture.* Until slice 2 lands, the fold refuses to
    map a cancellation to lost or no answer and holds it with a flag.
 9. **Turning on the weekday refresh routine.** *Recommend: yes, once slice 7 passes,* so folder-to-page
    latency drops from manual to under a day without anyone remembering to rescan.

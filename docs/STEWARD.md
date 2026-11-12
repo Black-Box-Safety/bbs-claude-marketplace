@@ -256,8 +256,7 @@ Write it up with evidence and move to the next slice. Do not idle.
       memory line "Dynamics 365 Sales for pipeline" to "deal folders for working state; Dynamics
       365 for history" when slice 1 merges.
 
-  **Open actions for Parker:** item 10 (admin console). Item 3's throwaway-artifact spike is
-  **not yet authorized**; it needs Parker's go before anyone creates the test artifact.
+  **Open actions for Parker:** item 10 (admin console).
 - **`bbs-quote-builder` retired; items then quotes in BC — RULED 2026-11-11.** Parker, in
   session, 2026-11-11: "I want to get rid of bbs quote builder and give reps the ability to
   make items then quotes in BC. That has been working." Relayed by the steward and confirmed
