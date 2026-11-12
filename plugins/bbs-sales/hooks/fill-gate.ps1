@@ -122,7 +122,8 @@ function Test-Link([string]$p) {
   # A missing path is not a link here; the existence checks in Get-Decision refuse it.
   if (-not (Test-Path -LiteralPath $p)) { return $false }
   $item = Get-Item -LiteralPath $p -Force
-  return [bool]($item.Attributes -band [IO.FileAttributes]::ReparsePoint)
+  # Compare as a number: PowerShell's [bool] of a FileAttributes value is not a zero test.
+  return ((([int]$item.Attributes) -band 0x400) -ne 0)
 }
 
 function Test-AnyLink([string]$root, [string[]]$parts) {
