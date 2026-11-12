@@ -89,6 +89,33 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
 .start .mono{color:var(--fg)}
 @media (max-width:720px){.start{grid-template-columns:minmax(0,1fr)}}
 
+/* Goal band */
+.goal{margin-top:28px;background:var(--strong-bg);color:var(--strong-fg);border-radius:6px;padding:22px 24px;max-width:860px}
+.goal h2{font-size:var(--s-h3);margin-bottom:8px}
+.goal p{font-size:var(--s-lead);line-height:1.45}
+/* Outbound loop and dashboards */
+.loop{list-style:none;padding:0;margin:24px 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;counter-reset:l}
+.loop>li{counter-increment:l;background:var(--surface);padding:16px 16px 18px;margin:0}
+.loop>li::before{content:counter(l);display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--gold-fill);color:var(--fg);font-weight:700;font-size:var(--s-sm);margin-bottom:10px}
+.loop b{display:block;margin-bottom:4px}
+.loop p{font-size:var(--s-sm);color:var(--muted)}
+.loop .say{display:inline-block;margin-top:8px;color:var(--fg)}
+@media (max-width:900px){.loop{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.loop{grid-template-columns:minmax(0,1fr)}}
+.dash{margin-top:24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;max-width:980px}
+@media (max-width:820px){.dash{grid-template-columns:minmax(0,1fr)}}
+.dash article{border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:20px;display:grid;gap:10px;align-content:start}
+.dash h3{font-size:var(--s-h3);display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.dash .q{font-size:var(--s-lead);line-height:1.4}
+.dash ul{font-size:var(--s-sm)}
+.dash a{font-weight:600}
+.status{font-size:.75rem;font-weight:600;padding:1px 7px;border-radius:3px;background:var(--you-fill);color:var(--you);white-space:nowrap}
+.status.soon{background:var(--gold-fill);color:var(--fg)}
+.cols3{margin-top:24px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px 28px;max-width:1000px}
+@media (max-width:900px){.cols3{grid-template-columns:minmax(0,1fr)}}
+.cols3 h3{font-size:var(--s-h3);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--fg)}
+.cols3 ul{font-size:var(--s-sm)}
+
 /* Setup checklist */
 .steps{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:0;counter-reset:s;max-width:820px}
 .steps>li{counter-increment:s;display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 16px;padding:18px 0;border-top:1px solid var(--line);margin:0}
@@ -210,29 +237,69 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
   <nav class="toc" aria-label="On this page">
     <p>On this page</p>
     <ol>
+      <li><a href="#outbound">Sell outbound</a></li>
       <li><a href="#setup">Set up once</a></li>
       <li><a href="#quote">Quote path</a></li>
       <li><a href="#folders">The folder</a></li>
       <li><a href="#memory">Desk memory</a></li>
+      <li><a href="#dashboards">Dashboards</a></li>
       <li><a href="#tools">Every tool</a></li>
       <li><a href="#habits">Habits</a></li>
       <li><a href="#rules">The rules</a></li>
       <li><a href="#no">When it says no</a></li>
+      <li><a href="#replicate">Copy this desk</a></li>
       <li><a href="#coming">Coming</a></li>
     </ol>
   </nav>
 
   <main>
     <header class="hero">
-      <h1>Everything Claude does on the California desk</h1>
-      <p class="lede">What is installed for you today, what to say to start each job, and the few habits that make the difference between a draft you fix and a draft you send.</p>
+      <h1>Claude and the sales process, in one place</h1>
+      <p class="lede">Everything installed for the California desk today: what to say to start each job, where the files and dashboards live, and the habits that turn a draft you fix into a draft you send.</p>
       <p class="who">For Kim, Aanya, Griffin and Joey · Updated 12 November 2026 · Every name, number and folder on this page is an example.</p>
+      <div class="goal">
+        <h2>Why we built this</h2>
+        <p>So you spend less of the week on quote paperwork and more of it selling. Claude takes the lookups, the typing and the forms. The hours that frees up go to outbound: calling accounts, booking visits and creating the next RFQ instead of waiting for it.</p>
+      </div>
       <div class="start">
         <div><b>New RFQ in your inbox</b><p>Open Claude in the buyer’s folder and type <span class="mono">/ca-rfq</span> with the request.</p></div>
         <div><b>Not sure where to start</b><p>Type <span class="mono">/bbs-what-can-i-do</span> or <span class="mono">/bbs-start</span>.</p></div>
         <div><b>Something looks broken</b><p>Type <span class="mono">/bbs-checkup</span> and send Parker the line it prints.</p></div>
       </div>
     </header>
+
+    <section id="outbound" aria-labelledby="outbound-h">
+      <h2 id="outbound-h">Sell outbound: create the next RFQ</h2>
+      <p class="lede">Inbound quotes keep the desk busy. Outbound grows the book. The working rhythm is one outbound motion a week, at minimum: a call list worked, a promo page sent, a win-back batch or a follow-up sweep. Each tool below stops at something you work from; you make the call and you send the email.</p>
+      <ol class="loop">
+        <li><b>Pick who to call</b><p>Your book ranked by dollars at risk, with accounts that went quiet at the top.</p><span class="say">which of my accounts went quiet?</span></li>
+        <li><b>Find the reason to call</b><p>What the agency bought, from whom, and when it is likely to reorder, from state purchasing records.</p><span class="say">who at this agency buys gloves, and from whom?</span></li>
+        <li><b>Time it</b><p>When the agency has money and which deadline governs the deal.</p><span class="say">when does this agency have to commit its budget?</span></li>
+        <li><b>Walk in ready</b><p>A call plan and a pocket card, then a leave-behind or a promo page to send after.</p><span class="say">prep me for my visit Thursday</span></li>
+      </ol>
+      <p class="body" style="margin-top:20px">A call that works becomes a request, and the request goes straight into <code>/ca-rfq</code>. The lead with the buyer is the same every time: a compliant path with no extra bidding on NASPO, and DVBE participation the agency can report. On California work the certification is DVBE 2009473 only.</p>
+      <div class="cols3">
+        <div><h3>Find and rank leads</h3><ul>
+          <li><code>/ca-territory-handoff</code>: the dated call list with opening words.</li>
+          <li>State purchasing records (SCPRS): ask in plain words who buys a category, who the incumbent is, which buyers already use DVBE suppliers, and when a reorder is due.</li>
+          <li><code>ca-budget-timing</code>: when to call and what deadline to name.</li>
+          <li>Federal: <code>sam-gov-opportunities</code> and <code>usaspending-awards</code>. Federal work is SDVOSB.</li>
+        </ul></div>
+        <div><h3>Prepare the touch</h3><ul>
+          <li><code>ca-agency-primer</code>: how a multi-site agency buys.</li>
+          <li><code>ca-site-visit-brief</code>: call plan and pocket card.</li>
+          <li><code>ca-visit-readiness-review</code>: a second opinion before you walk in.</li>
+          <li>“What did we quote them last time?” Claude reads the quote log and Business Central.</li>
+        </ul></div>
+        <div><h3>Put something in their hands</h3><ul>
+          <li><code>grainger-promo-page</code>: an agency page with live pricing and the buyer segments to send it to.</li>
+          <li><code>/bbs-one-pager</code>: a capability sheet or leave-behind.</li>
+          <li><code>campaign-email</code>: a switch note or win-back draft.</li>
+          <li>Follow-ups drafted in your voice after <code>/bbs-my-voice</code>. You send.</li>
+        </ul></div>
+      </div>
+      <p class="note" style="margin-top:16px">State purchasing records cover one slice of California procurement, not all of it. Claude labels every figure with the slice it came from; treat a total as a floor, not the whole market. Each tool is described under <a href="#tools">Every tool</a>.</p>
+    </section>
 
     <section id="setup" aria-labelledby="setup-h">
       <h2 id="setup-h">Set up once</h2>
@@ -348,6 +415,7 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
         </dl>
       </div>
 
+      <p class="note" style="margin-top:16px">Also at the top of the desk: <code>docs/</code> (the dashboards and their guides), <code>sales-process/</code> (how the desk is being improved), <code>Business Development/</code> and <code>Weekly Summaries/</code>. You work in <code>All RFQ’s by Agency/</code>.</p>
       <div class="why">
         <div><h3>Open Claude in the buyer’s folder</h3><p class="body">At the start of the session Claude is shown that buyer’s past quotes, open flags and saved notes, before you type anything. It can say “last time we quoted this buyer…” from the record instead of guessing.</p></div>
         <div><h3>Or in the deal folder</h3><p class="body">The same, plus on its first save there it lists this buyer’s quotes older than 30 days with no outcome, so you can close them out.</p></div>
@@ -384,6 +452,40 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
           <li>Passwords and logins.</li>
         </ul>
         <p class="note" style="margin-top:10px">It also never covers body armor, CSU or UC customers, which sit outside this desk. Quote outcomes go in the buyer’s <code>quote-log.md</code>, not in a note.</p>
+      </div>
+    </section>
+
+    <section id="dashboards" aria-labelledby="dashboards-h">
+      <h2 id="dashboards-h">The California state dashboards</h2>
+      <p class="lede">Two pages show the desk at a glance. Both read what you already do: no extra data entry, no account numbers, no buyer emails or phone numbers on screen. Both are private until Parker shares them with you; if a link does not open, ask Parker.</p>
+      <div class="dash">
+        <article>
+          <h3>Quote Velocity <span class="status">Live</span></h3>
+          <p class="q">Are quotes getting out the door?</p>
+          <ul>
+            <li>Quotes and dollars sent per week, by rep, for the last 13 weeks, against your own 4-week average.</li>
+            <li>The open queue: what is past due, due today, or has no due date.</li>
+            <li>Response speed: days from request received to quote submitted.</li>
+            <li>Logging gaps: quotes that exist in a folder but are missing from the count.</li>
+          </ul>
+          <p class="note">It counts a quote by its submitted date in the Sales CRM. There is no win rate and no target line on it.</p>
+          <p><a href="https://claude.ai/artifact/SGBXaNgDkd6bRyhew42X1M">Open Quote Velocity</a></p>
+        </article>
+        <article>
+          <h3>RFQ Pipeline <span class="status soon">Coming</span></h3>
+          <p class="q">What is due, what is stuck, and what went silent?</p>
+          <ul>
+            <li>Every open RFQ by stage: logged, sourcing, priced, quote built, packet built, delivered to rep, sent, outcome.</li>
+            <li>What is due, by agency and institution, with a filter for your own deals.</li>
+            <li>A detail panel for each RFQ: its lines, its timeline and what it is waiting on.</li>
+            <li>A stage read from loose files is labelled “inferred”, so it never passes as a fact.</li>
+          </ul>
+          <p class="note">Built and in review; Parker shares the link when it goes live. It reads the deal folders, so filing through <code>/ca-rfq</code> and recording outcomes in the quote log is what makes it right.</p>
+        </article>
+      </div>
+      <div class="why">
+        <div><h3>How to use them for outbound</h3><p class="body">The queue tells you what must go out today. Clear it, then spend the rest of the day on the call list. A quote that went silent is a reason to call the buyer, not a line to leave alone.</p></div>
+        <div><h3>What keeps them right</h3><p class="body">File every request through <code>/ca-rfq</code>, and write the outcome (won, lost, no answer, no bid) in the buyer’s quote log. Nobody will ask you to update a status by hand.</p></div>
       </div>
     </section>
 
@@ -424,7 +526,8 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
           <div class="tool"><div class="n">Site visit brief<small>ca-site-visit-brief</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">prep me for my visit Thursday</span></div><div class="g"><span class="lbl">You get back</span>A call plan for the night before and a one-screen pocket card for the parking lot.</div></div>
           <div class="tool"><div class="n">Pressure-test a brief<small>ca-visit-readiness-review</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">sanity-check this call plan</span></div><div class="g"><span class="lbl">You get back</span>An ordered list of changes from the point of view of the person saying it in the room.</div></div>
           <div class="tool"><div class="n">Budget timing<small>ca-budget-timing</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">can this deal still land this fiscal year?</span></div><div class="g"><span class="lbl">You get back</span>When the agency has money, the deadline that governs the deal, and the source for the date.</div></div>
-          <div class="tool"><div class="n">Grainger promo page<small>grainger-promo-page</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">build a promo page from this Grainger hot list</span></div><div class="g"><span class="lbl">You get back</span>An agency landing page with live pricing and a quote builder, and the buyer segments to send it to.<br><span class="pill ask">Needs the procurement data connector; ask Parker</span></div></div>
+          <div class="tool"><div class="n">State purchasing records<small>SCPRS connector</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">who bought this category at this agency last year?</span></div><div class="g"><span class="lbl">You get back</span>Buyers, suppliers, last purchase dates and reorder timing from state purchasing records, each figure labelled with the slice it covers.</div></div>
+          <div class="tool"><div class="n">Grainger promo page<small>grainger-promo-page</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">build a promo page from this Grainger hot list</span></div><div class="g"><span class="lbl">You get back</span>An agency landing page with live pricing and a quote builder, and the buyer segments to send it to.</div></div>
         </div>
       </div>
 
@@ -524,10 +627,37 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
       </dl>
     </section>
 
+    <section id="replicate" aria-labelledby="replicate-h">
+      <h2 id="replicate-h">Joey: copying this for your accounts</h2>
+      <p class="lede">The California desk is the first one built this way. The same pattern can be stood up for another book of accounts. Some of it works for you today; the rest is a build Parker scopes with you.</p>
+      <div class="cols3">
+        <div><h3>Works for any customer today</h3><ul>
+          <li>Creating items and quotes in Business Central with a review sheet you approve by name.</li>
+          <li>Grainger pricing, vendor sourcing and vendor quote emails.</li>
+          <li><code>/bbs-my-voice</code>, one-pagers, campaign emails and the logo check.</li>
+          <li>SO search, vendor PO status and problem orders.</li>
+          <li>Federal lookups on SAM.gov and USAspending.</li>
+        </ul></div>
+        <div><h3>You can set up yourself</h3><ul>
+          <li>Open Claude in a customer’s folder and type <code>/bbs-claude-md</code>. It drafts that folder’s notes (who the buyers are, how they want to be quoted, the gotchas) and writes them only when you say yes.</li>
+          <li><code>/bbs-workspaces</code> makes a desktop shortcut that opens your own customer folders.</li>
+          <li>Outside the California desk, the Business Central quote is the record of a deal. Do not start a quote log by hand.</li>
+        </ul></div>
+        <div><h3>Needs a build with Parker</h3><ul>
+          <li><code>/ca-rfq</code>, desk memory (“remember that…”) and the folder guards only work inside the State of CA Agencies tree today.</li>
+          <li>A dashboard for your book. The two here were each built from a written brief that can be reused.</li>
+          <li>The state forms packet is California-specific; another buyer type needs its own forms.</li>
+        </ul></div>
+      </div>
+      <p class="body" style="margin-top:20px"><b>To start:</b> tell Parker which accounts, where their folders live, and the two or three jobs that eat most of your week. That is enough to scope it.</p>
+    </section>
+
     <section id="coming" aria-labelledby="coming-h">
       <h2 id="coming-h">Coming, not here yet</h2>
       <ul class="coming">
         <li><b>A monthly roll-up of desk notes</b> and a way to mark old ones, so Parker can confirm agency-wide notes in one pass.</li>
+        <li><b>The RFQ Pipeline dashboard</b>, built and in review. Parker shares the link when it goes live.</li>
+        <li><b>A one-time catch-up</b> for Kim and Aanya: a prompt that finds the quotes you have already sent, in your own Sent mail and Business Central, so the pipeline page can show them. Parker sends it when it is ready.</li>
         <li><b>An RFQ inbox folder</b> that new requests land in, once Parker’s intake flow is live.</li>
       </ul>
     </section>

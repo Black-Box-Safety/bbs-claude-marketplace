@@ -34,11 +34,30 @@ when it says no · coming.
 | Tool rows | Each skill's `description:` and `requires:`; `python3 scripts/check_marketplace.py --requirements` |
 | "Coming" | `plugins/bbs-sales/README.md` (monthly roll-up, marking old notes); `docs/REP-SETUP.md` (`_inbox/` once Parker's intake flow is live) |
 
+## Added 2026-11-12 at Parker's request (in session)
+
+Parker: make it the one-stop page for Claude and the sales process, include the CA state
+dashboard work, tell Joey how to replicate it, and make the goal plain: enable more outbound,
+lead-generated sales.
+
+| Page claim | Source |
+|---|---|
+| Goal band and the outbound section; "one outbound motion a week" | Parker, in session, 2026-11-12; `docs/REP-SETUP.md` "Daily use"; `plugins/bbs-sales/README.md` "The territory, before the RFQ" |
+| State purchasing records (SCPRS) for targeting, with the slice label | Organization instructions; `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md` connector matrix (everyone reads); `ca-territory-handoff/SKILL.md` |
+| Quote Velocity: what it shows, counted by CRM submitted date, no win rate or target, live and private until shared | SharePoint `State of CA Agencies/docs/dashboards/quote-velocity/README.md`, read 2026-11-12 |
+| RFQ Pipeline: stages, sections, inferred label, privacy rules; built, in review, not shared | SharePoint `docs/dashboards/rfq-pipeline/README.md` (status as of 2026-11-03), `brief.md`, `STAGE-RULES.md` |
+| One-time catch-up prompt is coming | SharePoint `rfq-pipeline/REP-NOTE-rollout-draft.md` (marked HOLD) and `REP-PROMPT-howto.md` |
+| Desk-root folders (`docs/`, `sales-process/`, `Business Development/`, `Weekly Summaries/`) | SharePoint folder listing, 2026-11-12 |
+| Joey: what transfers, what he can set up, what needs a build | Skill descriptions (`bc-item-entry`, `bc-quote-entry`, `desk-remember` "outside this desk"); company memory R6 (customer-folder `CLAUDE.md`, no quote log outside the CA desk); `hooks.json` (guards key on the tree) |
+
+The pipeline status is from a README dated 2026-11-03. If it has gone live since, change its
+label from Coming to Live and add the link.
+
 ## Status labels on tool rows
 
-- `grainger-promo-page` needs `ca-procurement-intel`; `bbs-rebate-profitability` needs
-  `cdata-connect`. Neither is on the standard connector list (`docs/ADMIN-RUNBOOK.md` §3), so both
-  carry "ask Parker" rather than being shown as ready.
+- `bbs-rebate-profitability` needs `cdata-connect`, which is not on the standard connector list
+  (`docs/ADMIN-RUNBOOK.md`), so it carries "ask Parker". `grainger-promo-page` needs SCPRS
+  (`ca-procurement-intel`), which everyone reads, so its earlier "ask Parker" label was removed.
 - `sam-gov-opportunities` needs the shared SAM.gov key set by the setup script (`-SamGov`); the
   page names Kim and Griffin, as `docs/REP-SETUP.md` does.
 
