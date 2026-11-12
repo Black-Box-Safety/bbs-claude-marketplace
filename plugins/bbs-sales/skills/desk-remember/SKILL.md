@@ -48,20 +48,23 @@ their sentence.
 
 ## 3. Find the folder and the level
 
-Every command in this skill runs through `bbs-fill`, exactly as written: the managed
-settings allow `Bash(bbs-fill *)`, so saving a note needs no Allow click (Parker,
-2026-11-10, R7 A3), and `bbs-fill` picks `python` or `python3` for the machine. Never `cd`
+Every command in this skill runs through the `bbs-fill` launcher, exactly as written:
+`bbs-sales`' fill-gate hook lets that exact form run without a prompt, so saving a note needs
+no Allow click (Parker, 2026-11-10, R7 A3), and the launcher picks `python` or `python3` for the
+machine. Never `cd`
 first and never chain another command onto the line. Ask the script which folders the line
 could go to, giving it the buyer or deal folder the session is working in:
 
 ```bash
-bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" where --at "<buyer or deal folder>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" where --at "<buyer or deal folder>"
 ```
 
-If `bbs-fill` is not found, the `bbs-tools` plugin is missing: tell the rep to rerun the
-bootstrap, and meanwhile run the same line with `python` (Windows) or `python3` (Mac) in place
-of `bbs-fill`, which asks for permission. If it answers `REFUSED … is not a vetted script`,
-`bbs-tools` is older than 0.2.3: tell the rep to update plugins and start a new session.
+If the launcher answers `REFUSED`, relay its reason to the rep and stop. If an Allow prompt
+appears for one of these commands, do not ask the rep to approve it: a prompt means the
+command was not the vetted form, and a click would run whatever it was. Re-issue it once,
+exactly as written above, with nothing before or after it. If it prompts again, stop, and tell
+the rep to run `/bbs-checkup` and send the result to Parker. Never run the script with
+`python` or `python3` directly.
 
 It prints the choices, nearest first: `1.` the buyer, `2.` the institution (CDCR, CalVet and
 DSH have one), then the agency and the whole desk, both marked `[needs Parker]`.
@@ -82,7 +85,7 @@ Ask one question only when the level is unclear. "Is that just this buyer, or ev
 ## 4. Save it
 
 ```bash
-bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" add --at "<same folder>" --level 1 --author "<the rep's full name>" --kind preference --text "<the sentence>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" add --at "<same folder>" --level 1 --author "<the rep's full name>" --kind preference --text "<the sentence>"
 ```
 
 `--author` is the BBS person who said it, never Claude and never the buyer. If you do not know
@@ -162,7 +165,7 @@ nothing a rep said is lost. Give the words of the line as `show` prints them (a 
 is enough):
 
 ```bash
-bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" retire --at "<folder>" --level 1 --text "<words of the old line>" --by "<the rep's full name>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" retire --at "<folder>" --level 1 --text "<words of the old line>" --by "<the rep's full name>"
 ```
 
 If more than one line matches, it changes nothing and says so; give more of the words. A note
@@ -176,7 +179,7 @@ until it is merged, and the notes Claude is given say so. When you see that, tel
 offer to merge it:
 
 ```bash
-bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" merge --at "<folder>" --level 1
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" merge --at "<folder>" --level 1
 ```
 
 It adds each line that is not already there, leaves out a note that was already retired (and says
@@ -192,7 +195,7 @@ rep deletes the copy by hand once they have looked. Never delete a copy yourself
 ## Showing what is remembered
 
 ```bash
-bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" show --at "<folder>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" show --at "<folder>"
 ```
 
 Prints exactly what a new session in that folder is given, nearest folder first.
