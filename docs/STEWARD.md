@@ -203,6 +203,12 @@ For anything that is a build rather than an edit, write the spec to
 `docs/superpowers/specs/` and the plan to `docs/superpowers/plans/` before implementing,
 and reference both from the PR. The repo already works this way.
 
+When the work a spec and plan describe is finished (its last PR merged, or the work
+dropped), move both to `docs/archive/superpowers/` in the next docs PR and repoint every
+live link to them in the same PR. A spec whose work is still open stays in
+`docs/superpowers/`. RULED 2026-11-12, Parker, in session: "Yes do both", answering whether
+to add this rule; the archive layout is the one #91 chose.
+
 Full `superpowers` is ruled **Parker-only** (`docs/COMMONS.md`) because its session hook
 injects a large mandatory block. Steward sessions may use it; never push it to rep
 installs.
@@ -1048,6 +1054,11 @@ Write it up with evidence and move to the next slice. Do not idle.
   2026-10-02): "I approve the deny list changes" (payroll, ~~Vercel, Supabase~~; Rex E1;
   the Vercel and Supabase part *Superseded by R9, 2026-11-10*), and
   Microsoft 365 is assigned to Rachelle ("yes it is assigned").
+- **Archive order: #87 before #91 — RULED 2026-11-12.** Parker, in session, chose to keep
+  #91 and close #92 ("keep 91, close 92"), then "Yes do both" to merging #87 (bbs-sales
+  0.16.0) before the archive PR. #87 adds links to the bbs-fill-into-bbs-sales spec and
+  plan, so #91 is rebased on #87 and checked for those links before Parker merges it. The
+  rule for when a spec is archived is under "Build discipline".
 - **Sessions start on Opus at medium effort — RULED 2026-11-12.** Parker, in session:
   "make sure all sessions are starting with opus on medium as default. Fable just crushed my
   tokens". Managed settings set `model: "opus"` and `effortLevel: "medium"`; the five
