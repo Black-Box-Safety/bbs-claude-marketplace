@@ -231,7 +231,7 @@ class TestValidationAndStages(unittest.TestCase):
 
     def test_cancelled_is_an_outcome(self):
         rec = rfq_record.parse(read_fixture("v2_naspo_full.md"))
-        # cancelled before sent: deferred to slice 3 (#90 §6.1)
+        # cancelled before sent is allowed: see test_outcome_needs_sent_except_no_bid_and_cancelled
         rfq_record.set_stage(rec, "sent", "2026-10-29", "emailed buyer")
         rfq_record.set_stage(rec, "outcome", "2026-11-01", "cancelled - buyer withdrew the solicitation 2026-11-01")
         self.assertEqual(rfq_record.current_stage(rec), "outcome")
