@@ -1,7 +1,8 @@
 # RFQ Pipeline dashboard and deal folders: two-way sync design
 
-Status: **design proposal, nothing built.** Every mechanism below is a proposal until Parker rules
-and a PR lands. Date 2026-11-12. Owner: Parker Marshall. Builds on
+Status: **design ruled, nothing built.** Parker confirmed every recommendation in section 12 on
+2026-11-12 (recorded in `docs/STEWARD.md`, "Already open for Parker"). Each mechanism stays a
+proposal until its slice's PR lands. Date 2026-11-12. Owner: Parker Marshall. Builds on
 `2026-10-30-rfq-pipeline-folder-first-design.md` (sections 5.1-5.7, 8, 9, 13), which this document
 amends it in the places listed in section 0.1.
 
@@ -382,6 +383,10 @@ the checker belongs to the review side. Reading an exported file avoids that.
 Dependency Dara named, not verified here: the S6 publish and its privacy gate come before slice 7.
 
 ## 12. Decisions only Parker can make
+
+**RULED 2026-11-12:** Parker, in session: "I confirm your recommendations." Every item below is
+ruled as recommended. Item 10 remains a console action for Parker; item 9 takes effect only after
+slice 7 passes.
 
 Recommendation first on each.
 

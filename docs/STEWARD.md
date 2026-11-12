@@ -222,6 +222,21 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
+- **Folders replace the CRM as the pipeline record; dashboard and folder sync — RULED 2026-11-12.**
+  Parker, in session, 2026-11-12: "The dashboard and quote log should be connected. I want to
+  move from the CRM being the statement of record to our folders." Scope: the deal folder
+  (`RFQ.md` through `rfq_record.py`, plus the buyer's `quote-log.md`) owns working state,
+  including sent and outcome; Business Central owns money; the CRM is a cross-check until Quote
+  Velocity switches, then history. This settles folder-first spec 9.1 and moves sent and outcome
+  off the CRM. The same day, in the PR #90 session, Parker confirmed every recommendation in
+  `docs/superpowers/specs/2026-11-12-dashboard-folder-sync-design.md` section 12 ("I confirm your
+  recommendations"): the fold is person-run (`/ca-rfq-fold`); a click or Sent-mail match is not
+  the approval; decisions are stored per rep after a spike; the page uses an opaque deal key;
+  No answer is proposed, never automatic; Quote Velocity switches after 2 matching weeks at 90%
+  coverage; quote-log columns change going forward; a `cancelled` outcome is added; the refresh
+  routine goes on after slice 7. **Open action for Parker:** update the organization
+  instructions and managed memory line "Dynamics 365 Sales for pipeline" in the admin console
+  when slice 1 merges.
 - **`bbs-quote-builder` retired; items then quotes in BC — RULED 2026-11-11.** Parker, in
   session, 2026-11-11: "I want to get rid of bbs quote builder and give reps the ability to
   make items then quotes in BC. That has been working." Relayed by the steward and confirmed
