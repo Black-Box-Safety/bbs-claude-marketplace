@@ -222,6 +222,14 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
+- **`bbs-fill` into `bbs-sales`, gated by a hook; `bbs-tools` retired — RULED 2026-11-11.**
+  Parker, in session: "Yes … to the tools fix as a separate slice". It approves moving the
+  launcher out of `bbs-tools`' top-level `bin/` (claude.ai org sync rejects one) into
+  `bbs-sales/scripts/`, replacing the PATH-name allow rule with a vetted-command PreToolUse
+  hook (`fill-gate`), and retiring `bbs-tools`. Shipped as two PRs, which is sequencing inside
+  this ruling (Rex, review of #85 at 8eff944): PR A (launcher, hook, skills) and PR B
+  (retirement and re-paste, after `/bbs-checkup` check 12 passes on a rep machine). Design:
+  `docs/superpowers/specs/2026-11-11-bbs-fill-into-bbs-sales.md`.
 - **`bbs-quote-builder` retired; items then quotes in BC — RULED 2026-11-11.** Parker, in
   session, 2026-11-11: "I want to get rid of bbs quote builder and give reps the ability to
   make items then quotes in BC. That has been working." Relayed by the steward and confirmed
