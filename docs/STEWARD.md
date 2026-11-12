@@ -1067,6 +1067,11 @@ Write it up with evidence and move to the next slice. Do not idle.
   0.16.0) before the archive PR. #87 adds links to the bbs-fill-into-bbs-sales spec and
   plan, so #91 is rebased on #87 and checked for those links before Parker merges it. The
   rule for when a spec is archived is under "Build discipline".
+  **Outcome, 2026-11-12:** the order did not hold. #91 merged at 18:21 UTC and #93 at
+  18:23, both before #87. Nothing broke: #91 left the bbs-fill-into-bbs-sales spec and plan
+  in `docs/superpowers/` (their work is still open, so the Build discipline rule keeps them
+  there), and every docs path #87 adds resolves on `main` plus #87 (Rex, check of
+  `merge-tree`). #87 then merged `main` in and carries this note.
 - **Sessions start on Opus at medium effort — RULED 2026-11-12.** Parker, in session:
   "make sure all sessions are starting with opus on medium as default. Fable just crushed my
   tokens". Managed settings set `model: "opus"` and `effortLevel: "medium"`; the five
