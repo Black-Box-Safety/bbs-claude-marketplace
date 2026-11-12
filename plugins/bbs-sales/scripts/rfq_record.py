@@ -354,6 +354,10 @@ class StageOrderError(Exception):
     pass
 
 
+class StageConflictError(Exception):
+    """A dated stage would get a different date without --correct."""
+
+
 class StageNotApplicableError(Exception):
     pass
 
@@ -437,7 +441,43 @@ def upsert_pricing(rec, row):
     rec.pricing.append(row)
 
 
-def set_stage(rec, stage, date, evidence, force=False):
+# Outcomes that may be recorded with no dated sent row: BBS decided not to quote, or the buyer
+# withdrew the solicitation or made no award before a quote went out.
+OUTCOMES_WITHOUT_SENT = ("no bid", "cancelled")
+
+
+def _now_stamp():
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
+
+
+def pacific_today():
+    """Today's date in California. Falls back to UTC-7 (lenient by at most an hour) when the
+    machine has no time zone data, as a Windows Python without tzdata can lack it."""
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d")
+    except Exception:
+        from datetime import timedelta
+        return (datetime.now(timezone.utc) - timedelta(hours=7)).strftime("%Y-%m-%d")
+
+
+def _outcome_word(evidence):
+    e = evidence.strip().lower()
+    return next((w for w in OUTCOMES if e.startswith(w)), None)
+
+
+def set_stage(rec, stage, date, evidence, force=False, by=None, correct=None, today=None):
+    """Write one Status row. Write-time checks (dashboard-folder sync design, section 6.1):
+
+    - same stage, same date: no change; new evidence is appended, never replaces the old;
+    - same stage, different date: refused (StageConflictError) unless `correct` names the reason,
+      and then the old date stays in the Evidence cell beside who corrected it and when;
+    - outcome needs a dated sent row, except `no bid` and `cancelled`;
+    - a sent date is not before Received and not after today in California;
+    - a stage below the current one may only fill its own empty date, not after the date of any
+      higher dated stage (a date fill); anything else backward needs `force`, which is recorded;
+    - `force` and `correct` need `by`, the person the change is for.
+    """
     if stage not in STAGES:
         raise ValueError("unknown stage %r" % stage)
     app = applicable_stages(rec)
@@ -445,9 +485,48 @@ def set_stage(rec, stage, date, evidence, force=False):
         raise StageNotApplicableError("%s does not apply to this %s record" % (stage, vehicle_kind(rec)))
     if stage == "outcome" and not _has_outcome_word(evidence):
         raise ValueError("outcome evidence must start with one of %s" % ", ".join(OUTCOMES))
-    if not force and STAGES.index(stage) < STAGES.index(current_stage(rec)):
-        raise StageOrderError("%s is behind current stage %s" % (stage, current_stage(rec)))
+    if (force or correct) and not (by or "").strip():
+        raise ValueError("--force and --correct need --by <person>")
+    today = today or pacific_today()
+    if stage == "sent":
+        received = parse_date(rec.header.get("Received", ""))
+        if received and date < received:
+            raise ValueError("sent date %s is before Received %s" % (date, received))
+        if date > today:
+            raise ValueError("sent date %s is after today (%s, California)" % (date, today))
+    if stage == "outcome" and _outcome_word(evidence) not in OUTCOMES_WITHOUT_SENT:
+        sent = next((r for r in rec.status if r.stage == "sent" and r.date), None)
+        if sent is None:
+            raise ValueError("outcome %r needs a dated sent row first (only %s may be recorded without one)"
+                             % (_outcome_word(evidence), " and ".join(OUTCOMES_WITHOUT_SENT)))
     row = next((r for r in rec.status if r.stage == stage), None)
+    stamp = _now_stamp()
+    if row is not None and row.date:
+        if row.date == date:
+            if evidence and evidence not in row.evidence:
+                row.evidence = (row.evidence + "; " + evidence) if row.evidence else evidence
+            rec.header["Stage"] = current_stage(rec)
+            return
+        if not correct:
+            raise StageConflictError("%s is already dated %s; a different date needs --correct \"<reason>\""
+                                     % (stage, row.date))
+        if STAGES.index(stage) < STAGES.index(current_stage(rec)) and not force:
+            raise StageOrderError("%s is behind current stage %s" % (stage, current_stage(rec)))
+        note = "corrected from %s to %s by %s %s: %s" % (row.date, date, by.strip(), stamp, correct.strip())
+        row.date = date
+        row.evidence = "; ".join(x for x in (row.evidence, evidence, note) if x)
+        rec.header["Stage"] = current_stage(rec)
+        return
+    cur = current_stage(rec)
+    if STAGES.index(stage) < STAGES.index(cur):
+        higher = [r.date for r in rec.status
+                  if r.date and r.stage in app and STAGES.index(r.stage) > STAGES.index(stage)]
+        if higher and date <= min(higher):
+            pass  # a date fill: the row is empty and the date does not pass any later stage
+        elif not force:
+            raise StageOrderError("%s is behind current stage %s" % (stage, cur))
+        else:
+            evidence = "%s [forced by %s %s from %s]" % (evidence, by.strip(), stamp, cur)
     if row is None:
         row = StatusRow(stage, date, evidence)
         rec.status.append(row)
@@ -908,8 +987,24 @@ def _deal_path(path):
     return p if "All RFQ's by Agency/" in p.replace(os.sep, "/") else ""
 
 
+# A OneDrive conflict copy of RFQ.md is named RFQ-<machine>.md; a machine name starts with a letter.
+CONFLICT_COPY = re.compile(r"^RFQ-(?![0-9]).+\.md$", re.I)
+
+
+def conflict_copies(path):
+    d = os.path.dirname(os.path.abspath(path))
+    try:
+        return sorted(f for f in os.listdir(d) if CONFLICT_COPY.match(f))
+    except OSError:
+        return []
+
+
 def _save(rec, path):
     """Re-validate, write the record, then the sidecar. Returns the sidecar path."""
+    copies = conflict_copies(path)
+    if copies:
+        raise _CliError("refusing to write while a OneDrive conflict copy of RFQ.md exists (%s); "
+                        "merge it into RFQ.md by hand and delete it, then run this again" % ", ".join(copies))
     probs = validate(rec)
     if probs:
         raise _CliError("refusing to write, record would be invalid: " + "; ".join(probs))
@@ -950,6 +1045,8 @@ def _build_parser():
     sp.add_argument("--date", required=True)
     sp.add_argument("--evidence", required=True)
     sp.add_argument("--force", action="store_true")
+    sp.add_argument("--by", help="the person this change is for; required with --force or --correct")
+    sp.add_argument("--correct", metavar="REASON", help="change an already-dated stage, keeping the old date in Evidence")
     sp = sub.add_parser("set-header")
     sp.add_argument("rfq")
     sp.add_argument("key")
@@ -994,9 +1091,11 @@ def _run(a):
         if d is None:
             raise _CliError("bad date %r (use YYYY-MM-DD)" % a.date)
         try:
-            set_stage(rec, a.stage, d, a.evidence, force=a.force)
+            set_stage(rec, a.stage, d, a.evidence, force=a.force, by=a.by, correct=a.correct)
         except StageOrderError as e:
-            raise _CliError("backward stage move refused: %s (use --force to override)" % e)
+            raise _CliError("backward stage move refused: %s (use --force --by <person> to override)" % e)
+        except StageConflictError as e:
+            raise _CliError("conflict: %s" % e)
         except (StageNotApplicableError, ValueError) as e:
             raise _CliError(str(e))
         _save(rec, a.rfq)

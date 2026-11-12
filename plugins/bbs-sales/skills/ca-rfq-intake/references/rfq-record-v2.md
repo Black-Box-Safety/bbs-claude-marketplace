@@ -57,10 +57,22 @@ outcome row's Evidence carries one of the outcome values.
 - Sourcing applies whenever any Lines row has lane sourcing.
 - Inapplicable rows are marked `n/a`. Next step is the first applicable row without a date.
 
-## Never backward
+## Never backward, never silent
 
 A stage date, once written, is not removed or earlier-stage-overwritten. Stage never moves
-to a lower row. A correction is a new Evidence note, not a silent rewrite.
+to a lower row. A correction is a new Evidence note, not a silent rewrite. `set-stage` holds
+these at write time:
+
+- Same stage, same date: nothing changes; new evidence is appended to the old.
+- Same stage, a different date: refused (`conflict`) unless `--correct "<reason>" --by <person>`;
+  the Evidence cell then keeps the old date, who corrected it, when, and why.
+- `outcome` needs a dated `sent` row, except `no bid` and `cancelled`.
+- A `sent` date is not before Received and not after today in California.
+- A lower stage may fill its own empty date when that date is not after any later dated stage
+  (a date fill). Any other backward write needs `--force --by <person>`, and the Evidence cell
+  records `[forced by <person> <when> from <stage>]`.
+- Every write is refused while a OneDrive conflict copy (`RFQ-<machine>.md`) sits beside the
+  record; merge it by hand and delete it first.
 
 ## CLI synopsis
 
@@ -75,7 +87,7 @@ F=scripts/tests/fixtures/v2_competitive_sourcing.md
 rfq_record.py validate $F
 rfq_record.py current-stage $F
 rfq_record.py compile $F -o /tmp/rfq-state.json
-rfq_record.py set-stage $F priced --date 2026-10-28 --evidence "Grainger MCP 880000001 2026-10-28" [--force]
+rfq_record.py set-stage $F priced --date 2026-10-28 --evidence "Grainger MCP 880000001 2026-10-28" [--force --by "<person>"] [--correct "<reason>" --by "<person>"]
 rfq_record.py set-header $F "BC quote" SQ-900002
 rfq_record.py upsert-pricing $F --json '{"num": 2, "vendor": "Acme Valve", "vendor_ref": "QuoteCB0000024667.pdf", "cost": 310.0, "sell": 372.0, "strategy": "cost plus 20%", "lead": "5 days", "line_stage": "vendor quoted", "evidence": "QuoteCB0000024667.pdf"}'
 rfq_record.py migrate scripts/tests/fixtures/v1_cmd_hvac.md --rep "Kim Quezon" --dry-run

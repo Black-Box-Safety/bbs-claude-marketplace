@@ -167,14 +167,65 @@ class TestValidationAndStages(unittest.TestCase):
 
     def test_set_stage_never_moves_backward(self):
         rec = rfq_record.parse(read_fixture("v2_naspo_full.md"))
-        with self.assertRaises(rfq_record.StageOrderError): rfq_record.set_stage(rec, "priced", "2026-10-30", "x")
-        rfq_record.set_stage(rec, "priced", "2026-10-30", "corrected per rep 2026-10-30", force=True)
-        rfq_record.set_stage(rec, "sent", "2026-10-30", "CRM RFQ-005593 submitted date")
+        # priced is already dated: a new date is a conflict, never a silent rewrite
+        with self.assertRaises(rfq_record.StageConflictError): rfq_record.set_stage(rec, "priced", "2026-10-30", "x")
+        with self.assertRaises(ValueError):  # --correct needs --by
+            rfq_record.set_stage(rec, "priced", "2026-10-30", "x", force=True, correct="rep re-priced")
+        rfq_record.set_stage(rec, "priced", "2026-10-30", "re-priced", force=True, correct="rep re-priced", by="Test Rep")
+        row = next(r for r in rec.status if r.stage == "priced")
+        self.assertEqual(row.date, "2026-10-30")
+        self.assertIn("corrected from 2026-10-27 to 2026-10-30 by Test Rep", row.evidence)
+        self.assertIn("Grainger MCP", row.evidence)  # the old evidence stays
+        rfq_record.set_stage(rec, "sent", "2026-10-30", "Sent Items 2026-10-30", today="2026-11-12")
         self.assertEqual(rfq_record.current_stage(rec), "sent"); self.assertEqual(rec.header["Stage"], "sent")
+
+    def test_same_stage_same_date_is_idempotent(self):
+        rec = rfq_record.parse(read_fixture("v2_naspo_full.md"))
+        rfq_record.set_stage(rec, "sent", "2026-10-30", "dashboard [dec:abc12345]", today="2026-11-12")
+        before = rfq_record.render(rec)
+        rfq_record.set_stage(rec, "sent", "2026-10-30", "dashboard [dec:abc12345]", today="2026-11-12")
+        self.assertEqual(rfq_record.render(rec), before)
+        rfq_record.set_stage(rec, "sent", "2026-10-30", "Sent Items match", today="2026-11-12")
+        row = next(r for r in rec.status if r.stage == "sent")
+        self.assertEqual(row.evidence, "dashboard [dec:abc12345]; Sent Items match")
+
+    def test_sent_date_bounds(self):
+        rec = rfq_record.parse(read_fixture("v2_naspo_full.md"))
+        with self.assertRaises(ValueError): rfq_record.set_stage(rec, "sent", "2026-10-26", "x", today="2026-11-12")
+        with self.assertRaises(ValueError): rfq_record.set_stage(rec, "sent", "2026-11-13", "x", today="2026-11-12")
+        rfq_record.set_stage(rec, "sent", "2026-11-12", "x", today="2026-11-12")
+
+    def test_outcome_needs_sent_except_no_bid_and_cancelled(self):
+        for word, ok in (("won", False), ("lost", False), ("no answer", False), ("no bid", True), ("cancelled", True)):
+            rec = rfq_record.parse(read_fixture("v2_naspo_full.md"))
+            if ok:
+                rfq_record.set_stage(rec, "outcome", "2026-11-01", word + " - test")
+                self.assertEqual(rfq_record.current_stage(rec), "outcome")
+            else:
+                with self.assertRaises(ValueError): rfq_record.set_stage(rec, "outcome", "2026-11-01", word + " - test")
+
+    def test_date_fill_below_outcome(self):
+        rec = rfq_record.parse(read_fixture("v2_naspo_full.md"))
+        rfq_record.set_stage(rec, "outcome", "2026-11-05", "no bid - rep decided")
+        # filling an empty lower row is allowed when it does not pass the later stage's date
+        rfq_record.set_stage(rec, "sent", "2026-11-01", "Sent Items 2026-11-01", today="2026-11-12")
+        self.assertEqual(rfq_record.current_stage(rec), "outcome")
+        rec2 = rfq_record.parse(read_fixture("v2_naspo_full.md"))
+        rfq_record.set_stage(rec2, "outcome", "2026-11-05", "no bid - rep decided")
+        with self.assertRaises(rfq_record.StageOrderError):
+            rfq_record.set_stage(rec2, "sent", "2026-11-06", "x", today="2026-11-12")
+
+    def test_force_is_recorded(self):
+        rec = rfq_record.parse(read_fixture("v2_naspo_full.md"))
+        rfq_record.set_stage(rec, "outcome", "2026-11-05", "no bid - rep decided")
+        rfq_record.set_stage(rec, "sent", "2026-11-06", "late send", force=True, by="Test Rep", today="2026-11-12")
+        row = next(r for r in rec.status if r.stage == "sent")
+        self.assertIn("[forced by Test Rep", row.evidence); self.assertIn("from outcome]", row.evidence)
 
     def test_outcome_needs_an_outcome_word(self):
         rec = rfq_record.parse(read_fixture("v2_naspo_full.md"))
         with self.assertRaises(ValueError): rfq_record.set_stage(rec, "outcome", "2026-11-01", "buyer said thanks")
+        rfq_record.set_stage(rec, "sent", "2026-10-30", "Sent Items", today="2026-11-12")
         rfq_record.set_stage(rec, "outcome", "2026-11-01", "won: BC order SO-100233")
         self.assertEqual(rfq_record.current_stage(rec), "outcome")
 

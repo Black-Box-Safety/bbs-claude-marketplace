@@ -75,6 +75,25 @@ class TestCli(CliBase):
         self.assertEqual(rc.returncode, 1)
         self.assertIn("backward", rc.stderr)
         rc = run_cli(["set-stage", self.rfq, "priced", "--date", "2026-10-29", "--evidence", "x", "--force"])
+        self.assertEqual(rc.returncode, 1)
+        self.assertIn("--by", rc.stderr)
+        rc = run_cli(["set-stage", self.rfq, "priced", "--date", "2026-10-29", "--evidence", "x", "--force", "--by", "Test Rep"])
+        self.assertEqual(rc.returncode, 0, rc.stderr)
+
+    def test_set_stage_cli_refuses_conflict_copy(self):
+        open(os.path.join(os.path.dirname(self.rfq), "RFQ-REP-LAPTOP.md"), "w").close()
+        rc = run_cli(["set-stage", self.rfq, "quote built", "--date", "2026-10-28", "--evidence", "SQ-100001"])
+        self.assertEqual(rc.returncode, 1)
+        self.assertIn("conflict copy", rc.stderr)
+        self.assertIn("RFQ-REP-LAPTOP.md", rc.stderr)
+
+    def test_set_stage_cli_conflict_needs_correct(self):
+        rc = run_cli(["set-stage", self.rfq, "quote built", "--date", "2026-10-28", "--evidence", "SQ-100001"])
+        self.assertEqual(rc.returncode, 0, rc.stderr)
+        rc = run_cli(["set-stage", self.rfq, "quote built", "--date", "2026-10-29", "--evidence", "SQ-100001"])
+        self.assertEqual(rc.returncode, 1); self.assertIn("conflict", rc.stderr)
+        rc = run_cli(["set-stage", self.rfq, "quote built", "--date", "2026-10-29", "--evidence", "SQ-100001",
+                      "--correct", "quote re-issued", "--by", "Test Rep"])
         self.assertEqual(rc.returncode, 0, rc.stderr)
 
     def test_pipes_quotes_newlines_round_trip(self):
