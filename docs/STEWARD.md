@@ -790,8 +790,10 @@ Write it up with evidence and move to the next slice. Do not idle.
   `.claude/agents/steward.md`, this file and `AGENTS.md` (Rex's open question M1); all four
   now say agents never merge and Parker merges in the UI. **Open action for Parker:**
   re-paste managed settings in the admin console; until then the deny reaches no machine.
-  - Pointer: a bounded exception ran 2026-11-11 to 2026-11-12 — see "Steward merge authority
-    for the 2026-11-10/11 queue — RULED 2026-11-11", below.
+  - Pointer: a bounded exception ran 2026-11-11 until the re-paste — see "Steward merge
+    authority for the 2026-11-10/11 queue — RULED 2026-11-11", below. R1's re-paste action
+    is reported done on 2026-11-12 there (date per the steward's brief, unconfirmed against
+    the console).
 - **R2. Quote creation in Business Central through `bc-quote-entry` (#68) is allowed —
   RULED 2026-11-10.** Adopted recommendation (with "Follow recommendations…"): "Yes. Record it on main and add `bc-quote-entry` to the organization
   instruction. It only creates the quote and its lines; it never releases, sends, converts
@@ -1051,20 +1053,25 @@ Write it up with evidence and move to the next slice. Do not idle.
   "make sure all sessions are starting with opus on medium as default. Fable just crushed my
   tokens". Managed settings set `model: "opus"` and `effortLevel: "medium"`; the five
   `.claude/agents/` definitions run at `effort: medium`. A default, not a lock.
-- **Steward merge authority for the 2026-11-10/11 queue — RULED 2026-11-11; ended
-  2026-11-12.** Parker, in the steward session: "Once Rex reviews, I want you to merge them if
+- **Steward merge authority for the 2026-11-10/11 queue — RULED 2026-11-11; ended on the
+  R1 re-paste.** Parker, in the steward session: "Once Rex reviews, I want you to merge them if
   they are ready and in the best order", "merge 68 when Rex clears it", and "merge the rest as
   Rex clears them too". What it covered: the steward squash-merged the Rex-cleared PRs #83,
   #74, #71, #53, #77, #76 and #72, each at its cleared head. It was bounded to that queue and
-  ended once the R1 managed-settings deny went live, when Parker pasted managed settings on
-  2026-11-12. From then on R1 holds without exception: Parker merges in the GitHub UI.
-- **BC writers: Kim, Aanya, Griffin and Joey, each signed in as themselves — RULED
-  2026-11-11/12.** Parker, in the steward session: "Kim, Aanya, griffin and Joey should have
-  write permission matching the skills we ahve" and, asked how reps connect, "we are doing a",
-  meaning each rep signs in with their own account (delegated), not app-only. Quote writes are
-  reported working under that setup. Still to confirm per rep: item rights, and each rep's
-  one-time `whoami`. Setup and the confirmation steps:
-  `plugins/bbs-sales/skills/bc-item-entry/references/rep-setup.md`.
+  ended once the R1 managed-settings deny went live, when Parker pasted managed settings. The
+  steward's brief of 2026-11-12 reports that paste as done that day; the date is not confirmed
+  against the console or a quote from Parker. From then on R1 holds without exception: Parker
+  merges in the GitHub UI.
+- **BC writers: Kim, Aanya, Griffin and Joey — RULED 2026-11-11/12.** Parker, in the steward
+  session: "Kim, Aanya, griffin and Joey should have write permission matching the skills we
+  ahve" and, asked how reps connect, "we are doing a". **The steward's reading, for Parker to
+  confirm:** option "a" was each rep signing in with their own account (delegated), not
+  app-only; the option list itself is not recorded here. The steward's brief of 2026-11-12
+  reports quote writes working under that setup; who ran them, and under which permission set,
+  is not recorded, so this does not close item (b) of the #68 entry above ("No delegated
+  sales-quote write has been proven under a rep-class permission set"), which stays open.
+  Still to confirm per rep: item rights, and each rep's one-time `whoami`. Setup and the
+  confirmation steps: `plugins/bbs-sales/skills/bc-item-entry/references/rep-setup.md`.
 - **Folders become the statement of record — RULED 2026-11-12.** Parker, in the session that
   built the sales handbook (PR #88): "The dashboard and quote log should be connected. I want
   to move from the CRM being the statement of record to our folders." This decides item 9.1
@@ -1082,15 +1089,19 @@ Write it up with evidence and move to the next slice. Do not idle.
     for pipeline" (needs Parker's re-paste after the change)
   - `scripts/check_marketplace.py:598` — comment, "the pipeline of record" (review side)
 
-  The grep finds no hit in `ca-state-sales-grounding` or `workspace/DESK-CLAUDE-template.md`;
-  check their CRM wording by hand when the update runs.
+  `ca-state-sales-grounding` is account-synced and not in git (`plugins/bbs-sales/README.md`),
+  so no grep here can reach it: its CRM wording is changed in claude.ai, a step outside the
+  repo. The grep finds no hit in `workspace/DESK-CLAUDE-template.md`; check its CRM wording by
+  hand when the update runs.
 - **Open actions for Parker — listed 2026-11-12.**
   - Restamp the SharePoint desk-root `CLAUDE.md` from `workspace/DESK-CLAUDE-template.md`; it
     still names the retired `/ca-rfq-log` and `/ca-rfq-quote`. Already open as R7 item 4,
     above.
   - Delete the account-synced `bbs-quote-builder` copy in claude.ai. Already open under
     "`bbs-quote-builder` retired; items then quotes in BC — RULED 2026-11-11", above.
-  - Run the routing eval owed on `bc-quote-entry`.
+  - Run the routing eval owed on `bc-quote-entry`. Already open under "Quote creation moves
+    into Business Central — RULED 2026-10-16; the skill is #68", above ("a full run on the
+    final description is still owed").
   - Refresh `models.json` (stale since 2026-09-15; it still lists `claude-opus-5`) via
     `refresh_models.py` or `.github/workflows/refresh-models.yml`.
   - Review-side checker gaps for Cursor to add: a plugin missing its `description`, and canon
