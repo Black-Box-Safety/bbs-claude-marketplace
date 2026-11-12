@@ -8,6 +8,10 @@
                 buyer's CLAUDE.md / quote-log.md / FLAGS.md named as the files to keep current,
                 and the buyer's quote-log rows older than 30 days with no final outcome listed
                 for close-out. Once per buyer per session (temp-dir marker keyed on session_id).
+                Also, on the first Read, Write or Edit under a buyer's folder, that buyer's
+                LEARNED.md chain from desk-memory.py's first_touch(), in this same process so a tool
+                call never starts a second interpreter. desk-memory.py is loaded only when the
+                path is inside the tree.
 
 The Python half of desk-context.ps1: same output on every input, proven by
 hooks/tests/parity.py. Change both or neither (invariant 3).
@@ -289,6 +293,21 @@ def first_write(h):
     return out
 
 
+def memory_first_touch(h):
+    """desk-memory.py's first_touch(h), loaded only for a path inside the tree."""
+    ti = h.get("tool_input")
+    p = ti.get("file_path") if isinstance(ti, dict) else None
+    if not isinstance(p, str) or not TREE_RE.search(p):
+        return []
+    import importlib.util
+    sys.dont_write_bytecode = True      # never leave a __pycache__ in the plugin cache
+    spec = importlib.util.spec_from_file_location(
+        "bbs_desk_memory", os.path.join(os.path.dirname(os.path.abspath(__file__)), "desk-memory.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.first_touch(h)
+
+
 def emit(text):
     sys.stdout.flush()
     sys.stdout.buffer.write(text.encode("utf-8"))
@@ -307,7 +326,9 @@ def main():
         return
 
     if h.get("hook_event_name") == "PostToolUse":
-        out = first_write(h)
+        # The matcher includes Read for desk memory; the buyer-desk reminder is about writes only.
+        out = [] if h.get("tool_name") == "Read" else (first_write(h) or [])
+        out += memory_first_touch(h)
         if out:
             ctx = "\n".join(out)
             emit('{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":%s}}'

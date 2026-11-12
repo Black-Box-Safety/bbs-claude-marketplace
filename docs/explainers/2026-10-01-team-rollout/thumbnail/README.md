@@ -32,7 +32,7 @@ Every line appears on `../bbs-claude-toolkit.html`:
 
 ## Marks and type
 
-- Logo: `plugins/bbs-sales/skills/bbs-quote-builder/assets/bbs_logo.png`, linked by relative
+- Logo: `docs/explainers/2026-10-01-team-rollout/bbs_logo.png` (moved from the retired quote builder, 2026-11-11), linked by relative
   path rather than copied, on a white plate. It is shown at its native pixel size (78 x 88.5 CSS
   px at 2x), with no filter, crop or recolor.
 - No Claude or Anthropic mark. The repo holds no file for one and `ASSETS.md` grants no right

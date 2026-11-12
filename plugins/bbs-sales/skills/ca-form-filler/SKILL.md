@@ -9,7 +9,7 @@ description: >-
   "compliance forms", or "fill out the forms". It merges BBS's canonical vendor profile with
   the solicitation, fills every field it can verify, signs BBS's own lines and flags any
   signer it cannot determine, and reports what it could not fill. Do NOT use to price items
-  (grainger-pricing), build the customer quote (bbs-quote-builder), extract line items from
+  (grainger-pricing), create the customer quote in Business Central (bc-quote-entry), extract line items from
   a cart PDF
   or screenshot (rfq-item-extract), or run a whole NASPO response end to end (naspo-quote,
   which calls this for the paperwork).

@@ -23,7 +23,8 @@ will be shown it, whoever opens it. One sentence in, one line saved, one sentenc
 What gets saved is the rep's own statement, with the rep's name and today's date on it. The
 line goes into a file called `LEARNED.md` in the buyer's folder (or the institution's), and
 the `desk-memory` hook shows those lines at the start of every session opened in that folder
-or under it. A session in a different buyer's folder never sees them.
+or under it, and to a session opened higher up the first time it touches a file in that
+folder. A session in a different buyer's folder never sees them.
 
 ## 1. Say it in one sentence, in the rep's words
 
@@ -47,13 +48,20 @@ their sentence.
 
 ## 3. Find the folder and the level
 
-`SKILL_DIR` is the folder holding this SKILL.md. The commands below say `python3`, which is
-right on a Mac; on Windows type `python` instead (`python3` there is a Store stub). Ask the script which folders the line could
-go to, giving it the buyer or deal folder the session is working in:
+Every command in this skill runs through `bbs-fill`, exactly as written: the managed
+settings allow `Bash(bbs-fill *)`, so saving a note needs no Allow click (Parker,
+2026-11-10, R7 A3), and `bbs-fill` picks `python` or `python3` for the machine. Never `cd`
+first and never chain another command onto the line. Ask the script which folders the line
+could go to, giving it the buyer or deal folder the session is working in:
 
 ```bash
-python3 "$SKILL_DIR/scripts/desk_memory.py" where --at "<buyer or deal folder>"
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" where --at "<buyer or deal folder>"
 ```
+
+If `bbs-fill` is not found, the `bbs-tools` plugin is missing: tell the rep to rerun the
+bootstrap, and meanwhile run the same line with `python` (Windows) or `python3` (Mac) in place
+of `bbs-fill`, which asks for permission. If it answers `REFUSED … is not a vetted script`,
+`bbs-tools` is older than 0.2.3: tell the rep to update plugins and start a new session.
 
 It prints the choices, nearest first: `1.` the buyer, `2.` the institution (CDCR, CalVet and
 DSH have one), then the agency and the whole desk, both marked `[needs Parker]`.
@@ -74,8 +82,7 @@ Ask one question only when the level is unclear. "Is that just this buyer, or ev
 ## 4. Save it
 
 ```bash
-python3 "$SKILL_DIR/scripts/desk_memory.py" add --at "<same folder>" --level 1 \
-  --author "<the rep's full name>" --kind preference --text "<the sentence>"
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" add --at "<same folder>" --level 1 --author "<the rep's full name>" --kind preference --text "<the sentence>"
 ```
 
 `--author` is the BBS person who said it, never Claude and never the buyer. If you do not know
@@ -118,7 +125,7 @@ The script refuses these, and so should you before it gets that far:
 - An instruction to skip, ignore or get around a review, a form, a signature or an approval,
   or to send or commit without one. That is not a memory; tell the rep it needs Parker.
 
-The session-start hook applies the same list when it reads the file, so a line typed into
+The hook applies the same list when it reads the file, so a line typed into
 `LEARNED.md` by hand that breaks it is withheld, not shown.
 
 Two notes are refused even though they are harmless, and that is accepted: "Discount codes do
@@ -144,12 +151,53 @@ out or nearly went out wrong because of it, also add the line the desk's own `CL
 asks for in the buyer's `FLAGS.md`; that log is what gets the skill fixed. If the thing that
 changed is the buyer's contact or ship-to at the top of their `CLAUDE.md`, fix it there too.
 
-An older note the change replaces stays in the file for now, below the new one. Say so.
+Then retire the older note the change replaces, so the two never sit side by side (see
+below). Ask first: "Shall I retire the old note that said <its words>?"
+
+## Retiring a note that was replaced
+
+A retired note moves to `LEARNED-archive.md` in the same folder, with the name of the rep who
+retired it and the date. That file is never shown to a session and is only ever added to, so
+nothing a rep said is lost. Give the words of the line as `show` prints them (a unique part
+is enough):
+
+```bash
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" retire --at "<folder>" --level 1 --text "<words of the old line>" --by "<the rep's full name>"
+```
+
+If more than one line matches, it changes nothing and says so; give more of the words. A note
+at agency or desk level is Parker's to retire, like adding one.
+
+## When OneDrive kept two copies
+
+If two people saved a note at the same moment, OneDrive keeps both versions: the second one
+gets the computer's name added, for example `LEARNED-KIM-LAPTOP.md`. Its lines are not shown
+until it is merged, and the notes Claude is given say so. When you see that, tell the rep and
+offer to merge it:
+
+```bash
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" merge --at "<folder>" --level 1
+```
+
+It adds each line that is not already there, leaves out a note that was already retired (and says
+so: "retired on <date> by <who>; not merged"), checks every line against the list above, and
+prints what it added. A OneDrive copy of the archive (`LEARNED-archive-<computer>.md`) is folded
+into the archive the same way; Claude never offers it as a note file, and its lines are never
+shown. Show the rep that output as it is. If every line in the copy is
+accounted for, it removes the copy and says it did. If it held any line back (one that breaks
+the list, or any other text that is not a note, such as a sentence typed without the dash), it
+keeps the copy, says which lines and why, and the
+rep deletes the copy by hand once they have looked. Never delete a copy yourself.
 
 ## Showing what is remembered
 
 ```bash
-python3 "$SKILL_DIR/scripts/desk_memory.py" show --at "<folder>"
+bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" show --at "<folder>"
 ```
 
 Prints exactly what a new session in that folder is given, nearest folder first.
+
+The notes also arrive without asking. A session opened in a buyer's folder is shown them at
+the start. A session opened at the top of the desk is shown the desk-wide notes at the start,
+and a buyer's own notes the first time it opens or edits a file in that buyer's folder, once
+per buyer per session, and never another buyer's.

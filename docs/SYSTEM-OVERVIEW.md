@@ -61,7 +61,7 @@ that starts with `/`.
 
 | Connector | What Claude can do through it | Who has it | Used today by |
 |---|---|---|---|
-| **Business Central** (`bc_*`) | Read only. Customers, items, sales orders, quotes and invoices, purchase orders and receipts, vendors, ledgers (about 150 entity sets). | Everyone | `bbs-order-reconciliation`, `so-search`, `bbs-po-status`, `bbs-quote-builder`, `naspo-quote`, the territory and site-visit playbooks |
+| **Business Central** (`bc_*`) | Read only. Customers, items, sales orders, quotes and invoices, purchase orders and receipts, vendors, ledgers (about 150 entity sets). | Everyone | `bbs-order-reconciliation`, `so-search`, `bbs-po-status`, `naspo-quote`, the territory and site-visit playbooks |
 | **Grainger** (`grainger_*`) | Read only. Search, per-account price, availability, part resolution, cross-reference, accounts. | Everyone who quotes | `grainger-pricing`, `naspo-quote`, `bbs-order-reconciliation`, `grainger-promo-page` |
 | **Sales CRM** (`crm_*`) | Reads records and attributes. It **can** update a record; no BBS playbook does yet, and managed settings do not pre-approve it, so it asks first. | Everyone | `bbs-weekly-sales-report`; territory, visit and primer playbooks when present |
 | **SCPRS / ca-procurement-intel** (`market_*`, `play_*`) | Read only. State purchase history, spend, last sales, and packaged plays (competitor profile, whitespace, contestable market, reorder timing, receptive buyers, fair-and-reasonable reference). | Reps on the CA state book | `ca-site-visit-brief`, `ca-agency-primer`, `ca-territory-handoff`, `supplier-scout`, `grainger-promo-page` |
