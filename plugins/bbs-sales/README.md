@@ -85,13 +85,20 @@ A rep says "remember that this buyer wants the quote as one PDF". `desk-remember
 as one dated line with the rep's name in `LEARNED.md` in the buyer's folder (or the
 institution's, when it is true for everyone there), and says where it went. The next session
 anyone opens in that folder, or in a deal folder under it, is shown the line before the first
-prompt. A session in a different buyer's folder is not.
+prompt. A session opened at the top of the desk is shown the desk-wide notes at the start
+and a buyer's own notes the first time it opens or edits a file in that buyer's folder, once
+per session. A session in a different buyer's folder is not.
+
+A note that was replaced is retired: moved to `LEARNED-archive.md` with who retired it and
+when, never shown again, never lost. If OneDrive kept two copies because two reps saved at
+once (`LEARNED-<computer>.md`), Claude says so and offers to merge it back in.
 
 A note is a person's statement, not a record. It never holds a price, an account number, a
 certification or a contract fact; the script refuses those and says where the number belongs
 instead. A note that should apply to a whole agency is saved for the buyer and marked for
-Parker to confirm. Design and what is still to come (showing notes when a session opens at
-the desk root, retiring a replaced note, the monthly roll-up):
+Parker to confirm. Saving, retiring and merging run through `bbs-fill`, so they need no Allow
+click (Parker, 2026-11-10, R7 A3). Design and what is still to come (the monthly roll-up,
+marking old notes):
 `docs/superpowers/specs/2026-11-10-desk-memory-design.md` in the marketplace repo.
 
 ## Writes to Business Central
@@ -276,7 +283,7 @@ call went ahead unguarded, instead of looking guarded.
 |---|---|---|
 | `guard-tree.ps1` / `.py` | Before Bash / PowerShell / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/`, including a shell delete or a redirect into a submitted packet (reading one stays allowed) |
 | `desk-context.ps1` / `.py` | Session start inside a buyer folder | Puts the last rows of `quote-log.md` and the latest `FLAGS.md` entries in front of Claude before the first prompt |
-| `desk-memory.ps1` / `.py` | Session start inside the tree, or at the desk root just above it | Shows what reps asked Claude to remember: the `LEARNED.md` lines in the session's folder and in each folder above it, nearest first. It walks up and never sideways, so one buyer's notes never show in another buyer's folder. Lines that are not in the entry format are counted and skipped, and a line that holds what a note may not (a price, a contact detail, an instruction to skip a review) is withheld and counted. Its own parity test: `hooks/tests/desk_memory_parity.py` |
+| `desk-memory.ps1` / `.py` | Session start inside the tree, or at the desk root just above it; and, through `desk-context`'s PostToolUse entry in the same process, the first Read, Write or Edit under a buyer's folder (`desk-post.sh` decides in the shell, from the file path alone, whether an interpreter needs to start) | Shows what reps asked Claude to remember: the `LEARNED.md` lines in the session's folder and in each folder above it, nearest first; on first touch of a buyer's folder, that buyer's chain once per session, minus the folders already shown at session start. Names a OneDrive conflict copy (`LEARNED-<device>.md`) without showing its lines. It walks up and never sideways, so one buyer's notes never show in another buyer's folder. Lines that are not in the entry format are counted and skipped, and a line that holds what a note may not (a price, a contact detail, an instruction to skip a review) is withheld and counted. Its own parity test: `hooks/tests/desk_memory_parity.py` |
 | `rfq-record-hook.py` | After Write / Edit of an `RFQ.md` in the tree | Not a twin and not a block. Runs `python3` first (or a Python 3 `python`, which is what the Windows bootstrap installs) and is the only validator: checks the record against the v2 format and writes `rfq-state.json` beside it. The write has already happened; on a problem Claude is told what to fix. Without Python 3, `rfq-record-hook.ps1` checks nothing and shows "RFQ record check needs python3; this edit was not checked" |
 
 A denial shows up as a permission refusal with a one-line reason Claude relays. Test locally:

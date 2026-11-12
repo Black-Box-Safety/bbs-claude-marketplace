@@ -83,10 +83,19 @@ Where the hook has to carry it, and why `LEARNED.md` is not a `CLAUDE.md`:
 - Some levels have no `CLAUDE.md` yet. The hook needs no file to exist at any level.
 - **The rep workspace opens at `Customers/State of CA Agencies`, above the tree.** A session
   opened there gets the desk-wide notes only, because at session start there is no buyer yet.
-  The buyer's notes must arrive when the session first touches a buyer's folder. That is
-  slice 2, built on PR #75's first-write mechanism once it is on `main`. Until then the
-  notes reach sessions opened in or under a buyer folder, and `desk-remember`'s `show` prints
-  them on request from anywhere.
+  The buyer's notes must arrive when the session first touches a buyer's folder. Slice 2
+  builds that into PR #75's PostToolUse entry: the first Read, Write or Edit of a file under a
+  buyer's (or institution's) folder shows that folder's chain, once per folder per session,
+  leaving out the folders the session-start notes already covered. The entry's matcher gained
+  `Read`, so it now runs `hooks/desk-post.sh` first. One `grep` reads only the `file_path`,
+  `session_id` and `tool_name` values; the shell exits before any interpreter starts unless the
+  path names the tree, or when the Read is in a folder desk-memory already handled this session
+  (a folder-done marker the shell can test). A `cwd` inside the tree, or a file whose text says
+  "by agency", is not a desk touch. Measured on Linux (median of 20-50 runs of the real entry,
+  dash): a Read outside the desk 7 ms, a repeat Read in a handled folder 9 ms; before this, the
+  last two cases started pwsh (380-540 ms). Windows Git Bash and PowerShell 5.1 are unmeasured. Markers are
+  #75's pattern (temp dir, keyed on the sanitised session id) and are cleared on `/compact`,
+  when the context they stood for is gone.
 
 ## 2. Isolation
 
@@ -95,8 +104,9 @@ A session in buyer A's folder cannot be handed buyer B's or agency B's memory:
 - **By construction.** Native loading takes ancestors only. `LEARNED.md` lives in the folder it
   is about.
 - **By the hook.** `desk-memory` takes `cwd`, reads `LEARNED.md` there, strips one path
-  component, and repeats until it reaches the folder named `All RFQ's by Agency`. It never
-  lists a directory, so it cannot see a sibling. If it cannot reach the tree folder in eight
+  component, and repeats until it reaches the folder named `All RFQ's by Agency`. The only
+  directory it lists is each level's own folder, for the names of OneDrive conflict copies of
+  `LEARNED.md`, which it never opens; it never lists or opens a sibling folder. If it cannot reach the tree folder in eight
   steps it prints nothing. Proven by `skills/desk-remember/scripts/test_desk_memory.py`
   (sibling buyer, sibling institution, other agency) and `hooks/tests/desk_memory_parity.py`.
 - **By rule, for skills that search precedent.** The desk template now says: stay inside this
@@ -231,10 +241,26 @@ The pattern check is a floor, not a ceiling: it cannot tell "delivery expected i
 
 - Append-only, one line of at most about 330 bytes, file created on first note. Two reps
   adding at once cost at worst one line.
-- OneDrive names a conflict copy `LEARNED-<device>.md`. The hook reads the exact name only, so
-  a conflict copy is never shown, and neither are its lines until merged. Slice 2 adds `merge`
-  (union of entry lines, duplicates dropped) and a line in the hook's output saying a conflict
-  copy exists.
+- OneDrive keeps both versions of a non-Office file in conflict and "the copy on your computer
+  has your device name appended to the file name such as Report-JOHNS-SURFACE.txt"
+  (https://learn.microsoft.com/troubleshoot/sharepoint/sync/troubleshoot-sync-issues, read
+  2026-11-10), so a conflict copy is `LEARNED-<device>.md`. The hook reads the exact name only,
+  so a conflict copy is never shown, and neither are its lines until merged; it names the copy
+  in its output (slice 2). The archive and its own copies (`LEARNED-archive-<device>.md`) are
+  left out of the pattern in the writer and both hooks: never shown, never offered as a copy of
+  `LEARNED.md`.
+- `merge` (slice 2) folds archive copies into `LEARNED-archive.md` first (append-only, exact
+  lines de-duplicated), then each `LEARNED-<device>.md` into `LEARNED.md`. It adds each entry
+  line whose statement is not already there and **was not retired**: a statement in the archive
+  and not in `LEARNED.md` stays out and is reported as "retired on <date> by <who>; not merged",
+  which is the case `retire` on one machine and an append on another produces. It re-checks
+  every line against the refusal table. Any other non-blank line that is not one of the file's
+  header lines (a typed sentence, a malformed bullet) is reported as not merged. It removes a
+  copy only when every line in it is accounted for (added, already there, or retired), and says
+  so; otherwise it keeps the copy and the rep deletes it by hand.
+- `retire` writes the archive first and never twice: when `LEARNED.md` cannot be rewritten (a
+  file OneDrive has open), it says the line is in both files for now, and a retry finishes
+  without a second archive line.
 - The writer never rewrites a file in slice 1. `retire` and `promote` will, on one small file,
   and are Parker-or-rep actions run one at a time.
 
@@ -270,11 +296,10 @@ recommendations…"; `docs/STEWARD.md`, R7). The ASSUMED wording is kept below a
 2. **Who approves agency-wide and desk-wide notes.** **RULED 2026-11-10.** Recommended and ASSUMED: Parker only, at
    the monthly review; the writer refuses those levels for now. This matches PR #75's "agency
    and desk-root files change only by a ruling from Parker".
-3. **No Allow click to save a note.** **RULED 2026-11-10.** Slice 1 runs the script with plain `python`, so a rep
-   sees one permission prompt per note. Recommended: add `desk-remember/scripts/desk_memory.py`
-   to the `bbs-fill` allow list in slice 2. It writes one line into the tree and cannot send,
-   price or sign. ASSUMED: not allow-listed until ruled; it is a control change and needs the
-   second reviewer.
+3. **No Allow click to save a note.** **RULED 2026-11-10** (Parker, R7 A3, as recommended):
+   `desk-remember/scripts/desk_memory.py` is on the `bbs-fill` allow list from slice 2, and the
+   skill runs it through `bbs-fill`. Recorded in `bbs-foundations` `docs/MANAGED-SETTINGS.md`,
+   "Desk memory notes".
 4. **Restamp the desk-root `CLAUDE.md`** from `workspace/DESK-CLAUDE-template.md`. **RULED 2026-11-10.** The template
    gained the "what reps asked you to remember" section and the stay-in-this-buyer's-folder
    rule; they reach no machine until the file on SharePoint is replaced. Not a repo change.

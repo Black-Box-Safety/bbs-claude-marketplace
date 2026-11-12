@@ -16,7 +16,7 @@ Tests:
 the save-then-show loop, isolation, format agreement between writer and both hook halves) and
 `python3 plugins/bbs-sales/hooks/tests/desk_memory_parity.py` (hook halves agree). Both in CI.
 
-## Slice 2 — reach the session that opens at the desk root; tidy
+## Slice 2 — reach the session that opens at the desk root; tidy (built: bbs-sales 0.12.0)
 
 Depends on PR #75 being on `main` (its PostToolUse first-write path and once-per-session
 marker) and on the ruling in spec Open for Parker 3.
