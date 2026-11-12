@@ -619,10 +619,12 @@ class TestPacificToday(unittest.TestCase):
 
 class TestConflictCopyNames(unittest.TestCase):
     def test_onedrive_copies_match(self):
-        for n in ("RFQ-REP-LAPTOP.md", "RFQ-DESKTOP-AB12CD.md", "RFQ-DESKTOP-AB12CD-2.md", "RFQ-123PC.md"):
+        for n in ("RFQ-REP-LAPTOP.md", "RFQ-DESKTOP-AB12CD.md", "RFQ-DESKTOP-AB12CD-2.md", "RFQ-123PC.md",
+                  "RFQ-LAPTOP-1.md", "RFQ-DESKTOP-ABC1234.md"):
             self.assertTrue(rfq_record.CONFLICT_COPY.match(n), n)
 
     def test_a_reps_own_files_do_not(self):
         for n in ("RFQ.md", "RFQ-notes.md", "RFQ-meeting-notes.md", "rfq-kim.md", "rfq-record-template.md",
-                  "rfq-state.json", "RFQ-THIS-NAME-IS-FAR-TOO-LONG.md", "RFQ-.md"):
+                  "rfq-state.json", "RFQ-THIS-NAME-IS-FAR-TOO-LONG.md", "RFQ-.md",
+                  "RFQ-12345.md", "RFQ-2026-11-12.md", "RFQ-Notes.md", "RFQ-kim-NOTES.md"):
             self.assertFalse(rfq_record.CONFLICT_COPY.match(n), n)

@@ -76,7 +76,8 @@ these at write time:
   records `[forced by <person> <when> from <stage>]`.
 - Every CLI write is refused while a OneDrive conflict copy (`RFQ-<COMPUTERNAME>.md`, or with a
   `-<n>` suffix) sits beside the record: merge it by hand and delete it first. A rep's own file
-  (`RFQ-notes.md`, anything ending in `-notes`, or any lowercase `rfq-…`) is never taken for one.
+  is never taken for one: anything ending in `-notes` in any case (`RFQ-Notes.md`), a name with no
+  letter in it (`RFQ-12345.md`, `RFQ-2026-11-12.md`), or any lowercase `rfq-…`.
 
 ## CLI synopsis
 

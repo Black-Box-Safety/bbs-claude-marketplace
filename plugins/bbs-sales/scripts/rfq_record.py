@@ -1018,10 +1018,13 @@ def _deal_path(path):
 
 
 # A OneDrive conflict copy of RFQ.md is named RFQ-<COMPUTERNAME>.md, or RFQ-<COMPUTERNAME>-<n>.md
-# when there are several. A Windows computer name is 1-15 letters, digits and hyphens. "RFQ" is
-# matched case-sensitively, so rfq-record-template.md and rfq-kim.md never match, and a name
-# ending in -notes is a rep's own file, not a copy.
-CONFLICT_COPY = re.compile(r"^RFQ-(?!.*notes\.md$)[A-Za-z0-9][A-Za-z0-9-]{0,14}(?:-[0-9]+)?\.[mM][dD]$")
+# when there are several. A Windows computer name is 1-15 letters, digits and hyphens, and is
+# taken to hold at least one letter, so a file named for a number or a date (RFQ-12345.md,
+# RFQ-2026-11-12.md) is a rep's own file. "RFQ" is matched case-sensitively, so
+# rfq-record-template.md and rfq-kim.md never match, and a name ending in -notes, in any case,
+# is a rep's own file, not a copy.
+CONFLICT_COPY = re.compile(r"^RFQ-(?!.*[nN][oO][tT][eE][sS]\.[mM][dD]$)(?=[0-9-]*[A-Za-z])"
+                           r"[A-Za-z0-9][A-Za-z0-9-]{0,14}(?:-[0-9]+)?\.[mM][dD]$")
 
 
 def conflict_copies(path):
