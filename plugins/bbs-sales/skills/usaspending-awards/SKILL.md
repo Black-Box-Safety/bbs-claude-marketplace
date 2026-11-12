@@ -31,7 +31,7 @@ memory.
 Through the vetted launcher, which runs it without a permission prompt (Parker, 2026-10-02):
 
 ```bash
-bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/usaspending-awards/scripts/usaspending_awards.py" awards --naics 339113 --agency VA
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/usaspending-awards/scripts/usaspending_awards.py" awards --naics 339113 --agency VA
 ```
 
 | Mode | Answers | Amount means |
@@ -53,11 +53,12 @@ bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/usaspending-awards/scripts/usaspending_aw
 
 At least one of `--naics`, `--agency`, `--recipient` or `--keyword` is required.
 
-If `bbs-fill` is not found, the `bbs-tools` plugin is missing: tell the rep to rerun the
-bootstrap, and in the meantime run the same line with `python` (Windows) or `python3` (Mac)
-in place of `bbs-fill`, which will ask for permission. If it answers `REFUSED … is not a
-vetted script`, `bbs-tools` is older than 0.2.0: tell the rep to update plugins and start a
-new session. Neither is a USAspending failure; never report it as one.
+If the launcher answers `REFUSED`, relay its reason to the rep and stop. If an Allow prompt
+appears for one of these commands, do not ask the rep to approve it: a prompt means the
+command was not the vetted form, and a click would run whatever it was. Re-issue it once,
+exactly as written above, with nothing before or after it. If it prompts again, stop, and tell
+the rep to run `/bbs-checkup` and send the result to Parker. Never run the script with
+`python` or `python3` directly. Neither is a USAspending failure; never report it as one.
 
 **It cannot answer "who does this prime subcontract to".** USAspending's subaward search
 matches the sub-awardee only, so `--recipient Bechtel` lists the primes Bechtel worked

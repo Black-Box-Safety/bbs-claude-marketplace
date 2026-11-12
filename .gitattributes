@@ -3,3 +3,6 @@
 
 # Test fixtures must stay LF so exact-string replacements in run-tests.ps1 match.
 plugins/bbs-sales/scripts/tests/fixtures/*.md text eol=lf
+
+# The bbs-fill launcher is run directly by path (and by a hook-approved command); CRLF would break its shebang on a Windows checkout.
+plugins/bbs-sales/scripts/bbs-fill text eol=lf
