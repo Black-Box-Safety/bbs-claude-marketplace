@@ -10,7 +10,7 @@ description: >-
   (signers, form IDs, certification claims, price rules); it checks that a ruling is recorded
   in the rulings register in docs/STEWARD.md and holds the PR if one is missing.
 model: opus
-effort: high
+effort: medium
 memory: project
 color: crimson
 ---
