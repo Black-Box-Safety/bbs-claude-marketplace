@@ -1062,8 +1062,7 @@ Write it up with evidence and move to the next slice. Do not idle.
   settings are in". From then on R1 holds without exception: Parker merges in the GitHub UI.
   **Still open:** the live test of that paste — a payroll read is blocked, a Vercel purchase
   asks, and a new session opens on Opus at medium.
-- **BC writers: Kim, Aanya, Griffin and Joey, each signed in as themselves — RULED
-  2026-11-11/12.** Parker, in the steward session: "Kim, Aanya, griffin and Joey should have
+- **BC writers: Kim, Aanya, Griffin and Joey — RULED 2026-11-11.** Parker, in the steward session: "Kim, Aanya, griffin and Joey should have
   write permission matching the skills we ahve". Asked how reps connect to BC — "(a) Each rep
   signs in through the app (delegated) — BC records the rep as creator; rep's own BC
   permissions matter" or "(b) The app writes as itself (app-only, the app's secret)" — he
@@ -1071,7 +1070,13 @@ Write it up with evidence and move to the next slice. Do not idle.
   have write BC quote permission, it has been workign", then "becuase they are on the same API
   connection through the app". So Parker reports quote writes working; as item (b) of the #68
   entry above says, the first live delegated quote commit under a rep's own BC permissions is
-  what confirms it, and that item stays open. Still to confirm per rep: item rights, and each
+  what confirms it, and that item stays open. **Connection method:** asked again on
+  2026-11-12, Parker said "I can't remember how we have it set up, I haven't changed it",
+  then "I have to click a Microsoft auth on my profile I know that". An interactive Microsoft
+  sign-in under his own profile is delegated sign-in, so the method is recorded as (a),
+  delegated, which is what `rep-setup.md` and the 2026-10-14 ruling expect. The "same API
+  connection through the app" sentence above does not change that; each rep's own `whoami`
+  printing their own work account confirms (a) for that rep. Still to confirm per rep: item rights, and each
   rep's one-time `whoami`. Setup and the confirmation steps:
   `plugins/bbs-sales/skills/bc-item-entry/references/rep-setup.md`.
 - **Folders become the statement of record — RULED 2026-11-12.** Parker, in the session that
