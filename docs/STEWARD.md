@@ -1083,7 +1083,7 @@ Write it up with evidence and move to the next slice. Do not idle.
   built the sales handbook (PR #88): "The dashboard and quote log should be connected. I want
   to move from the CRM being the statement of record to our folders." This decides item 9.1
   of the folder-first RFQ pipeline spec (cited from #77; original on SharePoint under State of
-  CA Agencies `docs/superpowers/specs/`, scrubbed repo copy
+  CA Agencies `docs/archive/superpowers/specs/`, scrubbed repo copy
   `docs/archive/superpowers/specs/2026-10-30-rfq-pipeline-folder-first-design.md`, section 9 item 1).
   **Open action:** update `ca-state-sales-grounding`, the desk `CLAUDE.md`, and every file
   that names Dynamics/the CRM as the pipeline record. Not done in the PR that recorded this.
