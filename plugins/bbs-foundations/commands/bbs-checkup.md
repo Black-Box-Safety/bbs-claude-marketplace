@@ -103,18 +103,23 @@ report format at the end. Read-only: create/modify nothing, send nothing.
       all, send your PNG to Parker (ADMIN-RUNBOOK §3b).
     Never open, copy or display an image; check presence and header bytes only.
 
-12. **Managed permissions and the form launcher.** Resolve `bbs-fill` on PATH
-    (`command -v bbs-fill`; it comes from the `bbs-tools` plugin's `bin/` and exists only
-    while that plugin is enabled). Then run `bbs-fill` with no arguments: it must print its
-    usage line ("REFUSED — usage: …", exit 64) and run nothing — that is the expected
-    answer, and it shows the launcher runs on this machine. Then ask the rep to type
-    `/permissions` and read you two things: whether **Allow** lists `Bash(bbs-fill *)`,
-    and whether **Ask** lists the Outlook `outlook_send_mail` tool. PASS = `bbs-fill`
-    resolves, prints its usage, and both rules are listed. WARN, naming which part failed:
-    `bbs-fill` missing → rerun the bootstrap and restart (bbs-tools not installed); a rule
-    missing → the managed settings on this machine are older than the current file: restart
-    Claude Code, and if it is still missing tell Parker to re-paste them (ADMIN-RUNBOOK §1).
-    Never edit any settings file yourself.
+12. **Managed permissions and the form launcher.** Find `bbs-sales`' installed folder from
+    `/plugin` (the folder that holds its `skills/` and `scripts/`; call it `<root>`). Run
+    `"<root>/scripts/bbs-fill"` with no arguments: it must print its usage line
+    ("REFUSED — usage: …", exit 64) and run nothing. That is the expected answer, and it
+    shows the launcher runs on this machine. Then ask the rep to type `/permissions` and read
+    you whether **Ask** lists the Outlook `outlook_send_mail` tool. Then **the auto-mode
+    line**: say which permission mode this session is in (auto mode is the normal one), run
+    `"<root>/scripts/bbs-fill" "<root>/skills/ca-form-filler/scripts/packet_profile.py" --list`
+    exactly as written, and report whether it ran without an Allow prompt and without an
+    auto-mode denial (`bbs-sales`' fill-gate hook approves that exact form). PASS = the usage
+    line, the Ask rule, and the listing ran with no prompt and no denial. WARN, naming which
+    part failed, and then say, exactly: "If Claude Code asks you to Allow a `bbs-fill` command, choose **No**, then run `/bbs-checkup` and send the result to Parker." A missing Ask rule also means the managed
+    settings on this machine are older than the current file: restart Claude Code, and if it
+    is still missing tell Parker to re-paste them (ADMIN-RUNBOOK §1). Until `bbs-tools` is
+    retired, `command -v bbs-fill` also resolving (its old copy) is expected and is not a
+    failure. Never edit any settings file yourself, and never approve a `bbs-fill` prompt on
+    the rep's behalf.
 
 ## Report format
 

@@ -70,7 +70,7 @@ The same as `bc-item-entry`; do it once and both skills work. The checklist is
   Windows: `python -m pip install msal msal-extensions`. On a Mac, `CERTIFICATE_VERIFY_FAILED`
   means a python.org build sits ahead of `/usr/bin` on PATH [FLAG: fix the PATH or ask Parker].
 - **Run the first `whoami` in your own terminal, not inside a Claude session:**
-  `bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/bc-quote-entry/scripts/bc_quote_entry.py" whoami`.
+  `"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/bc-quote-entry/scripts/bc_quote_entry.py" whoami`.
   A browser window asks for your own Microsoft work account (a device code if no browser
   can open); the sign-in is cached encrypted and shared with `bc-item-entry`. `whoami` then
   reads customers, items, sales quotes and units of measure once each and prints PASS or FAIL
@@ -127,17 +127,21 @@ override the card's description on this quote only.
 ### 4. Run the check
 
 ```bash
-bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/bc-quote-entry/scripts/bc_quote_entry.py" check "<spec.json>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/bc-quote-entry/scripts/bc_quote_entry.py" check "<spec.json>"
 ```
 
-**Every run of this script goes through `bbs-fill`**, exactly as written: the managed
-settings allow `Bash(bbs-fill *)` and nothing broader, and the script is on the launcher's
+**Every run of this script goes through the `bbs-fill` launcher**, exactly as written: `bbs-sales`'
+fill-gate hook lets that exact form run without a prompt and nothing broader, and the script is on the launcher's
 allow list under R3 (Parker, 2026-11-10), which allowed it only because the check stops every
 NASPO line whose price is not exactly its cost. The rep's sign-off on the sheet is the gate, with
 no Allow click on top. Run it from the rep's working folder,
-never `cd` first, and never chain another command onto the line. If `bbs-fill` is not found,
-the `bbs-tools` plugin is not installed; say so rather than running the script with `python3`
-directly.
+never `cd` first, and never chain another command onto the line.
+If the launcher answers `REFUSED`, relay its reason to the rep and stop. If an Allow prompt
+appears for one of these commands, do not ask the rep to approve it: a prompt means the
+command was not the vetted form, and a click would run whatever it was. Re-issue it once,
+exactly as written above, with nothing before or after it. If it prompts again, stop, and tell
+the rep to run `/bbs-checkup` and send the result to Parker. Never run the script with
+`python` or `python3` directly.
 
 It writes nothing in BC. It proves the read path, validates every field, looks the customer
 up (exists, unblocked), reads every line's item (exists, Inventory, unblocked; the card's
@@ -161,7 +165,7 @@ go back to step 4.
 ### 6. Commit with the rep's name and the current token
 
 ```bash
-bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/bc-quote-entry/scripts/bc_quote_entry.py" commit "<spec.json>" --approve <token> --approved-by "<rep name>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/bc-quote-entry/scripts/bc_quote_entry.py" commit "<spec.json>" --approve <token> --approved-by "<rep name>"
 ```
 
 `--approved-by` must match `preparedBy` on the spec; the script refuses any other name. It

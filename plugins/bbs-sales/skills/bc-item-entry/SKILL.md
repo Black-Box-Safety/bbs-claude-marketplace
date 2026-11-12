@@ -121,15 +121,19 @@ its own `vendorName`.
 ### 4. Run the check
 
 ```bash
-bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/bc-item-entry/scripts/bc_item_entry.py" check "<spec.json>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/bc-item-entry/scripts/bc_item_entry.py" check "<spec.json>"
 ```
 
-**Every run of this script goes through `bbs-fill`**, exactly as written: the managed
-settings allow `Bash(bbs-fill *)` and nothing broader, and the script is on the launcher's
+**Every run of this script goes through the `bbs-fill` launcher**, exactly as written: `bbs-sales`'
+fill-gate hook lets that exact form run without a prompt and nothing broader, and the script is on the launcher's
 allow list by ruling (Parker, 2026-10-16: the rep's sign-off on the sheet is the gate, with
 no Allow click on top). Run it from the rep's working folder, never `cd` first, and never
-chain another command onto the line. If `bbs-fill` is not found, the `bbs-tools` plugin is
-not installed; say so rather than running the script with `python3` directly.
+chain another command onto the line. If the launcher answers `REFUSED`, relay its reason to the rep and stop. If an Allow prompt
+appears for one of these commands, do not ask the rep to approve it: a prompt means the
+command was not the vetted form, and a click would run whatever it was. Re-issue it once,
+exactly as written above, with nothing before or after it. If it prompts again, stop, and tell
+the rep to run `/bbs-checkup` and send the result to Parker. Never run the script with
+`python` or `python3` directly.
 
 It writes nothing. It first proves the read path (items, vendors, Item Card web service) and
 stops if any of the three fails (a read PASS does not prove write rights; see the setup);
@@ -149,7 +153,7 @@ rep changes anything, edit the spec and go back to step 4.
 ### 6. Commit with the rep's name and the current token
 
 ```bash
-bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/bc-item-entry/scripts/bc_item_entry.py" commit "<spec.json>" --approve <token> --approved-by "<rep name>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/bc-item-entry/scripts/bc_item_entry.py" commit "<spec.json>" --approve <token> --approved-by "<rep name>"
 ```
 
 `--approved-by` must match `preparedBy` on the spec; the script refuses any other name.

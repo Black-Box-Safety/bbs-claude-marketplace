@@ -115,11 +115,47 @@ jobs:
           python3 plugins/bbs-sales/hooks/tests/desk_memory_parity.py | tail -3
           test "${PIPESTATUS[0]}" = "0"
 
-      # bbs-fill is allowed by managed settings as `Bash(bbs-fill *)`, so its refusals are the
-      # control: every way past them is a way past auto mode. The tests also fail when a
-      # skill line or packet profile names a script that is not on its allow-list.
+      # bbs-sales' fill-gate hook approves one launcher invocation without a prompt, so the
+      # launcher's refusals are the control: every way past them is a way past auto mode. The
+      # tests also fail when a skill line or packet profile names a script that is not on its
+      # allow-list.
       - name: bbs-fill launcher tests
-        run: python3 plugins/bbs-tools/tests/test_bbs_fill.py
+        run: python3 plugins/bbs-sales/scripts/tests/test_bbs_fill.py
+
+      # The bbs-tools launcher stays installed, and `Bash(bbs-fill *)` stays in managed settings,
+      # until PR B, so its refusal tests keep running. Only its skill-line check is skipped: skills
+      # now call bbs-sales' own launcher, which the step above checks. PR B deletes this step with
+      # the launcher (docs/superpowers/plans/2026-11-11-bbs-fill-into-bbs-sales.md).
+      - name: bbs-tools launcher refusal tests (until PR B)
+        run: |
+          python3 - <<'PY'
+          import importlib.util, sys, traceback
+          spec = importlib.util.spec_from_file_location("t", "plugins/bbs-tools/tests/test_bbs_fill.py")
+          t = importlib.util.module_from_spec(spec); spec.loader.exec_module(t)
+          skip = {"test_every_bbs_fill_line_and_profile_script_is_allowed"}
+          tests = [(n, f) for n, f in sorted(vars(t).items()) if n.startswith("test_") and n not in skip]
+          failed = 0
+          for n, f in tests:
+              try:
+                  f(); print("PASS", n)
+              except Exception:
+                  failed += 1; print("FAIL", n); traceback.print_exc()
+          print("%d/%d passed (skipped: %s)" % (len(tests) - failed, len(tests), ", ".join(sorted(skip))))
+          sys.exit(1 if failed else 0)
+          PY
+
+      # fill-gate.py and fill-gate.ps1 decide identically on every case, and bash and zsh split
+      # every command the hook accepts exactly as its lexer does. BBS_REQUIRE_PS=1 and
+      # BBS_REQUIRE_SHELLS=1 turn "not installed, skip" into a failure.
+      - name: Install zsh (fill-gate shell differential)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq zsh
+      - name: fill-gate hook parity and shell differential
+        env:
+          BBS_REQUIRE_PS: "1"
+          BBS_REQUIRE_SHELLS: "1"
+        run: |
+          python3 plugins/bbs-sales/hooks/tests/fill_gate_parity.py | tail -25
+          test "${PIPESTATUS[0]}" = "0"
 
       # The Windows bootstrap cannot be run here, but it can be parsed: a syntax error in it
       # stops every new Windows rep at step 1.
@@ -206,3 +242,25 @@ jobs:
             echo "::error::reproduce with the two commands at the bottom of it."
             exit 1
           fi
+
+  # macOS reps run the Bash tool in zsh and use NFD file names: run the hook parity and the
+  # bash/zsh differential there too (spec section 8). Windows is covered by merge gate V3.
+  fill-gate-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # The macOS runner image ships pwsh; fail loudly if it ever stops doing so.
+      - name: PowerShell present
+        run: command -v pwsh && pwsh -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
+      - name: fill-gate hook parity and shell differential (macOS)
+        env:
+          BBS_REQUIRE_PS: "1"
+          BBS_REQUIRE_SHELLS: "1"
+        run: |
+          python3 plugins/bbs-sales/hooks/tests/fill_gate_parity.py | tail -25
+          test "${PIPESTATUS[0]}" = "0"
+      - name: bbs-fill launcher tests (macOS)
+        run: python3 plugins/bbs-sales/scripts/tests/test_bbs_fill.py
