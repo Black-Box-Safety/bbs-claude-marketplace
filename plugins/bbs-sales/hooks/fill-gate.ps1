@@ -12,6 +12,8 @@
 # category tables. Runs on Windows PowerShell 5.1 and pwsh 7. ASCII-only source.
 
 $ErrorActionPreference = 'Stop'
+# Every string comparison that decides is ordinal ([string]::Equals ... Ordinal): -ceq is
+# culture-aware and treats NFC and NFD forms of one name as equal, which fill-gate.py does not.
 # PowerShell variable names ignore case and functions see their callers' variables, so no
 # script-level name may match a local one ($entry, $root, $words ...): ENTRY_SHAPE, not ENTRY.
 $REASON = 'bbs-fill: vetted script '
@@ -26,7 +28,7 @@ function Write-Why([string]$why) {
 }
 
 function Test-Bad([int]$cp) {
-  return ($cp -lt 0x20) -or ($cp -ge 0x7F -and $cp -le 0x9F) -or ($cp -eq 0x2028) -or ($cp -eq 0x2029) -or ($cp -ge 0xD800 -and $cp -le 0xDFFF)
+  return ($cp -lt 0x20) -or ($cp -ge 0x7F -and $cp -le 0x9F) -or ($cp -eq 0x2028) -or ($cp -eq 0x2029) -or ($cp -eq 0xFFFD) -or ($cp -ge 0xD800 -and $cp -le 0xDFFF)
 }
 
 function Get-CodePoints([string]$s) {
@@ -148,7 +150,7 @@ function Test-AnyLink([string]$root, [string[]]$parts) {
 }
 
 function Get-Decision($h) {
-  if ($null -eq $h -or $h.tool_name -cne 'Bash') { return (Write-Why 'step 1') }
+  if ($null -eq $h -or -not [string]::Equals([string]$h.tool_name, 'Bash', [StringComparison]::Ordinal)) { return (Write-Why 'step 1') }
   $ti = $h.tool_input
   if ($null -eq $ti) { return (Write-Why 'step 2') }
   $cmd = $ti.command
@@ -165,13 +167,13 @@ function Get-Decision($h) {
   if ($null -eq $words -or $words.Length -lt 2) { return (Write-Why ('step 7 words=' + ($words -join '|'))) }
   $w0 = Get-Canon $words[0]
   $w1 = Get-Canon $words[1]
-  if ($null -eq $w0 -or $null -eq $w1 -or $w0 -cne ($root + '/scripts/bbs-fill')) { return (Write-Why ('step 8 w0=' + $w0 + ' root=' + $root)) }
+  if ($null -eq $w0 -or $null -eq $w1 -or -not [string]::Equals($w0, ($root + '/scripts/bbs-fill'), [StringComparison]::Ordinal)) { return (Write-Why ('step 8 w0=' + $w0 + ' root=' + $root)) }
   $prefix = $root + '/skills/'
   if (-not $w1.StartsWith($prefix, [StringComparison]::Ordinal)) { return (Write-Why 'step 9') }
   $entry = $w1.Substring($prefix.Length)
   $launcher = [IO.Path]::Combine([IO.Path]::Combine($rootNative, 'scripts'), 'bbs-fill')
   $allowed = Get-Allowed $launcher
-  if ($null -eq $allowed -or -not ($allowed -ccontains $entry)) { return (Write-Why ('step 10 entry=' + $entry + ' allowed=' + ($allowed -join ','))) }
+  if ($null -eq $allowed -or [Array]::IndexOf([string[]]$allowed, [string]$entry) -lt 0) { return (Write-Why ('step 10 entry=' + $entry + ' allowed=' + ($allowed -join ','))) }
   $entryParts = $entry.Split('/')
   if (Test-AnyLink $rootNative @('scripts', 'bbs-fill')) { return (Write-Why 'step 11') }
   if (Test-AnyLink $rootNative (@('skills') + $entryParts)) { return (Write-Why 'step 12') }

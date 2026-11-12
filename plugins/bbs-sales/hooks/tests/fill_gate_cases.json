@@ -48,6 +48,7 @@
     {"id": "nul", "cmd": "\"{L}\" \"{S}\" a\u0000b", "expect": "none", "why": "NUL"},
     {"id": "nel", "cmd": "\"{L}\" \"{S}\" \"a\u0085b\"", "expect": "none", "why": "C1 control inside quotes"},
     {"id": "ls", "cmd": "\"{L}\" \"{S}\" \"a\u2028b\"", "expect": "none", "why": "line separator inside quotes"},
+    {"id": "replacement-char", "cmd": "\"{L}\" \"{S}\" \"a\ufffdb\"", "expect": "none", "why": "U+FFFD (what PowerShell makes of a lone surrogate)"},
     {"id": "lone-surrogate", "cmd": "\"{L}\" \"{S}\" \"a\ud800b\"", "expect": "none", "why": "lone surrogate"},
     {"id": "unterminated-sq", "cmd": "\"{L}\" \"{S}\" 'abc", "expect": "none", "why": "unterminated quote"},
     {"id": "unterminated-dq", "cmd": "\"{L}\" \"{S}\" \"abc", "expect": "none", "why": "unterminated quote"},

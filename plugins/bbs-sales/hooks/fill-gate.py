@@ -18,7 +18,7 @@ point:
     word with "="), single-quoted runs, and double-quoted runs (no $ ` ! inside, and a backslash
     only where it stays literal);
   - non-ASCII is accepted only inside quotes;
-  - every Cc code point, U+2028, U+2029 and any surrogate code point rejects the command.
+  - every Cc code point, U+2028, U+2029, U+FFFD and any surrogate code point rejects the command.
 Anything else (operators, redirects, substitution, expansion, globs, comments, an unterminated
 quote) rejects the command.
 
@@ -37,7 +37,8 @@ DQ_ESCAPABLE = set('$`"\\')
 
 def bad(cp):
     """Code points that reject the command wherever they appear, quoted or not."""
-    return cp < 0x20 or 0x7F <= cp <= 0x9F or cp in (0x2028, 0x2029) or 0xD800 <= cp <= 0xDFFF
+    # U+FFFD too: PowerShell's JSON reader turns a lone surrogate into it, so both halves refuse it.
+    return cp < 0x20 or 0x7F <= cp <= 0x9F or cp in (0x2028, 0x2029, 0xFFFD) or 0xD800 <= cp <= 0xDFFF
 
 
 def lex(cmd):
