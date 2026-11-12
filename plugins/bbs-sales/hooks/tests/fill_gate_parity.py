@@ -176,7 +176,12 @@ def run_cases():
                                          "-File", os.path.join(HOOKS, "fill-gate.ps1")], data, env)
                 pd, preason = decision(pout)
                 check(pcode == 0 and not perr.strip(), c["id"] + " (ps) exit 0, no stderr", repr((pcode, perr[:300])))
-                check((pd, preason) == (d, reason), c["id"] + " parity", "py=%r ps=%r" % ((d, reason), (pd, preason)))
+                why = ""
+                if (pd, preason) != (d, reason):
+                    denv = dict(env, BBS_FILL_GATE_DEBUG="1")
+                    why = run([PS, "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
+                               "-File", os.path.join(HOOKS, "fill-gate.ps1")], data, denv)[2].strip()
+                check((pd, preason) == (d, reason), c["id"] + " parity", "py=%r ps=%r %s" % ((d, reason), (pd, preason), why))
     return allowed_cmds
 
 

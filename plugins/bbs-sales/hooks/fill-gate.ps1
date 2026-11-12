@@ -16,6 +16,13 @@ $REASON = 'bbs-fill: vetted script '
 $ENTRY  = '^"([a-z0-9-]+/scripts/[A-Za-z0-9_.-]+\.(?:py|js))"$'
 $UNQUOTED = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_./:,=+@%-'
 
+# Opt-in trace for the parity test (BBS_FILL_GATE_DEBUG=1): why a command got no decision.
+# Off by default, so a normal run writes nothing to stderr.
+function Write-Why([string]$why) {
+  if ($env:BBS_FILL_GATE_DEBUG -eq '1') { [Console]::Error.WriteLine('fill-gate: ' + $why) }
+  return $null
+}
+
 function Test-Bad([int]$cp) {
   return ($cp -lt 0x20) -or ($cp -ge 0x7F -and $cp -le 0x9F) -or ($cp -eq 0x2028) -or ($cp -eq 0x2029) -or ($cp -ge 0xD800 -and $cp -le 0xDFFF)
 }
@@ -137,36 +144,36 @@ function Test-AnyLink([string]$root, [string[]]$parts) {
 }
 
 function Get-Decision($h) {
-  if ($null -eq $h -or $h.tool_name -cne 'Bash') { return $null }
+  if ($null -eq $h -or $h.tool_name -cne 'Bash') { return (Write-Why 'step 1') }
   $ti = $h.tool_input
-  if ($null -eq $ti) { return $null }
+  if ($null -eq $ti) { return (Write-Why 'step 2') }
   $cmd = $ti.command
-  if ($cmd -isnot [string]) { return $null }
+  if ($cmd -isnot [string]) { return (Write-Why 'step 3') }
   $dds = $ti.dangerouslyDisableSandbox
-  if ($null -ne $dds -and -not ($dds -is [bool] -and $dds -eq $false)) { return $null }
+  if ($null -ne $dds -and -not ($dds -is [bool] -and $dds -eq $false)) { return (Write-Why 'step 4') }
   $rootEnv = $env:CLAUDE_PLUGIN_ROOT
-  if ([string]::IsNullOrEmpty($rootEnv)) { return $null }
+  if ([string]::IsNullOrEmpty($rootEnv)) { return (Write-Why 'step 5') }
   $rootNative = $rootEnv.TrimEnd('/', '\')
   if ($rootNative.Length -eq 0) { $rootNative = $rootEnv }
   $root = Get-Canon $rootEnv
-  if ([string]::IsNullOrEmpty($root)) { return $null }
+  if ([string]::IsNullOrEmpty($root)) { return (Write-Why 'step 6') }
   $words = Get-Words $cmd
-  if ($null -eq $words -or $words.Length -lt 2) { return $null }
+  if ($null -eq $words -or $words.Length -lt 2) { return (Write-Why ('step 7 words=' + ($words -join '|'))) }
   $w0 = Get-Canon $words[0]
   $w1 = Get-Canon $words[1]
-  if ($null -eq $w0 -or $null -eq $w1 -or $w0 -cne ($root + '/scripts/bbs-fill')) { return $null }
+  if ($null -eq $w0 -or $null -eq $w1 -or $w0 -cne ($root + '/scripts/bbs-fill')) { return (Write-Why ('step 8 w0=' + $w0 + ' root=' + $root)) }
   $prefix = $root + '/skills/'
-  if (-not $w1.StartsWith($prefix, [StringComparison]::Ordinal)) { return $null }
+  if (-not $w1.StartsWith($prefix, [StringComparison]::Ordinal)) { return (Write-Why 'step 9') }
   $entry = $w1.Substring($prefix.Length)
   $launcher = [IO.Path]::Combine([IO.Path]::Combine($rootNative, 'scripts'), 'bbs-fill')
   $allowed = Get-Allowed $launcher
-  if ($null -eq $allowed -or -not ($allowed -ccontains $entry)) { return $null }
+  if ($null -eq $allowed -or -not ($allowed -ccontains $entry)) { return (Write-Why ('step 10 entry=' + $entry + ' allowed=' + ($allowed -join ','))) }
   $entryParts = $entry.Split('/')
-  if (Test-AnyLink $rootNative @('scripts', 'bbs-fill')) { return $null }
-  if (Test-AnyLink $rootNative (@('skills') + $entryParts)) { return $null }
+  if (Test-AnyLink $rootNative @('scripts', 'bbs-fill')) { return (Write-Why 'step 11') }
+  if (Test-AnyLink $rootNative (@('skills') + $entryParts)) { return (Write-Why 'step 12') }
   $script = [IO.Path]::Combine($rootNative, 'skills')
   foreach ($part in $entryParts) { $script = [IO.Path]::Combine($script, $part) }
-  if (-not [IO.File]::Exists($launcher) -or -not [IO.File]::Exists($script)) { return $null }
+  if (-not [IO.File]::Exists($launcher) -or -not [IO.File]::Exists($script)) { return (Write-Why 'step 13') }
   return $entry
 }
 
@@ -179,6 +186,7 @@ try {
   $h = $raw | ConvertFrom-Json
   $entry = Get-Decision $h
 } catch {
+  [void](Write-Why ('exception: ' + $_.Exception.Message + ' at ' + $_.InvocationInfo.PositionMessage))
   $entry = $null
 }
 if ($entry) {
