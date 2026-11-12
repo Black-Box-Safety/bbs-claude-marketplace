@@ -228,6 +228,50 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
+- **Folders replace the CRM as the pipeline record; dashboard and folder sync (PR #90) — RULED
+  2026-11-12.** Parker, in session, 2026-11-12: "The dashboard and quote log should be connected.
+  I want to move from the CRM being the statement of record to our folders." On PR #90's
+  decisions (`docs/superpowers/specs/2026-11-12-dashboard-folder-sync-design.md` section 12),
+  Parker, in the steward session, 2026-11-12: "i take your recommendations for all 0-10"; and in
+  the PR #90 session the same day: "I confirm your recommendations." Ruled as recommended:
+  0. **Scope of the ruling:** the deal folder (`RFQ.md` through `rfq_record.py`, plus the buyer's
+     `quote-log.md`) owns working state including sent and outcome; Business Central owns money;
+     the CRM is a cross-check until Quote Velocity switches (item 6), then history. Settles
+     folder-first spec 9.1. Slice 1 does not change canon before this entry exists.
+  1. **Fold:** person-run `/ca-rfq-fold` in the rep's own session, approval by name per batch. A
+     routine at most proposes the batch and stays staged off.
+  2. **Approval:** neither a dashboard click nor a Sent-mail match counts as the approval; the
+     click is the rep's statement and the fold phrase is the approval. Revisit after 30 folds
+     with no error.
+  3. **Decision storage:** per rep (`data/users/<self>/decisions`), reps stay Viewer or
+     Contributor, after a spike on a throwaway Dashboard artifact proves the page can write. If
+     the spike fails, the clipboard command and no database.
+  4. **Deal key on the page:** an opaque 8-hex key resolved locally through `deal_paths.json`,
+     never the folder path (folder-first 13.6 over 5.4).
+  5. **No answer:** proposed on the close-out list 30 days after sent (45 for competitive bids),
+     folded only with the batch approval; never automatic.
+  6. **Quote Velocity switch:** after 2 consecutive weeks where folder sent and CRM submitted
+     agree within 1 per rep per week and at least 90% of in-scope deals since the back-fill carry
+     a recorded sent date. Reps stop clicking CRM Submitted the next day.
+  7. **quote-log.md columns:** the new columns apply going forward only; older rows untouched.
+  8. **Cancelled solicitations:** add `cancelled` to the outcome enum in one place
+     (`rfq_record.OUTCOMES`) with a checker fixture; until built, the fold holds a cancellation
+     with a flag.
+  9. **Refresh routine:** turned on once slice 7 passes.
+  10. **Doctrine outside the repo:** Parker updates the organization instructions and managed
+      memory line "Dynamics 365 Sales for pipeline" to "deal folders for working state; Dynamics
+      365 for history" when slice 1 merges.
+
+  **Spike for item 3, 2026-11-12 — passed.** Run on a throwaway Dashboard artifact at Parker's go,
+  in the PR #90 session. Dashboard page code reached the database and the viewer's identity, and a
+  click wrote a decision to the clicker's own area and read it back. At Contributor level a write to
+  the own area is allowed and a write to a shared collection is refused. At Viewer level nothing can
+  be written (owner-run; tested at those levels, not from a rep's browser; slice 7's first rep click confirms), so item 3's "Viewer or Contributor" holds only for **Contributor**: reps who click
+  must be Contributors. This is a recorded fact, not a new ruling. Storage shape: collection
+  `data/users/<self>`, record `decision-<deal8>-<field>`. Test records deleted.
+
+  **Open actions for Parker:** item 10 (admin console); delete the throwaway artifact "SPIKE
+  Decisions DB Test" when convenient.
 - **`bbs-fill` into `bbs-sales`, gated by a hook; `bbs-tools` retired — RULED 2026-11-11.**
   Parker, in session: "Yes … to the tools fix as a separate slice". It approves moving the
   launcher out of `bbs-tools`' top-level `bin/` (claude.ai org sync rejects one) into
