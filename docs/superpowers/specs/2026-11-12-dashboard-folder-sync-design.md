@@ -3,7 +3,7 @@
 Status: **design proposal, nothing built.** Every mechanism below is a proposal until Parker rules
 and a PR lands. Date 2026-11-12. Owner: Parker Marshall. Builds on
 `2026-10-30-rfq-pipeline-folder-first-design.md` (sections 5.1-5.7, 8, 9, 13), which this document
-amends where it says so.
+amends it in the places listed in section 0.1.
 
 ## 0. The ruling this design starts from
 
@@ -20,10 +20,20 @@ And the ask: "A user can log something as sent in the dashboard or save it to th
 each way. Data from the dashboard and folders should reinforce each other. There can be mismatches
 now, but going forward we want to ensure there's consistency."
 
+### 0.1 What this amends in the folder-first spec
+
+- 5.3 and 5.4: `sent` no longer comes from the CRM submitted date; the CRM is a cross-check only.
+- 5.4: the page's deal key is an opaque key, not the tree path (decision 4).
+- 5.6: the fold is person-run (`/ca-rfq-fold`), not the weekday routine, and writes through
+  `record-event`.
+- 9.1: settled by the ruling above, with sent and outcome moved from the CRM to the folder. That scope
+  goes beyond what 9.1 assumed, so the ruling still has to be recorded in the STEWARD register
+  (decision 0).
+
 ## 1. How this was produced
 
 One round of five viewpoints, run in parallel and read-only, then a synthesis by this session, then an
-independent review by Rex against `AGENTS.md`. The viewpoints:
+independent review by Rex against `AGENTS.md` (verdict and fixes in the PR, not here). The viewpoints:
 
 | Viewpoint | Charter | Question it answered |
 |---|---|---|
@@ -90,7 +100,7 @@ went and why.
 
 ## 5. Both directions
 
-### 5.1 Dashboard to folder
+### 5.1 Dashboard to folder (proposal)
 
 1. **Click.** The drawer offers Mark sent (date input, default today Pacific, no future dates),
    Won, Lost, No answer, No bid. A click writes a decision document (5.4) and the page shows it at
@@ -99,7 +109,7 @@ went and why.
    decisions to fold: run /ca-rfq-fold". `/ca-rfq-fold` reads that rep's pending decisions, reads each
    deal's `RFQ.md` through the parser, and shows one review sheet:
    `deal · field · record now · proposed · source · clicked by · at`.
-3. **Approve by name, once per batch.** The rep replies `approve fold, 3 rows, Kim` (fictional) and may
+3. **Approve by name, once per batch.** The rep replies `approve fold, 3 rows, <rep name>` and may
    drop rows by number. "Yes" or "looks good" does not count.
 4. **Apply.** For each approved row, `rfq_record.py record-event` writes the Status row and patches
    the `quote-log.md` row in one call (5.3). Then, and only then, the decision is marked `folded`.
@@ -115,7 +125,7 @@ decision 3).
 `/ca-rfq-fold sent <deal8> 2026-11-12` to the clipboard, the way "Pick up this RFQ" does, and the rep
 pastes it into their own session. The same approval and the same CLI apply. No database is needed.
 
-### 5.2 Folder to dashboard
+### 5.2 Folder to dashboard (proposal)
 
 A sent date or outcome written in the folder, whether by a `/ca-rfq` session, the catch-up prompt's
 staging fold or `/ca-rfq-fold`, is in `rfq-state.json` immediately (the PostToolUse hook compiles it).
@@ -143,7 +153,8 @@ rfq_record.py record-event <RFQ.md> sent|outcome --value <enum> --date YYYY-MM-D
 ```
 
 - Writes the `RFQ.md` Status row first. Evidence carries source, by, at and the key, for example
-  `won - dashboard, Kim, 2026-11-12T10:41-08:00 [dec:3f9a1c2e]` (fictional).
+  `won - dashboard, <rep>, 2026-11-12T10:41-08:00 [dec:3f9a1c2e]` (fictional).
+- Then rewrites `rfq-state.json` (the parser already does this after every write).
 - Then patches the buyer's `quote-log.md` row through a new stdlib module `quote_log.py`. The row is
   found by deal key, else by the BC or PC quote number. With no match it refuses; the review sheet
   proposes adding a row. It never matches by date proximity.
@@ -168,7 +179,7 @@ rfq_record.py record-event <RFQ.md> sent|outcome --value <enum> --date YYYY-MM-D
   changed.
 
 **Collection, recommended per rep:** `data/users/<self>/decisions/<deal8>.<field>`. Here `deal8` is
-the opaque 8-hex deal key the page already uses for links. It is **never the folder path**, because
+an opaque 8-hex deal key (Dara reports the built S6 page uses one for `#rfq-` links; not verified here, so treat it as part of the proposal). It is **never the folder path**, because
 buyer folder names carry buying-account numbers. `/ca-rfq-fold` resolves it locally through
 `deal_paths.json`, which stays off the published page (spec 13.6).
 
@@ -182,7 +193,7 @@ hold_reason, key = hash(deal8|field|value|date), supersedes`.
   folds their own clicks. The cost is that until a click is folded and rescanned, only the clicker sees
   it. The alternative is a shared root collection, which needs every rep to be an Editor (decision 3).
 
-### 5.5 What the page shows for a click not yet folded
+### 5.5 What the page shows for a click not yet folded (proposal)
 
 - **Deal row and drawer timeline:** a chip, "Sent 11/12, recorded on the dashboard, not yet in the
   folder".
@@ -234,8 +245,10 @@ the decision key. The new quote-log rows carry `Source`, `By` and `Recorded` col
 - **Page:** shows the later of the record stage and a pending decision, never the earlier. A pending
   decision at or below the record stage shows one of two chips: "already in record" when it matches, or
   "conflict: record says lost" when it does not. In either case it stays held.
-- **Date fill:** filling a missing `sent` date on a deal already at `outcome` is a date fill, not a
-  stage move, and is allowed (proposal).
+- **Date fill (proposal):** filling a missing `sent` date on a deal already at `outcome` leaves the
+  header Stage unchanged. Today `set_stage` refuses it as backward, so slice 3 adds an explicit
+  exception: a lower stage may get a date only when its row is empty and the date is not after the
+  higher stage's date, with a test. Never through `--force`.
 
 ### 6.5 quote-log.md becomes a copy written by the CLI (proposal)
 
@@ -245,7 +258,8 @@ Proposed columns going forward:
 
 - **Deal:** the path below `All RFQ's by Agency/` with buying-account numbers written `[acct]`. This
   is the join key.
-- **Outcome:** exactly one of `sent`, `won`, `lost`, `no answer`, `no bid`.
+- **Outcome:** blank until decided, then exactly one of `won`, `lost`, `no answer`, `no bid`. `sent`
+  lives only in the Sent column, so one fact is not held twice.
 - **Outcome ref:** PO number, who won, or `n/a`.
 - **Value:** stays whatever intake wrote. The fold never touches it.
 - **Older rows** are left as written.
@@ -254,7 +268,7 @@ Proposed columns going forward:
 - **Single source for the outcome list:** `rfq_record.OUTCOMES`. The PowerShell twin is held to it by a
   parity fixture.
 
-## 7. Sent-date sources: which wins
+## 7. Sent-date sources: which wins (proposal)
 
 | Rank | Source | Role |
 |---|---|---|
@@ -265,8 +279,8 @@ Proposed columns going forward:
 
 - **Rank** decides what is *proposed*. The **first date written stays** unless the rep approves a
   `--correct`.
-- A same-day "Mark sent" click later confirmed by a Sent-mail match only gains the extra evidence. It
-  needs no new approval.
+- A same-day "Mark sent" click later confirmed by a Sent-mail match is shown on the fold sheet as
+  "evidence to add". Like every other write to `RFQ.md`, it lands only with the batch approval.
 - A disagreement of more than one business day goes on the reconciliation or Record health list. It is
   never overwritten.
 
@@ -300,7 +314,7 @@ until the folders can carry it:
    updated in the first repo PR (section 11, PR 1). The organization instructions and the deployed
    managed memory are **Parker console actions**. No agent edits them.
 
-## 9. Human gates, and keeping them light
+## 9. Human gates, and keeping them light (proposal)
 
 | Path | Where approval by name sits | How it stays light |
 |---|---|---|
@@ -355,7 +369,7 @@ written to the rep's session for review.
 |---|---|---|---|
 | 1 | `docs:` canon and doctrine | `canonical-facts.md` systems of record; managed-settings template; `ca-rfq-intake`, `naspo-quote`, `bbs-weekly-sales-report`, `bbs-daily-rep-summary`, `ca-territory-handoff` lines naming the CRM as pipeline record | Checker exits 0; the PR body lists the Parker console actions |
 | 2 | `fix:` outcome vocabulary | `desk-context.py` and `.ps1` `FINAL` gains `no bid` from one source; template wording; parity fixture | Parity and unit tests pass; a `no bid` row is no longer listed as stale |
-| 3 | `fix(rfq-record):` parser checks | Section 6.1 checks in `set_stage`; `--correct`; `--force` trace; conflict-copy refusal; tests with placeholder fixtures | Same-stage rewrite refused; repeated identical write is a no-op; outcome-before-sent refused |
+| 3 | `fix(rfq-record):` parser checks | Section 6.1 checks in `set_stage`; `--correct`; `--force` trace; conflict-copy refusal; date-fill exception (6.4); tests with placeholder fixtures | Same-stage rewrite refused; repeated identical write is a no-op; outcome-before-sent refused; date fill allowed only into an empty lower row |
 | 4 | `feat:` quote-log module and `record-event` | New `scripts/quote_log.py`; `record-event`; `decisions_applied` in the sidecar; template columns (6.5); `outcome-closeout.md` and `ca-rfq-intake` step 5 write through the CLI | Tests cover rerun after a half-write, refused overwrite, no-match refusal, Value untouched |
 | 5 | `feat:` quote-log check in the record hook | `rfq-record-hook.py` matches `quote-log.md`; `.ps1` notice; `parity.py`; `hooks.json` description | A bad marked row exits 2; a legacy row warns; the `.ps1` notice is asserted |
 | 6 | `feat:` `/ca-rfq-fold` | New `commands/ca-rfq-fold.md`; reads an exported decisions file (or the clipboard form); review sheet; approval phrase; applies through `record-event`; offers the rescan | A dry run on three placeholder decisions writes nothing before approval and lands all five buttons |
@@ -365,12 +379,16 @@ Every touched skill and command keeps `requires: [python3]`. If `/ca-rfq-fold` r
 database directly instead of an exported file, that needs a new system in the checker's registry, and
 the checker belongs to the review side. Reading an exported file avoids that.
 
-Dependencies Dara named, not verified here: the S6 publish and its privacy gate come before phase 4,
-and an open PR (#77) is expected to merge first.
+Dependency Dara named, not verified here: the S6 publish and its privacy gate come before slice 7.
 
 ## 12. Decisions only Parker can make
 
 Recommendation first on each.
+
+0. **Record the 2026-11-12 ruling in the register.** *Recommend: Parker records it in `docs/STEWARD.md`
+   as RULED, with its scope: the folder owns working state including sent and outcome, BC owns money,
+   the CRM is a cross-check until the Quote Velocity switch (decision 6).* Slice 1 does not change
+   canon before that entry exists.
 
 1. **Is the fold person-run?** *Recommend: yes, `/ca-rfq-fold` in the rep's own session, with approval
    by name per batch.* An unattended routine would edit binding records with no approval. At most a
