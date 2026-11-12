@@ -155,14 +155,21 @@ def whole_cents(v):
 
 
 def exact_text(v):
-    """money() when whole cents, else every digit the spec carries."""
-    return money(v) if whole_cents(v) else f"{exact(v):,}"
+    """Two decimals when whole cents, else every digit the spec carries. Formats the Decimal from
+    exact(), never the raw spec value, so a price written as a string ("89.40") or in exponent form
+    ("8.95e1") formats instead of raising. A value that is not a number at all prints as written."""
+    d = exact(v)
+    if d is None:
+        return repr(v)
+    return f"{d:,.2f}" if d == d.quantize(CENT) else f"{d.normalize():,f}"
 
 
 def price_text(v):
-    """money() when the value is whole cents; otherwise the exact value BC will receive, marked."""
-    if v is None or whole_cents(v):
-        return money(v)
+    """exact_text(), marked when the value is not whole cents, since that is what BC receives."""
+    if v is None:
+        return "-"
+    if whole_cents(v) or exact(v) is None:
+        return exact_text(v)
     return f"{exact_text(v)} (NOT WHOLE CENTS: BC receives exactly this)"
 
 

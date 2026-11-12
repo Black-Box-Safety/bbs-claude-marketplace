@@ -158,7 +158,7 @@ description, not part of adding the daily skill. Results:
 `docs/evals/results-2026-10-21-daily-weekly-*.json` and
 `docs/evals/results-2026-10-20-weekly-on-main-anonymized.json`.
 
-## Retiring `bbs-quote-builder` — 11 November 2026 (bbs-sales 0.11.0)
+## Retiring `bbs-quote-builder` — 11 November 2026 (bbs-sales 0.14.0)
 
 Parker, in session, 2026-11-11: "I want to get rid of bbs quote builder and give reps the
 ability to make items then quotes in BC. That has been working." The skill is deleted, so the

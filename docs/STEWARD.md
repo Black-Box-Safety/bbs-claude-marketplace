@@ -238,8 +238,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   never re-created. What binds the skill is R2–R5 of 2026-11-10, below; not restated here.
   The skill is `plugins/bbs-sales/skills/bc-quote-entry/` (`SKILL.md`, `quote-rules.md`,
   `spec-schema.md`, `bc_quote_entry.py` and its tests), which replaces the per-deal scripts in
-  `PM Claude/BC-Write-API`. Pointers, current to #68's head: the NASPO gate stops any line whose
-  price is not exactly its cost (no `zeroMarginOk` on NASPO); Kim's 18 are read from
+  `PM Claude/BC-Write-API`. Pointers, current to #68's head: the NASPO gate is per R3 (no
+  `zeroMarginOk` on NASPO); Kim's 18 are read from
   `canonical-facts.md` by the test, not copied; the printout proof (R5) is in `SKILL.md` §7 and
   the commit output; the routing eval is
   `docs/evals/results-2026-11-10-bc-quote-entry-anonymized.json`. **Open for Parker:** (a)

@@ -293,6 +293,38 @@ class NaspoAtCost(unittest.TestCase):
             self.assertEqual(errors(spec(contract=contract)), [], contract)
 
 
+class StringPrices(unittest.TestCase):
+    """Rex, 2026-11-12: a price or cost written as a string reached money() raw and raised. Each
+    case below must stop with a sentence and no traceback."""
+
+    def line_spec(self, price, cost, contract="OPEN"):
+        s = spec(contract=contract, pricingBasis="Grainger at cost on NASPO")
+        s["lines"][0].update(unitPrice=price, unitCost=cost)
+        s["quoteTotalExclTax"] = round(30 * float(price), 2)
+        return s
+
+    def test_string_price_below_cost(self):
+        errs = errors(self.line_spec("89.40", 89.50))
+        self.assertTrue(any("unitPrice 89.40 is below unitCost 89.50" in e for e in errs), errs)
+
+    def test_string_cost_above_price(self):
+        errs = errors(self.line_spec(89.40, "89.50"))
+        self.assertTrue(any("unitPrice 89.40 is below unitCost 89.50" in e for e in errs), errs)
+
+    def test_naspo_price_against_exponent_cost(self):
+        errs = errors(self.line_spec(90, "8.95e1", contract="NASPO"))
+        self.assertTrue(any("never marked up" in e and "unitPrice 90.00 must be exactly unitCost 89.50" in e
+                            for e in errs), errs)
+
+    def test_formatting_helpers_take_any_spelling(self):
+        self.assertEqual(m.exact_text("89.40"), "89.40")
+        self.assertEqual(m.exact_text("8.95e1"), "89.50")
+        self.assertEqual(m.exact_text(89.505), "89.505")
+        self.assertEqual(m.exact_text("1234.5"), "1,234.50")
+        self.assertIn("NOT WHOLE CENTS", m.price_text("89.505"))
+        self.assertEqual(m.price_text(None), "-")
+
+
 class NonFinite(unittest.TestCase):
     """Python's json reads NaN and Infinity. They stop with a sentence, never a traceback."""
 
