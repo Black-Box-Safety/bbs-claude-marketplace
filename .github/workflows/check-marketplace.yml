@@ -231,8 +231,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install PowerShell
-        run: brew install --cask powershell
+      # The macOS runner image ships pwsh; fail loudly if it ever stops doing so.
+      - name: PowerShell present
+        run: command -v pwsh && pwsh -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
       - name: fill-gate hook parity and shell differential (macOS)
         env:
           BBS_REQUIRE_PS: "1"
