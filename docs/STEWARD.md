@@ -64,7 +64,7 @@ practice. Both are certification or pricing rulings on binding documents.
 - **SB checkbox on CDCR Packet B — RULED 2026-09-22.** Parker ruled in session that OSDS
   2009473 carries DVBE only and BBS is not a California small business, having exceeded the
   state SB revenue threshold. The box is **`/Off`**, which is what `fill_obs_packet.py:138`
-  already writes and what `docs/superpowers/specs/2026-09-16-ca-form-filler-packet-profiles-design.md:111`
+  already writes and what `docs/archive/superpowers/specs/2026-09-16-ca-form-filler-packet-profiles-design.md:111`
   specifies. Closed — `/ca-rfq` Gate 1 no longer stops on it. Fact and reasoning:
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`,
   "Small-business status is channel-dependent".
@@ -268,7 +268,7 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **Desk memory (`desk-remember`, `desk-memory` hook, `LEARNED.md`) — seven items RULED
   2026-11-10** (R7, below: A1–A7 accepted as recommended; was "OPEN, seven items ASSUMED").
   Built at Parker's request of 2026-11-10. The spec's "Open for Parker"
-  list (`docs/superpowers/specs/2026-11-10-desk-memory-design.md`) is the single home: who may
+  list (`docs/archive/superpowers/specs/2026-11-10-desk-memory-design.md`) is the single home: who may
   write a note without review, who approves agency-wide and desk-wide notes, whether saving a
   note runs without an Allow click (`bbs-fill` allow list; a control change), restamping the
   desk-root `CLAUDE.md`, stale thresholds, the file name, contact changes. Nothing in it
@@ -831,7 +831,7 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **R7. Desk memory (#81) "Open for Parker" items 1–7 accepted as recommended — RULED
   2026-11-10.**
   Adopted recommendation: "Desk memory's A1–A7 (#81)." → "Yes as listed in my last message. A3 waits for the next slice, and A4 is your SharePoint step." The items, in their own wording and each now marked RULED 2026-11-10, live
-  once: `docs/superpowers/specs/2026-11-10-desk-memory-design.md`, "Open for Parker". Not
+  once: `docs/archive/superpowers/specs/2026-11-10-desk-memory-design.md`, "Open for Parker". Not
   restated here. **Open actions for Parker:** item 2 (approving agency-wide and desk-wide
   notes at the monthly review) and item 4 (restamp the desk-root `CLAUDE.md` on SharePoint;
   #81 has merged, so it is due).
@@ -915,7 +915,7 @@ Write it up with evidence and move to the next slice. Do not idle.
   - **PRs.** Both registry entries (`sam-gov`, `usaspending`) are in the review-side PR
     [Black-Box-Safety/bbs-claude-marketplace#51](https://github.com/Black-Box-Safety/bbs-claude-marketplace/pull/51).
     The skills PR is stacked on it.
-  - **Design.** `docs/superpowers/specs/2026-10-02-sam-gov-opportunities-design.md`.
+  - **Design.** `docs/archive/superpowers/specs/2026-10-02-sam-gov-opportunities-design.md`.
 
   Parker's rulings, in session, 2026-10-02:
   - **(a) USAspending comes into the marketplace.** "I want it to incorporate and create a
@@ -1084,7 +1084,7 @@ Write it up with evidence and move to the next slice. Do not idle.
   to move from the CRM being the statement of record to our folders." This decides item 9.1
   of the folder-first RFQ pipeline spec (cited from #77; original on SharePoint under State of
   CA Agencies `docs/superpowers/specs/`, scrubbed repo copy
-  `docs/superpowers/specs/2026-10-30-rfq-pipeline-folder-first-design.md`, section 9 item 1).
+  `docs/archive/superpowers/specs/2026-10-30-rfq-pipeline-folder-first-design.md`, section 9 item 1).
   **Open action:** update `ca-state-sales-grounding`, the desk `CLAUDE.md`, and every file
   that names Dynamics/the CRM as the pipeline record. Not done in the PR that recorded this.
   `git grep -n -i "statement of record\|pipeline of record\|system of record for pipeline\|Dynamics 365 for pipeline"`

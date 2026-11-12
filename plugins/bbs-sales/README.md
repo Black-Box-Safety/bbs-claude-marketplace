@@ -99,7 +99,7 @@ instead. A note that should apply to a whole agency is saved for the buyer and m
 Parker to confirm. Saving, retiring and merging run through `bbs-fill`, so they need no Allow
 click (Parker, 2026-11-10, R7 A3). Design and what is still to come (the monthly roll-up,
 marking old notes):
-`docs/superpowers/specs/2026-11-10-desk-memory-design.md` in the marketplace repo.
+`docs/archive/superpowers/specs/2026-11-10-desk-memory-design.md` in the marketplace repo.
 
 ## Writes to Business Central
 

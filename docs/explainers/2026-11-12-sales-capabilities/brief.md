@@ -62,7 +62,7 @@ rulings register in `docs/STEWARD.md`, the desk `CLAUDE.md` or `ca-state-sales-g
 
 | What | Where |
 |---|---|
-| Design (folder owns working state, CRM owns existence and submitted date, BC owns money; phases 1 to 5; Parker's seven decisions) | `docs/superpowers/specs/2026-10-30-rfq-pipeline-folder-first-design.md` (scrubbed repo copy; working original in the MASTER store under `State of CA Agencies/docs/superpowers/specs/`) |
+| Design (folder owns working state, CRM owns existence and submitted date, BC owns money; phases 1 to 5; Parker's seven decisions) | `docs/archive/superpowers/specs/2026-10-30-rfq-pipeline-folder-first-design.md` (scrubbed repo copy; working original in the MASTER store under `State of CA Agencies/docs/superpowers/specs/`) |
 | Phase 1, the record: parser, CLI, hook, v1 migration | Merged: #77 (`plugins/bbs-sales/scripts/rfq_record.py`, `hooks/rfq-record-hook.py`) |
 | Outcome close-out on first write in a deal folder | Merged: #75 (`hooks/desk-context.py`) |
 | Phase 2, the RFQ Pipeline page: scanner, calcs, page, harness, privacy gate, charter, copy, metric sign-off | MASTER store, `State of CA Agencies/docs/dashboards/rfq-pipeline/` (README is the status page; last status read: 2026-11-03, reviewed build not yet published) |
