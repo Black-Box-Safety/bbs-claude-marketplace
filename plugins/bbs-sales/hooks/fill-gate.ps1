@@ -12,8 +12,10 @@
 # category tables. Runs on Windows PowerShell 5.1 and pwsh 7. ASCII-only source.
 
 $ErrorActionPreference = 'Stop'
+# PowerShell variable names ignore case and functions see their callers' variables, so no
+# script-level name may match a local one ($entry, $root, $words ...): ENTRY_SHAPE, not ENTRY.
 $REASON = 'bbs-fill: vetted script '
-$ENTRY  = '^"([a-z0-9-]+/scripts/[A-Za-z0-9_.-]+\.(?:py|js))"$'
+$ENTRY_SHAPE  = '^"([a-z0-9-]+/scripts/[A-Za-z0-9_.-]+\.(?:py|js))"$'
 $UNQUOTED = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_./:,=+@%-'
 
 # Opt-in trace for the parity test (BBS_FILL_GATE_DEBUG=1): why a command got no decision.
@@ -121,7 +123,7 @@ function Get-Allowed([string]$launcher) {
       return (Write-Why 'allowed: empty list')
     }
     if ($s.Length -eq 0) { continue }
-    if ($s -cnotmatch $ENTRY) { return (Write-Why ('allowed: malformed entry ' + $s)) }
+    if ($s -cnotmatch $ENTRY_SHAPE) { return (Write-Why ('allowed: malformed entry ' + $s)) }
     $out.Add($Matches[1])
   }
   return (Write-Why 'allowed: no closing )')
