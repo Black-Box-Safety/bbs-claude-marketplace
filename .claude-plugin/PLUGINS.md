@@ -9,7 +9,7 @@
   and decks. The claims registry and `brand_check.py` live here. Image files and
   finished programs stay on the SharePoint desk `MARKETING/bbs-marketing/`.
   `grainger-promo-page` stays in `bbs-sales` until a later move. Plan:
-  `docs/superpowers/plans/2026-09-29-bbs-marketing-plugin.md`. `plugins/bbs-marketing`.
+  `docs/archive/superpowers/plans/2026-09-29-bbs-marketing-plugin.md`. `plugins/bbs-marketing`.
 - **bbs-sales** (live) — the California state quote desk, end to end. An inbound RFQ is
   logged, its items are pulled out of whatever the agency sent by `rfq-item-extract`
   (DWR RFQ PDF, Grainger cart PDF, or a screenshot — one skill, three front doors),
@@ -30,7 +30,7 @@
   skill from their own sent mail, with `parker-voice` as the worked example, and
   `bbs-deck-voice`, the voice standard for federal (SDVOSB/GSA) slide copy.
   `plugins/bbs-foundations`. Spec:
-  `docs/superpowers/specs/2026-09-02-bbs-foundations-claude-md-forge-design.md`.
+  `docs/archive/superpowers/specs/2026-09-02-bbs-foundations-claude-md-forge-design.md`.
   `bbs-grounding-doctrine` lives here and only here; `bbs-website` no longer carries a copy,
   and its two lane-tuning skills receive it from this plugin.
   Still planned, its own spec: the MCP connector roster (ca-procurement-intel,
@@ -43,7 +43,7 @@
   to a first step; shows how to extend the toolkit (voice skill, FLAGS, propose shared
   tools) without desk silos or control tone. Commands: `/bbs-what-can-i-do`, `/bbs-start`,
   `/bbs-explain-claude`. `plugins/bbs-claude-coach`. Spec:
-  `docs/superpowers/specs/2026-09-17-bbs-claude-coach-design.md`.
+  `docs/archive/superpowers/specs/2026-09-17-bbs-claude-coach-design.md`.
 - **bbs-tools** (live, 2026-10-01) — Claude Code only. Ships `bin/bbs-fill`, the launcher
   the managed settings allow (`Bash(bbs-fill *)`) so auto mode lets the vetted form and
   quote scripts run without stopping a rep mid-packet. It runs only the scripts on its

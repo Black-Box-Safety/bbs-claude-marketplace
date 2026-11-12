@@ -826,7 +826,7 @@ git commit -m "feat(bbs-sales): supplier-scout agent — SCPRS/BC first, Firecra
 
 **Files:**
 - Modify: `docs/ADMIN-RUNBOOK.md` (§1 step 3, §3a)
-- Modify: `docs/superpowers/plans/2026-09-13-v1.1-backlog.md` (mark shipped)
+- Modify: `docs/archive/superpowers/plans/2026-09-13-v1.1-backlog.md` (mark shipped)
 - Modify: `REGISTRY.md` (supplier-scout note on `bbs-suppliers` row unchanged; add nothing else)
 - Modify: `plugins/bbs-sales/README.md` (agent mention in the skills/commands area)
 
@@ -837,7 +837,7 @@ git commit -m "feat(bbs-sales): supplier-scout agent — SCPRS/BC first, Firecra
 - [ ] **Step 2: ADMIN-RUNBOOK §3a** — add a step between the current 3 (Teams post) and 4
   (pilot): `Post \`scripts/bbs-setup.ps1\` in the same Teams post; reps run it before anything else (REP-SETUP step 1).` Renumber.
 
-- [ ] **Step 3: Backlog** — in `docs/superpowers/plans/2026-09-13-v1.1-backlog.md`, add a
+- [ ] **Step 3: Backlog** — in `docs/archive/superpowers/plans/2026-09-13-v1.1-backlog.md`, add a
   section at the top (after the intro paragraph):
 
 ```markdown
@@ -854,12 +854,12 @@ move, headless runner, precedent index, evals, BC swap.
 - [ ] **Step 4: bbs-sales README** — in the section listing commands (`## Commands`), add one
   line after the table or list: `Agent: \`supplier-scout\` — supplier options for an item BBS has never sourced; dispatched by \`bbs-sourcing\` step 5c or directly ("find supplier options for MSA 10082709").`
 
-- [ ] **Step 5: Validate** — `awk 'length > 100 && !/^\|/' docs/ADMIN-RUNBOOK.md plugins/bbs-sales/README.md docs/superpowers/plans/2026-09-13-v1.1-backlog.md` prints nothing (or only pre-existing table rows).
+- [ ] **Step 5: Validate** — `awk 'length > 100 && !/^\|/' docs/ADMIN-RUNBOOK.md plugins/bbs-sales/README.md docs/archive/superpowers/plans/2026-09-13-v1.1-backlog.md` prints nothing (or only pre-existing table rows).
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add docs/ADMIN-RUNBOOK.md docs/superpowers/plans/2026-09-13-v1.1-backlog.md plugins/bbs-sales/README.md
+git add docs/ADMIN-RUNBOOK.md docs/archive/superpowers/plans/2026-09-13-v1.1-backlog.md plugins/bbs-sales/README.md
 git commit -m "docs(v1.1): runbook browser check + bootstrap post; backlog marks shipped items; bbs-sales README lists supplier-scout"
 ```
 

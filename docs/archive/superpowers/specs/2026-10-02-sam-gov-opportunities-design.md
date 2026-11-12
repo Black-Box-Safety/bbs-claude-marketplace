@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-02
 **Asked by:** Parker, deferred from the 2026-10-01 team-rollout session ("we will do that
-separately"); scope from `docs/SESSION-HANDOFF-2026-10-01.md` §4.1.
+separately"); scope from `docs/archive/session-handoffs/SESSION-HANDOFF-2026-10-01.md` §4.1.
 **For:** Kim Quezon and Griffin Forsyth.
 
 ## The job

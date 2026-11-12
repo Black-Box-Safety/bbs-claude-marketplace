@@ -57,5 +57,5 @@ links (Business Central, Grainger, and so on).
 
 ---
 
-<sub>Spec: `docs/superpowers/specs/2026-09-17-bbs-claude-coach-design.md` · Owner: Parker
+<sub>Spec: `docs/archive/superpowers/specs/2026-09-17-bbs-claude-coach-design.md` · Owner: Parker
 Marshall · Last verified 2026-09-24.</sub>

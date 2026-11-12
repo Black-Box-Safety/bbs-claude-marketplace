@@ -1,6 +1,6 @@
 # ca-form-filler packet profiles — plan
 
-**Date:** 2026-09-16 · **Spec:** `docs/superpowers/specs/2026-09-16-ca-form-filler-packet-profiles-design.md`
+**Date:** 2026-09-16 · **Spec:** `docs/archive/superpowers/specs/2026-09-16-ca-form-filler-packet-profiles-design.md`
 · **Branch:** `claude/slice-3-packet-profiles`
 
 ---

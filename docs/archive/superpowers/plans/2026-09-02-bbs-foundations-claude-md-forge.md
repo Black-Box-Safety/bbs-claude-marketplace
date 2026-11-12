@@ -1,6 +1,6 @@
 # bbs-foundations / BBSClaudeMDForge — Plan
 
-Spec: `docs/superpowers/specs/2026-09-02-bbs-foundations-claude-md-forge-design.md`.
+Spec: `docs/archive/superpowers/specs/2026-09-02-bbs-foundations-claude-md-forge-design.md`.
 Branch `feat/bbs-foundations-claude-md-forge` → PR to `main`. Tasks 1–8 are in this PR;
 9–12 are follow-ups and are listed so they are not lost.
 
