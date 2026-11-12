@@ -1,0 +1,561 @@
+<title>CA Desk Handbook</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a reference handbook. Sticky contents rail on laptops, a scrolling chip bar on phones;
+   one reading column; the folder tree and the quote path drawn as the real things they are.
+   Palette and faces carry over from the 2026-10-01 team rollout page (BBS navy and gold). */
+:root{
+  --bg:#f5f7f8; --surface:#ffffff; --tint:#edf1f3; --fg:#051c2c; --muted:#475966; --line:#d3dbe0;
+  --gold:#8a7600; --gold-fill:#f3e9b0; --you:#0b5e3c; --you-fill:#dcefe5; --stop:#9a1c1c; --stop-fill:#f8e1e1;
+  --code-bg:#e6ecef; --strong-bg:#051c2c; --strong-fg:#ffffff; --focus:#051c2c;
+  --font-body:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --measure:68ch;
+  --s-sm:clamp(.875rem,.85rem + .1vw,.9375rem);
+  --s-body:clamp(1rem,.97rem + .15vw,1.0625rem);
+  --s-lead:clamp(1.125rem,1.05rem + .4vw,1.3125rem);
+  --s-h3:clamp(1.125rem,1.06rem + .3vw,1.25rem);
+  --s-h2:clamp(1.625rem,1.3rem + 1.4vw,2.25rem);
+  --s-h1:clamp(2.125rem,1.5rem + 3vw,3.75rem);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#051c2c; --surface:#0a2637; --tint:#082131; --fg:#eef2f5; --muted:#a9b8c3; --line:#26455b;
+  --gold:#e0c63a; --gold-fill:#3a3410; --you:#7fd3a8; --you-fill:#0f3527; --stop:#f2a7a7; --stop-fill:#3d1717;
+  --code-bg:#103347; --strong-bg:#eef2f5; --strong-fg:#051c2c; --focus:#e0c63a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#051c2c; --surface:#0a2637; --tint:#082131; --fg:#eef2f5; --muted:#a9b8c3; --line:#26455b;
+  --gold:#e0c63a; --gold-fill:#3a3410; --you:#7fd3a8; --you-fill:#0f3527; --stop:#f2a7a7; --stop-fill:#3d1717;
+  --code-bg:#103347; --strong-bg:#eef2f5; --strong-fg:#051c2c; --focus:#e0c63a; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 var(--s-body)/1.6 var(--font-body);-webkit-font-smoothing:antialiased;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+::selection{background:var(--gold-fill);color:var(--fg)}
+a{color:inherit;text-decoration-thickness:1px;text-underline-offset:3px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:2px}
+h1,h2,h3{margin:0;line-height:1.15;text-wrap:balance;font-weight:700;letter-spacing:-.015em}
+p{margin:0}
+code,kbd,.mono{font-family:var(--font-mono);font-size:.86em}
+code{background:var(--code-bg);padding:.08em .38em;border-radius:3px;overflow-wrap:anywhere}
+.say{font-family:var(--font-mono);font-size:.88em;background:var(--code-bg);padding:.1em .4em;border-radius:3px}
+ul,ol{margin:0;padding-left:1.25em}
+li+li{margin-top:.45em}
+
+.shell{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr);gap:56px;padding-block:40px 96px}
+@media (max-width:999px){.shell{grid-template-columns:minmax(0,1fr);gap:0;padding-block:0 72px}}
+
+/* Contents rail (laptop) / chip bar (phone) */
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 32px);align-self:start;font-size:var(--s-sm)}
+.toc p{font-weight:700;margin-bottom:12px}
+.toc ol{list-style:none;padding:0;margin:0;display:grid;gap:2px}
+.toc li+li{margin-top:0}
+.toc a{display:block;padding:6px 10px;border-radius:4px;text-decoration:none;color:var(--muted)}
+.toc a:hover{background:var(--tint);color:var(--fg)}
+.toc a[aria-current="true"]{background:var(--strong-bg);color:var(--strong-fg)}
+@media (max-width:999px){
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+  .toc{top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px))) calc(-1 * max(16px,env(safe-area-inset-right,0px)));
+    padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
+  .toc p{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .toc ol{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .toc ol::-webkit-scrollbar{display:none}
+  .toc a{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+}
+
+main{min-width:0}
+section{padding-block:56px;border-top:1px solid var(--line)}
+section:first-of-type{border-top:0}
+section>h2{font-size:var(--s-h2);margin-bottom:14px}
+.lede{font-size:var(--s-lead);line-height:1.5;max-width:var(--measure);color:var(--fg)}
+.body{max-width:var(--measure)}
+.body+.body,.lede+.body{margin-top:14px}
+.note{font-size:var(--s-sm);color:var(--muted);max-width:var(--measure)}
+
+/* Hero */
+.hero{padding-block:40px 48px}
+@media (max-width:999px){.hero{padding-top:32px}}
+.hero h1{font-size:var(--s-h1);line-height:1.02;letter-spacing:-.03em;max-width:17ch;font-weight:800}
+.hero .lede{margin-top:20px}
+.who{margin-top:14px;font-size:var(--s-sm);color:var(--muted)}
+.start{margin-top:32px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.start div{background:var(--surface);padding:18px 18px 20px}
+.start b{display:block;font-size:var(--s-h3);margin-bottom:6px}
+.start p{font-size:var(--s-sm);color:var(--muted)}
+.start .mono{color:var(--fg)}
+@media (max-width:720px){.start{grid-template-columns:minmax(0,1fr)}}
+
+/* Setup checklist */
+.steps{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:0;counter-reset:s;max-width:820px}
+.steps>li{counter-increment:s;display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 16px;padding:18px 0;border-top:1px solid var(--line);margin:0}
+.steps>li::before{content:counter(s);grid-row:1 / span 2;width:32px;height:32px;border-radius:50%;background:var(--strong-bg);color:var(--strong-fg);display:grid;place-items:center;font-weight:700;font-size:var(--s-sm)}
+.steps h3{font-size:var(--s-h3)}
+.steps p{color:var(--fg)}
+.steps .note{margin-top:6px}
+
+/* Quote path: who holds the pen */
+.lanekey{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:20px;font-size:var(--s-sm)}
+.tag{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:3px;white-space:nowrap}
+.tag.c{background:var(--gold-fill);color:var(--fg)}
+.tag.y{background:var(--you-fill);color:var(--you)}
+.path{list-style:none;padding:0;margin:24px 0 0;position:relative;max-width:860px}
+.path::before{content:"";position:absolute;left:15px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.path>li{position:relative;padding:0 0 26px 48px;margin:0}
+.path>li::before{content:"";position:absolute;left:8px;top:6px;width:16px;height:16px;border-radius:50%;background:var(--bg);border:3px solid var(--gold)}
+.path>li.you::before{border-color:var(--you);background:var(--you-fill)}
+.path h3{font-size:var(--s-h3);display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px}
+.path p{margin-top:6px;max-width:var(--measure)}
+.path ul{margin-top:8px;max-width:var(--measure)}
+.sheet{margin-top:12px;border:1px solid var(--line);border-radius:6px;background:var(--surface);max-width:560px;overflow:hidden;font-size:var(--s-sm)}
+.sheet header{padding:8px 14px;background:var(--tint);font-weight:700;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sheet dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 16px;padding:12px 14px}
+.sheet dt{color:var(--muted)}
+.sheet dd{margin:0;font-family:var(--font-mono);font-size:.92em;overflow-wrap:anywhere}
+.sheet .reply{border-top:1px dashed var(--line);padding:10px 14px;font-family:var(--font-mono);font-size:.92em}
+.proof{margin-top:12px;display:inline-flex;flex-wrap:wrap;gap:8px 14px;align-items:center;border:2px solid var(--fg);padding:10px 14px;border-radius:4px}
+.proof b{font-family:var(--font-mono);font-size:1.05em;letter-spacing:.02em}
+.proof span{font-size:var(--s-sm)}
+.stopline{margin-top:10px;background:var(--stop-fill);color:var(--stop);padding:8px 12px;border-radius:4px;font-size:var(--s-sm);font-weight:600;max-width:var(--measure)}
+
+/* Folder tree */
+.tree-wrap{margin-top:24px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:1100px){.tree-wrap{grid-template-columns:minmax(0,1fr)}}
+.tree{background:var(--strong-bg);color:var(--strong-fg);border-radius:6px;padding:18px 18px 20px;overflow-x:auto;font-family:var(--font-mono);font-size:.84rem;line-height:1.75}
+.tree .cap{font-family:var(--font-body);font-size:var(--s-sm);opacity:.8;margin-bottom:10px;display:block}
+.tree ul{list-style:none;margin:0;padding-left:18px;border-left:1px dashed color-mix(in srgb,var(--strong-fg) 35%,transparent)}
+.tree>ul{padding-left:0;border-left:0}
+.tree li{margin:0;white-space:nowrap}
+.tree li+li{margin-top:0}
+.tree .d{font-weight:500}
+.tree .f{opacity:.86}
+.tree .lvl{font-family:var(--font-body);font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;margin-left:8px;padding:1px 6px;border-radius:3px;background:color-mix(in srgb,var(--strong-fg) 14%,transparent)}
+.tree .lock{font-family:var(--font-body);font-size:.75rem;margin-left:8px;padding:1px 6px;border-radius:3px;background:var(--stop-fill);color:var(--stop);font-weight:600}
+.files{display:grid;gap:0;border-top:1px solid var(--line)}
+.files div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:4px 16px;padding:12px 0;border-bottom:1px solid var(--line)}
+.files dt,.files .k{font-family:var(--font-mono);font-size:.86rem;font-weight:500}
+.files p{font-size:var(--s-sm)}
+.files dd{margin:0}
+@media (max-width:520px){.files div{grid-template-columns:minmax(0,1fr)}}
+.why{margin-top:28px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 28px;max-width:900px}
+.why h3{font-size:var(--s-h3);margin-bottom:6px}
+@media (max-width:720px){.why{grid-template-columns:minmax(0,1fr)}}
+.guards{margin-top:28px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.guards div{background:var(--surface);padding:16px}
+.guards b{display:block;margin-bottom:4px}
+.guards p{font-size:var(--s-sm);color:var(--muted)}
+@media (max-width:820px){.guards{grid-template-columns:minmax(0,1fr)}}
+
+/* Memory */
+.mem{margin-top:24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 32px;max-width:960px}
+@media (max-width:720px){.mem{grid-template-columns:minmax(0,1fr)}}
+.mem h3{font-size:var(--s-h3);margin-bottom:6px}
+.mem .eg{margin-top:8px;font-size:var(--s-sm);color:var(--muted)}
+.refuse{margin-top:28px;background:var(--tint);border-radius:6px;padding:18px 20px;max-width:960px}
+.refuse h3{font-size:var(--s-h3);margin-bottom:8px}
+.refuse ul{columns:2 260px;column-gap:32px}
+.refuse li{break-inside:avoid}
+
+/* Catalog */
+.finder{margin-top:20px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.finder label{font-weight:600;font-size:var(--s-sm)}
+.finder input{font:inherit;font-size:var(--s-body);padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--fg);width:min(100%,360px)}
+.finder input::placeholder{color:var(--muted)}
+.finder output{font-size:var(--s-sm);color:var(--muted)}
+.group{margin-top:36px}
+.group h3{font-size:var(--s-h3);padding-bottom:8px;border-bottom:2px solid var(--fg)}
+.group>p{margin-top:8px;font-size:var(--s-sm);color:var(--muted);max-width:var(--measure)}
+.tools{display:grid}
+.tool{display:grid;grid-template-columns:200px minmax(0,1fr) minmax(0,1fr);gap:6px 24px;padding:14px 0;border-bottom:1px solid var(--line)}
+.tool .n{font-weight:700;overflow-wrap:anywhere}
+.tool .n small{display:block;font-weight:400;color:var(--muted);font-family:var(--font-mono);font-size:.78rem;margin-top:2px}
+.tool .s{font-size:var(--s-sm)}
+.tool .g{font-size:var(--s-sm);color:var(--fg)}
+.tool .lbl{display:none;font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
+.colhead{display:grid;grid-template-columns:200px minmax(0,1fr) minmax(0,1fr);gap:6px 24px;padding:10px 0 6px;font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.pill{display:inline-block;margin-top:6px;font-size:.75rem;font-weight:600;padding:1px 7px;border-radius:3px;background:var(--gold-fill);color:var(--fg)}
+.pill.ask{background:var(--stop-fill);color:var(--stop)}
+@media (max-width:820px){
+  .colhead{display:none}
+  .tool{grid-template-columns:minmax(0,1fr);gap:8px}
+  .tool .lbl{display:block}
+}
+.empty{margin-top:24px;padding:16px;border:1px dashed var(--line);border-radius:6px;color:var(--muted)}
+
+/* Habits, rules, troubleshooting */
+.habits{margin-top:24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 32px;max-width:960px}
+@media (max-width:720px){.habits{grid-template-columns:minmax(0,1fr)}}
+.habits h3{font-size:var(--s-h3);margin-bottom:6px}
+.rules{margin-top:24px;background:var(--strong-bg);color:var(--strong-fg);border-radius:6px;padding:24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 32px}
+.rules h3{font-size:var(--s-h3);margin-bottom:6px}
+.rules p{opacity:.9}
+.rules code{background:color-mix(in srgb,var(--strong-fg) 14%,transparent)}
+@media (max-width:720px){.rules{grid-template-columns:minmax(0,1fr)}}
+.trouble{margin-top:24px;border-top:1px solid var(--line);max-width:960px}
+.trouble div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:6px 28px;padding:16px 0;border-bottom:1px solid var(--line)}
+.trouble dt{font-weight:700}
+.trouble dd{margin:0}
+@media (max-width:720px){.trouble div{grid-template-columns:minmax(0,1fr)}}
+.coming{margin-top:20px;display:grid;gap:10px;max-width:var(--measure)}
+.coming li{list-style:none}
+.coming{padding:0}
+.foot{padding-block:48px 0;border-top:1px solid var(--line);font-size:var(--s-sm);color:var(--muted);max-width:var(--measure)}
+.foot p+p{margin-top:8px}
+</style>
+
+<div class="shell">
+  <nav class="toc" aria-label="On this page">
+    <p>On this page</p>
+    <ol>
+      <li><a href="#setup">Set up once</a></li>
+      <li><a href="#quote">Quote path</a></li>
+      <li><a href="#folders">The folder</a></li>
+      <li><a href="#memory">Desk memory</a></li>
+      <li><a href="#tools">Every tool</a></li>
+      <li><a href="#habits">Habits</a></li>
+      <li><a href="#rules">The rules</a></li>
+      <li><a href="#no">When it says no</a></li>
+      <li><a href="#coming">Coming</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <h1>Everything Claude does on the California desk</h1>
+      <p class="lede">What is installed for you today, what to say to start each job, and the few habits that make the difference between a draft you fix and a draft you send.</p>
+      <p class="who">For Kim, Aanya, Griffin and Joey · Updated 12 November 2026 · Every name, number and folder on this page is an example.</p>
+      <div class="start">
+        <div><b>New RFQ in your inbox</b><p>Open Claude in the buyer’s folder and type <span class="mono">/ca-rfq</span> with the request.</p></div>
+        <div><b>Not sure where to start</b><p>Type <span class="mono">/bbs-what-can-i-do</span> or <span class="mono">/bbs-start</span>.</p></div>
+        <div><b>Something looks broken</b><p>Type <span class="mono">/bbs-checkup</span> and send Parker the line it prints.</p></div>
+      </div>
+    </header>
+
+    <section id="setup" aria-labelledby="setup-h">
+      <h2 id="setup-h">Set up once</h2>
+      <p class="lede">About fifteen minutes. Do it before your next quote; skipping a step shows up later as a confusing failure halfway through a job.</p>
+      <ol class="steps">
+        <li><h3>Update and restart</h3>
+          <p>Run <code>/plugin marketplace update</code>, then quit Claude Code and the Desktop app completely and reopen them. Reopening one window is not enough.</p></li>
+        <li><h3>Sign in to Business Central for writes</h3>
+          <p>Ask Claude: <span class="say">print the bc-quote-entry whoami command</span>. Paste what it gives you into your own terminal, not into the Claude chat, and sign in with your <code>@blackboxsafety.com</code> account. It prints PASS for each check when you are set. One sign-in covers both item and quote entry.</p>
+          <p class="note">This is what lets Claude create items and quotes under your name, so Business Central shows you as the creator.</p></li>
+        <li><h3>Build your voice</h3>
+          <p>Type <code>/bbs-my-voice</code> once. It reads your sent mail and writes a voice skill so drafts sound like you and carry your real Outlook signature.</p></li>
+        <li><h3>Check the machine</h3>
+          <p>Type <code>/bbs-checkup</code>. All green means you are done. Anything red prints the exact sentence to send Parker. A missing plugin or tool usually means rerunning the setup script.</p></li>
+        <li><h3>Keep the desk on your computer</h3>
+          <p>In File Explorer or Finder, right-click the <code>State of CA Agencies</code> folder and choose <b>Always keep on this device</b>. An online-only folder looks empty to Claude, so its search for past quotes finds nothing.</p></li>
+      </ol>
+    </section>
+
+    <section id="quote" aria-labelledby="quote-h">
+      <h2 id="quote-h">A state RFQ, from request to send</h2>
+      <p class="lede">The quote is a Business Central sales quote. Claude does the lookups and the typing; you approve each write by name, release and print in BC, proof the printout and send it yourself.</p>
+      <div class="lanekey" aria-hidden="true"><span class="tag c">Claude</span> does the work <span class="tag y">You</span> decide and send</div>
+      <ol class="path">
+        <li><h3>File it <span class="tag c">Claude</span></h3>
+          <p>Type <code>/ca-rfq</code> and paste or attach the request. A new request is filed before it is priced, every time: Claude finds the buyer’s folder (or creates one after searching), saves the attachments, opens the deal record and adds a line to the buyer’s quote log.</p></li>
+        <li><h3>Pull the items and check eligibility <span class="tag c">Claude</span></h3>
+          <p>It reads the items out of a worksheet, cart PDF, screenshot or DWR RFQ and tells you if the count does not match. On a DGS BPO request it checks every Grainger part against the BPO list and stops on an off-list part; substituting is your call.</p></li>
+        <li><h3>Price it <span class="tag c">Claude</span> <span class="tag y">You check</span></h3>
+          <ul>
+            <li><b>Grainger lines:</b> live price on the buying institution’s own Grainger account. On NASPO, the Grainger price is the customer price.</li>
+            <li><b>Competitive or non-Grainger lines:</b> vendor quote emails drafted for you to send. The price comes from the vendor’s written quote.</li>
+            <li>A line with no source shows <code>[FLAG: why]</code> instead of a number. A price the customer printed on their own paperwork is not a source.</li>
+          </ul></li>
+        <li><h3>Create any missing items <span class="tag y">You approve</span></h3>
+          <p>Claude looks up every item number in BC first. Only missing ones go through <code>bc-item-entry</code>: it writes a review sheet with each item’s vendor and cost, and nothing is written until you approve it by name.</p></li>
+        <li><h3>Create the quote <span class="tag y">You approve</span></h3>
+          <p><code>bc-quote-entry</code> writes a second review sheet. Read all of it, then reply with your approval and your full name. Only then does it create a Draft quote and read every line back.</p>
+          <div class="sheet" role="img" aria-label="Example review sheet with example values">
+            <header><span>Review sheet</span><span style="font-weight:400">example values</span></header>
+            <dl>
+              <dt>Customer</dt><dd>C00000 Example Department</dd>
+              <dt>Contract</dt><dd>NASPO</dd>
+              <dt>Salesperson</dt><dd>set from the account split</dd>
+              <dt>Line 1</dt><dd>cost 10.00 · price 10.00 · GM 0%</dd>
+              <dt>Total</dt><dd>before tax</dd>
+            </dl>
+            <div class="reply">You: Approved. Pat Example</div>
+          </div>
+          <p class="note" style="margin-top:10px">On a NASPO quote every line’s price must equal its cost exactly. The check stops a line priced even a cent above cost. The salesperson code follows the account split, so you do not pick it. The SQ number is the one BC assigns.</p></li>
+        <li class="you"><h3>Release and print in BC <span class="tag y">You</span></h3>
+          <p>Open the Draft in Business Central and release it; that is when tax is calculated. Print the PDF from the released quote. BC’s printout is the customer document; Claude no longer makes its own copy.</p></li>
+        <li class="you"><h3>Proof the printout <span class="tag y">You</span></h3>
+          <p>On every California state, body armor, CSU and UC quote, read the certification line and the tax.</p>
+          <div class="proof"><b>DVBE 2009473</b><span>only. Never SB, SDVOSB or “small business”.</span></div>
+          <p>Tax matches the agency’s worksheet: none where it says no sales tax, the ship-to rate otherwise.</p>
+          <p class="stopline">Cert line reads anything else? Do not send. Tell Parker; the print layout would be wrong on every California quote.</p></li>
+        <li><h3>The packet, when the agency sent forms <span class="tag c">Claude</span> <span class="tag y">You check</span></h3>
+          <p>On a state request Claude fills the compliance forms, checks the certification dates against the due date, renders every page and looks at it. A line whose signer is unclear is flagged, never signed, and anything marked <code>[MISSING — NEEDS INPUT]</code> comes back to you.</p></li>
+        <li class="you"><h3>Send it <span class="tag y">You</span></h3>
+          <p>Send from Outlook. Claude can draft the email; Outlook asks for your OK before anything leaves. Claude never releases, converts or sends a quote.</p></li>
+      </ol>
+    </section>
+
+    <section id="folders" aria-labelledby="folders-h">
+      <h2 id="folders-h">The State of CA Agencies folder</h2>
+      <p class="lede">Every California state customer lives in one tree on the shared drive. Each level holds something Claude reads, so where you open Claude decides what it already knows.</p>
+      <div class="tree-wrap">
+        <div class="tree" role="group" aria-label="Example folder tree with fictional names">
+          <span class="cap">Example tree. The names are made up.</span>
+          <ul>
+            <li><span class="d">State of CA Agencies/</span><span class="lvl">Desk</span>
+              <ul>
+                <li><span class="f">CLAUDE.md</span></li>
+                <li><span class="d">All RFQ’s by Agency/</span>
+                  <ul>
+                    <li><span class="d">Example Department/</span><span class="lvl">Agency</span>
+                      <ul>
+                        <li><span class="d">Northside Facility/</span><span class="lvl">Institution</span>
+                          <ul>
+                            <li><span class="f">LEARNED.md</span></li>
+                            <li><span class="d">Pat Example/</span><span class="lvl">Buyer</span>
+                              <ul>
+                                <li><span class="f">CLAUDE.md</span></li>
+                                <li><span class="f">quote-log.md</span></li>
+                                <li><span class="f">FLAGS.md</span></li>
+                                <li><span class="f">LEARNED.md</span></li>
+                                <li><span class="d">FILLED/</span><span class="lock">Locked</span></li>
+                                <li><span class="d">Nitrile Gloves 11.12.26/</span><span class="lvl">Deal</span>
+                                  <ul>
+                                    <li><span class="f">RFQ.md</span></li>
+                                    <li><span class="f">the request, as received</span></li>
+                                    <li><span class="d">BC-import/</span></li>
+                                  </ul></li>
+                              </ul></li>
+                          </ul></li>
+                      </ul></li>
+                  </ul></li>
+              </ul></li>
+          </ul>
+        </div>
+        <dl class="files">
+          <div><dt>Agency → Institution → Buyer</dt><dd><p>CDCR, CalVet and DSH have an institution level between agency and buyer. Other departments go straight from agency to buyer.</p></dd></div>
+          <div><dt>CLAUDE.md</dt><dd><p>In the buyer folder: who the buyer is, how they want to be quoted, which cert rules apply, the gotchas. At the desk root: the rules for the whole desk.</p></dd></div>
+          <div><dt>quote-log.md</dt><dd><p>Every quote to this buyer: date, item, quote number, vehicle, value and outcome. The outcome is not optional; it is how the next quote finds its precedent.</p></dd></div>
+          <div><dt>FLAGS.md</dt><dd><p>One line each time Claude got something wrong for this buyer. Parker reviews flags monthly and fixes the skill.</p></dd></div>
+          <div><dt>LEARNED.md</dt><dd><p>What reps asked Claude to remember, with their name and the date. Shown to every session in this folder.</p></dd></div>
+          <div><dt>RFQ.md</dt><dd><p>The deal’s running record: status, deadline, line pricing. Checked automatically every time it is saved.</p></dd></div>
+          <div><dt>BC-import/</dt><dd><p>The quote spec and the review sheet you approved, kept beside the deal.</p></dd></div>
+          <div><dt>FILLED/</dt><dd><p>Submitted packets. Nothing in it can be changed or deleted.</p></dd></div>
+        </dl>
+      </div>
+
+      <div class="why">
+        <div><h3>Open Claude in the buyer’s folder</h3><p class="body">At the start of the session Claude is shown that buyer’s past quotes, open flags and saved notes, before you type anything. It can say “last time we quoted this buyer…” from the record instead of guessing.</p></div>
+        <div><h3>Or in the deal folder</h3><p class="body">The same, plus on its first save there it lists this buyer’s quotes older than 30 days with no outcome, so you can close them out.</p></div>
+        <div><h3>Opened at the top of the desk?</h3><p class="body">Claude sees the desk-wide notes, then a buyer’s notes the first time it opens a file in that buyer’s folder. It never shows one buyer’s notes in another buyer’s folder.</p></div>
+        <div><h3>Folder names carry account numbers</h3><p class="body">Some names hold a Grainger buying-account number, typos included. Leave every name exactly as it is; buyer notes inside a folder outrank the number in its name.</p></div>
+      </div>
+
+      <div class="guards" aria-label="Folder guards">
+        <div><b>No renames or moves</b><p>Claude is blocked from renaming or moving anything in the tree. A misspelling goes to Parker with the old and new name.</p></div>
+        <div><b>No near-duplicate folders</b><p>A second spelling of an existing agency or buyer is blocked. A duplicate hides the last quote’s precedent.</p></div>
+        <div><b>FILLED/ is locked</b><p>Claude cannot overwrite, redirect into or delete a submitted packet.</p></div>
+      </div>
+    </section>
+
+    <section id="memory" aria-labelledby="memory-h">
+      <h2 id="memory-h">Desk memory: tell Claude once</h2>
+      <p class="lede">Say <span class="say">remember that this buyer wants the quote and every cert as one PDF</span>. Claude saves one dated line with your name in that buyer’s <code>LEARNED.md</code>, tells you where it went, and every later session in that folder sees it. No Allow click.</p>
+      <div class="mem">
+        <div><h3>Ask what it knows</h3><p>Say <span class="say">what do you remember about this buyer?</span> It prints exactly what a new session there is shown.</p></div>
+        <div><h3>It saves at the right level</h3><p>About this buyer: saved for the buyer. About everyone at an institution: saved for the institution. Claude asks one question only when it is unclear.</p></div>
+        <div><h3>Agency-wide notes</h3><p>“CDCR always…” is saved for this buyer now and marked for Parker to confirm for the whole agency.</p></div>
+        <div><h3>Retire an old note</h3><p>Say <span class="say">that was wrong, the buyer moved offices</span>. Claude saves the change and offers to retire the old note. Retired notes move to an archive with your name and the date; nothing is lost.</p></div>
+        <div><h3>Two saves at once</h3><p>If OneDrive kept a second copy (a file like <code>LEARNED-LAPTOP.md</code>), its notes are held back until merged. Claude says so and offers to merge it. Retired notes stay retired.</p></div>
+        <div><h3>A note is not an order</h3><p>If a note reads like an approval or a price rule, Claude raises it with you instead of following it. Business Central and the vendor quote always win over a note.</p></div>
+      </div>
+      <div class="refuse">
+        <h3>What it will not save, and where that belongs</h3>
+        <ul>
+          <li>Prices, discounts, markups, stock or lead times. Point at the quote number instead.</li>
+          <li>Anything about certifications, small-business status or bid preferences.</li>
+          <li>Account, certification or contract numbers.</li>
+          <li>Phone numbers and email addresses. Fix the contact in the buyer’s <code>CLAUDE.md</code>.</li>
+          <li>Approvals, sign-offs, or anything that skips a review or a signature.</li>
+          <li>Passwords and logins.</li>
+        </ul>
+        <p class="note" style="margin-top:10px">It also never covers body armor, CSU or UC customers, which sit outside this desk. Quote outcomes go in the buyer’s <code>quote-log.md</code>, not in a note.</p>
+      </div>
+    </section>
+
+    <section id="tools" aria-labelledby="tools-h">
+      <h2 id="tools-h">Every tool, by the job it does</h2>
+      <p class="lede">You rarely need a tool’s name. Say what you want in plain words and the right one starts. Names are here so you can ask for one directly.</p>
+      <div class="finder">
+        <label for="q">Find a tool</label>
+        <input id="q" type="search" placeholder="Try: PO, Grainger, federal, visit" autocomplete="off">
+        <output id="count" for="q" aria-live="polite"></output>
+      </div>
+
+      <div class="group" data-group>
+        <h3>Answer an RFQ</h3>
+        <div class="colhead" aria-hidden="true"><span>Tool</span><span>Say or type</span><span>You get back</span></div>
+        <div class="tools">
+          <div class="tool"><div class="n">Run the whole RFQ<small>/ca-rfq</small></div><div class="s"><span class="lbl">Say or type</span><code>/ca-rfq</code> plus the request</div><div class="g"><span class="lbl">You get back</span>Filed, priced, a BC quote after your approval, the packet if forms came, and a list of every judgment call it made. Stops at you.</div></div>
+          <div class="tool"><div class="n">Log a request<small>ca-rfq-intake</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">log this RFQ</span></div><div class="g"><span class="lbl">You get back</span>The deal folder, its <code>RFQ.md</code> with the deadline, and a quote-log row. No pricing.</div></div>
+          <div class="tool"><div class="n">Pull items from a file<small>rfq-item-extract</small></div><div class="s"><span class="lbl">Say or type</span>Drop in a Grainger cart PDF, a screenshot, or a DWR RFQ PDF</div><div class="g"><span class="lbl">You get back</span>Item numbers and quantities in the format the next step needs, with unclear quantities flagged.</div></div>
+          <div class="tool"><div class="n">DGS BPO check<small>dgs-bpo-item-check</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">are these on the BPO?</span></div><div class="g"><span class="lbl">You get back</span>On or off the BPO list for each Grainger part, and a warning if the list’s fiscal year has ended.</div></div>
+          <div class="tool"><div class="n">Grainger pricing<small>grainger-pricing</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">price these Grainger items for this facility</span></div><div class="g"><span class="lbl">You get back</span>Live price, stock and ship date on that institution’s own account. Never an open-web price.</div></div>
+          <div class="tool"><div class="n">Source a competitive bid<small>bbs-sourcing</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">source this RFQ</span></div><div class="g"><span class="lbl">You get back</span>A sourcing brief and vendor emails drafted in BBS’s voice, ready for you to send. Finds new suppliers for items BBS has never sourced.</div></div>
+          <div class="tool"><div class="n">One vendor, one ask<small>vendor-quote-email</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">draft a quote email to this vendor</span></div><div class="g"><span class="lbl">You get back</span>A form to fill, then the pricing request email.</div></div>
+          <div class="tool"><div class="n">Full NASPO response<small>naspo-quote</small></div><div class="s"><span class="lbl">Say or type</span>Starts inside <code>/ca-rfq</code> on a state request</div><div class="g"><span class="lbl">You get back</span>Grainger at cost, the BC quote after your approval, and the filled, rendered state packet.</div></div>
+          <div class="tool"><div class="n">Fill state forms<small>ca-form-filler</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">fill these state forms</span> with the blank packet attached</div><div class="g"><span class="lbl">You get back</span>Filled PDFs including the CDCR Packet B, with every unclear field and signer flagged for you.</div></div>
+          <div class="tool"><div class="n">Create items in BC<small>bc-item-entry</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">these SKUs aren’t in BC yet</span></div><div class="g"><span class="lbl">You get back</span>A review sheet, then item cards with vendor and cost once you approve by name.</div></div>
+          <div class="tool"><div class="n">Create the quote in BC<small>bc-quote-entry</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">create the quote in BC</span></div><div class="g"><span class="lbl">You get back</span>A review sheet, then a Draft sales quote with the SQ number BC assigned. You release, print and send.</div></div>
+        </div>
+      </div>
+
+      <div class="group" data-group>
+        <h3>Know the account before the call</h3>
+        <p>None of these writes outreach or sends anything. Each stops at a document you work from.</p>
+        <div class="colhead" aria-hidden="true"><span>Tool</span><span>Say or type</span><span>You get back</span></div>
+        <div class="tools">
+          <div class="tool"><div class="n">Territory call list<small>/ca-territory-handoff</small></div><div class="s"><span class="lbl">Say or type</span><code>/ca-territory-handoff</code> or <span class="say">which accounts went quiet?</span></div><div class="g"><span class="lbl">You get back</span>Your book banded by relationship, ranked by dollars at risk, with the opening words for each call.</div></div>
+          <div class="tool"><div class="n">Agency primer<small>ca-agency-primer</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">give me a primer on this department</span></div><div class="g"><span class="lbl">You get back</span>What the agency does, how its sites differ and buy, and where BBS stands at each.</div></div>
+          <div class="tool"><div class="n">Site visit brief<small>ca-site-visit-brief</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">prep me for my visit Thursday</span></div><div class="g"><span class="lbl">You get back</span>A call plan for the night before and a one-screen pocket card for the parking lot.</div></div>
+          <div class="tool"><div class="n">Pressure-test a brief<small>ca-visit-readiness-review</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">sanity-check this call plan</span></div><div class="g"><span class="lbl">You get back</span>An ordered list of changes from the point of view of the person saying it in the room.</div></div>
+          <div class="tool"><div class="n">Budget timing<small>ca-budget-timing</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">can this deal still land this fiscal year?</span></div><div class="g"><span class="lbl">You get back</span>When the agency has money, the deadline that governs the deal, and the source for the date.</div></div>
+          <div class="tool"><div class="n">Grainger promo page<small>grainger-promo-page</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">build a promo page from this Grainger hot list</span></div><div class="g"><span class="lbl">You get back</span>An agency landing page with live pricing and a quote builder, and the buyer segments to send it to.<br><span class="pill ask">Needs the procurement data connector; ask Parker</span></div></div>
+        </div>
+      </div>
+
+      <div class="group" data-group>
+        <h3>Federal leads</h3>
+        <p>Federal work is SDVOSB, never DVBE. These only read; none of them bids, registers or writes anything.</p>
+        <div class="colhead" aria-hidden="true"><span>Tool</span><span>Say or type</span><span>You get back</span></div>
+        <div class="tools">
+          <div class="tool"><div class="n">SAM.gov opportunities<small>sam-gov-opportunities</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">what’s open on SAM.gov for this NAICS code?</span></div><div class="g"><span class="lbl">You get back</span>Open federal solicitations, each marked for whether BBS can respond to its set-aside.<br><span class="pill">Needs the shared SAM.gov key, set at setup (Kim, Griffin)</span></div></div>
+          <div class="tool"><div class="n">USAspending awards<small>usaspending-awards</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">who won the last VA award for this?</span></div><div class="g"><span class="lbl">You get back</span>Past federal awards: who won, how much, when, top vendors in a market, and BBS’s own history.</div></div>
+        </div>
+      </div>
+
+      <div class="group" data-group>
+        <h3>After the order</h3>
+        <div class="colhead" aria-hidden="true"><span>Tool</span><span>Say or type</span><span>You get back</span></div>
+        <div class="tools">
+          <div class="tool"><div class="n">SO search<small>so-search</small></div><div class="s"><span class="lbl">Say or type</span><code>SOSearch 0000000</code> with the customer’s PO number</div><div class="g"><span class="lbl">You get back</span>The sales order and every invoice tied to that PO, or the best open order match.</div></div>
+          <div class="tool"><div class="n">Vendor PO status<small>bbs-po-status</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">what’s still outstanding from this vendor?</span></div><div class="g"><span class="lbl">You get back</span>Received, outstanding and invoiced, counted from the receipt lines, not the PO header flag.</div></div>
+          <div class="tool"><div class="n">Problem order<small>bbs-order-reconciliation</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">the gloves on this PO came in the wrong size</span></div><div class="g"><span class="lbl">You get back</span>Which record is wrong, every PO with the same line, who can authorize the fix, and money owed back to us.</div></div>
+          <div class="tool"><div class="n">True margin after rebates<small>bbs-rebate-profitability</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">what’s our real margin on NASPO?</span></div><div class="g"><span class="lbl">You get back</span>Gross profit with Grainger rebates applied by contract code.<br><span class="pill ask">Needs a connector that is not on the standard list; ask Parker</span></div></div>
+        </div>
+      </div>
+
+      <div class="group" data-group>
+        <h3>Your day and your week</h3>
+        <div class="colhead" aria-hidden="true"><span>Tool</span><span>Say or type</span><span>You get back</span></div>
+        <div class="tools">
+          <div class="tool"><div class="n">Daily check-in<small>bbs-daily-rep-summary</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">draft my check-in</span> at the end of the day</div><div class="g"><span class="lbl">You get back</span>A five-minute check-in draft, including calls and visits, that you edit and post in Teams yourself. Parker’s morning summary is built on it.</div></div>
+          <div class="tool"><div class="n">Weekly sales report<small>bbs-weekly-sales-report</small></div><div class="s"><span class="lbl">Say or type</span>Parker runs it</div><div class="g"><span class="lbl">You get back</span>Parker’s weekly summary of the team’s week, from the Sales CRM and BC. Nothing for you to do.</div></div>
+        </div>
+      </div>
+
+      <div class="group" data-group>
+        <h3>Marketing pieces</h3>
+        <p>Approved wording comes from the marketing claims list. A person sends.</p>
+        <div class="colhead" aria-hidden="true"><span>Tool</span><span>Say or type</span><span>You get back</span></div>
+        <div class="tools">
+          <div class="tool"><div class="n">One-pager<small>/bbs-one-pager</small></div><div class="s"><span class="lbl">Say or type</span><code>/bbs-one-pager</code></div><div class="g"><span class="lbl">You get back</span>A short interview and a brief; then a one-page capability sheet, leave-behind, line card or switch card for you to edit.</div></div>
+          <div class="tool"><div class="n">Campaign email<small>campaign-email</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">draft a win-back email from this brief</span></div><div class="g"><span class="lbl">You get back</span>One outbound email draft: a switch note, a win-back, or an internal announcement.</div></div>
+          <div class="tool"><div class="n">What we sent before<small>deck-precedent</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">what did we already send this campus?</span></div><div class="g"><span class="lbl">You get back</span>The existing brochure, capability statement or deck, and where it lives.</div></div>
+          <div class="tool"><div class="n">Logo check<small>marketing-assets</small></div><div class="s"><span class="lbl">Say or type</span><span class="say">can I put this supplier’s logo on my flyer?</span></div><div class="g"><span class="lbl">You get back</span>Yes or no from the rights list, and the approved file when it is yes.</div></div>
+        </div>
+      </div>
+
+      <div class="group" data-group>
+        <h3>Help and setup</h3>
+        <div class="colhead" aria-hidden="true"><span>Tool</span><span>Say or type</span><span>You get back</span></div>
+        <div class="tools">
+          <div class="tool"><div class="n">What can I do<small>/bbs-what-can-i-do</small></div><div class="s"><span class="lbl">Say or type</span><code>/bbs-what-can-i-do</code></div><div class="g"><span class="lbl">You get back</span>A short map from the job in front of you to the first step.</div></div>
+          <div class="tool"><div class="n">Where do I start<small>/bbs-start</small></div><div class="s"><span class="lbl">Say or type</span><code>/bbs-start</code> and describe the job</div><div class="g"><span class="lbl">You get back</span>One concrete first step.</div></div>
+          <div class="tool"><div class="n">How does this work<small>/bbs-explain-claude</small></div><div class="s"><span class="lbl">Say or type</span><code>/bbs-explain-claude</code></div><div class="g"><span class="lbl">You get back</span>Skills, commands, plugins and drafts versus sends, in plain words.</div></div>
+          <div class="tool"><div class="n">Machine checkup<small>/bbs-checkup</small></div><div class="s"><span class="lbl">Say or type</span><code>/bbs-checkup</code></div><div class="g"><span class="lbl">You get back</span>A pass or fail for plugins, connectors and the desk folder, and the exact sentence to send Parker.</div></div>
+          <div class="tool"><div class="n">Your voice<small>/bbs-my-voice</small></div><div class="s"><span class="lbl">Say or type</span><code>/bbs-my-voice</code></div><div class="g"><span class="lbl">You get back</span>A personal voice skill built from your sent mail, with your signature.</div></div>
+          <div class="tool"><div class="n">Desktop launchers<small>/bbs-workspaces</small></div><div class="s"><span class="lbl">Say or type</span><code>/bbs-workspaces</code></div><div class="g"><span class="lbl">You get back</span>Desktop shortcuts that open VS Code on the quote desk and your other BBS folders.</div></div>
+          <div class="tool"><div class="n">Customer folder notes<small>/bbs-claude-md</small></div><div class="s"><span class="lbl">Say or type</span><code>/bbs-claude-md</code> in a customer folder</div><div class="g"><span class="lbl">You get back</span>A new or corrected <code>CLAUDE.md</code> for that folder, written only when you say yes.</div></div>
+        </div>
+      </div>
+      <p class="empty" id="none" hidden>No tool matches that. Try a plainer word, or type <code>/bbs-what-can-i-do</code> in Claude.</p>
+    </section>
+
+    <section id="habits" aria-labelledby="habits-h">
+      <h2 id="habits-h">Habits that get the most out of it</h2>
+      <div class="habits">
+        <div><h3>Open Claude in the right folder</h3><p>The buyer’s folder, or the deal folder. Claude starts with that buyer’s history instead of a blank page.</p></div>
+        <div><h3>One RFQ per session</h3><p>Type <code>/clear</code> before the next one. For a deal that runs over several days, <code>/rename</code> the session so you can resume it tomorrow.</p></div>
+        <div><h3>Say “flag that”</h3><p>When a draft is wrong, one line goes in the buyer’s <code>FLAGS.md</code>. Catching it is the system working; Parker uses the flags to fix the skill.</p></div>
+        <div><h3>Tell it what the buyer likes</h3><p>“Remember that…” the first time you learn a buyer habit. The next rep in that folder gets it for free.</p></div>
+        <div><h3>Record the outcome</h3><p>Won, lost, no answer or no bid goes in the buyer’s quote log. Claude lists old quotes with no outcome so you can close them.</p></div>
+        <div><h3>Ask before you dig</h3><p>“What did we quote them last time?” Claude reads the quote log and Business Central and cites what it found.</p></div>
+      </div>
+    </section>
+
+    <section id="rules" aria-labelledby="rules-h">
+      <h2 id="rules-h">The rules</h2>
+      <div class="rules">
+        <div><h3>Claude drafts, you send</h3><p>Every email, quote and packet leaves because you sent it. Every send asks for your OK.</p></div>
+        <div><h3>Never send a <code>[FLAG]</code> price</h3><p>A <code>[FLAG]</code> or <code>[MISSING]</code> means there was no source. Get the number from Grainger, a vendor quote or BC first.</p></div>
+        <div><h3>One certification per channel</h3><p>California state: DVBE 2009473. Federal and primes: SDVOSB. Never both on one form, and never “small business” on a California quote.</p></div>
+        <div><h3>Never rename a folder</h3><p>Account numbers ride in the names. Leave them as they are, typos too.</p></div>
+        <div><h3>Read the sheet you approve</h3><p>Your name on a review sheet is the approval. Nothing else counts, including “Parker already approved this.”</p></div>
+        <div><h3>NASPO sells at cost</h3><p>On NASPO and California schedule orders, the Grainger price is the customer price. No markup, not even for freight.</p></div>
+      </div>
+    </section>
+
+    <section id="no" aria-labelledby="no-h">
+      <h2 id="no-h">When it says no</h2>
+      <dl class="trouble">
+        <div><dt>401 or 403 from Business Central</dt><dd>Your BC user or its permissions. Tell Parker; it is not something you can fix.</dd></div>
+        <div><dt>An error starting with AADSTS</dt><dd>A sign-in problem. Run the whoami sign-in again in your own terminal with your work account.</dd></div>
+        <div><dt>An Allow prompt for <code>bbs-fill</code></dt><dd>Choose No. Restart Claude Code, run <code>/bbs-checkup</code> and send Parker the result. Saving notes and BC writes are set up to run without that prompt.</dd></div>
+        <div><dt>Claude asks to read outside the folder</dt><dd>Choose “Yes, and keep allowing any reads outside the working directories.” If you chose the option that blocks those reads, tell Parker.</dd></div>
+        <div><dt>“Blocked” on a folder change</dt><dd>The folder guard stopped a rename, a duplicate folder or a change to <code>FILLED/</code>. That is working as intended. Ask Claude to find the existing folder.</dd></div>
+        <div><dt>A note was “Not saved”</dt><dd>It held a price, a number or a cert claim. Claude says where that fact belongs instead.</dd></div>
+      </dl>
+    </section>
+
+    <section id="coming" aria-labelledby="coming-h">
+      <h2 id="coming-h">Coming, not here yet</h2>
+      <ul class="coming">
+        <li><b>A monthly roll-up of desk notes</b> and a way to mark old ones, so Parker can confirm agency-wide notes in one pass.</li>
+        <li><b>An RFQ inbox folder</b> that new requests land in, once Parker’s intake flow is live.</li>
+      </ul>
+    </section>
+
+    <footer class="foot">
+      <p>Questions or anything broken: ask Parker, with your <code>/bbs-checkup</code> line when something fails.</p>
+      <p>Body armor and CSU/UC accounts sit outside the California state book, but the printout proof applies to them too. The one-screen version of this page is the Quote Desk Field Card.</p>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  var q=document.getElementById('q'), out=document.getElementById('count'), none=document.getElementById('none');
+  var tools=[].slice.call(document.querySelectorAll('.tool'));
+  var groups=[].slice.call(document.querySelectorAll('[data-group]'));
+  function run(){
+    var t=(q.value||'').trim().toLowerCase(), shown=0;
+    tools.forEach(function(el){var hit=!t||el.textContent.toLowerCase().indexOf(t)>-1; el.hidden=!hit; if(hit) shown++;});
+    groups.forEach(function(g){g.hidden=!g.querySelector('.tool:not([hidden])');});
+    none.hidden=shown>0;
+    out.textContent=t?(shown+(shown===1?' tool':' tools')):'';
+  }
+  if(q){q.addEventListener('input',run);}
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'));});
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){var i=secs.indexOf(e.target); links.forEach(function(l,j){l.setAttribute('aria-current',j===i?'true':'false');});
+        var cur=links[i]; if(cur&&cur.scrollIntoView&&window.innerWidth<1000){try{cur.scrollIntoView({block:'nearest',inline:'nearest'});}catch(_){}}}
+    });},{rootMargin:'-30% 0px -60% 0px'});
+    secs.forEach(function(s){if(s) io.observe(s);});
+  }
+})();
+</script>
