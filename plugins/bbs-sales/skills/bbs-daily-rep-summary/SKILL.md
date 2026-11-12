@@ -92,8 +92,7 @@ nothing to the CRM or Business Central.
    day. Carry it into the file in the rep's own words, lightly tidied, under their name. If
    there is none, the file says "No check-in posted for <date>" once, in the data-gaps section,
    and nowhere else. A late check-in goes into the next day's file, labelled with its date.
-3. **Pipeline, from the CRM** (the count source until the folder switch; the deal folders
-   are the record of working state since 2026-11-12, and a folder outcome beats a CRM status),
+3. **Pipeline, from the CRM** (which system is the record: `bbs-foundations` `references/canonical-facts.md`, "Systems of record"),
    filtered on `_ownerid_value` for the rep and on the day:
    received (`bbs_receiveddate`), submitted (`bbs_submitteddate`), modified, **overdue**
    (`bbs_duedate` passed, no `bbs_submitteddate`), **due in the next two working days**, and

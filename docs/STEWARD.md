@@ -1096,12 +1096,19 @@ Write it up with evidence and move to the next slice. Do not idle.
   of the folder-first RFQ pipeline spec (cited from #77; original on SharePoint under State of
   CA Agencies `docs/superpowers/specs/`, scrubbed repo copy
   `docs/superpowers/specs/2026-10-30-rfq-pipeline-folder-first-design.md`, section 9 item 1).
+  **Scope and wording — RULED 2026-11-12** (clarifies #90's items 0 and 10). Parker, in the
+  steward session, 2026-11-12: "yes to both", to (a) deal folders replace Dynamics for
+  California state RFQ working state only, for now; outreach, federal and local pipeline stay in
+  Dynamics 365 Sales; and (b) the managed `claudeMd` line points to canon and does not restate
+  the rule, reading exactly: "deal folders (RFQ.md, quote-log.md) for California state RFQ
+  working state, sent and outcome included; what Dynamics 365 is still used for:
+  bbs-foundations canonical-facts.md, Systems of record." On switch day, only canon changes.
   **Open action:** update `ca-state-sales-grounding`, the desk `CLAUDE.md`, and every file
-  that names Dynamics/the CRM as the pipeline record. Repo files done in the slice 1 PR
-  (`docs/folder-first-canon`) except `scripts/check_marketplace.py:598`, a comment on the
-  review side; still Parker's: `ca-state-sales-grounding` (claude.ai), the desk-root `CLAUDE.md`
-  restamp, and re-pasting the `claudeMd` from `bbs-managed-settings.json` plus the organization
-  instructions line in the admin console.
+  that names Dynamics/the CRM as the pipeline record. Repo files done in #94 except
+  `scripts/check_marketplace.py:598`, a comment on the review side. Still Parker's:
+  `ca-state-sales-grounding` (claude.ai), the desk-root `CLAUDE.md` restamp, and re-pasting
+  the `claudeMd` from `bbs-managed-settings.json` plus the organization instructions line in
+  the admin console.
   `git grep -n -i "statement of record\|pipeline of record\|system of record for pipeline\|Dynamics 365 for pipeline"`
   on 2026-11-12 finds:
   - `REGISTRY.md:28` — CRM connector row, "pipeline of record"
