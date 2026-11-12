@@ -28,6 +28,7 @@ Dated narrative. Not edited after today. The rulings themselves live in the regi
 |---|---|---|
 | #87 bbs-fill gate, PR A | Cleared by Rex at `0552c6c` | Parker runs V1–V3 from the PR body on a real machine (one Windows), then merges |
 | #89 rulings 2026-11-11/12 | Cleared by Rex at `b72a772` | Parker merges |
+| #90 dashboard–folder sync design (spec only) | Rex HOLD: ruling not in register (Parker's decision 0); `ece7b10` needs Rex re-review | Parker answers decisions 0–10 in the PR; then Rex re-reviews |
 | This PR (archive + handoff + STRUCTURE.md) | Draft | Rex review, then Parker merges |
 
 ## Live sessions
