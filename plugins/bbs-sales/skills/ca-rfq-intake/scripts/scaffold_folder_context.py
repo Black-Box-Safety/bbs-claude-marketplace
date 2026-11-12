@@ -135,7 +135,7 @@ QUOTE_LOG = """# Quote log — {buyer}
 | Date | Item | Quote # | Vehicle | Value | Outcome |
 |---|---|---|---|---|---|
 
-Outcome is `sent`, `won`, `lost`, or `no answer`. On a loss, add a clause on why —
+Outcome is `sent`, `won`, `lost`, `no answer`, `no bid`, or `cancelled`. On a loss, add a clause on why —
 that is the row the next quote learns from.
 """
 

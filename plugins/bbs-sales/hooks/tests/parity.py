@@ -144,6 +144,8 @@ def main():
             "| 6.1.26 | Widgets | SQ-2002 | NASPO | 50 | `lost` - price |",
             "| 8.1.26 | Boxes | - | NASPO | 10 | [FLAG: no SQ on file] |",
             "| 9.1.26 | Boxes \u00d74 \u2014 blue | SQ-3003 | NASPO | 20 | no answer - no order in BC |",
+            "| 8.15.26 | Rope | SQ-6006 | NASPO | 15 | no bid - out of scope |",
+            "| 8.20.26 | Cones | SQ-7007 | NASPO | 12 | cancelled - solicitation withdrawn |",
             "| 13.40.26 | Bad date row | SQ-4004 | NASPO | 5 | sent |",
             "| - | Undated row | SQ-5005 | NASPO | 5 | sent |",
             "",
@@ -256,7 +258,10 @@ def main():
              and before("| 7.13.23 | Gloves", "| 9.14.26 | V-belts")(c.split("OUTCOMES TO CLOSE", 1)[1])),
             ("first write: final, flagged, recent, bad-date and undated rows not listed", post(joe_deal),
              lambda c: all(x not in c.split("OUTCOMES TO CLOSE", 1)[1].split("Business Central", 1)[0]
-                           for x in ("SQ-1001", "SQ-2002", "no SQ on file", "SQ-105100", "SQ-3003", "SQ-4004", "SQ-5005"))),
+                           for x in ("SQ-1001", "SQ-2002", "no SQ on file", "SQ-105100", "SQ-3003", "SQ-4004", "SQ-5005",
+                                     "SQ-6006", "SQ-7007"))),
+            ("first write: close-out names every final outcome", post(joe_deal),
+             has_all("no final outcome (won / lost / no answer / no bid / cancelled)")),
             ("first write: close-out rules present", post(joe_deal),
              has_all("never a guess", "900-series draft number", "ruling from Parker")),
             ("first write: flags incl. bullets, closed dropped", post(joe_deal),
@@ -295,6 +300,21 @@ def main():
             if not ok:
                 fails += 1
 
+        # One source for the final outcomes: rfq_record.OUTCOMES. Both desk-context twins must match it.
+        sys.path.insert(0, os.path.join(os.path.dirname(HOOKS), "scripts"))
+        import rfq_record
+        sys.path.insert(0, HOOKS)
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("desk_context", os.path.join(HOOKS, "desk-context.py"))
+        dc = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(dc)
+        check(list(dc.FINAL_OUTCOMES) == rfq_record.OUTCOMES, "outcomes: desk-context.py matches rfq_record.OUTCOMES",
+              f"py={list(dc.FINAL_OUTCOMES)} canon={rfq_record.OUTCOMES}")
+        with open(os.path.join(HOOKS, "desk-context.ps1"), encoding="utf-8") as fh:
+            m = re.search(r"^\$FINAL_OUTCOMES = @\((.*)\)\s*$", fh.read(), re.M)
+        ps_list = re.findall(r"'([^']*)'", m.group(1)) if m else None
+        check(ps_list == rfq_record.OUTCOMES, "outcomes: desk-context.ps1 matches rfq_record.OUTCOMES",
+              f"ps={ps_list} canon={rfq_record.OUTCOMES}")
         for name, payload, want in guard:
             rc, out, err = run_py("guard-tree", payload)
             got = decision(out)
