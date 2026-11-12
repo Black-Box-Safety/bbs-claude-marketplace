@@ -120,8 +120,8 @@ checkup means the document-producing skills will run.
 ## Daily use
 
 - New RFQ lands in your mailbox (an `_inbox/` folder arrives once Parker's intake flow is
-  live): open the workspace, tell Claude what arrived — `/ca-rfq` runs it end to end, asking
-  first whether to file it before pricing. You review every number. You send.
+  live): open the workspace, tell Claude what arrived — `/ca-rfq` runs it end to end, filing it
+  before pricing it (it does not ask). You review every number. You send.
 - Where you'd have asked "what did we quote them last time?" — ask Claude. It reads the
   quote-log and Business Central and cites what it finds.
 - Need to find a product or a supplier? Ask Claude to open Chrome and look. It drives your own
