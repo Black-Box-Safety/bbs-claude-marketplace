@@ -24,7 +24,7 @@ Work down the table and stop at the first row that fits.
 | An agent that builds, reviews or maintains this repo | `.claude/agents/` | It ships to no rep machine |
 | A script a skill runs | That skill's `scripts/`. Run through `bbs-fill` if it fills a form | Deterministic work belongs in code, and the allow-list is how it runs without a prompt |
 | A tool written by someone else | A pin in `marketplace.json`, through [`COMMONS.md`](COMMONS.md) | Pin, never vendor |
-| A design for a build | `docs/superpowers/specs/` then `docs/superpowers/plans/`, both dated | The PR cites them; once the last slice ships, they move to `docs/archive/superpowers/` |
+| A design for a build | `docs/superpowers/specs/` then `docs/superpowers/plans/`, both dated | The PR cites them; when they move to `docs/archive/superpowers/` is ruled once, in `docs/STEWARD.md`, "Build discipline" |
 | A dated finding or audit | `docs/assessments/` | It records what was true that day and is not updated |
 | A whole new **plugin** | See §2. The answer is usually no | Every plugin is another version to bump and another install to explain |
 

@@ -96,19 +96,23 @@ not match the visible captions (`Text1` is the DVBE certification line,
 For a form revision you haven't seen, run:
 
 ```bash
-bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/naspo-quote/scripts/inspect_form.py" "<blank form>.pdf"
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/naspo-quote/scripts/inspect_form.py" "<blank form>.pdf"
 ```
 
-Run every script through `bbs-fill`, exactly as written: the managed settings allow
-`Bash(bbs-fill *)` and nothing broader, and `bbs-fill` (the `bbs-tools` plugin) runs only the
-vetted scripts with the right interpreter for the machine. No `cd`, nothing chained. If
-`bbs-fill` is not found, `bbs-tools` is missing — rerun the bootstrap; meanwhile use
-`python` (Windows) or `python3` (Mac) in its place, which asks for permission.
+Run every script through the `bbs-fill` launcher, exactly as written: `bbs-sales`' fill-gate
+hook lets that exact form run without a prompt and nothing broader, and the launcher runs only
+the vetted scripts with the right interpreter for the machine. No `cd`, nothing chained.
+If the launcher answers `REFUSED`, relay its reason to the rep and stop. If an Allow prompt
+appears for one of these commands, do not ask the rep to approve it: a prompt means the
+command was not the vetted form, and a click would run whatever it was. Re-issue it once,
+exactly as written above, with nothing before or after it. If it prompts again, stop, and tell
+the rep to run `/bbs-checkup` and send the result to Parker. Never run the script with
+`python` or `python3` directly.
 
 Then write one JSON spec covering every form and run:
 
 ```bash
-bbs-fill "${CLAUDE_PLUGIN_ROOT}/skills/naspo-quote/scripts/fill_ca_forms.py" spec.json
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/naspo-quote/scripts/fill_ca_forms.py" spec.json
 ```
 
 The script handles text, checkboxes, radio groups, and signature stamping. Its

@@ -30,7 +30,8 @@ Importable: another desk or plugin may reuse ENTRY, REFUSE_TABLE, POINTER_PATTER
 check_author rather than build a second mechanism.
 The line format is read by hooks/desk-memory.py and desk-memory.ps1: change all three together.
 
-Run through bbs-fill (the bbs-tools launcher) so saving a note needs no Allow click: Parker,
+Run through bbs-sales' own launcher, scripts/bbs-fill, which the fill-gate hook approves, so
+saving a note needs no Allow click: Parker,
 2026-11-10 (R7, A3). Exit 0 = done. Exit 2 = refused, with one plain sentence on stdout saying why. Stdlib only.
 """
 import argparse
