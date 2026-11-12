@@ -450,15 +450,30 @@ def _now_stamp():
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%MZ")
 
 
-def pacific_today():
-    """Today's date in California. Falls back to UTC-7 (lenient by at most an hour) when the
-    machine has no time zone data, as a Windows Python without tzdata can lack it."""
+def _la_zone():
+    from zoneinfo import ZoneInfo
+    return ZoneInfo("America/Los_Angeles")
+
+
+def pacific_today(now=None, zone=_la_zone):
+    """Today's date in California. `now` is an aware datetime (default: the clock). Falls back
+    to UTC-7 (lenient by at most an hour) when the machine has no time zone data, as a Windows
+    Python without tzdata can lack it."""
+    now = now or datetime.now(timezone.utc)
     try:
-        from zoneinfo import ZoneInfo
-        return datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d")
+        return now.astimezone(zone()).strftime("%Y-%m-%d")
     except Exception:
         from datetime import timedelta
-        return (datetime.now(timezone.utc) - timedelta(hours=7)).strftime("%Y-%m-%d")
+        return (now.astimezone(timezone.utc) - timedelta(hours=7)).strftime("%Y-%m-%d")
+
+
+def _iso(text):
+    """A Status or header date as YYYY-MM-DD for comparing, or the text unchanged if unreadable."""
+    return parse_date(text) or (text or "").strip()
+
+
+def _items(evidence):
+    return [x.strip() for x in (evidence or "").split("; ") if x.strip()]
 
 
 def _outcome_word(evidence):
@@ -488,6 +503,7 @@ def set_stage(rec, stage, date, evidence, force=False, by=None, correct=None, to
     if (force or correct) and not (by or "").strip():
         raise ValueError("--force and --correct need --by <person>")
     today = today or pacific_today()
+    date = _iso(date)
     if stage == "sent":
         received = parse_date(rec.header.get("Received", ""))
         if received and date < received:
@@ -502,24 +518,38 @@ def set_stage(rec, stage, date, evidence, force=False, by=None, correct=None, to
     row = next((r for r in rec.status if r.stage == stage), None)
     stamp = _now_stamp()
     if row is not None and row.date:
-        if row.date == date:
-            if evidence and evidence not in row.evidence:
-                row.evidence = (row.evidence + "; " + evidence) if row.evidence else evidence
+        old_date = _iso(row.date)
+        old_word = _outcome_word(row.evidence) if stage == "outcome" else None
+        new_word = _outcome_word(evidence) if stage == "outcome" else None
+        if old_date == date and old_word == new_word:
+            items = _items(row.evidence)
+            for x in _items(evidence):
+                if x not in items:
+                    items.append(x)
+            row.evidence = "; ".join(items)
             rec.header["Stage"] = current_stage(rec)
             return
         if not correct:
-            raise StageConflictError("%s is already dated %s; a different date needs --correct \"<reason>\""
-                                     % (stage, row.date))
+            if old_word != new_word:
+                raise StageConflictError("outcome is already %s (%s); a different outcome needs --correct "
+                                         "\"<reason>\" --by <person>" % (old_word, old_date))
+            raise StageConflictError("%s is already dated %s; a different date needs --correct \"<reason>\" "
+                                     "--by <person>" % (stage, old_date))
         if STAGES.index(stage) < STAGES.index(current_stage(rec)) and not force:
-            raise StageOrderError("%s is behind current stage %s" % (stage, current_stage(rec)))
-        note = "corrected from %s to %s by %s %s: %s" % (row.date, date, by.strip(), stamp, correct.strip())
+            raise StageOrderError("%s is behind current stage %s; a correction there needs --force and "
+                                  "--correct" % (stage, current_stage(rec)))
+        was = "%s %s" % (old_date, old_word) if old_word else old_date
+        now_ = "%s %s" % (date, new_word) if new_word else date
+        note = "corrected from %s to %s by %s %s: %s" % (was, now_, by.strip(), stamp, correct.strip())
+        prev = ("previously: " + row.evidence) if row.evidence else ""
         row.date = date
-        row.evidence = "; ".join(x for x in (row.evidence, evidence, note) if x)
+        # the new evidence leads, so an outcome row still starts with its outcome word
+        row.evidence = "; ".join(x for x in (evidence, prev, note) if x)
         rec.header["Stage"] = current_stage(rec)
         return
     cur = current_stage(rec)
     if STAGES.index(stage) < STAGES.index(cur):
-        higher = [r.date for r in rec.status
+        higher = [_iso(r.date) for r in rec.status
                   if r.date and r.stage in app and STAGES.index(r.stage) > STAGES.index(stage)]
         if higher and date <= min(higher):
             pass  # a date fill: the row is empty and the date does not pass any later stage
@@ -987,8 +1017,11 @@ def _deal_path(path):
     return p if "All RFQ's by Agency/" in p.replace(os.sep, "/") else ""
 
 
-# A OneDrive conflict copy of RFQ.md is named RFQ-<machine>.md; a machine name starts with a letter.
-CONFLICT_COPY = re.compile(r"^RFQ-(?![0-9]).+\.md$", re.I)
+# A OneDrive conflict copy of RFQ.md is named RFQ-<COMPUTERNAME>.md, or RFQ-<COMPUTERNAME>-<n>.md
+# when there are several. A Windows computer name is 1-15 letters, digits and hyphens. "RFQ" is
+# matched case-sensitively, so rfq-record-template.md and rfq-kim.md never match, and a name
+# ending in -notes is a rep's own file, not a copy.
+CONFLICT_COPY = re.compile(r"^RFQ-(?!.*notes\.md$)[A-Za-z0-9][A-Za-z0-9-]{0,14}(?:-[0-9]+)?\.[mM][dD]$")
 
 
 def conflict_copies(path):
@@ -1003,8 +1036,9 @@ def _save(rec, path):
     """Re-validate, write the record, then the sidecar. Returns the sidecar path."""
     copies = conflict_copies(path)
     if copies:
-        raise _CliError("refusing to write while a OneDrive conflict copy of RFQ.md exists (%s); "
-                        "merge it into RFQ.md by hand and delete it, then run this again" % ", ".join(copies))
+        raise _CliError("refusing to write: %s beside RFQ.md looks like a OneDrive conflict copy. If it is "
+                        "one, merge what it holds into RFQ.md by hand and delete it; if it is not, rename it "
+                        "(for example to RFQ-notes.md). Then run this again." % ", ".join(copies))
     probs = validate(rec)
     if probs:
         raise _CliError("refusing to write, record would be invalid: " + "; ".join(probs))

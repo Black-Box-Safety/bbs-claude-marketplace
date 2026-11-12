@@ -63,16 +63,20 @@ A stage date, once written, is not removed or earlier-stage-overwritten. Stage n
 to a lower row. A correction is a new Evidence note, not a silent rewrite. `set-stage` holds
 these at write time:
 
-- Same stage, same date: nothing changes; new evidence is appended to the old.
-- Same stage, a different date: refused (`conflict`) unless `--correct "<reason>" --by <person>`;
-  the Evidence cell then keeps the old date, who corrected it, when, and why.
+- Same stage, same date: nothing changes; new evidence items (separated by `; `) are appended.
+- Same stage, a different date, or an `outcome` with a different outcome word on any date:
+  refused (`conflict`) unless `--correct "<reason>" --by <person>`. The new evidence then leads
+  the cell, followed by `previously: <old evidence>` and who corrected it, when and why.
+- Correcting a stage below the current one needs both `--force` and `--correct` (with `--by`).
+- Dates are compared as dates: a Status date typed as `11/5/2026` reads as `2026-11-05`.
 - `outcome` needs a dated `sent` row, except `no bid` and `cancelled`.
 - A `sent` date is not before Received and not after today in California.
 - A lower stage may fill its own empty date when that date is not after any later dated stage
   (a date fill). Any other backward write needs `--force --by <person>`, and the Evidence cell
   records `[forced by <person> <when> from <stage>]`.
-- Every write is refused while a OneDrive conflict copy (`RFQ-<machine>.md`) sits beside the
-  record; merge it by hand and delete it first.
+- Every CLI write is refused while a OneDrive conflict copy (`RFQ-<COMPUTERNAME>.md`, or with a
+  `-<n>` suffix) sits beside the record: merge it by hand and delete it first. A rep's own file
+  (`RFQ-notes.md`, anything ending in `-notes`, or any lowercase `rfq-…`) is never taken for one.
 
 ## CLI synopsis
 

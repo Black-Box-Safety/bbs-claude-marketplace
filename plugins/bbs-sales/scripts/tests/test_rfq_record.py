@@ -531,3 +531,98 @@ class TestStateSidecar(unittest.TestCase):
             out = rfq_record.write_state(rfq_record.parse(open(p).read()), p)
             self.assertEqual(os.path.basename(out), "rfq-state.json")
             self.assertEqual(json.load(open(out))["stage"], "delivered to rep")
+
+
+class TestWriteChecksReview(unittest.TestCase):
+    """Rex's review of slice 3 (#96 at a182a69)."""
+
+    def naspo(self):
+        rec = rfq_record.parse(read_fixture("v2_naspo_full.md"))
+        rfq_record.set_stage(rec, "sent", "2026-10-30", "Sent Items", today="2026-11-12")
+        return rec
+
+    def test_contradictory_outcome_same_date_is_a_conflict(self):
+        rec = self.naspo()
+        rfq_record.set_stage(rec, "outcome", "2026-11-05", "won - BC order")
+        with self.assertRaises(rfq_record.StageConflictError):
+            rfq_record.set_stage(rec, "outcome", "2026-11-05", "lost - buyer email")
+        with self.assertRaises(rfq_record.StageConflictError):
+            rfq_record.set_stage(rec, "outcome", "2026-11-06", "lost - buyer email")
+        row = next(r for r in rec.status if r.stage == "outcome")
+        self.assertTrue(row.evidence.startswith("won"))
+        rfq_record.set_stage(rec, "outcome", "2026-11-05", "lost - buyer email",
+                             correct="the order was for another quote", by="Test Rep")
+        self.assertTrue(row.evidence.startswith("lost - buyer email"))
+        self.assertIn("previously: won - BC order", row.evidence)
+        self.assertIn("corrected from 2026-11-05 won to 2026-11-05 lost by Test Rep", row.evidence)
+
+    def test_repeat_detection_compares_whole_items(self):
+        rec = rfq_record.parse(read_fixture("v2_naspo_full.md"))
+        rfq_record.set_stage(rec, "sent", "2026-10-30", "SQ-10", today="2026-11-12")
+        rfq_record.set_stage(rec, "sent", "2026-10-30", "SQ-1", today="2026-11-12")
+        rfq_record.set_stage(rec, "sent", "2026-10-30", "SQ-1", today="2026-11-12")
+        row = next(r for r in rec.status if r.stage == "sent")
+        self.assertEqual(row.evidence, "SQ-10; SQ-1")
+
+    def test_non_iso_status_dates_compare_as_dates(self):
+        rec = rfq_record.parse(read_fixture("v2_naspo_full.md"))
+        rfq_record.set_stage(rec, "outcome", "2026-11-05", "no bid - rep decided")
+        row = next(r for r in rec.status if r.stage == "outcome")
+        row.date = "11/5/2026"  # as a person might type it
+        # same day written in ISO is a repeat, not a conflict
+        rfq_record.set_stage(rec, "outcome", "2026-11-05", "no bid - confirmed")
+        # a date fill below it compares against 2026-11-05, not the text "11/5/2026" (as text,
+        # "2026-11-01" sorts after "11/5/2026" and the fill would be wrongly refused)
+        with self.assertRaises(rfq_record.StageOrderError):
+            rfq_record.set_stage(rec, "sent", "2026-11-06", "x", today="2026-11-12")
+        rfq_record.set_stage(rec, "sent", "2026-11-01", "Sent Items", today="2026-11-12")
+
+    def test_no_received_date_skips_that_bound(self):
+        text = read_fixture("v2_naspo_full.md").replace("**Received:** 2026-10-27 via email",
+                                                         "**Received:** [FLAG: not in the request]")
+        rec = rfq_record.parse(text)
+        rfq_record.set_stage(rec, "sent", "2026-01-02", "Sent Items", today="2026-11-12")
+        self.assertEqual(next(r for r in rec.status if r.stage == "sent").date, "2026-01-02")
+
+    def test_correcting_a_lower_stage_needs_force_and_correct(self):
+        rec = self.naspo()
+        with self.assertRaises(rfq_record.StageOrderError):
+            rfq_record.set_stage(rec, "priced", "2026-10-28", "x", correct="re-priced", by="Test Rep")
+        rfq_record.set_stage(rec, "priced", "2026-10-28", "x", correct="re-priced", by="Test Rep", force=True)
+
+
+class TestPacificToday(unittest.TestCase):
+    from datetime import datetime as _dt, timezone as _tz
+
+    def at(self, iso):
+        return self._dt.fromisoformat(iso.replace("Z", "+00:00"))
+
+    def test_across_the_date_line(self):
+        # 05:00 UTC on Nov 13 is 21:00 Nov 12 in California (PST, UTC-8)
+        self.assertEqual(rfq_record.pacific_today(self.at("2026-11-13T05:00:00Z")), "2026-11-12")
+        self.assertEqual(rfq_record.pacific_today(self.at("2026-11-13T08:30:00Z")), "2026-11-13")
+
+    def test_across_dst(self):
+        # PDT is UTC-7: 06:30 UTC on Jul 1 is 23:30 Jun 30; 07:30 UTC is 00:30 Jul 1
+        self.assertEqual(rfq_record.pacific_today(self.at("2026-07-01T06:30:00Z")), "2026-06-30")
+        self.assertEqual(rfq_record.pacific_today(self.at("2026-07-01T07:30:00Z")), "2026-07-01")
+        # PST is UTC-8: 07:30 UTC on Dec 1 is still Nov 30
+        self.assertEqual(rfq_record.pacific_today(self.at("2026-12-01T07:30:00Z")), "2026-11-30")
+
+    def test_fallback_without_zone_data(self):
+        def no_zone():
+            raise ImportError("no tzdata")
+        # UTC-7: 06:30 UTC Dec 1 -> 23:30 Nov 30; 07:30 UTC -> 00:30 Dec 1 (an hour lenient vs PST)
+        self.assertEqual(rfq_record.pacific_today(self.at("2026-12-01T06:30:00Z"), zone=no_zone), "2026-11-30")
+        self.assertEqual(rfq_record.pacific_today(self.at("2026-12-01T07:30:00Z"), zone=no_zone), "2026-12-01")
+
+
+class TestConflictCopyNames(unittest.TestCase):
+    def test_onedrive_copies_match(self):
+        for n in ("RFQ-REP-LAPTOP.md", "RFQ-DESKTOP-AB12CD.md", "RFQ-DESKTOP-AB12CD-2.md", "RFQ-123PC.md"):
+            self.assertTrue(rfq_record.CONFLICT_COPY.match(n), n)
+
+    def test_a_reps_own_files_do_not(self):
+        for n in ("RFQ.md", "RFQ-notes.md", "RFQ-meeting-notes.md", "rfq-kim.md", "rfq-record-template.md",
+                  "rfq-state.json", "RFQ-THIS-NAME-IS-FAR-TOO-LONG.md", "RFQ-.md"):
+            self.assertFalse(rfq_record.CONFLICT_COPY.match(n), n)

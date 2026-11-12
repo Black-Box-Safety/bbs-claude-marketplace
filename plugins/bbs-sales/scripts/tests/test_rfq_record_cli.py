@@ -87,6 +87,21 @@ class TestCli(CliBase):
         self.assertIn("conflict copy", rc.stderr)
         self.assertIn("RFQ-REP-LAPTOP.md", rc.stderr)
 
+    def test_conflict_copy_blocks_every_cli_write(self):
+        open(os.path.join(os.path.dirname(self.rfq), "RFQ-DESKTOP-AB12CD.md"), "w").close()
+        rc = run_cli(["set-header", self.rfq, "BC quote", "SQ-900002"])
+        self.assertEqual(rc.returncode, 1); self.assertIn("conflict copy", rc.stderr)
+        self.assertIn("rename it", rc.stderr)
+        row = '{"num": 1, "vendor": "Test Vendor", "vendor_ref": "Q1.pdf", "cost": 1.0, "sell": 1.2, ' \
+              '"strategy": "vendor quote", "lead": "5 days", "line_stage": "vendor quoted", "evidence": "Q1.pdf"}'
+        rc = run_cli(["upsert-pricing", self.rfq, "--json", row])
+        self.assertEqual(rc.returncode, 1); self.assertIn("conflict copy", rc.stderr)
+
+    def test_a_reps_notes_file_does_not_block(self):
+        open(os.path.join(os.path.dirname(self.rfq), "RFQ-notes.md"), "w").close()
+        rc = run_cli(["set-header", self.rfq, "BC quote", "SQ-900002"])
+        self.assertEqual(rc.returncode, 0, rc.stderr)
+
     def test_set_stage_cli_conflict_needs_correct(self):
         rc = run_cli(["set-stage", self.rfq, "quote built", "--date", "2026-10-28", "--evidence", "SQ-100001"])
         self.assertEqual(rc.returncode, 0, rc.stderr)
