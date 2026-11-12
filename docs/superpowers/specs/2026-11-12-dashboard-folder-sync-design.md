@@ -122,7 +122,8 @@ went and why.
 day. Other viewers see it after the fold and rescan (or at once, under the shared-collection option in
 decision 3).
 
-**Fallback if the page cannot write to the database** (spike pending, 5.4): the drawer button copies
+**Fallback if the page cannot write to the database** (not needed: the 5.4 spike passed; kept for a
+viewer whose database access fails): the drawer button copies
 `/ca-rfq-fold sent <deal8> 2026-11-12` to the clipboard, the way "Pick up this RFQ" does, and the rep
 pastes it into their own session. The same approval and the same CLI apply. No database is needed.
 
@@ -174,12 +175,24 @@ rfq_record.py record-event <RFQ.md> sent|outcome --value <enum> --date YYYY-MM-D
 - **Cannot:** transactions or version-checked writes on those documents (last writer wins, and a
   retried update can apply twice), read SharePoint or `RFQ.md` live (folder facts arrive only as
   uploaded files), or run on a timer.
-- **Open, needs a spike** on a throwaway Dashboard artifact, never the live one: whether the Dashboard
-  type's page script can reach the database at all (its documented page scripts expose `d3` and `dash`,
-  and `dash` has no write verb). Also unconfirmed: whether a typed artifact's database rules can be
-  changed.
+- **Spike result, 2026-11-12** (throwaway Dashboard artifact, never the live one; Parker authorized
+  it; fictional records, deleted afterwards):
+  - Dashboard page code **can** reach the database and the viewer's identity: `claude.use("db")` and
+    `claude.use("user")` both resolved (in about 5 ms), `user.id()` returned an opaque id, and a
+    click wrote a decision to the clicker's private area and read it back.
+  - A second click on the same deal and field **replaced** the record (version 1 to 2), so "one
+    document per deal and field, latest wins" holds.
+  - At **Contributor** level (`interact`), a write to the clicker's own private area is allowed and a
+    write to a shared collection is refused. At **Viewer** level (`view`) nothing can be written, the
+    clicker's own private area included.
+  - Tested in the page as the owner only. The Contributor and Viewer results come from the database
+    acting at those levels, not from a rep's own browser. The first rep click in slice 7 confirms them.
+  - Still unconfirmed: whether a typed artifact's database rules can be changed. The design does not
+    need it.
 
-**Collection, recommended per rep:** `data/users/<self>/decisions/<deal8>.<field>`. Here `deal8` is
+**Storage, per rep:** one record per decision in the clicker's private area: collection
+`data/users/<self>`, record `decision-<deal8>-<field>` (the spike's shape; the earlier
+`data/users/<self>/decisions/<deal8>.<field>` named a collection, not a record). Here `deal8` is
 an opaque 8-hex deal key (Dara reports the built S6 page uses one for `#rfq-` links; not verified here, so treat it as part of the proposal). It is **never the folder path**, because
 buyer folder names carry buying-account numbers. `/ca-rfq-fold` resolves it locally through
 `deal_paths.json`, which stays off the published page (spec 13.6).
@@ -187,10 +200,11 @@ buyer folder names carry buying-account numbers. `/ca-rfq-fold` resolves it loca
 Fields: `deal8, field, value, date, by (user id), at, status (pending | folded | held | rejected),
 hold_reason, key = hash(deal8|field|value|date), supersedes`.
 
-- One document per deal and field, so a second click replaces the first.
+- One document per deal and field, so a second click replaces the first (confirmed by the spike).
 - A click after a fold that changes the value goes back to `pending` with `supersedes`. The fold then
   shows it as a correction.
-- Per rep keeps reps at Viewer or Contributor, not Editor, and matches the own-session rule: each rep
+- Per rep needs reps to be **Contributors**, not Editors (a Viewer cannot write at all), and matches
+  the own-session rule: each rep
   folds their own clicks. The cost is that until a click is folded and rescanned, only the clicker sees
   it. The alternative is a shared root collection, which needs every rep to be an Editor (decision 3).
 
@@ -375,7 +389,7 @@ written to the rep's session for review.
 | 4 | `feat:` quote-log module and `record-event` | New `scripts/quote_log.py`; `record-event`; `decisions_applied` in the sidecar; template columns (6.5); `outcome-closeout.md` and `ca-rfq-intake` step 5 write through the CLI | Tests cover rerun after a half-write, refused overwrite, no-match refusal, Value untouched |
 | 5 | `feat:` quote-log check in the record hook | `rfq-record-hook.py` matches `quote-log.md`; `.ps1` notice; `parity.py`; `hooks.json` description | A bad marked row exits 2; a legacy row warns; the `.ps1` notice is asserted |
 | 6 | `feat:` `/ca-rfq-fold` | New `commands/ca-rfq-fold.md`; reads an exported decisions file (or the clipboard form); review sheet; approval phrase; applies through `record-event`; offers the rescan | A dry run on three placeholder decisions writes nothing before approval and lands all five buttons |
-| 7 | Outside the repo (SharePoint) | Database spike on a throwaway Dashboard; S6 publish and privacy gate; drawer capture block; scanner reads `decisions_applied`; Record health additions | Monday's click is in the folder and on the page the same day after a fold |
+| 7 | Outside the repo (SharePoint) | S6 publish and privacy gate; drawer capture block; scanner reads `decisions_applied`; Record health additions | Monday's click is in the folder and on the page the same day after a fold |
 
 Every touched skill and command keeps `requires: [python3]`. If `/ca-rfq-fold` reads the artifact
 database directly instead of an exported file, that needs a new system in the checker's registry, and
@@ -406,6 +420,8 @@ Recommendation first on each.
    stay Viewer or Contributor,* after a spike on a throwaway artifact proves the page can write. The
    alternative is a shared collection, which needs reps to be Editors. If the spike fails, use the
    clipboard command (5.1) and no database.
+   *Spike, 2026-11-12: passed (5.4). Reps who click must be Contributors, since a Viewer cannot
+   write; storage is collection `data/users/<self>`, record `decision-<deal8>-<field>`.*
 4. **The deal key on the page.** *Recommend: an opaque 8-hex key, resolved locally through
    `deal_paths.json`; never the folder path.* This settles the conflict between spec 5.4 (deal_id = path)
    and 13.6 (paths stay local) in favour of 13.6.

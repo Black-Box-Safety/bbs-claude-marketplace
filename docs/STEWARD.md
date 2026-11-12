@@ -256,7 +256,16 @@ Write it up with evidence and move to the next slice. Do not idle.
       memory line "Dynamics 365 Sales for pipeline" to "deal folders for working state; Dynamics
       365 for history" when slice 1 merges.
 
-  **Open actions for Parker:** item 10 (admin console).
+  **Spike for item 3, 2026-11-12 — passed.** Run on a throwaway Dashboard artifact at Parker's go,
+  in the PR #90 session. Dashboard page code reached the database and the viewer's identity, and a
+  click wrote a decision to the clicker's own area and read it back. At Contributor level a write to
+  the own area is allowed and a write to a shared collection is refused. At Viewer level nothing can
+  be written, so item 3's "Viewer or Contributor" holds only for **Contributor**: reps who click
+  must be Contributors. This is a recorded fact, not a new ruling. Storage shape: collection
+  `data/users/<self>`, record `decision-<deal8>-<field>`. Test records deleted.
+
+  **Open actions for Parker:** item 10 (admin console); delete the throwaway artifact "SPIKE
+  Decisions DB Test" when convenient.
 - **`bbs-quote-builder` retired; items then quotes in BC — RULED 2026-11-11.** Parker, in
   session, 2026-11-11: "I want to get rid of bbs quote builder and give reps the ability to
   make items then quotes in BC. That has been working." Relayed by the steward and confirmed
