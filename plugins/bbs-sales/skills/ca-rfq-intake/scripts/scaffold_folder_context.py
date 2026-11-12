@@ -81,7 +81,7 @@ def agency_context(agency, account, buyers):
     return f"""# {agency}
 
 **Grainger account:** {acct}
-**Contract vehicle:** NASPO ValuePoint 07-25-51-02.3 (CA State Agency) unless an RFQ says otherwise
+**Contract vehicle:** NASPO MRO LPA 7-25-51-02.03 (CA State Agency) unless an RFQ says otherwise
 **Pricing rule:** at cost — customer price equals BBS cost, no markup
 
 ## Buyers

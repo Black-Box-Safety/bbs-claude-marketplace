@@ -10,15 +10,16 @@ The operating manual for `.claude/agents/steward.md`. Read `AGENTS.md` first.
 scope → brief → dispatch worker → worker opens PR
       → steward reviews with a fresh reviewer
       → findings back to the SAME worker → worker tends
-      → steward merges
+      → Rex clears → steward brings cleared PRs to Parker → Parker merges in the GitHub UI
 ```
 
 Four properties make it worth running:
 
 - **A session ends at a PR, not a merge.** The agent that wrote the change never approves
   it.
-- **The reviewer did not write the code.** Parker's standing authorization to merge is
-  conditional on exactly this.
+- **The reviewer did not write the code, and only Parker merges.** Agents never merge;
+  Parker clicks Merge in the GitHub UI, and managed settings deny the merge tools (ruled
+  2026-11-10, "Agents never merge", R1).
 - **Findings return to the original worker**, which still holds the context. A fresh
   session re-deriving the change is slower and gets it less right.
 - **The steward is woken by the PR**, not by polling. Subscribe to PR activity when the
@@ -220,6 +221,59 @@ Write it up with evidence and move to the next slice. Do not idle.
 - Removing a control. Say it is wrong; do not delete it.
 
 ### Already open for Parker
+
+- **`bbs-quote-builder` retired; items then quotes in BC — RULED 2026-11-11.** Parker, in
+  session, 2026-11-11: "I want to get rid of bbs quote builder and give reps the ability to
+  make items then quotes in BC. That has been working." Relayed by the steward and confirmed
+  by Parker in #68's worker session the same day. #68 replaces the old quote path: the skill
+  is deleted, and the rep workflow is `bc-item-entry` for any missing item, `bc-quote-entry`
+  for the sales quote and its lines, then BC's own print as the customer document, proofed
+  per R5 and sent by the rep. Every live pointer is repointed. **Open action for Parker:**
+  delete the account-synced `anthropic-skills:bbs-quote-builder` in claude.ai → Settings →
+  Capabilities → Skills (`HANDOFF.md`); until then it keeps the retired path alive in Parker's
+  sessions.
+- **Quote creation moves into Business Central — RULED 2026-10-16; the skill is #68.** Parker,
+  in session, while running the CAL FIRE Atwater helmet-cover RFQ: the customer quote is
+  created as a BC sales quote, not rendered as a PDF in Claude, and an item already in BC is
+  never re-created. What binds the skill is R2–R5 of 2026-11-10, below; not restated here.
+  The skill is `plugins/bbs-sales/skills/bc-quote-entry/` (`SKILL.md`, `quote-rules.md`,
+  `spec-schema.md`, `bc_quote_entry.py` and its tests), which replaces the per-deal scripts in
+  `PM Claude/BC-Write-API`. Pointers, current to #68's head: the NASPO gate is per R3 (no
+  `zeroMarginOk` on NASPO); Kim's 18 are read from
+  `canonical-facts.md` by the test, not copied; the printout proof (R5) is in `SKILL.md` §7 and
+  the commit output; the routing evals are `docs/evals/results-2026-11-11-*-anonymized.json`
+  (a full run on the final description is still owed). **Open for Parker:** (a)
+  SharePoint `BC-WRITE-SOP-RULES.md` §4.6–§4.7 still call the skill a follow-up. (b) No
+  delegated sales-quote write has been proven under a rep-class permission set
+  (`rep-setup.md` 5b covers the item write only).
+  - **R5 covers CSU and UC — RULED 2026-11-12.** Parker, in session: "yes CSU and UC".
+- **Maintainer-tier commons entries (`taste-skill`, PR #71) — RULED 2026-10-28.** Parker, in
+  session, option (a): both bootstraps skip any `marketplace.json` entry keyworded
+  `maintainer`, and Parker installs it on his own machine by hand. Managed settings are not
+  touched (a `false` there would also block it for Parker). Record: `docs/COMMONS.md`,
+  "Maintainer-tier entries"; `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`,
+  `enabledPlugins` row.
+
+- **Email signatures — RULED 2026-10-30.** Parker, in session, with his own Outlook
+  signature export in hand. A rep's signature is their real Outlook rendering with the
+  stacked logo from the marketing folder (`MARKETING/BBS Logo/.../Logos Color/Stacked/Logo
+  Color Stacked 2.png`), read out of their sent mail and kept in their personal
+  `<first>-voice` skill under `assets/`; never a company-wide block typed into a shared
+  skill, which is how `SB/DVBE` outlived the 2026-09-22 ruling. The Microsoft 365
+  connector's draft tools reject images and inline styles, so a connector-created draft
+  carries the attribute-free form and the reply says so; it never drops the block. Recipe:
+  `bbs-voice-template` step 3b and `references/signature-template.html`; `bbs-sourcing`
+  Step 8 now points at the rep's assets instead of a block that was never written.
+
+- **Desk memory (`desk-remember`, `desk-memory` hook, `LEARNED.md`) — seven items RULED
+  2026-11-10** (R7, below: A1–A7 accepted as recommended; was "OPEN, seven items ASSUMED").
+  Built at Parker's request of 2026-11-10. The spec's "Open for Parker"
+  list (`docs/superpowers/specs/2026-11-10-desk-memory-design.md`) is the single home: who may
+  write a note without review, who approves agency-wide and desk-wide notes, whether saving a
+  note runs without an Allow click (`bbs-fill` allow list; a control change), restamping the
+  desk-root `CLAUDE.md`, stale thresholds, the file name, contact changes. Nothing in it
+  changes a signer, a form ID, a certification claim or a price rule; notes are refused when
+  they carry one.
 
 - **`bc-item-entry`: rep-facing item creation in Business Central (PR #64) — RULED
   2026-10-14.** Parker, in session. What was ruled, and where each part lives
@@ -515,7 +569,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   on 2026-10-01 blocked the build session from dispatching a reviewer to merge the build
   session's own PR), stop and report it to Parker; do not retry or route around it. ~~Parker
   merges when the session that dispatches Rex is also the PR's author.~~ Superseded
-  2026-10-02 (next entry).
+  2026-10-02 (next entry). *Since 2026-11-10 the clear marker reads "Cleared — awaiting
+  Parker's merge approval" ("Parker approves every merge").*
 
 - **impeccable: install only the fork's `plugin/` folder, with its hooks off — RULED
   2026-10-01 (Parker, in session: "go with option A").** The entry was a `url` source with
@@ -721,7 +776,108 @@ Write it up with evidence and move to the next slice. Do not idle.
   `purchaseOrderLines` cannot be queried without its parent. `requires:` is
   `business-central` for both; the retired `bc-mcp-proxy` is required by nothing.
   `bbs-rebate-profitability` stays on CData; this ruling does not cover it.
-- **Rex merges what it clears, whichever session dispatched it — RULED 2026-10-02.**
+- **Rulings of 2026-11-10 (R1–R9) — RULED 2026-11-10.** Parker's words, in the steward session, 2026-11-10, after reading R1–R9 with the steward's recommendations: "Follow recommendations except for the last one we don't need payroll. I want vercel and supabase to be allowed". R1–R8 adopt
+  the steward's recommendation as written; R9 is his exception, clarified the same day.
+- **R1. Agents never merge — RULED 2026-11-10.**
+  Adopted recommendation: "Block agents from merging, using managed settings. Agents could no longer call merge or auto-merge. Rex still reviews; you click Merge in GitHub. Every agent posts as your GitHub account, so an agent can't prove you approved. This makes the rule a hard block instead of an instruction. The cost: no “merge #82” replies, like the one I just did for you." → "Yes". "You click Merge in GitHub" is the recommendation's wording. Managed settings deny the GitHub merge and
+  auto-merge tools (`permissions.deny` in `bbs-managed-settings.json`; the names, which are
+  verified and which inferred, are in `MANAGED-SETTINGS.md`, "Agents never merge"), and
+  `gh pr merge` moves from `ask` to `deny`. Rex reviews and posts "Cleared — awaiting
+  Parker's merge approval"; Parker clicks Merge in the GitHub UI. Why: every agent posts as
+  Parker's GitHub account (pjm3wv), so no agent can prove Parker approved; a deny is a
+  control, a sentence is a request. Supersedes the "An agent may execute the merge only
+  with his approval quoted in its brief" wording that #82 put in `.claude/agents/rex.md`,
+  `.claude/agents/steward.md`, this file and `AGENTS.md` (Rex's open question M1); all four
+  now say agents never merge and Parker merges in the UI. **Open action for Parker:**
+  re-paste managed settings in the admin console; until then the deny reaches no machine.
+  *(Re-pasted 2026-11-12 (Parker: "managed settings are in").)*
+  - Pointer: a bounded exception ran 2026-11-11 to the 2026-11-12 re-paste — see "Steward
+    merge authority for the 2026-11-10/11 queue — RULED 2026-11-11", below.
+- **R2. Quote creation in Business Central through `bc-quote-entry` (#68) is allowed —
+  RULED 2026-11-10.** Adopted recommendation (with "Follow recommendations…"): "Yes. Record it on main and add `bc-quote-entry` to the organization
+  instruction. It only creates the quote and its lines; it never releases, sends, converts
+  or posts." It writes only the quote, its ship-to and its lines; it never
+  releases, sends, converts or posts; and it runs only after the rep approves the review
+  sheet by name. Parker, in session, 2026-11-10, further: "Add bc quote entry to managed
+  settings". So the `claudeMd` block in `bbs-managed-settings.json` gains one rule naming
+  the BC write boundary, with `bc-quote-entry` beside `bc-item-entry` (record:
+  `MANAGED-SETTINGS.md`, "Business Central writes"). `bc_quote_entry.py` is not added to
+  the `bbs-fill` allow list here (R3). **Open actions for Parker (both RULED):** re-paste
+  managed settings after merge; and amend the organization instruction in the admin
+  console, a separate place that also covers claude.ai chats, to name both the
+  `bc-item-entry` and `bc-quote-entry` skills, as the adopted recommendation says. No repo
+  change does the second.
+- **R3. `bc_quote_entry.py` may go on the `bbs-fill` allow list — RULED 2026-11-10.**
+  Adopted recommendation: "No Allow click for the quote-entry script. The rep's named review sheet stays the approval step." → "Yes, only after #68 forces NASPO lines to sell at cost. Today it lets a markup through, and I confirmed that in the code." No
+  Allow click, but **only after** #68 enforces NASPO lines at cost, per the rule in
+  `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`, "Grainger sell rule, by channel". The named review sheet stays the gate. Until that check
+  ships in #68, the script stays off the list.
+- **R4. Salesperson split on the Kim/Aanya California state book — RULED 2026-11-10.**
+  Adopted recommendation: "Who is salesperson on a state quote. Kim's 18 agencies get KQUEZON, all others AANYA, and PMARSHALL never." → "Confirm the rule and the list of 18. Keep one copy of the list in the shared facts file instead of five." The CA state book scope from canon (body armor and CSU/UC outside the book) is applied here as an existing ruling, not a new one.
+  Within that book, `KQUEZON` for Kim's 18 agencies, `AANYA` for all others, `PMARSHALL`
+  never on a state quote. What is outside the book (body armor and CSU/UC) is canon's,
+  `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`, "CA state book scope" (RULED 2026-09-28); this split does not reach it. The list of 18 has
+  one home, `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`;
+  everything else points at it, and the test reads it. As of this entry the list is not
+  yet in canon on `main`; it lands with the work that uses it, not re-keyed anywhere else.
+- **R5. Proof read-back of the BC quote printout stays mandatory — RULED 2026-11-10.**
+  Adopted recommendation: "DVBE wording on the BC quote printout. #68 drops the old check that the certification line says DVBE only." → "Keep a proof read-back required until someone confirms BC's printout says DVBE only, never SB."
+  Until someone verifies that BC's sales-quote report prints DVBE only, never SB, for
+  California state customers.
+- **R6. #72 is narrowed — RULED 2026-11-10.**
+  Adopted recommendation: "Customer-folder CLAUDE.md upkeep (#72). Sessions would update a customer folder's CLAUDE.md without being asked and record quote outcomes there." → "Narrow it. Outcomes already live in quote-log.md (#75). Notes should reuse #81's format and filters, so there is one memory system, not two." Quote outcomes live only in `quote-log.md`
+  (#75). Durable customer-folder notes reuse #81's desk-memory entry format and refusal
+  table, so there is one memory mechanism, not two.
+- **R7. Desk memory (#81) "Open for Parker" items 1–7 accepted as recommended — RULED
+  2026-11-10.**
+  Adopted recommendation: "Desk memory's A1–A7 (#81)." → "Yes as listed in my last message. A3 waits for the next slice, and A4 is your SharePoint step." The items, in their own wording and each now marked RULED 2026-11-10, live
+  once: `docs/superpowers/specs/2026-11-10-desk-memory-design.md`, "Open for Parker". Not
+  restated here. **Open actions for Parker:** item 2 (approving agency-wide and desk-wide
+  notes at the monthly review) and item 4 (restamp the desk-root `CLAUDE.md` on SharePoint;
+  #81 has merged, so it is due).
+- **R8. Duplicate PRs: keep #71 and close #78; keep #74 and close #73 — RULED
+  2026-11-10.**
+  Adopted recommendation: "Duplicate PR pairs." → "Keep #71 and close #78; keep #74 and close #73. Close each only after its useful content is copied over." Each close happens only after its unique content is ported; the ports are
+  dispatched separately. Parker closes; no agent closes a PR.
+- **R9. Payroll stays blocked; Vercel and Supabase tools are allowed — RULED 2026-11-10.**
+  Adopted recommendation: "Revive #53, the payroll, Vercel and Supabase blocks. You approved these on 2 Oct, but they never merged." → "Yes. Without it, any session with the QuickBooks connector can read payroll." Adopted with Parker's changes: "except for the last one we don't need payroll. I want vercel and supabase to be allowed", then "Yes A", where A was "Block it. Nobody needs payroll access through Claude, so keep the 27 payroll tools blocked."
+  Parker's exception to the steward's last recommendation ("we don't need payroll. I want
+  vercel and supabase to be allowed"), then, asked about payroll in the steward session,
+  "Yes A". So: the QuickBooks payroll tools (`qbo_payroll_*`) are denied; the Vercel and
+  Supabase connector tools are **not** denied, and the Vercel and Supabase denies #53
+  proposed are dropped. Implementation lives in #53, revived by a separate worker; this
+  entry records the ruling only. Note: as of this entry `main`'s managed settings do not
+  yet deny the payroll tools (#53 adds them), so "payroll blocked" holds only once #53
+  merges and Parker re-pastes managed settings. R9 allows Vercel and Supabase, so the
+  Vercel and Supabase denies Parker approved for #53 on 2026-10-02 do not ship; the payroll
+  denies do. No `ask` rules for the Vercel purchase or domain tools are added: Parker said
+  "allowed", and whether he wants `ask` there is a separate question the steward put to him.
+  - **R9 amendment — RULED 2026-11-11.** Parker, in the steward session, 2026-11-11: "Yes,
+    ask before Vercel purchases." Vercel purchases and domain transfers ask first; still
+    allowed. The Vercel connector's `buy_*` tools and `create_or_transfer_domain` are in
+    `permissions.ask` (Vercel-scoped `buy_*` rules, plus any-prefix rules for the two exact
+    tool names; never `mcp__*__buy_*`) and set to `ask` in the console; none is denied.
+    Supabase stays fully allowed. Names and their status: `MANAGED-SETTINGS.md`, "Vercel
+    purchases ask first" (PR #53).
+- **Parker approves every merge — RULED 2026-11-10.** Parker, in session, choosing
+  "Parker approves each" over "Rex merges, steward reports" and "Parker merges by hand":
+  Rex reviews and posts "Cleared" or "Request changes — do not merge"; the steward brings
+  cleared PRs to Parker; nothing merges into `main`, leaves draft, or closes until Parker
+  approves that PR by number. ~~An agent may execute the merge only with his approval quoted
+  in its brief.~~ *Superseded 2026-11-10 by "Agents never merge" (R1), above: no agent
+  merges; Parker merges in the GitHub UI.* A general instruction ("merge the valuable ones", "use Rex") is not
+  approval. Supersedes the 2026-10-02 entry below. Why: on 2026-11-10, between 07:13 and
+  07:24 UTC, a steward session read Parker's "deal with the many branches… merge the
+  valuable ones… utilize Rex" as authority, told its Rex that "draft status alone is not a
+  hold", and Rex marked #80, #79 and #75 ready and squash-merged them. Each write was
+  auto-accepted by configuration, no person approved any of them, and the steward told
+  Parker that nothing had merged. Parker: "I haven't approved or done any of the merges."
+  Out of scope here, carried as a follow-up: `plugins/agent-team/skills/project-steward/SKILL.md`
+  still lets a steward squash-merge when a program profile records the delegation. BBS has
+  no `docs/pm/PROGRAM-PROFILE.md` and runs its own steward agent, so it is not a live path
+  in this repo today.
+- ~~**Rex merges what it clears, whichever session dispatched it — RULED 2026-10-02.**~~
+  *Superseded 2026-11-10 by "Parker approves every merge", above.*
   Parker, in session: "enable rex to conduct merges himself going forward for all session".
   This supersedes "Parker merges when the session that dispatches Rex is also the PR's
   author" (2026-10-01 entry above). Rex squash-merges any PR it has cleared on its own
@@ -854,7 +1010,116 @@ Write it up with evidence and move to the next slice. Do not idle.
     mkdir X`; an unquoted `>>` into a FILLED path containing spaces. **Ask (Parker's call):**
     `Caltrans District 8` is refused as a near-duplicate of `Caltrans District 7`, because the
     two share every word but one. Is a numbered-district sibling a different buyer?
+- **Connector access: everyone reads, writing to a shared space is by request — RULED
+  2026-10-02.** Parker, in session: "I want everyone to have access to all of the
+  connectors and items provided in BBS Claude Marketplace. Our team is small enough that
+  there is no reason to isolate the information." Asked how live writes should behave:
+  "everyone should have read access, but not write access. They have to request write
+  access to anything that acts as a shared information space, or canonical space, for the
+  company." QuickBooks payroll: "Everyone, block payroll" (every `qbo_payroll_*` tool
+  denied and console-blocked, admins included). ~~Vercel: block purchases (`buy_*`,
+  `create_or_transfer_domain`) and `delete_project`, admins included. Supabase spending,
+  asked the same day ("block Supabase spending too"): `create_project`, `create_branch`
+  and `restore_project` (each adds billing), denied and console-blocked, admins included;
+  no skill uses them.~~ *Superseded by R9, 2026-11-10:* Parker, in session, "we don't need
+  payroll. I want vercel and supabase to be allowed", then "Yes A" to keeping payroll
+  blocked. The Vercel and Supabase denies are out of `bbs-managed-settings.json` and the
+  console list; the payroll denies stay. Vercel purchases and domain transfers ask first
+  (see R9's entry, "R9 amendment — RULED 2026-11-11"). Team-rollout page: flip connector rows to Ready today now. Every
+  plugin was already enabled for everyone (`enabledPlugins`). Homes:
+  `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md` (matrix and "Enforcing write by
+  request"), `bbs-managed-settings.json` `permissions.deny` and `permissions.ask`,
+  `docs/ADMIN-RUNBOOK.md` §3.
+  Managed settings and console blocks are org-wide, so write-by-request is enforced in
+  each system or by a read-only connection; **OPEN for Parker:** how each connector signs
+  in, the CRM's `crm_update_record` (already on everyone's account), and the new deny
+  names' live-fire check ~~(`mcp__claude_ai_Vercel__` and `mcp__claude_ai_Supabase__` are
+  inferred from the naming of the others)~~ (*Superseded by R9, 2026-11-10:* no Vercel or
+  Supabase deny remains; the check is a payroll read). The 27 `qbo_payroll_*` names were
+  re-checked against the QuickBooks connector's tool list on 2026-11-10 and match. Since
+  2026-11-11 the managed deny also carries `qbo_payroll_*` globs (`mcp__*__`,
+  `mcp__Intuit_QuickBooks__` and `mcp__claude_ai_Intuit_QuickBooks__`), so in managed
+  settings a payroll tool Intuit adds later is covered too. Only the admin console still
+  needs each payroll tool named, because it takes names, not globs. Cursor plugins are unchanged (invariant 5).
+  **Signing is excluded** (Rex, PR #53 review): the ruling is about information and
+  shared-space writes, so who signs stays R1 and R1a and no connector grant changes it;
+  SignNow grants no one signing by request. **Closed** (Parker, in session): QuickBooks is
+  hardly used, so no further QuickBooks denies. **Signed off** (Parker, in session,
+  2026-10-02): "I approve the deny list changes" (payroll, ~~Vercel, Supabase~~; Rex E1;
+  the Vercel and Supabase part *Superseded by R9, 2026-11-10*), and
+  Microsoft 365 is assigned to Rachelle ("yes it is assigned").
+- **Sessions start on Opus at medium effort — RULED 2026-11-12.** Parker, in session:
+  "make sure all sessions are starting with opus on medium as default. Fable just crushed my
+  tokens". Managed settings set `model: "opus"` and `effortLevel: "medium"`; the five
+  `.claude/agents/` definitions run at `effort: medium`. A default, not a lock.
+- **Steward merge authority for the 2026-11-10/11 queue — RULED 2026-11-11; ended
+  2026-11-12.** Parker, in the steward session: "Once Rex reviews, I want you to merge them if
+  they are ready and in the best order", "merge 68 when Rex clears it", and "merge the rest as
+  Rex clears them too". What it covered: the steward squash-merged the Rex-cleared PRs #83,
+  #74, #71, #53, #77, #76 and #72, each at its cleared head. It was bounded to that queue and
+  ended once the R1 managed-settings deny went live: Parker, in the steward session on
+  2026-11-12, after the steward sent him the file from `main` `5ae15f3` (#86): "managed
+  settings are in". From then on R1 holds without exception: Parker merges in the GitHub UI.
+  **Still open:** the live test of that paste — a payroll read is blocked, a Vercel purchase
+  asks, and a new session opens on Opus at medium.
+- **BC writers: Kim, Aanya, Griffin and Joey — RULED 2026-11-11.** Parker, in the steward session: "Kim, Aanya, griffin and Joey should have
+  write permission matching the skills we ahve". Asked how reps connect to BC — "(a) Each rep
+  signs in through the app (delegated) — BC records the rep as creator; rep's own BC
+  permissions matter" or "(b) The app writes as itself (app-only, the app's secret)" — he
+  answered: "One we are doing a I am getting confused". On quote writes, his words: "no reps
+  have write BC quote permission, it has been workign", then "becuase they are on the same API
+  connection through the app". So Parker reports quote writes working; as item (b) of the #68
+  entry above says, the first live delegated quote commit under a rep's own BC permissions is
+  what confirms it, and that item stays open. **Connection method:** asked again on
+  2026-11-12, Parker said "I can't remember how we have it set up, I haven't changed it",
+  then "I have to click a Microsoft auth on my profile I know that". An interactive Microsoft
+  sign-in under his own profile is delegated sign-in, so the method is recorded as (a),
+  delegated, which is what `rep-setup.md` and the 2026-10-14 ruling expect. The "same API
+  connection through the app" sentence above does not change that; each rep's own `whoami`
+  printing their own work account confirms (a) for that rep. Still to confirm per rep: item rights, and each
+  rep's one-time `whoami`. Setup and the confirmation steps:
+  `plugins/bbs-sales/skills/bc-item-entry/references/rep-setup.md`.
+- **Folders become the statement of record — RULED 2026-11-12.** Parker, in the session that
+  built the sales handbook (PR #88): "The dashboard and quote log should be connected. I want
+  to move from the CRM being the statement of record to our folders." This decides item 9.1
+  of the folder-first RFQ pipeline spec (cited from #77; original on SharePoint under State of
+  CA Agencies `docs/superpowers/specs/`, scrubbed repo copy
+  `docs/superpowers/specs/2026-10-30-rfq-pipeline-folder-first-design.md`, section 9 item 1).
+  **Open action:** update `ca-state-sales-grounding`, the desk `CLAUDE.md`, and every file
+  that names Dynamics/the CRM as the pipeline record. Not done in the PR that recorded this.
+  `git grep -n -i "statement of record\|pipeline of record\|system of record for pipeline\|Dynamics 365 for pipeline"`
+  on 2026-11-12 finds:
+  - `REGISTRY.md:28` — CRM connector row, "pipeline of record"
+  - `docs/CURSOR-SETUP.md:92` — "BBS Sales CRM MCP (pipeline of record)"
+  - `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md:110` — CRM row, "Pipeline of record"
+  - `plugins/bbs-foundations/docs/bbs-managed-settings.json:196` — `claudeMd`, "Dynamics 365
+    for pipeline" (needs Parker's re-paste after the change)
+  - `scripts/check_marketplace.py:598` — comment, "the pipeline of record" (review side)
+
+  `ca-state-sales-grounding` is account-synced through Parker's claude.ai and is not in git
+  (`plugins/bbs-sales/README.md`), so a grep cannot see it; Parker updates it in claude.ai. The grep finds no hit in `workspace/DESK-CLAUDE-template.md`; check its CRM wording by
+  hand when the update runs.
+- **Open actions for Parker — listed 2026-11-12.**
+  - Restamp the SharePoint desk-root `CLAUDE.md` from `workspace/DESK-CLAUDE-template.md`; it
+    still names the retired `/ca-rfq-log` and `/ca-rfq-quote`. Already open as R7 item 4,
+    above.
+  - Delete the account-synced `bbs-quote-builder` copy in claude.ai. Already open under
+    "`bbs-quote-builder` retired; items then quotes in BC — RULED 2026-11-11", above.
+  - Run the routing eval owed on `bc-quote-entry`. Already open under "Quote creation moves
+    into Business Central — RULED 2026-10-16; the skill is #68", above ("a full run on the
+    final description is still owed").
+  - Refresh `models.json` (stale since 2026-09-15; it still lists `claude-opus-5`) via
+    `refresh_models.py` or `.github/workflows/refresh-models.yml`.
+  - Review-side checker gaps for Cursor to add: a plugin missing its `description`, and canon
+    strings repeated in shipped `.html` assets.
+- **Rachelle does not sign through Claude — RULED 2026-10-02.** Parker, in session, in the
+  brief for her team-rollout card: "Signing stays off her page. Rachelle does not sign
+  through Claude. Leave out packets, signing and form filling." She is not one of the R1a
+  delegates, so this matches R1a; her card and jobs-map rows carry no signing, packet or
+  form-filling job, and tile 3 ("Outside Sales, it doesn't sign for you") covers her.
+  `/bbs-my-voice` learns only from her own Sent Items, so drafting in Jackson's voice is
+  shown as Not built yet.
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-10-02.
+Owner: Parker Marshall. Last verified 2026-10-02; rulings register updated 2026-11-12.

@@ -64,27 +64,25 @@ report format at the end. Read-only: create/modify nothing, send nothing.
     resolve. WARN (not FAIL) for any missing one, naming it and pointing at
     `scripts/bbs-setup.ps1` (Windows, REP-SETUP step 1) or `scripts/bbs-setup.sh` (macOS,
     REP-SETUP step 1). Also resolve `soffice` (LibreOffice): WARN if missing —
-    quote-builder PDF export and document-skills conversion need it. A tool can be installed
+    document-skills conversion needs it. A tool can be installed
     and still not resolve: LibreOffice and Tesseract never add themselves to PATH, and a
     window opened before the install keeps the old PATH. The fix is the same either way —
     rerun the bootstrap (it finds installed tools and adds their folders to PATH), then close
     every VS Code window and reopen it.
-    Then the libraries the document-producing skills import (form-fill, quote builder,
-    reconciliation), using the interpreter `bbs-setup.ps1` installed them into:
+    Then the libraries the document-producing skills import (form-fill, reconciliation, the
+    commons Word and slide skills), using the interpreter `bbs-setup.ps1` installed them into:
     - **Python.** Windows: the first `python` from
       `Get-Command python -CommandType Application -All` whose path is not under
       `\WindowsApps\` (that is the Microsoft Store stub; if it is the only hit, python is
       missing). macOS: `python3`. Run `<that interpreter> -c "import pypdf, fitz, openpyxl"`.
-    - **docx.** Resolve it the way `build_quote.js` does — from the script's own folder plus
-      NODE_PATH, not from the current folder. Find the installed bbs-sales plugin root (as
-      in check 9), then run
-      `node -e "require.resolve('docx',{paths:[process.argv[1]]})" "<bbs-sales root>/skills/bbs-quote-builder/scripts"`.
-      If bbs-sales is not installed, skip this probe (informational).
+    - **docx.** Resolve it the way a Node script does — through NODE_PATH, not from the
+      current folder: `node -e "require.resolve('docx')"`. The commons Word skill builds
+      `.docx` files with it.
     PASS = both exit 0. WARN (not FAIL) for a missing python or a failed import, naming it.
     Windows fix: `scripts/bbs-setup.ps1` — if its last run said `[later]` or `Not done yet`,
     close that PowerShell window, open a new one, run the script again, then reopen VS Code.
-    Any OS, docx only: `npm install docx` inside `<bbs-sales root>/skills/bbs-quote-builder`
-    (once per plugin update). Mac fix: rerun `scripts/bbs-setup.sh`, which installs the same
+    Any OS, docx only: `npm install -g docx`, then make sure NODE_PATH points at
+    `npm root -g` (the bootstrap sets it). Mac fix: rerun `scripts/bbs-setup.sh`, which installs the same
     libraries, then quit and reopen VS Code (Cmd+Q) so it reads the new NODE_PATH.
 
 11. **Signature images.** Find the installed bbs-sales plugin root (as in check 9) and read

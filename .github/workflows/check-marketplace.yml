@@ -73,16 +73,46 @@ jobs:
             test "${PIPESTATUS[0]}" = "0"
           done
 
+      # The customer-folder reminder ships as customer-folder.ps1 and customer-folder.py
+      # (bbs-foundations) and the two must emit identical bytes, markers and all: a Mac runs
+      # the Python half, Windows the PowerShell half. Same BBS_REQUIRE_PS=1 rule as above.
+      - name: Customer-folder hook parity (customer-folder.ps1 == customer-folder.py)
+        env:
+          BBS_REQUIRE_PS: "1"
+        run: |
+          python3 plugins/bbs-foundations/hooks/tests/customer_folder_parity.py | tail -3
+          test "${PIPESTATUS[0]}" = "0"
+
       # The quote-desk guards ship as guard-tree.ps1/.py and desk-context.ps1/.py, and the two
       # halves must decide identically: a Mac runs the Python half, Windows the PowerShell half.
       # BBS_REQUIRE_PS=1 makes a missing pwsh a failure, so this proves parity rather than
       # skipping it; run-tests.ps1 is the PowerShell suite on its own.
-      - name: Quote-desk guard parity (guard-tree, desk-context)
+      # The same step holds the RFQ record hook to its one-validator rule: hooks.json runs
+      # python3 first, and rfq-record-hook.ps1 must only say "needs python3; this edit was not
+      # checked" (parity.py and run-tests.ps1 both assert that notice).
+      - name: Quote-desk guard parity (guard-tree, desk-context, rfq-record notice)
         env:
           BBS_REQUIRE_PS: "1"
         run: |
           pwsh -NoProfile -File plugins/bbs-sales/hooks/tests/run-tests.ps1
           python3 plugins/bbs-sales/hooks/tests/parity.py | tail -3
+          test "${PIPESTATUS[0]}" = "0"
+
+      # The RFQ record parser and CLI (scripts/rfq_record.py) that the record hook calls. Without
+      # this step the parser could regress with every other check still green.
+      - name: RFQ record parser tests
+        run: python3 -m unittest discover -s plugins/bbs-sales/scripts/tests
+
+      # Desk memory: the writer's refusals (no price, account, cert or contract fact in a note)
+      # and the isolation loop (a note saved for one buyer is shown there and not in a sibling
+      # folder), then the SessionStart hook's two halves against each other.
+      - name: Desk memory (writer, isolation, hook parity)
+        env:
+          BBS_REQUIRE_PS: "1"
+        run: |
+          python3 plugins/bbs-sales/skills/desk-remember/scripts/test_desk_memory.py | tail -3
+          test "${PIPESTATUS[0]}" = "0"
+          python3 plugins/bbs-sales/hooks/tests/desk_memory_parity.py | tail -3
           test "${PIPESTATUS[0]}" = "0"
 
       # bbs-fill is allowed by managed settings as `Bash(bbs-fill *)`, so its refusals are the
@@ -100,6 +130,28 @@ jobs:
             [void][System.Management.Automation.Language.Parser]::ParseFile("scripts/bbs-setup.ps1", [ref]$null, [ref]$e)
             if ($e.Count) { $e | ForEach-Object { Write-Error $_.Message }; exit 1 }
             "bbs-setup.ps1 parses"'
+
+      # Anthropic's own validator, which knows the manifest schema our checker does not.
+      # Errors fail the job: invalid JSON, a missing required field, a bad name, a relative
+      # source with "..". Warnings are printed and do NOT fail it: an unknown key, an entry
+      # version that plugin.json silently overrides, a plugin-root CLAUDE.md that never
+      # loads. (`--strict` would block on warnings, but fails today on the bbs-claude-coach
+      # name and bbs-marketing's CLAUDE.md, so it is not a drop-in.) The full output is kept
+      # so the log says why it fired. It reads only files in this repo (no fetch, no
+      # sign-in). Pinned to an exact CLI version so a new release cannot turn a green main
+      # red overnight; move the pin on purpose.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: claude plugin validate (marketplace and every local plugin)
+        run: |
+          npm install --global --silent @anthropic-ai/claude-code@2.1.319
+          claude plugin validate .
+          for p in plugins/*/; do
+            echo "== $p"
+            claude plugin validate "$p"
+          done
 
       # What each skill needs installed, printed on every run, so the "will this run on my
       # machine?" answer is in the PR rather than in someone's head.

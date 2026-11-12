@@ -84,7 +84,7 @@
   },
   {
     "id": "quote-1",
-    "expect": "bbs-quote-builder",
+    "expect": "bc-quote-entry",
     "query": "Turn these items into a quote on BBS letterhead and give me the PDF: 3 safety vests at $12.40, 2 hard hats at $18.90."
   },
   {
@@ -182,12 +182,82 @@
   },
   {
     "id": "item-sib-1",
-    "expect": "bbs-quote-builder",
+    "expect": "__none__",
     "query": "The items are all in BC now. Build the customer quote PDF for CDCR from SQ-104999."
   },
   {
     "id": "item-sib-2",
     "expect": "grainger-pricing",
     "query": "Price these Grainger items on the CMC account: 1TAJ3, 38W367, 60KA44. Just the prices, nothing in BC."
+  },
+  {
+    "id": "quote-entry-1",
+    "expect": "bc-quote-entry",
+    "query": "Pricing is done and the item exists in BC. Create the sales quote in Business Central for Cal Fire Atwater: 30 EA PHX 6001 at 95.50, ship to 4225 Hospital Road, Atwater CA, RFQ number RFQ AARF COVERS 10-16-26."
+  },
+  {
+    "id": "quote-entry-2",
+    "expect": "bc-quote-entry",
+    "query": "Build the BC sales quote for this CDCR RFQ from the Grainger prices you just pulled on their account. NASPO, ship to the institution's warehouse."
+  },
+  {
+    "id": "quote-entry-3",
+    "expect": "bc-quote-entry",
+    "query": "Make the SQ in Business Central so Kim can release it. Customer C11219, the lines are in the spec in the deal folder."
+  },
+  {
+    "id": "quote-entry-sib-1",
+    "expect": "__none__",
+    "query": "SQ-105190 is already in BC and released. Render it as a PDF on our letterhead, I can't print from BC right now."
+  },
+  {
+    "id": "quote-entry-sib-2",
+    "expect": "bc-item-entry",
+    "query": "Before we quote it, the Phenix helmet cover isn't in Business Central yet. Create the item card from the All Star quote in the folder."
+  },
+  {
+    "id": "remember-1",
+    "expect": "desk-remember",
+    "query": "Remember that the buyer at this institution wants the quote and every cert merged into one PDF."
+  },
+  {
+    "id": "remember-2",
+    "expect": "desk-remember",
+    "query": "Note for next time: this buyer always wants a phone call before we email anything."
+  },
+  {
+    "id": "remember-3",
+    "expect": "desk-remember",
+    "query": "That was wrong, the buyer moved to the Folsom office last month. Make sure we know that next time."
+  },
+  {
+    "id": "remember-4",
+    "expect": "desk-remember",
+    "query": "Don't forget the receiving dock at this hospital closes at noon on Fridays."
+  },
+  {
+    "id": "remember-5",
+    "expect": "desk-remember",
+    "query": "What do we have remembered about this buyer? Show me the notes for this folder."
+  },
+  {
+    "id": "remember-neg-intake",
+    "expect": "ca-rfq-intake",
+    "query": "A new RFQ just came in from a CDCR institution for nitrile gloves. Log it so we remember the deadline."
+  },
+  {
+    "id": "remember-neg-outcome",
+    "expect": "__none__",
+    "query": "The gloves quote we sent this buyer last month was won. Update the outcome in the quote log."
+  },
+  {
+    "id": "remember-neg-flag",
+    "expect": "__none__",
+    "query": "The draft pulled last quarter's solicitation number. Log that in FLAGS.md as a factual error."
+  },
+  {
+    "id": "remember-neg-precedent",
+    "expect": "__none__",
+    "query": "What did we quote this buyer last time for the same gloves?"
   }
 ]

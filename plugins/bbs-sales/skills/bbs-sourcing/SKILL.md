@@ -1,11 +1,11 @@
 ---
 name: bbs-sourcing
-description: Source pricing from vendors for a competitive bid RFQ at Black Box Safety. Use this skill whenever a BBS sales rep needs to turn an inbound competitive RFQ from a California state agency into vendor outreach — including when they say "source this RFQ," "get me pricing on these items," "reach out to vendors for this bid," "help me quote this," or paste/upload an RFQ worksheet and ask what to do next. Also use when the rep wants to follow up with non-responding vendors or leverage one vendor's quote against another's. Always use this skill for competitive, SB/DVBE, or Fair-and-Reasonable bids. DO NOT use when the RFQ is NASPO-routed or every item is available on grainger.com — those go through Provision Connect instead. Output is a sourcing brief plus vendor emails drafted in BBS's voice, rendered inline with pop-out buttons for Outlook.
+description: Source pricing from vendors for a competitive bid RFQ at Black Box Safety. Use this skill whenever a BBS sales rep needs to turn an inbound competitive RFQ from a California state agency into vendor outreach — including when they say "source this RFQ," "get me pricing on these items," "reach out to vendors for this bid," "help me quote this," or paste/upload an RFQ worksheet and ask what to do next. Also use when the rep wants to follow up with non-responding vendors or leverage one vendor's quote against another's. Always use this skill for competitive, SB/DVBE, or Fair-and-Reasonable bids. DO NOT use when the RFQ is NASPO-routed or every item is available on grainger.com — those go through Provision Connect instead. Output is a sourcing brief plus vendor emails drafted in the rep's own voice, rendered inline with pop-out buttons for Outlook.
 requires: [microsoft-365]
 degrades-without: [firecrawl, ca-procurement-intel, business-central]
 ---
 
-> **Known gap:** this skill references companion files under `references/` (vendor directory, email templates, triage, input-handling) that are not yet included in the package. Until they are added, follow the inline guidance and flag the gap via `/bbs-review`.
+> **Known gap:** this skill references three companion files under `references/` (vendor directory, triage, input-handling) that are not yet included in the package. Until they are added, follow the inline guidance and flag the gap via `/bbs-review`. `references/email-templates.md` ships (2026-10-30).
 
 # BBS Sourcing Skill
 
@@ -72,7 +72,7 @@ Pull out the following from the RFQ (email body, attached worksheet, or PDF):
 
 ## Step 3 — Confirm rep identity and compute vendor deadline
 
-**Rep identity:** Check memory for the rep's name and email. If not stored, ask once: "Which BBS rep is running this — name and email for the signature block?" Store the answer so future runs skip this step for the same person.
+**Rep identity and signature:** If the session does not already say which BBS rep is running this, ask once: "Which BBS rep is running this — name and mailbox?" The signature is theirs, not the company's: it comes from the rep's own `<first>-voice` skill assets (`assets/signature-outlook-draft.html` for a connector draft, `assets/signature.txt` for plain text; built once by `/bbs-my-voice`, bbs-voice-template step 3b). If that skill or its assets do not exist on this machine, every email closes with `[MISSING — NEEDS INPUT: signature]` and the sourcing brief says so. Never type a signature block from memory. The rule in full: `references/email-templates.md`, "Signature".
 
 **Vendor deadline = agency deadline − 48 hours.** Hard rule. Vendors need buffer, and BBS needs buffer to compile the final quote. If the agency deadline is less than 72 hours out, flag it to the rep: "Tight timeline — you'll want to phone-follow-up these vendors, not just email."
 
@@ -149,7 +149,7 @@ For each vendor, decide who to email.
 
 ## Step 7 — Select the email template tier
 
-Three tiers. Pick one per vendor based on relationship state. See `references/email-templates.md` for the exact template text.
+Three tiers. Pick one per vendor based on relationship state. See `references/email-templates.md` for the template shells and the placeholder table.
 
 | Tier | Trigger |
 |---|---|
@@ -165,11 +165,12 @@ If multiple BBS teammates have worked with the vendor, ask the rep which one to 
 
 ## Step 8 — Draft the emails
 
-Use the templates in `references/email-templates.md`. The skill's job here is three things:
+Use the shells in `references/email-templates.md`. The skill's job here is four things:
 
-1. Fill in the template variables: vendor contact name, end-customer agency (e.g., "CAL FIRE Butte Unit"), line items with links/SKUs/qty, ship-to address, vendor response deadline.
-2. Use BBS's full signature block (see `references/email-templates.md` — includes SDVOSB UEI, DVBE #, all three contract vehicle numbers).
-3. Render each email with the **message_compose_v1** tool (`kind: "email"`). This produces a preview card inline with "Open in Mail" → launches the rep's Outlook with the draft pre-filled.
+1. Fill in the placeholders: vendor contact name, end-customer agency (e.g., "CAL FIRE Butte Unit"), line items with links/SKUs/qty, ship-to address, vendor response deadline. Each one's source, and what it must never be filled from, is the placeholder table in that file.
+2. Run the rep's own `<first>-voice` skill over the body so it reads as theirs. No voice skill on the machine: the shell goes out as written.
+3. Close with the rep's signature from their `<first>-voice` assets, as that file's "Signature" section says. A missing asset is `[MISSING — NEEDS INPUT: signature]`, never a block typed from memory, and an asset that still reads "SB/DVBE" is stopped and flagged, not pasted.
+4. Render each email with the **message_compose_v1** tool (`kind: "email"`). This produces a preview card inline with "Open in Mail" → launches the rep's Outlook with the draft pre-filled.
 
 Every cold/referral email must include the transparency line: *"I'm getting quotes from a few different vendors to get best pricing."* This is BBS's soft-leverage baseline — vendors expect competition, and saying so upfront sets the tone for future price-match asks without being adversarial.
 
@@ -204,6 +205,7 @@ After all emails are composed, summarize in chat as a brief the rep can glance a
 - [any discontinued SKU concerns]
 - [any items with vague specs the rep should confirm with the agency]
 - [tight-timeline warnings]
+- [signature missing — rep runs /bbs-my-voice once and re-renders]
 ```
 
 ---
@@ -249,13 +251,13 @@ These are the rules the skill must not relax, no matter what the rep asks:
 3. **Never use customer-provided pricing as the basis for vendor outreach.** If the RFQ mentions "not to exceed $X" or "previous price was $Y," that's for the BBS quote side — do NOT share it with vendors. Vendors quote blind.
 4. **End-customer agency is always named** in cold and referral emails. It gives the vendor context and motivates their response. Warm emails can skip this for known vendors.
 5. **Ship-to address is always included** in every email. Vendors can't quote freight without it.
-6. **Full BBS signature on every email.** SDVOSB UEI, DVBE #, all three contract vehicles. These credentials matter for DPA Buying Group pricing and DVBE set-aside qualification — they also tell the vendor this is a real opportunity.
+6. **The rep's real signature on every email, or a visible flag.** The signature comes from the rep's own `<first>-voice` assets, never from a block carried in this skill, because a carried block goes stale (the SB wording did, 2026-09-22). It is what tells the vendor this is a real government opportunity: the certifications and contract vehicles it carries matter for DPA Buying Group pricing and DVBE qualification. No asset → `[MISSING — NEEDS INPUT: signature]`, never a guess.
 
 ---
 
 ## Reference files
 
 - **`references/vendor-directory.md`** — BBS's vendors by product vertical, with tier flags (DPA Buying Group, Direct Account, Wholesaler, Retail) and account notes
-- **`references/email-templates.md`** — Full text for all five templates: Cold, Referral, Warm, Follow-up, Price-Match. Plus the BBS signature block.
+- **`references/email-templates.md`** — Shells for all five templates: Cold, Referral, Warm, Follow-up, Price-Match, placeholders only, with where each placeholder comes from. The signature rule: the rep's `<first>-voice` assets, never a block carried here.
 - **`references/competitive-vs-naspo-triage.md`** — How to distinguish competitive RFQs from NASPO requests. Signal words, Grainger check procedure, edge cases.
 - **`references/input-handling.md`** — How to read the RFQ when it arrives as pasted text, PDF, XLSX, or an Outlook email reference.

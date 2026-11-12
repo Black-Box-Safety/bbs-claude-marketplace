@@ -124,11 +124,44 @@ failure mode to review for. The questions that pay:
 
 | When | What |
 |---|---|
-| Every PR | `check_marketplace.py` clean; `WARN` triaged, not ignored |
+| Every PR | `check_marketplace.py` clean; `WARN` triaged, not ignored; `claude plugin validate .` passes; every changed plugin bumped |
 | Before adding a skill | Run `docs/evals/` routing; add queries for the new skill **and** one that should go to a sibling |
 | After editing any description | Re-run the anonymized routing eval; descriptions are the routing table |
 | When a model ships | `refresh_models.py` opens a PR for `models.json`; update the two prose copies it names |
 | Quarterly | Re-verify `REGISTRY.md` statuses and the cert expiries in `vendor_profile.json` against primary sources |
+
+### Branches and versions
+
+Anthropic's marketplace docs are the authority for the version rules
+(<https://code.claude.com/docs/en/plugins/host-marketplace.md>, "Release a new version").
+
+- **A changed plugin is a bumped plugin, in the same PR.** Our plugins set `version` in
+  `plugin.json`, so a machine keeps its cached copy until that string changes. PRs #60 and
+  #70 existed only to ship merged work that had not been bumped.
+- **`version` lives in `plugin.json` only** for a plugin in this repo. Set it on the
+  marketplace entry too and `plugin.json` silently wins.
+- **Display fields live in `plugin.json` only** for a plugin in this repo. A
+  `description`, `author` or `keywords` set on a relative-path entry in `marketplace.json`
+  overrides `plugin.json` in `/plugin`, so the two drift (on 2026-11-06, seven of eight
+  had). Pinned externals keep their entry fields, because nothing else is readable before
+  install. One exception once #71 lands: the bootstraps read an entry's `keywords` to skip
+  `maintainer` plugins, so a local maintainer-tier plugin keeps that one keyword on its
+  entry, or it ships to reps.
+- **One version number, one PR.** Before claiming a version, check the open PRs. When two
+  PRs claim the same number, the second to merge merges `main` into its branch and takes
+  the next one. Never rebase a pushed branch: landing it needs a force-push, which managed
+  settings deny.
+- **Branch names say the kind of change**: `feat/`, `fix/`, `docs/`, `commons/`,
+  `chore/`, or a session's own `claude/<name>`. One branch, one PR. A merged branch is
+  never reused; follow-up work starts a new branch from `main`.
+- **Stacked PRs are retargeted to `main`** the moment the PR under them merges, or closed
+  if the PR above already carries their commits.
+- **A head branch is deleted when its PR merges or closes.** Turn on Settings → General →
+  "Automatically delete head branches" so this is not a chore.
+- **A branch holding real customer data never reaches GitHub.** Fixtures are scrubbed
+  before the first push, not "before merge".
+- **Removing or renaming a plugin** adds a `renames` entry in `marketplace.json` (old
+  name → new name, or `null`). Never edit an existing `renames` entry; append.
 
 **Two rules that are not negotiable here.** Never vendor Anthropic's own skills — pin
 them, as `document-skills` is pinned; a vendored copy stops receiving upstream fixes.
@@ -162,13 +195,12 @@ Picked up by whoever works here next.
   `grainger_price` call was ever executed against a real account. Verify `account.sellRule`
   really comes back, and that the account-resolution step behaves as written, before a rep
   relies on it.
-- **`bbs-quote-builder` prices a line tagged `source: "grainger"` at cost only when the
-  spec says so** (`pricing.graingerAtCost: true`, or method `at-cost`); `false` sends it
-  through the method; saying neither is an error. Which channel is at cost is canon's
-  "Grainger sell rule, by channel" (`canonical-facts.md`). The rule only reaches tagged lines: an
-  untagged Grainger line is priced by the method. The mitigation is prose —
-  `grainger-pricing` names the tag, and the builder's step 9 checks the echoed Grainger
-  count against the lines priced through `grainger-pricing`.
+- **Grainger at cost is enforced only where the contract says NASPO.** `bc-quote-entry`
+  stops any `contract: NASPO` line whose price is not exactly its cost (R3), so a NASPO
+  quote cannot carry a markup. A Grainger line on a quote whose spec names another contract
+  is priced as the rep wrote it; which channel is at cost is canon's "Grainger sell rule, by
+  channel" (`canonical-facts.md`). The retired `bbs-quote-builder` (2026-11-11) used a
+  per-quote `graingerAtCost` flag instead; that path is gone.
 - **`ca-form-filler` Path B claims the OBS inspector reads any CA form PDF.** Inherited
   from the pre-merge skill and never tested against a non-OBS packet.
 - **The OBS 4007(B) path has never been run against a real Rev. 08/2025 packet** —

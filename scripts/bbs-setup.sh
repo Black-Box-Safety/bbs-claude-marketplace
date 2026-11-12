@@ -77,8 +77,7 @@ install_cask() {
   fi
 }
 
-# Mirror of scripts/bbs-setup.ps1, plus LibreOffice (document-skills and
-# bbs-quote-builder call soffice).
+# Mirror of scripts/bbs-setup.ps1, plus LibreOffice (document-skills call soffice).
 install_formula git        "Claude Code hooks and git for the marketplace clone"
 install_formula node       "superpowers-chrome browsing skill needs Node"
 install_cask    google-chrome "the browser Claude drives for product research" "/Applications/Google Chrome.app"
@@ -88,7 +87,7 @@ install_formula pandoc     "Word attachments to markdown"
 install_formula uv         "Python runtime for form-fill and document-skills scripts, zero config"
 install_formula duckdb     "query price lists and SCPRS exports instead of reading them whole"
 install_formula jq         "JSON plumbing for scripts and hooks"
-install_cask    libreoffice "soffice: quote-builder PDF export and document-skills conversion" "/Applications/LibreOffice.app"
+install_cask    libreoffice "soffice: document-skills conversion (Word and slides to PDF)" "/Applications/LibreOffice.app"
 
 # The VS Code extension and the Desktop app bundle their own Claude; this script needs the
 # `claude` command itself, so it installs the cask only when nothing answers to that name.
@@ -139,7 +138,7 @@ else
       failed+=("python packages"); }
 fi
 
-# npm libraries: bbs-quote-builder builds the quote .docx with docx, the pptx skill decks with
+# npm libraries: the docx skill builds Word files with docx, the pptx skill decks with
 # pptxgenjs. Node's require() never looks in the global folder on its own, so NODE_PATH points
 # there. VS Code on a Mac reads the login shell's environment at launch, hence ~/.zprofile.
 if command -v npm >/dev/null 2>&1; then
@@ -171,7 +170,9 @@ fi
 # in the background, so a failed install is just an absent plugin. Installing from here shows
 # Claude Code's own error. The list is every plugin in the marketplace's own marketplace.json -
 # everyone gets every plugin (MANAGED-SETTINGS.md) - less any bbs-managed-settings.json sets to
-# false, so nothing is copied into this script. A clone gets 120 s by default; give the
+# false, and less any entry keyworded "maintainer" (maintainer-tier: in the catalog for Parker
+# to install by hand, never pushed to a rep machine; docs/COMMONS.md, Parker 2026-10-28), so
+# nothing is copied into this script. A clone gets 120 s by default; give the
 # installs below ten minutes. Claude Code's own later installs and updates get the same value
 # from the managed settings' `env` (bbs-managed-settings.json, 2026-10-01), its one home, so
 # this script no longer saves it. A line an earlier version added to ~/.zprofile is left:
@@ -193,7 +194,7 @@ else
   }
   MKT_DIR="$(mkt_dir)"
   if [[ $DRY_RUN -eq 1 ]]; then
-    printf '[would]   %-22s %s\n' "$MARKETPLACE" "$([[ -n "$MKT_DIR" ]] && echo update || echo add), then install every plugin in it"
+    printf '[would]   %-22s %s\n' "$MARKETPLACE" "$([[ -n "$MKT_DIR" ]] && echo update || echo add), then install every rep plugin in it (maintainer-tier entries skipped)"
   else
     if [[ -n "$MKT_DIR" ]]; then
       out="$(claude plugin marketplace update "$MARKETPLACE" 2>&1)"
@@ -213,7 +214,8 @@ else
         jq -r '.[] | select((.errors // []) | length == 0) | "\(.id)\t\(.installPath)"' 2>/dev/null)"
       BLOCKED=""
       [[ -f "$POLICY" ]] && BLOCKED="$(jq -r '.enabledPlugins | to_entries[] | select(.value == false) | .key' "$POLICY")"
-      for id in $(jq -r --arg m "@$MARKETPLACE" '.plugins[].name + $m' "$CATALOG"); do
+      for id in $(jq -r --arg m "@$MARKETPLACE" \
+          '.plugins[] | select(((.keywords // []) | any(ascii_downcase == "maintainer")) | not) | .name + $m' "$CATALOG"); do
         if printf '%s\n' "$BLOCKED" | grep -qxF "$id"; then
           continue
         fi

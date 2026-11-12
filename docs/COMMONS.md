@@ -10,8 +10,9 @@ maintained upstream, and matches a task reps actually do. Context cost is a tieb
 a veto. Anything that needs a per-machine API key stays out.
 
 **How it ships.** Each item is a pinned external entry in `.claude-plugin/marketplace.json`
-under `category: "commons"`, enabled for everyone through managed settings. Nothing is
-copied into this repo.
+under `category: "commons"`, enabled for everyone through managed settings, except
+maintainer-tier entries (below), which are pinned but not enabled and not installed by the
+bootstraps. Nothing is copied into this repo.
 
 **A commons entry is all-or-nothing.** Read "`skills:` does not filter" below before
 assuming otherwise. Because there is no working way to take part of a tree, **the unit of
@@ -204,6 +205,45 @@ since.
 
 ---
 
+## Maintainer-tier entries (in the catalog, not a rep default)
+
+Developer- or designer-aimed tools Parker asked for. They are pinned like every other
+commons entry, are **not** in `enabledPlugins` in managed settings, and carry the
+**`maintainer` keyword** on their `marketplace.json` entry.
+
+**How they stay off rep machines (Parker, 2026-10-28, in session).** Leaving an entry out
+of `enabledPlugins` is not enough on its own: `scripts/bbs-setup.ps1` and
+`scripts/bbs-setup.sh` install every plugin in `marketplace.json` that managed settings do
+not set to `false`. So both bootstraps also skip any entry keyworded `maintainer`. Parker
+installs one on his own machine by hand:
+
+```bash
+claude plugin install taste-skill@bbs-claude-marketplace --scope user
+```
+
+Managed settings are not used for this: a `false` there would very likely block the tool
+on Parker's machine too, since managed settings outrank user settings. **A maintainer-tier
+entry without the `maintainer` keyword reaches every rep at their next setup run.** The one
+earlier maintainer-tier draft (#20, `andrej-karpathy-skills`, 2026-09-17) relied on
+`enabledPlugins` alone and was closed unmerged on 2026-10-02.
+
+| Plugin | Pin | Release model · cadence | Why it is here | Watch for |
+|---|---|---|---|---|
+| `taste-skill` | `v2.1.5`, sha `12af471f` | `multi-train`, authoritative train bare `vX.Y.Z` (ignore the two `archive/` tags) · monthly: tagged, but seven releases from 2026-10-13 to 2026-10-25 (`CHANGELOG.md`), faster than quarterly | Parker, 2026-10-27: design work on the customer bots. Admitted again 2026-11-02 by Parker after a read-only vetting note (`Customers/State of CA Agencies/docs/dashboards/rfq-pipeline/TASTE-SKILL-VETTING.md` in the MASTER store) and an independent read, for internal operational pages, the CA State RFQ Pipeline dashboard first. Art direction for websites, product pages, dashboards and app screens, with a screenshot look-and-fix loop. **The bbs-shopify Field Manual wins any conflict; no decorative imagery on operational pages** | **One skill, `design-taste-frontend`; no hooks (no `hooks/` directory, no `.claude-plugin/plugin.json`; the `.codex-plugin/plugin.json` it carries is for Codex and inert here), no commands, no agents at the pin.** Its description fires on "landing page", "product page", "dashboard", "redesign" and "looks generic", so on any machine that has it, it competes for selection with `impeccable`, `document-skills`' `frontend-design` and `bbs-website:product-page`. `inspect.mjs` and `scenes.mjs` need **Node 22+** and a local Chrome, Edge or Chromium (`CHROME_PATH` overrides); the other scripts run on older Node. **`inspect.mjs` opens any http(s) URL it is given, not only local files, and deletes earlier inspection screenshots in its output folder**: run it only on a local, privacy-scrubbed page, into a fresh scratch folder, never a customer folder. **`scenes.mjs` also opens any http(s) URL it is given** and writes into `.taste-skill/scenes`. `assets.mjs` queries api.openverse.org, commons.wikimedia.org, api.artic.edu, collectionapi.metmuseum.org, archive.org and images-api.nasa.gov with no key and downloads the chosen images and video (archive.org and NASA) into the working project, refusing a licence outside the allowed set unless run with `--license all`: **do not run `assets.mjs` on BBS pages**. `draw.mjs` prints picsum.photos links and writes `~/.taste-skill/history.json`, and its `--app` path (`lib/app-draw.mjs`) emits a Google Fonts link; `references/scenes.md` loads gsap and lenis from cdn.jsdelivr.net; `SKILL.md` writes working files to `.taste-skill/` in the project and has a `mailto:` fallback for buttons. None of those belong on a BBS page. The tree also carries sponsor logos and CC BY-SA example screenshots that do not load as skills. The SKILL.md workflow runs its scripts by default, so these rules are the operator's job; **nothing in the plugin enforces them**. No download-and-execute anywhere in the tree. Upstream `install.sh` symlinks into `~/.claude/skills`: **do not use it**, that is the user-level copy this file forbids. MIT. The 2026-11-02 vetting read SKILL.md and references by grep and excerpts, not line by line. **Re-vet on every refresh**: the pin is a lightweight tag, so the recorded commit is the tag's own target |
+
+**Provenance.** Method as above (`git ls-remote` and a shallow clone through the agent
+proxy).
+
+| Entry | Verified | Tag object | Peeled commit | Upstream date |
+|---|---|---|---|---|
+| `taste-skill` `v2.1.5` | 2026-10-27, agent; re-checked 2026-11-02, agent (`git ls-remote` and a clone at the pin) | — (lightweight tag: `refs/tags/v2.1.5` resolves straight to the commit) | `12af471f627f866411b4bd785b19646d3672784c` | 2026-10-25 (`CHANGELOG.md` `## 2.1.5 - 2026-10-25`); also HEAD of the default branch at pin time and again on 2026-11-02 |
+
+The entry carries both `ref` and `sha`, so a force-moved tag cannot change what installs.
+The upstream ships no `.claude-plugin/plugin.json` (only its own `marketplace.json`), so the
+entry is `strict: false`, the same shape as `document-skills`.
+
+---
+
 ## Considered, not included
 
 | Candidate | Reason |
@@ -328,12 +368,12 @@ because selection does not work.
 - **Windows hook shell**, above: untested and the highest blast radius in the tier.
 - **LibreOffice** is now in both bootstraps (`scripts/bbs-setup.ps1` via winget
   `TheDocumentFoundation.LibreOffice`, `scripts/bbs-setup.sh` via `brew install --cask
-  libreoffice`). Three pinned document skills plus `bbs-quote-builder` still reference
-  `soffice`. Behaviour on a rep's Windows box is unverified until a pilot run.
+  libreoffice`). Three pinned document skills still reference `soffice` (`bbs-quote-builder`
+  did too, until its retirement on 2026-11-11). Behaviour on a rep's Windows box is unverified until a pilot run.
 - **Account-synced personal copies** of `docx`, `pdf`, `xlsx` and `pptx` compete with the
   pinned copies. Account-side; no repo change fixes it.
 
 ---
 
 *Maintainer: Parker Marshall · Curator agent: `.claude/agents/commons-curator.md` · Last
-verified: 2026-09-16*
+verified: 2026-09-16 (roster) · 2026-10-27 (maintainer tier)*

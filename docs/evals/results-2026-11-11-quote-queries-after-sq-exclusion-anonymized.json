@@ -1,0 +1,99 @@
+{
+  "model": "default",
+  "anonymized": true,
+  "runs_per_query": 5,
+  "pass_threshold": 0.8,
+  "summary": {
+    "queries": 7,
+    "passed": 7,
+    "failed": 0
+  },
+  "results": [
+    {
+      "id": "quote-1",
+      "query": "Turn these items into a quote on BBS letterhead and give me the PDF: 3 safety vests at $12.40, 2 hard hats at $18.90.",
+      "expect": "bc-quote-entry",
+      "runs": 5,
+      "correct": 4,
+      "accuracy": 0.8,
+      "pass": true,
+      "distribution": {
+        "bc-quote-entry": 4,
+        "__none__": 1
+      }
+    },
+    {
+      "id": "quote-entry-sib-1",
+      "query": "SQ-105190 is already in BC and released. Render it as a PDF on our letterhead, I can't print from BC right now.",
+      "expect": "__none__",
+      "runs": 5,
+      "correct": 4,
+      "accuracy": 0.8,
+      "pass": true,
+      "distribution": {
+        "__none__": 4,
+        "bc-quote-entry": 1
+      }
+    },
+    {
+      "id": "item-sib-1",
+      "query": "The items are all in BC now. Build the customer quote PDF for CDCR from SQ-104999.",
+      "expect": "__none__",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "__none__": 5
+      }
+    },
+    {
+      "id": "quote-entry-1",
+      "query": "Pricing is done and the item exists in BC. Create the sales quote in Business Central for Cal Fire Atwater: 30 EA PHX 6001 at 95.50, ship to 4225 Hospital Road, Atwater CA, RFQ number RFQ AARF COVERS 10-16-26.",
+      "expect": "bc-quote-entry",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bc-quote-entry": 5
+      }
+    },
+    {
+      "id": "quote-entry-2",
+      "query": "Build the BC sales quote for this CDCR RFQ from the Grainger prices you just pulled on their account. NASPO, ship to the institution's warehouse.",
+      "expect": "bc-quote-entry",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bc-quote-entry": 5
+      }
+    },
+    {
+      "id": "quote-entry-3",
+      "query": "Make the SQ in Business Central so Kim can release it. Customer C11219, the lines are in the spec in the deal folder.",
+      "expect": "bc-quote-entry",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bc-quote-entry": 5
+      }
+    },
+    {
+      "id": "quote-entry-sib-2",
+      "query": "Before we quote it, the Phenix helmet cover isn't in Business Central yet. Create the item card from the All Star quote in the folder.",
+      "expect": "bc-item-entry",
+      "runs": 5,
+      "correct": 5,
+      "accuracy": 1.0,
+      "pass": true,
+      "distribution": {
+        "bc-item-entry": 5
+      }
+    }
+  ]
+}

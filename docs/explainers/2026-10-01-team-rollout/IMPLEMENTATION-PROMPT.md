@@ -17,6 +17,14 @@
 > federal deck row, and SAM.gov under Coming next for Kim and Griffin. The page source
 > (`bbs-claude-toolkit.html`) is the current truth; what changed and what is still open is in
 > `docs/SESSION-HANDOFF-2026-10-01.md`. Re-running this prompt as written would drop Sales.
+>
+> **2026-10-02:** Rachelle's card (Admin and coordination, `#rachelle`) was added at Parker's
+> direction. She works in Jackson's mailbox and calendar too, which is Not built yet. Her
+> Microsoft 365 rows were first On Parker's list (no connectors assigned); the same day Parker
+> ruled that everyone gets every connector and chose to flip them to Ready today "Now, on the
+> expectation you'll assign the connectors before sharing the link" (`docs/STEWARD.md`,
+> "Connector access"). Parker confirmed Microsoft 365 is assigned to her (2026-10-02).
+> Re-running this prompt as written would drop her card as well.
 
 ---
 
@@ -81,8 +89,9 @@ use `localStorage`; the hash carries the selection.
   Black Box Safety: purchasing, AR, accounting and body armor.", icon `compass`.
 - Source file: `docs/explainers/2026-10-01-team-rollout/bbs-claude-toolkit.html`.
   Supporting file: publish `bbs_logo.png` from
-  `plugins/bbs-sales/skills/bbs-quote-builder/assets/bbs_logo.png` via `files`
-  (`{"bbs_logo.png": "plugins/bbs-sales/skills/bbs-quote-builder/assets/bbs_logo.png"}`).
+  `docs/explainers/2026-10-01-team-rollout/bbs_logo.png` via `files`
+  (`{"bbs_logo.png": "docs/explainers/2026-10-01-team-rollout/bbs_logo.png"}`). It moved here
+  from the quote builder's assets when that skill was retired (2026-11-11).
 - **Data-driven cards.** Put people, roles, rows, statuses and "coming next" items in one
   JavaScript object at the top of the script, and render every card from it. Removing
   Joyce must be deleting one entry. The page must render its general sections even if

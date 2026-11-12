@@ -33,11 +33,12 @@ grainger_price(productCodes=["1ZRZ8"], account="CMC")
 ## Quote
 
 > Built 08/27/2026, before the 2026-09-28 ruling that retired the local 900001 series.
-> The numbering and pricing fields below are historical: today the number is the
-> Business Central SQ number read back per `bbs-quote-builder` step 2, and the spec uses
-> `pricing.method "at-cost"` with `source "grainger"` on each line.
+> The numbering and pricing fields below are historical: today the quote is created in
+> Business Central through `bc-quote-entry` (`contract: NASPO`, every line's price exactly its
+> cost), its number is the SQ number BC assigns, and the customer document is BC's own print.
+> The quote-builder skill named below was retired on 2026-11-11.
 
-`bbs-quote-builder` spec with `pricing.method "markup"`, `rate 0`, `taxRate 0`,
+A quote-builder spec (retired) with `pricing.method "markup"`, `rate 0`, `taxRate 0`,
 `solicitation "NASPO: 07-25-51-02.3"`. Quote number 900008 — the 900001 series
 was at 900007 (KVSP), and the rep confirmed the next number rather than it being
 auto-assigned.

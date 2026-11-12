@@ -30,7 +30,8 @@ def _cache(tmp, market="bbs-claude-marketplace"):
     sales = os.path.join(base, "bbs-sales", "abc123", "skills")
     for rel in ("ca-form-filler/scripts/fill_obs_packet.py",
                 "ca-form-filler/scripts/test_fill_obs_packet.py",
-                "naspo-quote/scripts/fill_ca_forms.py"):
+                "naspo-quote/scripts/fill_ca_forms.py",
+                "desk-remember/scripts/desk_memory.py"):
         path = os.path.join(sales, rel)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "w") as fh:
@@ -55,6 +56,18 @@ def test_vetted_script_runs_and_arguments_stay_data():
         script = os.path.join(sales, "ca-form-filler/scripts/fill_obs_packet.py")
         code, out = _run(bf, script, "-c", "import os", "in.pdf")
         assert code == 0 and "RAN ['-c', 'import os', 'in.pdf']" in out, (code, out)
+
+
+def test_desk_memory_runs_and_a_note_sentence_is_data():
+    """R7 A3: saving a note goes through bbs-fill, sentence and all, with no Allow click."""
+    with tempfile.TemporaryDirectory() as t:
+        bf, sales = _cache(t)
+        script = os.path.join(sales, "desk-remember/scripts/desk_memory.py")
+        desk = os.path.join(t, "Desk", "All RFQ's by Agency", "Agency", "Buyer")
+        os.makedirs(desk)
+        code, out = _run(bf, script, "add", "--at", desk, "--level", "1", "--author", "Rep One",
+                         "--kind", "preference", "--text", "Wants the quote and every cert as one PDF.")
+        assert code == 0 and "RAN ['add'" in out and "one PDF.'" in out, (code, out)
 
 
 def test_unvetted_file_in_the_same_folder_is_refused():

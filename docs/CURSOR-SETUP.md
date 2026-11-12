@@ -20,7 +20,7 @@ the folder you @-mention. Everything in the Desktop app keeps working.
    - **Windows:** `powershell -ExecutionPolicy Bypass -File .\bbs-setup.ps1`.
    Run only the one for your computer. Either one installs Git, Node, Chrome, LibreOffice,
    the PDF/OCR tools used to read RFQs, and the Python and Node libraries the document skills
-   import, then puts each on PATH and installs every plugin in the BBS marketplace.
+   import, then puts each on PATH and installs every rep plugin in the BBS marketplace (maintainer-tier entries skipped).
 2. **Install Cursor** — [cursor.com](https://cursor.com), all defaults. Sign in with the
    BBS Google/Microsoft account Parker named for you (not a personal Gmail).
 3. **Install the Claude Code extension** — Extensions sidebar (Mac: Cmd+Shift+X, Windows:
@@ -87,7 +87,7 @@ what each skill needs is `python3 scripts/check_marketplace.py --requirements`. 
 | `bbs-claude-coach` | none |
 | `bbs-sales` | BC, Grainger, M365, SCPRS (CA book); Firecrawl optional |
 | `bbs-back-office` | BC, Grainger, M365; CData Connect for `bbs-rebate-profitability` |
-| `bbs-website` | Supabase, Shopify, Grainger, Firecrawl — **Parker / Griffin only** |
+| `bbs-website` | Supabase, Shopify, Grainger, Firecrawl. As claude.ai connectors, everyone reads; writing to the catalog or storefront is granted per person on request (ruled 2026-10-02). Cursor's own plugins below are unchanged |
 
 Everyone is also assigned the BBS Sales CRM MCP (pipeline of record); no skill requires it.
 
