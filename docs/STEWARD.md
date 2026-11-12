@@ -241,12 +241,12 @@ Write it up with evidence and move to the next slice. Do not idle.
   `PM Claude/BC-Write-API`. Pointers, current to #68's head: the NASPO gate is per R3 (no
   `zeroMarginOk` on NASPO); Kim's 18 are read from
   `canonical-facts.md` by the test, not copied; the printout proof (R5) is in `SKILL.md` §7 and
-  the commit output; the routing eval is
-  `docs/evals/results-2026-11-10-bc-quote-entry-anonymized.json`. **Open for Parker:** (a)
+  the commit output; the routing evals are `docs/evals/results-2026-11-11-*-anonymized.json`
+  (a full run on the final description is still owed). **Open for Parker:** (a)
   SharePoint `BC-WRITE-SOP-RULES.md` §4.6–§4.7 still call the skill a follow-up. (b) No
   delegated sales-quote write has been proven under a rep-class permission set
-  (`rep-setup.md` 5b covers the item write only). (c) Whether R5's reminder scope includes
-  CSU and UC (`book: higher-ed`); the skill prints it there pending the answer.
+  (`rep-setup.md` 5b covers the item write only).
+  - **R5 covers CSU and UC — RULED 2026-11-12.** Parker, in session: "yes CSU and UC".
 - **Maintainer-tier commons entries (`taste-skill`, PR #71) — RULED 2026-10-28.** Parker, in
   session, option (a): both bootstraps skip any `marketplace.json` entry keyworded
   `maintainer`, and Parker installs it on his own machine by hand. Managed settings are not

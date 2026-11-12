@@ -190,9 +190,7 @@ from the released quote, proof it (below), send it. Nothing here releases, print
 until someone verifies that BC's print layout puts DVBE, and only DVBE, on every California
 quote). On every California public quote the rep reads the PDF BC printed from the released
 quote and confirms. That is a `ca-state` quote, a CA Body Armor LPA quote (`contract: BA-CA`),
-and a CSU or UC quote (`book: higher-ed`). Whether R5 reaches CSU and UC is with Parker; until
-Parker answers, the proof is read there too, because it is a proof read, not a claim, and BBS uses
-DVBE language with California higher ed.
+and a CSU or UC quote (`book: higher-ed`; Parker, in session, 2026-11-12: "yes CSU and UC").
 
 - **The certification line reads `DVBE 2009473` only.** Never SB, never SDVOSB, never
   "small business" on a California quote. If it reads anything else, stop: do not send, and

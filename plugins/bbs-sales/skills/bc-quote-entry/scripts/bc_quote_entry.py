@@ -176,8 +176,8 @@ def price_text(v):
 def needs_printout_proof(header):
     """R5 (Parker, 2026-11-10): the rep proofs BC's printout on every California public quote until
     someone verifies BC prints DVBE only there. California state (book ca-state), the CA Body Armor
-    LPA (contract BA-CA) and California higher ed (book higher-ed: CSU and UC). It is a proof read,
-    not a claim; whether R5's scope includes CSU and UC is with Parker, so it errs on reading."""
+    LPA (contract BA-CA) and California higher ed (book higher-ed: CSU and UC). CSU and UC are in
+    scope: Parker, in session, 2026-11-12, "yes CSU and UC"."""
     return header.get("book") in ("ca-state", "higher-ed") or header.get("contract") == "BA-CA"
 
 
