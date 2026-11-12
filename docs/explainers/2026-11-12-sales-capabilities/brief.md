@@ -53,6 +53,28 @@ lead-generated sales.
 The pipeline status is from a README dated 2026-11-03. If it has gone live since, change its
 label from Coming to Live and add the link.
 
+## Dashboard work: where it lives (pointer map, 2026-11-12)
+
+Parker, in session, 2026-11-12: "The dashboard and quote log should be connected. I want to move
+from the CRM being the statement of record to our folders." That is decision 9.1 of the
+folder-first spec. The handbook states it as the direction; it is not yet written into the
+rulings register in `docs/STEWARD.md`, the desk `CLAUDE.md` or `ca-state-sales-grounding`.
+
+| What | Where |
+|---|---|
+| Design (folder owns working state, CRM owns existence and submitted date, BC owns money; phases 1 to 5; Parker's seven decisions) | `docs/superpowers/specs/2026-10-30-rfq-pipeline-folder-first-design.md` (scrubbed repo copy; working original in the MASTER store under `State of CA Agencies/docs/superpowers/specs/`) |
+| Phase 1, the record: parser, CLI, hook, v1 migration | Merged: #77 (`plugins/bbs-sales/scripts/rfq_record.py`, `hooks/rfq-record-hook.py`) |
+| Outcome close-out on first write in a deal folder | Merged: #75 (`hooks/desk-context.py`) |
+| Phase 2, the RFQ Pipeline page: scanner, calcs, page, harness, privacy gate, charter, copy, metric sign-off | MASTER store, `State of CA Agencies/docs/dashboards/rfq-pipeline/` (README is the status page; last status read: 2026-11-03, reviewed build not yet published) |
+| Quote Velocity (counts by CRM submitted date) | MASTER store, `State of CA Agencies/docs/dashboards/quote-velocity/` |
+| Program: roster (Otto, Rhea, Dara, Quinn, Reese, Dex), decisions D01 to D04, build log, learnings | MASTER store, `State of CA Agencies/sales-process/` (`roles/`, `docs/pm/`, `BUILD-LOG.md`, `docs/LEARNINGS.md`) |
+| Sessions | "CA State RFQ pipeline: clean data and go live" (2026-11-03 to 11-04); "BBS #77 RFQ record v2" (2026-11-11); steward "BBS Claude marketplace cleanup" |
+| Not built | Phase 3 (skills write stages into `RFQ.md`), phase 4 (dashboard buttons and `/ca-rfq-fold` into `RFQ.md` and `quote-log.md`), the scheduled refresh (staged off), the reps' one-time catch-up (on hold) |
+
+What "connected" means today: the scanner reads each deal's `RFQ.md` and the buyer's
+`quote-log.md` (`STAGE-RULES.md`, evidence order), so a quote-log outcome reaches the page at the
+next manual refresh. The write direction, dashboard to quote log, is phase 4.
+
 ## Status labels on tool rows
 
 - `bbs-rebate-profitability` needs `cdata-connect`, which is not on the standard connector list

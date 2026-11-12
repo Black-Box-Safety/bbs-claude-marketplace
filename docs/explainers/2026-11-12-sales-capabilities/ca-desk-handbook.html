@@ -468,7 +468,7 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
             <li>Response speed: days from request received to quote submitted.</li>
             <li>Logging gaps: quotes that exist in a folder but are missing from the count.</li>
           </ul>
-          <p class="note">It counts a quote by its submitted date in the Sales CRM. There is no win rate and no target line on it.</p>
+          <p class="note">For now it counts a quote by its submitted date in the Sales CRM. There is no win rate and no target line on it.</p>
           <p><a href="https://claude.ai/artifact/SGBXaNgDkd6bRyhew42X1M">Open Quote Velocity</a></p>
         </article>
         <article>
@@ -483,6 +483,15 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
           <p class="note">Built and in review; Parker shares the link when it goes live. It reads the deal folders, so filing through <code>/ca-rfq</code> and recording outcomes in the quote log is what makes it right.</p>
         </article>
       </div>
+      <div class="goal" style="margin-top:28px">
+        <h2>The folders are becoming the record</h2>
+        <p>Where an RFQ stands is moving out of the CRM and into the deal folders. The pipeline dashboard is drawn from two files you already keep: each deal’s <code>RFQ.md</code> and the buyer’s <code>quote-log.md</code>. Write the outcome in the quote log and the dashboard shows it at its next refresh.</p>
+      </div>
+      <dl class="files" style="margin-top:20px;max-width:860px">
+        <div><dt>Deal folders</dt><dd><p>The record of the work: stage, lines, vendors, pricing basis, sent and outcome.</p></dd></div>
+        <div><dt>Business Central</dt><dd><p>The record of money: quotes, orders and invoices. That does not change.</p></dd></div>
+        <div><dt>Sales CRM</dt><dd><p>Still supplies the Quote Velocity count today. Parker will say when that changes.</p></dd></div>
+      </dl>
       <div class="why">
         <div><h3>How to use them for outbound</h3><p class="body">The queue tells you what must go out today. Clear it, then spend the rest of the day on the call list. A quote that went silent is a reason to call the buyer, not a line to leave alone.</p></div>
         <div><h3>What keeps them right</h3><p class="body">File every request through <code>/ca-rfq</code>, and write the outcome (won, lost, no answer, no bid) in the buyer’s quote log. Nobody will ask you to update a status by hand.</p></div>
@@ -657,6 +666,7 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
       <ul class="coming">
         <li><b>A monthly roll-up of desk notes</b> and a way to mark old ones, so Parker can confirm agency-wide notes in one pass.</li>
         <li><b>The RFQ Pipeline dashboard</b>, built and in review. Parker shares the link when it goes live.</li>
+        <li><b>Sent and outcome buttons on the pipeline dashboard</b> (Mark sent, Won, Lost, No answer, No bid). A click is written back into the deal’s <code>RFQ.md</code> and the buyer’s quote log after approval, so you never type a status twice.</li>
         <li><b>A one-time catch-up</b> for Kim and Aanya: a prompt that finds the quotes you have already sent, in your own Sent mail and Business Central, so the pipeline page can show them. Parker sends it when it is ready.</li>
         <li><b>An RFQ inbox folder</b> that new requests land in, once Parker’s intake flow is live.</li>
       </ul>
