@@ -6,6 +6,10 @@
 #                 buyer's CLAUDE.md / quote-log.md / FLAGS.md named as the files to keep current,
 #                 and the buyer's quote-log rows older than 30 days with no final outcome listed
 #                 for close-out. Once per buyer per session (temp-dir marker keyed on session_id).
+#                 Also, on the first Read, Write or Edit under a buyer's folder, that buyer's
+#                 LEARNED.md chain from desk-memory.ps1's Get-MemoryFirstTouch, dot-sourced into this
+#                 same process so a tool call never starts a second interpreter. desk-memory.ps1 is
+#                 loaded only when the path is inside the tree.
 #
 # The PowerShell half of desk-context.py: same output on every input, proven by
 # hooks/tests/parity.py. Change both or neither (invariant 3).
@@ -297,7 +301,15 @@ try {
     try { $h = $raw | ConvertFrom-Json } catch { $h = $null }
     if ($null -ne $h -and $h -isnot [array] -and $h -isnot [string] -and $h -isnot [ValueType]) {
       if ($h.hook_event_name -eq 'PostToolUse') {
-        $out = @(Get-FirstWrite $h)
+        # The matcher includes Read for desk memory; the buyer-desk reminder is about writes only.
+        $out = @()
+        if (-not (($h.tool_name -is [string]) -and $h.tool_name -ceq 'Read')) { $out = @(Get-FirstWrite $h) }
+        $tp = $null
+        if ($null -ne $h.tool_input) { $tp = $h.tool_input.file_path }
+        if (($tp -is [string]) -and [regex]::IsMatch($tp, [regex]::Escape($TREE), $ICASE)) {
+          . (Join-Path $PSScriptRoot 'desk-memory.ps1')
+          $out += @(Get-MemoryFirstTouch $h)
+        }
         if ($out.Count -gt 0) {
           $ctx = $out -join "`n"
           Emit ('{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":' + (ConvertTo-JsonString $ctx) + '}}')
