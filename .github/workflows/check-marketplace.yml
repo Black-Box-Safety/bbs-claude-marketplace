@@ -118,10 +118,31 @@ jobs:
       # bbs-sales' fill-gate hook approves one launcher invocation without a prompt, so the
       # launcher's refusals are the control: every way past them is a way past auto mode. The
       # tests also fail when a skill line or packet profile names a script that is not on its
-      # allow-list. (The bbs-tools copy stays installed until it is retired, PR B of
-      # docs/superpowers/plans/2026-11-11-bbs-fill-into-bbs-sales.md; skills no longer call it.)
+      # allow-list.
       - name: bbs-fill launcher tests
         run: python3 plugins/bbs-sales/scripts/tests/test_bbs_fill.py
+
+      # The bbs-tools launcher stays installed, and `Bash(bbs-fill *)` stays in managed settings,
+      # until PR B, so its refusal tests keep running. Only its skill-line check is skipped: skills
+      # now call bbs-sales' own launcher, which the step above checks. PR B deletes this step with
+      # the launcher (docs/superpowers/plans/2026-11-11-bbs-fill-into-bbs-sales.md).
+      - name: bbs-tools launcher refusal tests (until PR B)
+        run: |
+          python3 - <<'PY'
+          import importlib.util, sys, traceback
+          spec = importlib.util.spec_from_file_location("t", "plugins/bbs-tools/tests/test_bbs_fill.py")
+          t = importlib.util.module_from_spec(spec); spec.loader.exec_module(t)
+          skip = {"test_every_bbs_fill_line_and_profile_script_is_allowed"}
+          tests = [(n, f) for n, f in sorted(vars(t).items()) if n.startswith("test_") and n not in skip]
+          failed = 0
+          for n, f in tests:
+              try:
+                  f(); print("PASS", n)
+              except Exception:
+                  failed += 1; print("FAIL", n); traceback.print_exc()
+          print("%d/%d passed (skipped: %s)" % (len(tests) - failed, len(tests), ", ".join(sorted(skip))))
+          sys.exit(1 if failed else 0)
+          PY
 
       # fill-gate.py and fill-gate.ps1 decide identically on every case, and bash and zsh split
       # every command the hook accepts exactly as its lexer does. BBS_REQUIRE_PS=1 and

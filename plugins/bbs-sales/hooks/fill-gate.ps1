@@ -18,6 +18,11 @@ $ErrorActionPreference = 'Stop'
 # script-level name may match a local one ($entry, $root, $words ...): ENTRY_SHAPE, not ENTRY.
 $REASON = 'bbs-fill: vetted script '
 $ENTRY_SHAPE  = '^"([a-z0-9-]+/scripts/[A-Za-z0-9_.-]+\.(?:py|js))"$'
+$TRIM = [char[]]@([char]32, [char]9)   # ALLOWED lines are trimmed of spaces and tabs only, as in fill-gate.py
+# JSON keys are read by exact name; a key that differs from one of these only by case means no
+# decision (PowerShell's property lookup ignores case, Python's dict does not).
+$KEYS_TOP = @('tool_name', 'tool_input')
+$KEYS_INPUT = @('command', 'dangerouslyDisableSandbox')
 $UNQUOTED = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_./:,=+@%-'
 
 # Opt-in trace for the parity test (BBS_FILL_GATE_DEBUG=1): why a command got no decision.
@@ -104,8 +109,8 @@ function Get-Canon([string]$path) {
   $p = $path.Replace('\', '/')
   if ($p -cmatch '^([A-Za-z]):/') { $p = '/' + $Matches[1].ToLowerInvariant() + $p.Substring(2) }
   $p = [regex]::Replace($p, '/+', '/')
-  if ($p.Length -gt 1 -and $p.EndsWith('/')) { $p = $p.Substring(0, $p.Length - 1) }
-  foreach ($seg in $p.Split('/')) { if ($seg -ceq '.' -or $seg -ceq '..') { return $null } }
+  if ($p.Length -gt 1 -and $p.EndsWith('/', [StringComparison]::Ordinal)) { $p = $p.Substring(0, $p.Length - 1) }
+  foreach ($seg in $p.Split('/')) { if ([string]::Equals($seg, '.', [StringComparison]::Ordinal) -or [string]::Equals($seg, '..', [StringComparison]::Ordinal)) { return $null } }
   return $p
 }
 
@@ -115,12 +120,12 @@ function Get-Allowed([string]$launcher) {
   if ($text.IndexOf([char]13) -ge 0) { return (Write-Why 'allowed: the launcher has a CR') }
   $lines = $text -split "`n"
   $start = -1
-  for ($k = 0; $k -lt $lines.Count; $k++) { if ($lines[$k].Trim() -ceq 'ALLOWED=(') { $start = $k; break } }
+  for ($k = 0; $k -lt $lines.Count; $k++) { if ([string]::Equals($lines[$k].Trim($TRIM), 'ALLOWED=(', [StringComparison]::Ordinal)) { $start = $k; break } }
   if ($start -lt 0) { return (Write-Why 'allowed: no ALLOWED=( line') }
   $out = New-Object System.Collections.Generic.List[string]
   for ($k = $start + 1; $k -lt $lines.Count; $k++) {
-    $s = $lines[$k].Trim()
-    if ($s -ceq ')') {
+    $s = $lines[$k].Trim($TRIM)
+    if ([string]::Equals($s, ')', [StringComparison]::Ordinal)) {
       if ($out.Count -gt 0) { return ,$out.ToArray() }
       return (Write-Why 'allowed: empty list')
     }
@@ -149,13 +154,43 @@ function Test-AnyLink([string]$root, [string[]]$parts) {
   return $false
 }
 
+function Get-Prop($obj, [string]$name) {
+  foreach ($p in $obj.PSObject.Properties) {
+    if ([string]::Equals($p.Name, $name, [StringComparison]::Ordinal)) { return $p.Value }
+  }
+  return $null
+}
+
+function Get-AsciiFold([string]$s) {
+  # A-Z to a-z only, as fill-gate.py's ascii_fold; Unicode case rules differ between the halves.
+  $sb = New-Object System.Text.StringBuilder
+  foreach ($c in $s.ToCharArray()) {
+    $i = [int]$c   # compare as numbers: -ge on [char] values ignores case
+    if ($i -ge 65 -and $i -le 90) { [void]$sb.Append([char]($i + 32)) } else { [void]$sb.Append($c) }
+  }
+  return $sb.ToString()
+}
+
+function Test-CaseVariant($obj, [string[]]$names) {
+  foreach ($p in $obj.PSObject.Properties) {
+    foreach ($n in $names) {
+      if ([string]::Equals((Get-AsciiFold $p.Name), (Get-AsciiFold $n), [StringComparison]::Ordinal) -and -not [string]::Equals($p.Name, $n, [StringComparison]::Ordinal)) { return $true }
+    }
+  }
+  return $false
+}
+
 function Get-Decision($h) {
-  if ($null -eq $h -or -not [string]::Equals([string]$h.tool_name, 'Bash', [StringComparison]::Ordinal)) { return (Write-Why 'step 1') }
-  $ti = $h.tool_input
+  if ($null -eq $h -or $h -isnot [System.Management.Automation.PSCustomObject]) { return (Write-Why 'step 1 not an object') }
+  if (Test-CaseVariant $h $KEYS_TOP) { return (Write-Why 'step 1 case-variant key') }
+  $tn = Get-Prop $h 'tool_name'
+  if ($tn -isnot [string] -or -not [string]::Equals($tn, 'Bash', [StringComparison]::Ordinal)) { return (Write-Why 'step 1') }
+  $ti = Get-Prop $h 'tool_input'
   if ($null -eq $ti) { return (Write-Why 'step 2') }
-  $cmd = $ti.command
+  if ($ti -isnot [System.Management.Automation.PSCustomObject] -or (Test-CaseVariant $ti $KEYS_INPUT)) { return (Write-Why 'step 2 tool_input') }
+  $cmd = Get-Prop $ti 'command'
   if ($cmd -isnot [string]) { return (Write-Why 'step 3') }
-  $dds = $ti.dangerouslyDisableSandbox
+  $dds = Get-Prop $ti 'dangerouslyDisableSandbox'
   if ($null -ne $dds -and -not ($dds -is [bool] -and $dds -eq $false)) { return (Write-Why 'step 4') }
   $rootEnv = $env:CLAUDE_PLUGIN_ROOT
   if ([string]::IsNullOrEmpty($rootEnv)) { return (Write-Why 'step 5') }

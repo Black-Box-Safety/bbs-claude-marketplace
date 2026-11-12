@@ -103,13 +103,17 @@ def build(tmp, setup):
     elif setup == "link-root":
         root = os.path.join(base, "via-link")
         os.symlink(real_root, root)
-    elif setup in ("crlf", "bad-entry-dotdot", "bad-entry-shape"):
+    elif setup in ("crlf", "bad-entry-dotdot", "bad-entry-shape", "close-zwsp"):
         with open(launcher, "rb") as fh:
             data = fh.read()
         if setup == "crlf":
             data = data.replace(b"\n", b"\r\n")
         elif setup == "bad-entry-dotdot":
             data = data.replace(b'ALLOWED=(\n', b'ALLOWED=(\n  "../x/scripts/evil.py"\n', 1)
+        elif setup == "close-zwsp":
+            i = data.index(b"ALLOWED=(")
+            j = data.index(b"\n)\n", i)
+            data = data[:j] + "\n)\u200b\n".encode("utf-8") + data[j + 3:]
         else:
             data = data.replace(b'ALLOWED=(\n', b'ALLOWED=(\n  "ca-form-filler/fill.py"\n', 1)
         with open(launcher, "wb") as fh:
@@ -156,6 +160,8 @@ def run_cases():
             root, extra = build(tmp, c.get("setup"))
             cmd = fill(c["cmd"], root, extra)
             payload = {"tool_name": c.get("tool", "Bash"), "tool_input": dict({"command": cmd}, **c.get("input", {}))}
+            if "dup_ti_as" in c:
+                payload[c["dup_ti_as"]] = dict(payload["tool_input"])
             data = (fill(c["raw"], root, extra) if "raw" in c else json.dumps(payload)).encode("utf-8", "surrogatepass")
             env = dict(os.environ)
             env.pop("CLAUDE_PLUGIN_ROOT", None)

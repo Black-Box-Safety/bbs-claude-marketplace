@@ -33,6 +33,20 @@ REASON = "bbs-fill: vetted script "
 ENTRY = re.compile(r'^"([a-z0-9-]+/scripts/[A-Za-z0-9_.-]+\.(?:py|js))"$')
 UNQUOTED = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_./:,=+@%-")
 DQ_ESCAPABLE = set('$`"\\')
+TRIM = " \t"   # ALLOWED lines are trimmed of spaces and tabs only, as in fill-gate.ps1
+# JSON keys are read by exact name; a key that differs from one of these only by case means no
+# decision, matching fill-gate.ps1 (PowerShell's property lookup ignores case).
+KEYS_TOP = ("tool_name", "tool_input")
+KEYS_INPUT = ("command", "dangerouslyDisableSandbox")
+
+
+def ascii_fold(s):
+    """A-Z to a-z only. Both halves fold the same way; Unicode case rules differ between them."""
+    return "".join(chr(ord(c) + 32) if "A" <= c <= "Z" else c for c in s)
+
+
+def case_variant(d, names):
+    return any(ascii_fold(k) == ascii_fold(n) and k != n for k in d for n in names)
 
 
 def bad(cp):
@@ -126,12 +140,12 @@ def read_allowed(launcher):
         return None
     lines = text.split("\n")
     try:
-        start = next(k for k, l in enumerate(lines) if l.strip() == "ALLOWED=(")
+        start = next(k for k, l in enumerate(lines) if l.strip(TRIM) == "ALLOWED=(")
     except StopIteration:
         return None
     out = []
     for l in lines[start + 1:]:
-        s = l.strip()
+        s = l.strip(TRIM)
         if s == ")":
             return out or None
         if not s:
@@ -156,10 +170,10 @@ def any_link(root, parts):
 
 
 def decide(h):
-    if not isinstance(h, dict) or h.get("tool_name") != "Bash":
+    if not isinstance(h, dict) or case_variant(h, KEYS_TOP) or h.get("tool_name") != "Bash":
         return None
     ti = h.get("tool_input")
-    if not isinstance(ti, dict):
+    if not isinstance(ti, dict) or case_variant(ti, KEYS_INPUT):
         return None
     cmd = ti.get("command")
     if not isinstance(cmd, str):

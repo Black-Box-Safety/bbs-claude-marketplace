@@ -82,6 +82,12 @@
     {"id": "sandbox-off", "input": {"dangerouslyDisableSandbox": true}, "cmd": "\"{L}\" \"{S}\"", "expect": "none", "why": "outside scope"},
     {"id": "tool-powershell", "tool": "PowerShell", "cmd": "\"{L}\" \"{S}\"", "expect": "none", "why": "outside scope"},
     {"id": "no-root", "env_root": null, "cmd": "\"{L}\" \"{S}\"", "expect": "none", "why": "no CLAUDE_PLUGIN_ROOT"},
+    {"id": "key-case-top", "dup_ti_as": "TOOL_INPUT", "cmd": "\"{L}\" \"{S}\"", "expect": "none", "why": "a top-level key that differs only by case"},
+    {"id": "key-case-sandbox", "input": {"DangerouslyDisableSandbox": true}, "cmd": "\"{L}\" \"{S}\"", "expect": "none", "why": "a tool_input key that differs only by case"},
+    {"id": "key-case-command", "input": {"Command": "x"}, "cmd": "\"{L}\" \"{S}\"", "expect": "none", "why": "a tool_input key that differs only by case"},
+    {"id": "close-zwsp", "setup": "close-zwsp", "cmd": "\"{L}\" \"{S}\"", "expect": "none", "why": "ALLOWED closing line with U+200B: compared ordinally, so malformed"},
+    {"id": "dot-zwsp", "cmd": "\"{L}\" \"{R}/skills/.\u200b/ca-form-filler/scripts/fill_obs_packet.py\"", "expect": "none", "why": "a segment that is . plus U+200B is not ."},
+    {"id": "root-slash-zwsp", "env_root": "{R}/\u200b", "cmd": "\"{L}\" \"{S}\"", "expect": "none", "why": "a root ending in / plus U+200B does not end in /"},
     {"id": "not-json", "raw": "not json {L}", "cmd": "", "expect": "none", "why": "stdin not JSON"}
   ]
 }
