@@ -260,7 +260,7 @@ Write it up with evidence and move to the next slice. Do not idle.
   in the PR #90 session. Dashboard page code reached the database and the viewer's identity, and a
   click wrote a decision to the clicker's own area and read it back. At Contributor level a write to
   the own area is allowed and a write to a shared collection is refused. At Viewer level nothing can
-  be written, so item 3's "Viewer or Contributor" holds only for **Contributor**: reps who click
+  be written (owner-run; tested at those levels, not from a rep's browser; slice 7's first rep click confirms), so item 3's "Viewer or Contributor" holds only for **Contributor**: reps who click
   must be Contributors. This is a recorded fact, not a new ruling. Storage shape: collection
   `data/users/<self>`, record `decision-<deal8>-<field>`. Test records deleted.
 

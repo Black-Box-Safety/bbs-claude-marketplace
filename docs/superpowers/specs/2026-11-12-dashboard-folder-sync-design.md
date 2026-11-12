@@ -90,7 +90,7 @@ went and why.
 | Fact | Owning store | Who writes it | How other stores learn it |
 |---|---|---|---|
 | Sent date | `RFQ.md` Status `sent` row | `rfq_record.py record-event`, applied by `/ca-rfq-fold` or in a `/ca-rfq` session after the rep approves | Parser rewrites `rfq-state.json`; the scanner carries it to `rfqs.json`; the dashboard decision is marked folded; the `quote-log.md` row is patched in the same call. CRM and BC learn nothing. |
-| Outcome (one of `rfq_record.OUTCOMES`: `won`, `lost`, `no answer`, `no bid`, `cancelled`) | `RFQ.md` Status `outcome` row | Same path | Same; the quote-log Outcome cell carries the enum value only. |
+| Outcome (one value of `rfq_record.OUTCOMES`) | `RFQ.md` Status `outcome` row | Same path | Same; the quote-log Outcome cell carries the enum value only. |
 | Stage | `RFQ.md` header `Stage` (highest dated Status row) | Skills through the parser only (spec 5.3) | `rfq-state.json`, then the scanner. Inferred stages never reach sent or outcome. |
 | Lines and pricing | `RFQ.md` Pricing table | Pricing and sourcing skills through `upsert-pricing` | Scanner to `rfq_lines.json`. Once a BC quote exists, its lines are the binding copy. |
 | Quote value | Business Central sales quote total (excl. tax) | BC-Write-API after the rep approves (existing rule) | Page reads BC live by key, else the BC-import snapshot, else the Pricing sum. Each value is labelled with its source. Never the CRM value, and never copied into `quote-log.md` by the fold. |
@@ -273,8 +273,7 @@ Proposed columns going forward:
 
 - **Deal:** the path below `All RFQ's by Agency/` with buying-account numbers written `[acct]`. This
   is the join key.
-- **Outcome:** blank until decided, then exactly one value of `rfq_record.OUTCOMES` (`won`, `lost`, `no answer`, `no bid`,
-  `cancelled`). `sent`
+- **Outcome:** blank until decided, then exactly one value of `rfq_record.OUTCOMES`. `sent`
   lives only in the Sent column, so one fact is not held twice.
 - **Outcome ref:** PO number, who won, or `n/a`.
 - **Value:** stays whatever intake wrote. The fold never touches it.
