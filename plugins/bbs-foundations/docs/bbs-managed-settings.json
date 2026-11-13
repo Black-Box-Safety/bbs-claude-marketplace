@@ -106,7 +106,11 @@
       "mcp__*__outlook_set_vacation",
       "mcp__*__teams_send_chat_message",
       "mcp__*__teams_send_channel_message",
-      "mcp__*__teams_reply_channel_message"
+      "mcp__*__teams_reply_channel_message",
+      "mcp__github__merge_pull_request",
+      "mcp__claude_ai_GitHub__merge_pull_request",
+      "mcp__plugin_github_github__merge_pull_request",
+      "mcp__*__merge_pull_request"
     ],
     "deny": [
       "Bash(rm -rf:*)",
@@ -115,13 +119,9 @@
       "Bash(git reset --hard:*)",
       "Bash(gh repo delete:*)",
       "Bash(gh pr merge:*)",
-      "mcp__github__merge_pull_request",
       "mcp__github__enable_pr_auto_merge",
-      "mcp__claude_ai_GitHub__merge_pull_request",
       "mcp__claude_ai_GitHub__enable_pr_auto_merge",
-      "mcp__plugin_github_github__merge_pull_request",
       "mcp__plugin_github_github__enable_pr_auto_merge",
-      "mcp__*__merge_pull_request",
       "mcp__*__enable_pr_auto_merge",
       "Read(**/.env)",
       "Read(**/.env.local)",
