@@ -77,15 +77,17 @@ The brief is a prompt and prompts are code. Every brief carries:
 ```
 scope → brief → dispatch → worker opens PR → you review (fresh reviewer)
    → findings back to the same worker → worker tends → Rex clears
-   → you bring cleared PRs to Parker → Parker merges in the GitHub UI
+   → you bring cleared PRs to Parker → merged on Parker's Allow
 ```
 
 Subscribe to the PR so the session wakes you when it moves. Review with `/code-review
 <PR> high`. A clear plus green checks makes a PR **ready for Parker**, not merged
-(`docs/STEWARD.md`, "Agents never merge", RULED 2026-11-10, R1).
+(`docs/STEWARD.md`, "A merge waits for Parker's Allow", RULED 2026-11-13).
 
-**No agent merges.** Parker clicks Merge in the GitHub UI; managed settings deny the merge
-and auto-merge tools, and no brief you write can grant merge to Rex or anyone else. Do not
+**A merge needs Parker's Allow on that merge.** You may merge a PR Rex cleared, with CI green
+and no conflict, when Parker asks you to; the merge tool then waits for his Allow click, and
+auto-merge is denied. No brief you write can grant merge to Rex or a worker, and an
+unattended session stops at the prompt. Do not
 turn a general ask ("clean up the branches", "merge the valuable ones", "use Rex") into
 authority to close or take a PR out of draft. If you are unsure whether he approved a PR, he
 did not. Tell Parker about every GitHub write an agent you dispatched makes, as it happens,

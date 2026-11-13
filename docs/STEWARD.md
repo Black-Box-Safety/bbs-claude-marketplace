@@ -10,16 +10,17 @@ The operating manual for `.claude/agents/steward.md`. Read `AGENTS.md` first.
 scope → brief → dispatch worker → worker opens PR
       → steward reviews with a fresh reviewer
       → findings back to the SAME worker → worker tends
-      → Rex clears → steward brings cleared PRs to Parker → Parker merges in the GitHub UI
+      → Rex clears → steward brings cleared PRs to Parker → merged on Parker's Allow
 ```
 
 Four properties make it worth running:
 
 - **A session ends at a PR, not a merge.** The agent that wrote the change never approves
   it.
-- **The reviewer did not write the code, and only Parker merges.** Agents never merge;
-  Parker clicks Merge in the GitHub UI, and managed settings deny the merge tools (ruled
-  2026-11-10, "Agents never merge", R1).
+- **The reviewer did not write the code, and Parker approves every merge.** An agent may
+  merge a PR that Rex cleared, with CI green and no conflict, and the merge waits for
+  Parker's own Allow click; auto-merge stays denied (ruled 2026-11-13, "A merge waits for
+  Parker's Allow", superseding R1).
 - **Findings return to the original worker**, which still holds the context. A fresh
   session re-deriving the change is slower and gets it less right.
 - **The steward is woken by the PR**, not by polling. Subscribe to PR activity when the
@@ -227,6 +228,25 @@ Write it up with evidence and move to the next slice. Do not idle.
 - Removing a control. Say it is wrong; do not delete it.
 
 ### Already open for Parker
+
+- **A merge waits for Parker's Allow — RULED 2026-11-13, superseding R1 (2026-11-10).**
+  Parker, in the session that built the sync slices: "you are permitted to do the merges and
+  deletes of branches", then "I want to change the settings for myself across the entire
+  ecosystem"; asked what a merge should require, he chose "Ask each time", and for scope
+  "Every BBS repo". What changes: managed settings move the GitHub `merge_pull_request` tools
+  and `gh pr merge` from `deny` to `ask`, and keep auto-merge (`enable_pr_auto_merge`,
+  `gh pr merge --auto`) and `gh pr merge --admin` denied. Before asking, the agent confirms
+  Rex (or the repo's named reviewer) cleared the PR, CI is green on its head and it has no
+  conflict. An agent may delete a branch whose PR merged. Detail and rule names:
+  `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`, "A merge waits for Parker's Allow".
+  Other repos: bbs-shopify's own rule (its `docs/runbooks/git-and-release-hygiene.md` §2.2,
+  Parker 2026-11-13) and bbs-bd-program's merge delegation to its steward already allow agent
+  merges on Parker's word; both were blocked only by the org-wide deny, and the Allow click
+  now sits on top of their own conditions. **Open actions for Parker:** (1) re-paste the
+  managed settings from `bbs-managed-settings.json` in the admin console; (2) in the console,
+  move the GitHub connector's `merge_pull_request` from blocked to ask (keep
+  `enable_pr_auto_merge` blocked; `docs/ADMIN-RUNBOOK.md`). Until both are done, merge tools
+  stay refused everywhere.
 
 - **Folders replace the CRM as the pipeline record; dashboard and folder sync (PR #90) — RULED
   2026-11-12.** Parker, in session, 2026-11-12: "The dashboard and quote log should be connected.
@@ -867,7 +887,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   `bbs-rebate-profitability` stays on CData; this ruling does not cover it.
 - **Rulings of 2026-11-10 (R1–R9) — RULED 2026-11-10.** Parker's words, in the steward session, 2026-11-10, after reading R1–R9 with the steward's recommendations: "Follow recommendations except for the last one we don't need payroll. I want vercel and supabase to be allowed". R1–R8 adopt
   the steward's recommendation as written; R9 is his exception, clarified the same day.
-- **R1. Agents never merge — RULED 2026-11-10.**
+- **R1. Agents never merge — RULED 2026-11-10. Superseded 2026-11-13** by "A merge waits for
+  Parker's Allow", above: merges move to `ask`; auto-merge stays denied.
   Adopted recommendation: "Block agents from merging, using managed settings. Agents could no longer call merge or auto-merge. Rex still reviews; you click Merge in GitHub. Every agent posts as your GitHub account, so an agent can't prove you approved. This makes the rule a hard block instead of an instruction. The cost: no “merge #82” replies, like the one I just did for you." → "Yes". "You click Merge in GitHub" is the recommendation's wording. Managed settings deny the GitHub merge and
   auto-merge tools (`permissions.deny` in `bbs-managed-settings.json`; the names, which are
   verified and which inferred, are in `MANAGED-SETTINGS.md`, "Agents never merge"), and
@@ -1158,7 +1179,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   #74, #71, #53, #77, #76 and #72, each at its cleared head. It was bounded to that queue and
   ended once the R1 managed-settings deny went live: Parker, in the steward session on
   2026-11-12, after the steward sent him the file from `main` `5ae15f3` (#86): "managed
-  settings are in". From then on R1 holds without exception: Parker merges in the GitHub UI.
+  settings are in". From then on R1 held without exception until 2026-11-13, when "A merge
+  waits for Parker's Allow" superseded it.
   **Still open:** the live test of that paste — a payroll read is blocked, a Vercel purchase
   asks, and a new session opens on Opus at medium.
 - **BC writers: Kim, Aanya, Griffin and Joey — RULED 2026-11-11.** Parker, in the steward session: "Kim, Aanya, griffin and Joey should have
