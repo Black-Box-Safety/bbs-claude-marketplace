@@ -22,7 +22,7 @@ def read_fixture(name):
 class TestEnums(unittest.TestCase):
     def test_enums_are_the_spec_strings(self):
         self.assertEqual(rfq_record.STAGES, ["logged","sourcing","priced","quote built","packet built","delivered to rep","sent","outcome"])
-        self.assertEqual(rfq_record.OUTCOMES, ["won","lost","no answer","no bid"])
+        self.assertEqual(rfq_record.OUTCOMES, ["won","lost","no answer","no bid","cancelled"])
         self.assertEqual(rfq_record.PRICING_HEADER, "| # | Vendor | Vendor ref | Cost | Sell | Strategy | Lead | Line stage | Evidence |")
         self.assertEqual(rfq_record.HEADER_KEYS_V2[-5:], ["Rep","CRM RFQ","BC quote","PC quote","Stage"])
 
@@ -177,6 +177,14 @@ class TestValidationAndStages(unittest.TestCase):
         with self.assertRaises(ValueError): rfq_record.set_stage(rec, "outcome", "2026-11-01", "buyer said thanks")
         rfq_record.set_stage(rec, "outcome", "2026-11-01", "won: BC order SO-100233")
         self.assertEqual(rfq_record.current_stage(rec), "outcome")
+
+    def test_cancelled_is_an_outcome(self):
+        rec = rfq_record.parse(read_fixture("v2_naspo_full.md"))
+        # cancelled before sent: deferred to slice 3 (#90 §6.1)
+        rfq_record.set_stage(rec, "sent", "2026-10-29", "emailed buyer")
+        rfq_record.set_stage(rec, "outcome", "2026-11-01", "cancelled - buyer withdrew the solicitation 2026-11-01")
+        self.assertEqual(rfq_record.current_stage(rec), "outcome")
+        self.assertEqual(rfq_record.validate(rec), [])
 
     def test_packet_built_not_applicable_on_bpo(self):
         rec = rfq_record.parse(read_fixture("v2_bpo.md"))

@@ -37,7 +37,10 @@ ISO = re.compile(r"^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})$")
 MDY = re.compile(r"^([0-9]{1,2})[./]([0-9]{1,2})[./]([0-9]{2}|[0-9]{4})$")
 DATE_TOKEN = re.compile(r"(?<![0-9])([0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{1,2}\.[0-9]{1,2}\.(?:[0-9]{2}|[0-9]{4}))(?![0-9])")
 SEPARATOR = re.compile(r"^\|[\s:|-]+$")
-FINAL = re.compile(r"^(won|lost|no answer)\b", re.I)
+# The final outcomes, in the order of rfq_record.OUTCOMES (scripts/rfq_record.py), which is the one
+# source; hooks/tests/parity.py fails if this list or the PowerShell twin drifts from it.
+FINAL_OUTCOMES = ("won", "lost", "no answer", "no bid", "cancelled")
+FINAL = re.compile(r"^(" + "|".join(FINAL_OUTCOMES) + r")\b", re.I)
 CLOSED = re.compile(r"^(closed|resolved)\b", re.I)
 BULLET = re.compile(r"^\s*[-*]\s+(.*)$")
 BULLET_DONE = re.compile(r"^(\[x\]|~~|closed\b|resolved\b)", re.I)
@@ -276,7 +279,7 @@ def first_write(h):
         _, rows = log_rows(read_lines(ql))
         stale = stale_rows(rows)
         if stale:
-            out.append(f"OUTCOMES TO CLOSE -- {len(stale)} quote-log rows older than {STALE_DAYS} days have no final outcome (won / lost / no answer):")
+            out.append(f"OUTCOMES TO CLOSE -- {len(stale)} quote-log rows older than {STALE_DAYS} days have no final outcome ({' / '.join(FINAL_OUTCOMES)}):")
             out.extend(r["line"] for r in stale[:10])
             if len(stale) > 10:
                 out.append(f"(+{len(stale) - 10} more)")
