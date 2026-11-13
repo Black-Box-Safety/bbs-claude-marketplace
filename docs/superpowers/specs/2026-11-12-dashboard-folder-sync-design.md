@@ -228,7 +228,7 @@ hold_reason, key = hash(deal8|field|value|date), supersedes`.
 - **Same stage, different date:** refused with `conflict` unless `--correct "<reason>"` is given. A
   correction appends to Evidence (`corrected from <old> to <new> by <who> <when>: <reason>`). It never
   replaces it.
-- **`outcome` without a dated `sent`:** refused, except `no bid`.
+- **`outcome` without a dated `sent`:** refused, except `no bid` and `cancelled` (Parker, 2026-11-12).
 - **`sent` date:** not before `Received`, and not after today in Pacific time.
 - **`--force`:** writes `forced by <who> <when> from <stage>` into Evidence. Record health counts these
   notes.

@@ -270,8 +270,39 @@ Write it up with evidence and move to the next slice. Do not idle.
   must be Contributors. This is a recorded fact, not a new ruling. Storage shape: collection
   `data/users/<self>`, record `decision-<deal8>-<field>`. Test records deleted.
 
-  **Open actions for Parker:** item 10 (admin console); delete the throwaway artifact "SPIKE
-  Decisions DB Test" when convenient.
+  **Amendments, 2026-11-12.**
+  - *Items 0 and 10, scope and wording — RULED.* Parker, in the steward session: "yes to both",
+    to (a) deal folders replace Dynamics for California state RFQ working state only, for now;
+    outreach, federal and local pipeline stay in Dynamics 365 Sales; and (b) the managed
+    `claudeMd` line points to canon and does not restate the rule, reading exactly: "deal folders
+    (RFQ.md, quote-log.md) for California state RFQ working state, sent and outcome included;
+    what Dynamics 365 is still used for: bbs-foundations canonical-facts.md, Systems of record."
+    On switch day, only canon changes. **Item 10's wording above is superseded by (b).**
+  - *Item 8, cancelled without a sent date — RULED.* Parker, in the steward session: "YES".
+    `cancelled` may be recorded without a dated `sent` row, the same as `no bid`
+    (`rfq_record.OUTCOMES_WITHOUT_SENT`, #96; spec section 6.1).
+  - *Where the ruling came from.* First said in the session that built the sales handbook
+    (PR #88), it decides item 9.1 of the folder-first RFQ pipeline spec (cited from #77; original
+    on SharePoint under State of CA Agencies `docs/superpowers/specs/`, scrubbed repo copy
+    `docs/superpowers/specs/2026-10-30-rfq-pipeline-folder-first-design.md`, section 9 item 1).
+
+  **Status of the doctrine update (slice 1, #94).** Every repo file that named Dynamics or the CRM
+  as the pipeline record is updated in #94 except `scripts/check_marketplace.py:598`, a comment on
+  the review side. The grep used on 2026-11-12:
+  `git grep -n -i "statement of record\|pipeline of record\|system of record for pipeline\|Dynamics 365 for pipeline"`
+  found `REGISTRY.md:28`, `docs/CURSOR-SETUP.md:92`, `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md:110`,
+  `plugins/bbs-foundations/docs/bbs-managed-settings.json:196` and `scripts/check_marketplace.py:598`.
+  `ca-state-sales-grounding` is account-synced through Parker's claude.ai and not in git, so a grep
+  cannot see it. The grep finds nothing in `workspace/DESK-CLAUDE-template.md`; check its CRM
+  wording by hand at the restamp.
+
+  **Open actions for Parker:**
+  - Admin console: re-paste the `claudeMd` from `bbs-managed-settings.json` once #94 merges, and
+    replace "Dynamics 365 Sales for pipeline." in the organization instructions with the (b)
+    sentence above.
+  - claude.ai: update the account-synced `ca-state-sales-grounding`.
+  - SharePoint: restamp the desk-root `CLAUDE.md`.
+  - Delete the throwaway artifact "SPIKE Decisions DB Test" when convenient.
 - **`bbs-fill` into `bbs-sales`, gated by a hook; `bbs-tools` retired — RULED 2026-11-11.**
   Parker, in session: "Yes … to the tools fix as a separate slice". It approves moving the
   launcher out of `bbs-tools`' top-level `bin/` (claude.ai org sync rejects one) into
@@ -1147,26 +1178,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   printing their own work account confirms (a) for that rep. Still to confirm per rep: item rights, and each
   rep's one-time `whoami`. Setup and the confirmation steps:
   `plugins/bbs-sales/skills/bc-item-entry/references/rep-setup.md`.
-- **Folders become the statement of record — RULED 2026-11-12.** Parker, in the session that
-  built the sales handbook (PR #88): "The dashboard and quote log should be connected. I want
-  to move from the CRM being the statement of record to our folders." This decides item 9.1
-  of the folder-first RFQ pipeline spec (cited from #77; original on SharePoint under State of
-  CA Agencies `docs/superpowers/specs/`, scrubbed repo copy
-  `docs/superpowers/specs/2026-10-30-rfq-pipeline-folder-first-design.md`, section 9 item 1).
-  **Open action:** update `ca-state-sales-grounding`, the desk `CLAUDE.md`, and every file
-  that names Dynamics/the CRM as the pipeline record. Not done in the PR that recorded this.
-  `git grep -n -i "statement of record\|pipeline of record\|system of record for pipeline\|Dynamics 365 for pipeline"`
-  on 2026-11-12 finds:
-  - `REGISTRY.md:28` — CRM connector row, "pipeline of record"
-  - `docs/CURSOR-SETUP.md:92` — "BBS Sales CRM MCP (pipeline of record)"
-  - `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md:110` — CRM row, "Pipeline of record"
-  - `plugins/bbs-foundations/docs/bbs-managed-settings.json:196` — `claudeMd`, "Dynamics 365
-    for pipeline" (needs Parker's re-paste after the change)
-  - `scripts/check_marketplace.py:598` — comment, "the pipeline of record" (review side)
-
-  `ca-state-sales-grounding` is account-synced through Parker's claude.ai and is not in git
-  (`plugins/bbs-sales/README.md`), so a grep cannot see it; Parker updates it in claude.ai. The grep finds no hit in `workspace/DESK-CLAUDE-template.md`; check its CRM wording by
-  hand when the update runs.
+- **Folders become the statement of record — RULED 2026-11-12.** Consolidated into "Folders
+  replace the CRM as the pipeline record; dashboard and folder sync (PR #90)", above.
 - **Open actions for Parker — listed 2026-11-12.**
   - Restamp the SharePoint desk-root `CLAUDE.md` from `workspace/DESK-CLAUDE-template.md`; it
     still names the retired `/ca-rfq-log` and `/ca-rfq-quote`. Already open as R7 item 4,
