@@ -891,7 +891,7 @@ Write it up with evidence and move to the next slice. Do not idle.
   Parker's Allow", above: merges move to `ask`; auto-merge stays denied.
   Adopted recommendation: "Block agents from merging, using managed settings. Agents could no longer call merge or auto-merge. Rex still reviews; you click Merge in GitHub. Every agent posts as your GitHub account, so an agent can't prove you approved. This makes the rule a hard block instead of an instruction. The cost: no “merge #82” replies, like the one I just did for you." → "Yes". "You click Merge in GitHub" is the recommendation's wording. Managed settings deny the GitHub merge and
   auto-merge tools (`permissions.deny` in `bbs-managed-settings.json`; the names, which are
-  verified and which inferred, are in `MANAGED-SETTINGS.md`, "Agents never merge"), and
+  verified and which inferred, were in `MANAGED-SETTINGS.md`, "Agents never merge", now "A merge waits for Parker's Allow"), and
   `gh pr merge` moves from `ask` to `deny`. Rex reviews and posts "Cleared — awaiting
   Parker's merge approval"; Parker clicks Merge in the GitHub UI. Why: every agent posts as
   Parker's GitHub account (pjm3wv), so no agent can prove Parker approved; a deny is a

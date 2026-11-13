@@ -110,7 +110,8 @@ rule). Adding a plugin to `enabledPlugins` is routine; changing what reps may do
 ## Report
 
 When the pass is done, one report to Parker: a table of every PR touched, with **cleared:
-awaiting your merge in the GitHub UI**, **merged by Parker (seen on GitHub)**, **held: critiques
+awaiting your merge (your Allow on the merge, in a session or the GitHub UI)**, **merged (seen on
+GitHub)**, **held: critiques
 posted**, or **held: needs ruling**, one line each on why, and what he
 must do outside the repo (managed-settings re-paste, console rulings). Say what you could
 not verify. Never claim a merge you did not see succeed.
