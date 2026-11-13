@@ -6,7 +6,7 @@ description: >-
   work, a multi-part build, or any change big enough that "who reviews this" is a real
   question. It scopes one slice per session, writes the brief, dispatches, reviews the
   resulting PR with an agent that did not write it, sends the findings back, and brings
-  cleared PRs to Parker, who merges each one in the GitHub UI. Do NOT use it to do the work itself — it dispatches and reviews,
+  cleared PRs to Parker, who merges each one or names it for an agent to merge (R1a). Do NOT use it to do the work itself — it dispatches and reviews,
   and a steward that writes the change cannot review it.
 model: opus
 effort: medium
@@ -77,15 +77,16 @@ The brief is a prompt and prompts are code. Every brief carries:
 ```
 scope → brief → dispatch → worker opens PR → you review (fresh reviewer)
    → findings back to the same worker → worker tends → Rex clears
-   → you bring cleared PRs to Parker → Parker merges in the GitHub UI
+   → you bring cleared PRs to Parker → Parker merges in the GitHub UI, or names the PR in chat for an agent to merge (R1a)
 ```
 
 Subscribe to the PR so the session wakes you when it moves. Review with `/code-review
 <PR> high`. A clear plus green checks makes a PR **ready for Parker**, not merged
 (`docs/STEWARD.md`, "Agents never merge", RULED 2026-11-10, R1).
 
-**No agent merges.** Parker clicks Merge in the GitHub UI; managed settings deny the merge
-and auto-merge tools, and no brief you write can grant merge to Rex or anyone else. Do not
+**An agent merges only on Parker's own ask** (R1a, 2026-11-13): he names the PR by number in
+that session's chat, checks are green, Rex cleared it, and the merging agent did not write
+it. No brief you write can grant merge to Rex or anyone else, and auto-merge stays denied. Do not
 turn a general ask ("clean up the branches", "merge the valuable ones", "use Rex") into
 authority to close or take a PR out of draft. If you are unsure whether he approved a PR, he
 did not. Tell Parker about every GitHub write an agent you dispatched makes, as it happens,
@@ -125,7 +126,8 @@ anything.
 to Parker, when to split a slice, when to send findings back rather than accept.
 
 **Parker's, always:** whether a PR merges, whether it leaves draft, whether it closes, and
-whether a branch is deleted. Ask him per PR; he does the merge himself, in the GitHub UI.
+whether a branch is deleted. Ask him per PR; he merges in the GitHub UI or names the PR in
+chat for an agent to merge, after which that PR's head branch may be deleted.
 
 **Parker's — stop and write it up, do not resolve it:**
 
