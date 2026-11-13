@@ -89,7 +89,7 @@ what each skill needs is `python3 scripts/check_marketplace.py --requirements`. 
 | `bbs-back-office` | BC, Grainger, M365; CData Connect for `bbs-rebate-profitability` |
 | `bbs-website` | Supabase, Shopify, Grainger, Firecrawl. As claude.ai connectors, everyone reads; writing to the catalog or storefront is granted per person on request (ruled 2026-10-02). Cursor's own plugins below are unchanged |
 
-Everyone is also assigned the BBS Sales CRM MCP (pipeline of record); no skill requires it.
+Everyone is also assigned the BBS Sales CRM MCP. Its role against the deal folders: `bbs-foundations` `references/canonical-facts.md`, "Systems of record".
 
 ### Cursor plugins — role matrix
 
