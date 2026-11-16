@@ -98,12 +98,7 @@ skill's job; hand off, don't start.
 
 ## 6. Close the loop
 
-Intake is where buyer facts first surface: who the buyer is, how they want to be quoted, a change of
-ship-to or contact. Ask the rep one question. Is there anything about this buyer or site to remember?
-If so, run `desk-remember` with their words (one line, their name, never a price, account number,
-certification or contract fact; a contact or ship-to change goes in the buyer's `CLAUDE.md` header
-and is noted in words). If the rep has nothing, record it with `desk-remember`'s `close --none`.
-One question, asked once; do not hold up the hand-off for it.
+Intake is where buyer facts first surface: who the buyer is, how they want to be quoted. Ask the rep one question, in plain words, naming no files or commands: anything about this buyer or site worth remembering, or a lesson from this deal? If they give words, run `desk-remember` with their own words. If they offer a lesson, show the one-line draft and append it to `learning/lessons.md` only on their yes; if the desk has no `lessons.md` yet, say so plainly and write nothing. If they say nothing, run `desk-remember`'s `close --none`. If the rep names a contact or ship-to change, offer to update the buyer's `CLAUDE.md` header and wait for their yes. Ask once; do not hold up the hand-off for it.
 
 ## What not to do at intake
 

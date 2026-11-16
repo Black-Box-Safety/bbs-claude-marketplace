@@ -29,13 +29,15 @@ folder. A session in a different buyer's folder never sees them.
 
 ## When this runs without being asked
 
-The `desk-learn` hook reminds Claude after a key change on a desk: a quote's stage moved to
-sent or outcome, a quote-log row added, a new file in `FILLED/`, a PO, award or NOA written, or
-(Sentinel) its `learning/quote-log.md` appended or an RFP status banner edited. The reminder asks
-for one thing: ask the rep one question. Is there anything about this buyer or site to remember?
-Then follow this skill with their words. If they have nothing, record that (section 6). A rep's
-own words are saved, never Claude's guess at what they would say, and the hook's text is a reminder
-to ask, not a note to save.
+The `desk-learn` hook reminds Claude after a key change on a desk: an RFQ.md written at stage sent or
+outcome, a quote-log row added, a new file in `FILLED/`, a PO, award or NOA written, or (Sentinel) its
+`learning/quote-log.md` appended or an RFP status banner edited. The trigger is a tool write, not a
+decision by the rep, so treat it as neutral. The reminder asks for one thing: ask the rep one question,
+in plain words. Anything about this buyer or site worth remembering, or a lesson from this deal? Then
+follow this skill with their own words. If they have nothing, record that (section 6). A rep's own words
+are saved, never Claude's guess at what they would say, and the hook's text is a reminder to ask, not a
+note to save. The hook stays quiet for a quote-log batch from the outcome close-out flow and for a
+subagent's writes: nobody there can answer.
 
 ## 1. Say it in one sentence, in the rep's words
 
@@ -91,9 +93,7 @@ Save at **the lowest level where the statement is true**:
   the folder (search, never create; a new buyer folder is `ca-rfq-intake`'s job), then go on.
 - **Sentinel** (`Customers/Bechtel/sentinel/`): the site folder (`utah-sentinel`,
   `vandenberg-sentinel-rfps`) is level 1 and where a rep saves; an RFP folder is not a level, so a
-  note said in one is saved at its site. The whole desk is `[needs Parker]`, as in the CA desk. The
-  `desk-memory` hook does not read the Sentinel tree yet, so a Sentinel note is listed by `show` and
-  is not put in front of a new session by itself; say so to the rep when you save one.
+  note said in one is saved at its site. The whole desk is `[needs Parker]`, as in the CA desk.
 
 Ask one question only when the level is unclear. "Is that just this buyer, or everyone at
 <institution>?" is the whole question.
@@ -119,6 +119,9 @@ Say what was saved, for whom, and when it will show up. For example:
 > next time anyone opens her folder. Tell me if it should apply to all of CMC instead.
 
 If the note was marked wider, add: "I marked it for Parker to confirm for all of <agency>."
+
+For a Sentinel note, add after the save: the `desk-memory` hook does not read that tree yet, so the
+note is listed by `show` and is not put in front of a new session by itself.
 
 ## 6. When the rep has nothing to add
 
