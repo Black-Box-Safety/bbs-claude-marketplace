@@ -687,6 +687,53 @@ def test_unidentified_page_is_never_signed():
             assert not os.path.exists(spec["out_dir"])
 
 
+# ---------- page recognition on a real packet's text ----------
+# fixtures/ holds extracted page text only (form boilerplate, no customer data, no PDF).
+# cdcr-lpa-packet-*: CDCR's bound "RFQ Packet LPA 7-25-51-02" (Centinela, seen
+# 2026-11-16), whose PD 843 header reads "(Rev. /20 )" with no extractable "PD 843".
+# cv012-header and rfq-attachment-mentions-pd843: pages from the State of CA Agencies
+# corpus, the CalVet CUF form and a CDCR RFQ attachment list.
+
+FIXTURES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
+
+
+def _fixture(name):
+    with open(os.path.join(FIXTURES, name), encoding="utf-8") as fh:
+        return fh.read()
+
+
+def test_bound_packet_pd843_page_without_form_number_is_pd843():
+    text = _fixture("cdcr-lpa-packet-p10-pd843.txt")
+    assert "PD 843" not in text  # the reason this test exists
+    assert fill_ca_forms.classify_page(text, TABLE) == ["PD843"]
+    assert fill_ca_forms.line_for_kind("PD843", TABLE) == "dv_owner"
+
+
+def test_standalone_pd843_with_its_form_number_is_still_pd843():
+    # The DGS blank prints "PD 843 (Rev. 9/2019)" where the packet prints "(Rev. /20 )";
+    # the longer header must not push the statute citation out of the read window.
+    text = _fixture("cdcr-lpa-packet-p10-pd843.txt").replace(
+        " (Rev. /20\n)", "PD 843 (Rev. 9/2019)")
+    assert "PD 843 (Rev. 9/2019)" in text
+    assert fill_ca_forms.classify_page(text, TABLE) == ["PD843"]
+
+
+def test_pd843_title_alone_is_not_enough():
+    title_only = _fixture("cdcr-lpa-packet-p10-pd843.txt").split("Instructions:")[0]
+    assert fill_ca_forms.classify_page(title_only, TABLE) == []
+
+
+def test_other_packet_pages_never_read_as_pd843():
+    for name, want in (("cdcr-lpa-packet-p01-cover.txt", []),
+                       ("cdcr-lpa-packet-p13-std204.txt", ["STD204"]),
+                       ("cv012-header.txt", []),
+                       # a CDCR RFQ's instructions page naming "DGS PD 843": the old
+                       # title + "PD 843" pair read this as the form itself
+                       ("rfq-attachment-mentions-pd843.txt", [])):
+        got = fill_ca_forms.classify_page(_fixture(name), TABLE)
+        assert got == want, (name, got)
+
+
 def test_zero_and_foreign_formatted_totals_are_unreadable():
     for raw in ("$0.00", 0, "0", "300.000,00", "9.054,75", "1,23", "$ 12,34.5", "12e5"):
         assert fill_ca_forms.parse_total(raw) is None, raw
