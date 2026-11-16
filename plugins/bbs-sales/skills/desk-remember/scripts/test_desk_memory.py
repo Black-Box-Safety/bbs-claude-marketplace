@@ -450,6 +450,57 @@ def main():
         check(rc == 0 and open(arc_g, encoding="utf-8").read().count("Calls on Fridays only.") == 1,
               "REX#84-5 the retry finishes the retire without archiving the line twice", out)
 
+        # --- the Sentinel desk: site folders are level 1, the whole desk is Parker's -------------
+        sen = os.path.join(root, "Customers", "Bechtel", "sentinel")
+        site = os.path.join(sen, "utah-sentinel")
+        rfp = os.path.join(site, "rfp-825025-pig-spill")
+        site2 = os.path.join(sen, "vandenberg-sentinel-rfps")
+        for d in (rfp, site2, os.path.join(sen, "learning")):
+            os.makedirs(d)
+        rc, out, err = run("where", "--at", rfp)
+        names = re.findall(r"^([0-9])\. (.+?)(?:  \[needs Parker.*)?$", out, re.M)
+        check(rc == 0 and err == "" and [n for _, n in names] == ["utah-sentinel", "the whole desk"],
+              "Sentinel where: the site folder is level 1, an RFP folder is not a level, then the whole desk", out)
+        check(out.count("[needs Parker") == 1, "Sentinel where: only the whole desk is marked needs-Parker", out)
+        rc, out, _ = add(rfp, 1, "Rob wants the freight line shown separately.", author="Rep One")
+        f_site = os.path.join(site, "LEARNED.md")
+        check(rc == 0 and os.path.isfile(f_site) and "Rob wants the freight line shown separately." in open(f_site, encoding="utf-8").read()
+              and not os.path.exists(os.path.join(rfp, "LEARNED.md")),
+              "Sentinel add from an RFP folder saves at the site, never in the RFP folder", out)
+        rc, out, _ = add(rfp, 2, "Everyone at Bechtel wants one PDF.")
+        check(rc == 2 and "goes through Parker" in out and not os.path.exists(os.path.join(sen, "LEARNED.md")),
+              "Sentinel: the whole desk needs Parker, as in the CA desk", out)
+        rc, out, _ = add(sen, 1, "Wants one PDF.")
+        check(rc == 2 and "Open the site's folder" in out, "Sentinel: from the desk root there is nowhere a rep may save; it says the site's folder", out)
+        rc, out, _ = add(rfp, 1, "Grainger plus 10% for Rob.")
+        check(rc == 2 and out.startswith("Not saved:"), "Sentinel notes get the same refusals as CA notes", out)
+        rc, out, _ = run("show", "--at", rfp)
+        check(rc == 0 and "[utah-sentinel] 2026-11-10 | Rep One | preference | Rob wants the freight line shown separately." in out,
+              "Sentinel show lists the site's notes (the session-start hook does not read this tree yet)", out)
+        rc, out, _ = run("show", "--at", site2)
+        check(rc == 0 and "Nothing is remembered" in out, "Sentinel show on a site with no notes says so", out)
+        rc, out, _ = run("show", "--at", os.path.join(root, "elsewhere"))
+        check(rc == 0 and "Nothing is remembered" in out, "show outside any desk still says nothing is remembered", out)
+        # The CA desk is untouched: the same tree name does not exist in the Sentinel profile.
+        check(desk_memory.DESKS["ca-state"]["tree"] == "All RFQ's by Agency" and desk_memory.DESKS["ca-state"]["rep_min_depth"] == 2
+              and "max_depth" not in desk_memory.DESKS["ca-state"], "the CA desk profile is unchanged")
+
+        # --- close --none: the rep chose nothing; no file is written ------------------------------
+        def tree_files(r):
+            return sorted(os.path.join(a, f) for a, _, fs in os.walk(r) for f in fs)
+        before = tree_files(root)
+        rc, out, err = run("close", "--none", "--at", deal_a, "--author", "Rep One")
+        check(rc == 0 and err == "" and out.startswith("Recorded: Rep One chose nothing to capture for Buyer Alpha.") and tree_files(root) == before,
+              "close --none says it recorded 'nothing' and writes no file", out)
+        rc, out, _ = run("close", "--none", "--at", rfp, "--author", "Rep One")
+        check(rc == 0 and "utah-sentinel" in out, "close --none works on a Sentinel folder", out)
+        rc, out, _ = run("close", "--at", deal_a, "--author", "Rep One")
+        check(rc == 2 and out.startswith("Not saved:") and "--none" in out and tree_files(root) == before, "close without --none is refused", out)
+        rc, out, _ = run("close", "--none", "--at", deal_a, "--author", "Claude")
+        check(rc == 2 and out.startswith("Not saved:") and tree_files(root) == before, "close --none needs a real BBS person's name, not Claude", out)
+        rc, out, _ = run("close", "--none", "--at", os.path.join(root, "elsewhere"), "--author", "Rep One")
+        check(rc == 2 and "not inside a customer desk" in out, "close --none outside a desk is refused", out)
+
         # --- the format has one definition per reader; they must agree -----------------------
         pat = desk_memory.ENTRY.pattern
         py = open(HOOK, encoding="utf-8").read()

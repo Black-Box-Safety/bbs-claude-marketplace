@@ -96,6 +96,15 @@ Then say what you found and what's next — vehicle, deadline, line count, forms
 whether anything needs sourcing. Pricing and the cert packet are the `naspo-quote`
 skill's job; hand off, don't start.
 
+## 6. Close the loop
+
+Intake is where buyer facts first surface: who the buyer is, how they want to be quoted, a change of
+ship-to or contact. Ask the rep one question. Is there anything about this buyer or site to remember?
+If so, run `desk-remember` with their words (one line, their name, never a price, account number,
+certification or contract fact; a contact or ship-to change goes in the buyer's `CLAUDE.md` header
+and is noted in words). If the rep has nothing, record it with `desk-remember`'s `close --none`.
+One question, asked once; do not hold up the hand-off for it.
+
 ## What not to do at intake
 
 Don't price, don't fill forms, and don't email the buyer. Intake exists to make the

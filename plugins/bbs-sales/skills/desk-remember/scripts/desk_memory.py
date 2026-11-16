@@ -9,6 +9,10 @@
                                         move one replaced line out of that folder's LEARNED.md
                                         into LEARNED-archive.md (append-only, never shown),
                                         stamped with who retired it and when
+  close  --none --at PATH --author NAME
+                                        record that the rep chose nothing to capture: checks the folder
+                                        and the name, writes nothing, prints one line (the desk-learn
+                                        hook reads the command itself, so the Stop backstop stays quiet)
   merge  --at PATH --level N [--copy FILE]
                                         fold OneDrive conflict copies back in: archive copies
                                         (LEARNED-archive-<device>.md) into LEARNED-archive.md, then
@@ -48,6 +52,19 @@ DESKS = {
         # Levels a rep may write to directly, counted in folders below the tree folder.
         # Depth 1 is an agency, depth 0 the whole desk: those change by Parker's ruling.
         "rep_min_depth": 2,
+        "where_noun": "buyer's",
+    },
+    # Sentinel (Bechtel): the tree is Customers/Bechtel/sentinel and a site folder (utah-sentinel,
+    # vandenberg-sentinel-rfps) is level 1, where a rep may write. Nothing deeper is a level: an RFP
+    # folder's own facts belong in its CLAUDE.md banner and the stage file, and the whole desk
+    # (depth 0) is Parker's. The hooks/desk-memory hook does not read this tree yet, so a note saved
+    # here is shown by `show`, not at session start (spec 2026-11-16 section 8, D10.3).
+    "bechtel-sentinel": {
+        "tree": "Bechtel/sentinel",
+        "file": "LEARNED.md",
+        "rep_min_depth": 1,
+        "max_depth": 1,
+        "where_noun": "site's",
     },
 }
 KINDS = ("preference", "change", "watch-out")
@@ -154,7 +171,8 @@ def find_desk(path):
     full = os.path.abspath(path)
     for name, prof in DESKS.items():
         m = None
-        for hit in re.finditer(re.escape(prof["tree"]), full, re.I):
+        pat = re.escape(prof["tree"]).replace("/", r"[\\/]+")
+        for hit in re.finditer(pat, full, re.I):
             a, b = hit.start(), hit.end()
             if (a == 0 or full[a - 1] in "/\\") and (b == len(full) or full[b] in "/\\"):
                 m = hit
@@ -172,7 +190,7 @@ def levels(path):
     dirs = []
     d = tree_dir
     for c in comps:
-        if c.startswith(".") or DEAL.search(c):
+        if c.startswith(".") or DEAL.search(c) or len(dirs) >= prof.get("max_depth", 99):
             break
         nxt = d + sep + c
         if not os.path.isdir(nxt):
@@ -247,7 +265,7 @@ def cmd_add(args):
     n, d, name, depth, rep_ok = pick(lv, args.level, "level")
     if not rep_ok and not any(r[4] for r in lv):
         raise Refused("this folder is an agency or the whole desk, and a note there changes what every rep "
-                      "under it is told, so it goes through Parker. Open the buyer's folder and save it there")
+                      "under it is told, so it goes through Parker. Open the " + prof["where_noun"] + " folder and save it there")
     if not rep_ok:
         raise Refused(f"a note for {name} changes what every rep under it is told, so it goes through "
                       "Parker. Save it for the nearest folder and mark it wider; it is listed for him at the next review")
@@ -516,7 +534,44 @@ def cmd_merge(args):
     return 0
 
 
+def cmd_close(args):
+    """The rep was asked what to remember and chose nothing. Writes no file: a "nothing" is not a note.
+    The desk-learn hook reads this command from the Bash call and stops asking for the session."""
+    if not args.none:
+        raise Refused("close only records that the rep chose nothing to capture; run it with --none. "
+                      "To save something, use `add` with the rep's words")
+    prof, lv = levels(args.at)
+    who = check_author(args.author)
+    print(f"Recorded: {who} chose nothing to capture for {lv[0][2]}. No file was written.")
+    return 0
+
+
+def show_direct(args):
+    """What a session at PATH would be told, for a desk the SessionStart hook does not read yet:
+    each level's LEARNED.md lines, nearest first, the same refusal check the hooks apply."""
+    prof, lv = levels(args.at)
+    out = []
+    for n, d, name, depth, _ in lv:
+        path = d + os.sep + prof["file"]
+        if not os.path.isfile(path):
+            continue
+        text, _ = read_text(path)
+        for l in split(text):
+            m = ENTRY.match(l)
+            if m and not refused_reason(m):
+                out.append(f"[{name}] {l[2:]}")
+    if out:
+        print("(This desk's notes are shown by this command; they are not yet put in front of a session at start.)")
+    print("\n".join(out) if out else "Nothing is remembered for that folder yet.")
+    return 0
+
+
 def cmd_show(args):
+    try:
+        if find_desk(args.at)[0] is not DESKS["ca-state"]:
+            return show_direct(args)
+    except Refused:
+        pass                # not in a desk: the hook below says nothing is remembered
     here = os.path.dirname(os.path.abspath(__file__))
     hook = os.path.normpath(os.path.join(here, "..", "..", "..", "hooks", "desk-memory.py"))
     import json
@@ -549,6 +604,11 @@ def main(argv=None):
     r.add_argument("--by", required=True)
     r.add_argument("--date")
     r.set_defaults(fn=cmd_retire)
+    c = sub.add_parser("close")
+    c.add_argument("--none", action="store_true")
+    c.add_argument("--at", required=True)
+    c.add_argument("--author", required=True)
+    c.set_defaults(fn=cmd_close)
     g = sub.add_parser("merge")
     g.add_argument("--at", required=True)
     g.add_argument("--level", type=int, required=True)

@@ -255,6 +255,16 @@ Then hand the rep the file list and call out, in the response itself, any
 judgment call you made on their behalf — CalRecycle values, a shortened
 description, a substituted item. Those are the things that come back to bite.
 
+## 8. Close the loop
+
+Ask the rep one question. Is there anything about this buyer or site to remember? If so, run
+`desk-remember` with their words (the skill saves the rep's own sentence with their name, one line,
+never a price, account number, certification or contract fact). Did this deal teach a lesson? If so,
+propose one `lessons.md` line, cite the deal, and append it to the desk's `learning/lessons.md` only
+after the rep says yes; if the desk has no `lessons.md` yet, give the line in your reply and write
+nothing. If the rep has nothing, record it with `desk-remember`'s `close --none`. One question, asked
+once; this step never blocks the hand-off.
+
 ## The folder is the training data
 
 `Customers/State of CA Agencies/` holds every prior packet — blanks the agency
