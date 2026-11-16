@@ -38,9 +38,11 @@ PS_CMD = [PS, "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-F
           os.path.join(HOOKS, "desk-learn.ps1")] if PS else None
 
 # The reminder, written here independently of the scripts (spec section 8, verbatim).
-REMINDER = ("Key change: {event} in {folder}. Close the loop: ask the rep one question. Is there anything "
-            "about this buyer or site to remember? If so, run `desk-remember` with their words. Did this "
-            "deal teach a lesson? If so, propose one `lessons.md` line and append it on their yes.")
+REMINDER = ("Key change: {event} in {folder}. Close the loop: ask the rep one question. Anything about this "
+            "buyer or site worth remembering, or a lesson from this deal? If they give words, run "
+            "`desk-remember` with their own words. If they offer a lesson, show the one-line draft and append "
+            "it to `learning/lessons.md` only on their yes (if the desk has no `lessons.md`, say so and write "
+            "nothing). If they say nothing, run `desk_memory.py close --none`.")
 STOP_MESSAGE_START = "bbs-sales: key changes were made this session"
 STOP_REASON_START = "Key changes were made this session and nothing was captured or closed."
 
@@ -96,8 +98,10 @@ def ctx(out):
     return j["hookSpecificOutput"]["additionalContext"] if "hookSpecificOutput" in j else j
 
 
-def post(tool, sid="s1", **inp):
-    return {"hook_event_name": "PostToolUse", "session_id": sid, "tool_name": tool, "tool_input": inp}
+def post(tool, sid="s1", top=None, **inp):
+    d = {"hook_event_name": "PostToolUse", "session_id": sid, "tool_name": tool, "tool_input": inp}
+    d.update(top or {})
+    return d
 
 
 def stop(sid="s1", active=False):
@@ -129,23 +133,38 @@ def main():
 
         row = "| 2026-11-16 | Gloves | SQ-900001 | NASPO | won |"
         sentinel_row = "| 2026-11-16 | 835823 | VSFB | won |"
+        cwdb = os.path.join(ca, "Cwd Buyer")
+        teeb = os.path.join(ca, "Tee Buyer")
+        quiet = os.path.join(ca, "Quiet Buyer")
         banner = "> **Status (2026-11-16): SENT.** Quote out."
 
         steps = [
             # (label, payload, expected: None for silence, else (event words, folder))
-            ("RFQ.md at priced is silent", post("Write", file_path=os.path.join(deals["11.3.26"], "RFQ.md"), content="x"), None),
-            ("RFQ.md moved to sent (no state yet)", post("Write", file_path=os.path.join(deals["11.4.26"], "RFQ.md"), content="x"),
-             ("RFQ stage moved to sent", "Gloves 11.4.26")),
-            ("the same move again is silent (once per deal per event per session)",
-             post("Edit", file_path=os.path.join(deals["11.4.26"], "RFQ.md"), old_string="a", new_string="b"), None),
-            ("RFQ.md already outcome in rfq-state.json is not a move", post("Write", file_path=os.path.join(deals["11.5.26"], "RFQ.md"), content="x"), None),
-            ("RFQ.md sent -> outcome is a move", post("Write", file_path=os.path.join(deals["11.6.26"], "RFQ.md"), content="x"),
-             ("RFQ stage moved to outcome", "Gloves 11.6.26")),
-            ("a state file compiled a moment ago does not hide the move", post("Edit", file_path=os.path.join(deals["11.9.26"], "RFQ.md"), old_string="a", new_string="b"),
-             ("RFQ stage moved to sent", "Gloves 11.9.26")),
+            ("RFQ.md at priced is silent", post("Write", file_path=os.path.join(deals["11.3.26"], "RFQ.md"), content=rfq("priced")), None),
+            ("RFQ.md written at sent (first sight)", post("Write", file_path=os.path.join(deals["11.4.26"], "RFQ.md"), content=rfq("sent")),
+             ("RFQ.md written at stage sent", "Gloves 11.4.26")),
+            ("the same stage again in a new session, with a freshly compiled rfq-state.json, is silent (last-seen stage)",
+             post("Write", sid="s2", file_path=os.path.join(deals["11.4.26"], "RFQ.md"), content=rfq("sent")), None),
+            ("Edit that changes the Stage line priced -> sent",
+             post("Edit", file_path=os.path.join(deals["11.3.26"], "RFQ.md"), old_string="**Stage:** priced", new_string="**Stage:** sent"),
+             ("RFQ.md written at stage sent", "Gloves 11.3.26")),
+            ("Edit whose old and new Stage lines are the same is silent",
+             post("Edit", sid="s2", file_path=os.path.join(deals["11.5.26"], "RFQ.md"), old_string="**Stage:** sent\nold", new_string="**Stage:** sent\nnew"), None),
+            ("Edit that does not touch the Stage line is silent",
+             post("Edit", sid="s2", file_path=os.path.join(deals["11.5.26"], "RFQ.md"), old_string="a", new_string="b"), None),
+            ("MultiEdit that changes sent -> outcome",
+             post("MultiEdit", file_path=os.path.join(deals["11.6.26"], "RFQ.md"),
+                  edits=[{"old_string": "x", "new_string": "y"}, {"old_string": "**Stage:** sent", "new_string": "**Stage:** outcome"}]),
+             ("RFQ.md written at stage outcome", "Gloves 11.6.26")),
+            ("Write at sent, then Write at outcome: the second is its own event",
+             post("Write", sid="s3", file_path=os.path.join(deals["11.9.26"], "RFQ.md"), content=rfq("sent")),
+             ("RFQ.md written at stage sent", "Gloves 11.9.26")),
+            ("Write at outcome after sent",
+             post("Write", sid="s3", file_path=os.path.join(deals["11.9.26"], "RFQ.md"), content=rfq("outcome")),
+             ("RFQ.md written at stage outcome", "Gloves 11.9.26")),
             ("rfq_record.py set-stage sent",
              post("Bash", command='python3 "/x/scripts/rfq_record.py" set-stage "%s/RFQ.md" sent --date 2026-11-16 --evidence "to buyer"' % deals["11.10.26"]),
-             ("RFQ stage moved to sent", "Gloves 11.10.26")),
+             ("RFQ.md written at stage sent", "Gloves 11.10.26")),
             ("rfq_record.py set-stage priced is silent",
              post("Bash", command='python3 /x/scripts/rfq_record.py set-stage "%s/RFQ.md" priced --date 2026-11-16 --evidence "x"' % deals["11.10.26"]), None),
             ("quote-log row added", post("Edit", file_path=os.path.join(joe, "quote-log.md"), old_string="|---|---|", new_string="|---|---|\n" + row),
@@ -173,6 +192,20 @@ def main():
              ("RFP status banner edited", "rfp-825025-pig-spill")),
             ("RFP CLAUDE.md edit with no banner is silent", post("Edit", file_path=os.path.join(sen, "utah-sentinel", "rfp-2", "CLAUDE.md"), old_string="a", new_string="b"), None),
             ("a site-level CLAUDE.md with a banner line is silent", post("Edit", file_path=os.path.join(sen, "utah-sentinel", "CLAUDE.md"), old_string="a", new_string=banner), None),
+            ("a relative >> append resolves against cwd",
+             post("Bash", top={"cwd": cwdb}, command="echo '%s' >> quote-log.md" % row),
+             ("quote-log row added or Outcome set", "Cwd Buyer")),
+            ("tee -a is an append too",
+             post("Bash", command="echo '%s' | tee -a \"%s/quote-log.md\"" % (row, teeb)),
+             ("quote-log row added or Outcome set", "Tee Buyer")),
+            ("a quote-log edit from the outcome close-out flow stays quiet",
+             post("Edit", file_path=os.path.join(quiet, "quote-log.md"), old_string="a", new_string="| 2026-11-16 | Gloves | SQ-105100 | NASPO | won - SO 1 per BC 2026-11-16 |"), None),
+            ("a bare **Status banner (no >) in an RFP CLAUDE.md",
+             post("Edit", file_path=os.path.join(sen, "utah-sentinel", "rfp-3-bare", "CLAUDE.md"), old_string="a", new_string="**Status (2026-11-16): SENT.**"),
+             ("RFP status banner edited", "rfp-3-bare")),
+            ("a call that hits two deals gets one line",
+             post("Bash", sid="multi", command="echo '%s' >> \"%s/quote-log.md\"; echo '%s' >> \"%s/quote-log.md\"" % (row, os.path.join(ca, "Two A"), row, os.path.join(ca, "Two B"))),
+             ("quote-log row added or Outcome set", "2 folders")),
             ("a file nowhere near a desk is silent", post("Write", file_path=os.path.join(root, "elsewhere", "PO 1.md"), content="x"), None),
             ("a Bash call nowhere near a desk is silent", post("Bash", command="ls -la"), None),
             ("a tool that is not a write is silent", post("Read", file_path=os.path.join(deals["11.3.26"], "RFQ.md")), None),
@@ -225,44 +258,49 @@ def main():
             return outs
 
         def stop_cases(cmd, label):
-            key_change = post("Write", sid="st", file_path=os.path.join(deals["11.4.26"], "RFQ.md"), content="x")
+            key_change = post("Write", sid="st", file_path=os.path.join(deals["11.4.26"], "RFQ.md"), content=rfq("sent"))
+            second_change = post("Write", sid="st", file_path=os.path.join(deals["11.4.26"], "PO 7.md"), content="x")
             no_ledger = run(cmd, stop("st"), fresh_env(root))
             check(no_ledger[0] == 0 and not no_ledger[1].strip() and no_ledger[2] == "", label + " Stop with no key change is silent", no_ledger)
 
-            o = stop_session("msg", None, [("k", key_change), ("s1", stop("st")), ("s2", stop("st"))], cmd)
-            j = ctx(o[1][1][1])
-            check(o[1][1][0] == 0 and isinstance(j, dict) and set(j) == {"systemMessage"} and j["systemMessage"].startswith(STOP_MESSAGE_START),
-                  label + " Stop defaults to a message only (no decision, no resume)", o[1][1])
-            check(not o[2][1][1].strip(), label + " Stop speaks once per session", o[2][1])
+            o = stop_session("msg", None, [("k", key_change), ("s0", stop("st")), ("s1", stop("st")), ("s2", stop("st"))], cmd)
+            check(not o[1][1][1].strip(), label + " the first Stop after a key change only arms (same turn: silent)", o[1][1])
+            j = ctx(o[2][1][1])
+            check(o[2][1][0] == 0 and isinstance(j, dict) and set(j) == {"systemMessage"} and j["systemMessage"].startswith(STOP_MESSAGE_START),
+                  label + " a later Stop speaks, as a message only (no decision, no resume)", o[2][1])
+            check(not o[3][1][1].strip(), label + " Stop speaks once per session", o[3][1])
+
+            o = stop_session("rearm", None, [("k", key_change), ("s0", stop("st")), ("k2", second_change), ("s1", stop("st")), ("s2", stop("st"))], cmd)
+            check(not o[3][1][1].strip() and bool(o[4][1][1].strip()), label + " a new key change after arming needs its own turn boundary", o)
 
             o = stop_session("cap", None, [("k", key_change),
                                            ("c", post("Bash", sid="st", command='"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" add --at "x" --level 1')),
-                                           ("s", stop("st"))], cmd)
-            check(not o[2][1][1].strip(), label + " a desk_memory add after the key change clears it: Stop is silent", o[2][1])
+                                           ("s", stop("st")), ("s", stop("st"))], cmd)
+            check(not o[2][1][1].strip() and not o[3][1][1].strip(), label + " a desk_memory add after the key change clears it: Stop is silent", o[2][1])
 
             o = stop_session("none", None, [("k", key_change),
                                             ("c", post("Bash", sid="st", command='"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" close --none --at "x" --author "A B"')),
-                                            ("s", stop("st"))], cmd)
-            check(not o[2][1][1].strip(), label + " close --none clears it: Stop is silent", o[2][1])
+                                            ("s", stop("st")), ("s", stop("st"))], cmd)
+            check(not o[2][1][1].strip() and not o[3][1][1].strip(), label + " close --none clears it: Stop is silent", o[2][1])
 
-            o = stop_session("late", None, [("c", post("Bash", sid="st", command="desk_memory.py add --at x")), ("k", key_change), ("s", stop("st"))], cmd)
-            check(bool(o[2][1][1].strip()), label + " a capture BEFORE the key change does not clear it", o[2][1])
+            o = stop_session("late", None, [("c", post("Bash", sid="st", command="desk_memory.py add --at x")), ("k", key_change), ("s0", stop("st")), ("s", stop("st"))], cmd)
+            check(bool(o[3][1][1].strip()), label + " a capture BEFORE the key change does not clear it", o[2][1])
 
             o = stop_session("lessons", None, [("k", key_change),
                                                ("c", post("Write", sid="st", file_path=os.path.join(root, "Customers", "State of CA Agencies", "learning", "lessons.md"), content="- x")),
-                                               ("s", stop("st"))], cmd)
-            check(not o[2][1][1].strip(), label + " a write to learning/lessons.md clears it", o[2][1])
+                                               ("s", stop("st")), ("s", stop("st"))], cmd)
+            check(not o[2][1][1].strip() and not o[3][1][1].strip(), label + " a write to learning/lessons.md clears it", o[2][1])
 
-            o = stop_session("cont", {"BBS_DESK_LEARN_STOP": "continue"}, [("k", key_change), ("s1", stop("st", active=True)), ("s2", stop("st")), ("s3", stop("st"))], cmd)
-            check(not o[1][1][1].strip(), label + " continue mode never resumes a turn that is already a continuation (stop_hook_active)", o[1][1])
-            j = ctx(o[2][1][1])
+            o = stop_session("cont", {"BBS_DESK_LEARN_STOP": "continue"}, [("k", key_change), ("s0", stop("st")), ("s1", stop("st", active=True)), ("s2", stop("st")), ("s3", stop("st"))], cmd)
+            check(not o[2][1][1].strip(), label + " continue mode never resumes a turn that is already a continuation (stop_hook_active)", o[2][1])
+            j = ctx(o[3][1][1])
             check(isinstance(j, dict) and j.get("decision") == "block" and j.get("reason", "").startswith(STOP_REASON_START),
-                  label + " continue mode resumes the turn with the fixed reason", o[2][1])
-            check(not o[3][1][1].strip(), label + " continue mode resumes at most once", o[3][1])
+                  label + " continue mode resumes the turn with the fixed reason", o[3][1])
+            check(not o[4][1][1].strip(), label + " continue mode resumes at most once", o[4][1])
 
-            o = stop_session("other", {"BBS_DESK_LEARN_STOP": "banana"}, [("k", key_change), ("s", stop("st"))], cmd)
-            j = ctx(o[1][1][1])
-            check(isinstance(j, dict) and set(j) == {"systemMessage"}, label + " any value but continue stays message-only", o[1][1])
+            o = stop_session("other", {"BBS_DESK_LEARN_STOP": "banana"}, [("k", key_change), ("s0", stop("st")), ("s", stop("st"))], cmd)
+            j = ctx(o[2][1][1])
+            check(isinstance(j, dict) and set(j) == {"systemMessage"}, label + " any value but continue stays message-only", o[2][1])
 
         stop_cases(PY_CMD, "python:")
         if PS_CMD:
@@ -275,17 +313,55 @@ def main():
                 check(p.returncode == 0 and not p.stdout.strip() and not p.stderr.strip(),
                       "silent on unreadable input %r (%s)" % (raw[:20], "ps" if cmd is PS_CMD else "py"))
 
+        # ---- the ledger holds the event only, never a folder name ----------------------------
+        ledger_dir = os.path.join(py_env["TMPDIR"], "bbs-desk-learn")
+        led = open(os.path.join(ledger_dir, "s1.ledger"), encoding="utf-8").read()
+        check(led.startswith("K\t") and "Gloves" not in led and "Joe" not in led and "Ann" not in led and "\t" in led,
+              "the ledger holds events, not folder names", led)
+        check("Q\tquote-log" in led, "a close-out batch is noted in the ledger (Q) and is not a pending key change", led)
+
+        # ---- a subagent updates the ledger and says nothing --------------------------------------
+        env_sub = fresh_env(root)
+        sub = post("Write", sid="sub", top={"agent_id": "a1"}, file_path=os.path.join(deals["11.4.26"], "PO 9.md"), content="x")
+        rc, out, err = run(PY_CMD, sub, env_sub)
+        led = open(os.path.join(env_sub["TMPDIR"], "bbs-desk-learn", "sub.ledger"), encoding="utf-8").read()
+        check(rc == 0 and not out.strip() and led == "K\taward\n", "a subagent's key change is ledger-only", (out, led))
+        rc, out, err = run(PY_CMD, post("Write", sid="sub", file_path=os.path.join(deals["11.4.26"], "PO 9.md"), content="x"), env_sub)
+        check(rc == 0 and bool(out.strip()), "the main agent's own write of the same event still reminds (the subagent set no marker)", out)
+        if PS_CMD:
+            env_sub2 = fresh_env(root)
+            rc, out, err = run(PS_CMD, sub, env_sub2)
+            led = open(os.path.join(env_sub2["TMPDIR"], "bbs-desk-learn", "sub.ledger"), encoding="utf-8").read()
+            check(rc == 0 and not out.strip() and led == "K\taward\n", "powershell: a subagent's key change is ledger-only", (out, led))
+
+        # ---- Windows: TEMP before TMP, and the same folder in every half --------------------------
+        env_w = fresh_env(root)
+        da, db = os.path.join(root, "win-temp"), os.path.join(root, "win-tmp")
+        os.makedirs(da)
+        os.makedirs(db)
+        env_w.pop("TMPDIR", None)
+        env_w["TEMP"], env_w["TMP"] = da, db
+        for cmd, nm in [(PY_CMD, "python")] + ([(PS_CMD, "powershell")] if PS_CMD else []):
+            for d in (da, db):
+                shutil.rmtree(os.path.join(d, "bbs-desk-learn"), ignore_errors=True)
+            run(cmd, post("Write", sid="w1", file_path=os.path.join(deals["11.4.26"], "RFQ.md"), content=rfq("sent")), env_w)
+            check(os.path.exists(os.path.join(da, "bbs-desk-learn", "w1.ledger")) and not os.path.exists(os.path.join(db, "bbs-desk-learn")),
+                  nm + ": with TMPDIR unset, TEMP wins over TMP")
+
         # ---- source facts -------------------------------------------------------------------------
         py_src = open(os.path.join(HOOKS, "desk-learn.py"), encoding="utf-8").read()
         ps_src = open(os.path.join(HOOKS, "desk-learn.ps1"), encoding="utf-8").read()
         check(all(ord(c) < 128 for c in ps_src), "desk-learn.ps1 is ASCII (Windows PowerShell 5.1 reads it as ANSI)")
         check("sys.exit(1)" not in py_src and "exit 2" not in ps_src and "sys.exit(2)" not in py_src and "stderr" not in py_src.replace("never a write to a customer folder, never stderr", ""),
               "desk-learn never exits non-zero and never writes stderr")
-        for ev in ("RFQ stage moved to sent", "RFQ stage moved to outcome", "quote-log row added or Outcome set", "new file in FILLED/",
+        for ev in ("RFQ.md written at stage sent", "RFQ.md written at stage outcome", "quote-log row added or Outcome set", "new file in FILLED/",
                    "PO, award or NOA file written", "Sentinel quote-log appended", "RFP status banner edited"):
             check(ev in py_src and ev in ps_src, "both halves carry the event wording: " + ev)
         for name, a, b in (("STAGE_RE", r"^\*\*Stage:\*\*[ \t]*(.+?)[ \t]*\r?$", "STAGE_RE"),):
             check(("'(?m)" + a + "'") in ps_src and a in py_src, "both halves carry the same " + name)
+        banner_re = r"^(?:>[ \t]*)?\*\*Status"
+        check(banner_re in py_src and ("'(?m)" + banner_re + "'") in ps_src, "both halves carry the banner pattern that accepts a bare **Status line")
+        check("'TMPDIR', 'TEMP', 'TMP'" in ps_src and '("TMPDIR", "TEMP", "TMP")' in py_src, "both halves pick the temp folder in the order TMPDIR, TEMP, TMP (Python and PowerShell differ on Windows)")
         check('BBS_DESK_LEARN_STOP' in py_src and 'BBS_DESK_LEARN_STOP' in ps_src, "both halves read the one Stop switch")
         check(re.search(r'mode == "continue"', py_src) and "-eq 'continue'" in ps_src, "the only value that resumes a turn is 'continue', in both halves")
 
@@ -299,6 +375,7 @@ def main():
         check(len(stop_entries) == 1, "hooks.json: one Stop entry runs desk-learn.sh")
         check("BBS_DESK_LEARN_STOP" in hj["description"] and "message-only" in hj["description"] and "desk_learn_parity.py" in hj["description"],
               "hooks.json description names the Stop switch, its default and the parity test")
+        check("cp or mv" in hj["description"] and "turn boundary" in hj["description"], "hooks.json description says cp or mv of a PO is not detected and the Stop arms first")
         check(not any("desk-learn" in h["command"] and "exit 2" in h["command"] for g in hj["hooks"]["PostToolUse"] for h in g["hooks"]),
               "no desk-learn entry can exit 2")
 
@@ -328,6 +405,10 @@ def main():
 
             rc, ran, _, _ = entry(post("Write", file_path="/home/u/notes.md", content="hello"))
             check(rc == 0 and not ran, "desk-learn.sh: a write nowhere near a desk starts no interpreter")
+            rc, ran, _, _ = entry(post("Bash", top={"cwd": ca}, command="ls -la"))
+            check(rc == 0 and not ran, "desk-learn.sh: a cwd inside the tree does not start an interpreter for an ordinary Bash call")
+            rc, ran, _, _ = entry(post("Write", file_path="/home/u/notes.md", content="mentions by agency and sentinel and rfq_record"))
+            check(rc == 0 and not ran, "desk-learn.sh: file content that mentions the tree does not start an interpreter")
             rc, ran, _, _ = entry(post("Bash", command="ls -la"))
             check(rc == 0 and not ran, "desk-learn.sh: an ordinary Bash call starts no interpreter")
             rc, ran, _, seen = entry(post("Write", file_path=os.path.join(deals["11.4.26"], "RFQ.md"), content="x"))
@@ -349,13 +430,26 @@ def main():
             p = subprocess.run([sh, os.path.join(HOOKS, "desk-learn.sh")], input=json.dumps(stop("ab:12//x")).encode("utf-8"),
                                capture_output=True, timeout=60, env=env)
             check(p.returncode == 0 and os.path.exists(log), "desk-learn.sh: Stop with this session's ledger reaches the interpreter (same session key as the hook)")
+            # TEMP wins over TMP when TMPDIR is unset, as in the hooks.
+            ew = fresh_env(root)
+            ew.pop("TMPDIR", None)
+            ew["TEMP"], ew["TMP"] = os.path.join(root, "sh-temp"), os.path.join(root, "sh-tmp")
+            ew["PATH"] = stub + os.pathsep + base_path
+            for d, want in ((ew["TMP"], False), (ew["TEMP"], True)):
+                os.makedirs(os.path.join(d, "bbs-desk-learn"), exist_ok=True)
+                open(os.path.join(d, "bbs-desk-learn", "tw.ledger"), "w").write("K\tx\n")
+                if os.path.exists(log):
+                    os.remove(log)
+                subprocess.run([sh, os.path.join(HOOKS, "desk-learn.sh")], input=json.dumps(stop("tw")).encode("utf-8"), capture_output=True, timeout=60, env=ew)
+                check(os.path.exists(log) == want, "desk-learn.sh: the ledger is looked for under TEMP, not TMP, when TMPDIR is unset (ledger under %s: %s)" % ("TEMP" if want else "TMP", want))
+                shutil.rmtree(os.path.join(d, "bbs-desk-learn"))
             # And the real hook agrees on that key: a reminder under that session id writes <key>.ledger.
             env2 = fresh_env(root)
-            run(PY_CMD, post("Write", sid="ab:12//x", file_path=os.path.join(deals["11.4.26"], "RFQ.md"), content="x"), env2)
+            run(PY_CMD, post("Write", sid="ab:12//x", file_path=os.path.join(deals["11.4.26"], "RFQ.md"), content=rfq("sent")), env2)
             check(os.path.exists(os.path.join(env2["TMPDIR"], "bbs-desk-learn", "ab-12-x.ledger")), "the Python hook names the ledger the shell looks for")
             if PS_CMD:
                 env3 = fresh_env(root)
-                run(PS_CMD, post("Write", sid="ab:12//x", file_path=os.path.join(deals["11.4.26"], "RFQ.md"), content="x"), env3)
+                run(PS_CMD, post("Write", sid="ab:12//x", file_path=os.path.join(deals["11.4.26"], "RFQ.md"), content=rfq("sent")), env3)
                 check(os.path.exists(os.path.join(env3["TMPDIR"], "bbs-desk-learn", "ab-12-x.ledger")), "the PowerShell hook names the same ledger")
     finally:
         shutil.rmtree(root, ignore_errors=True)

@@ -1,12 +1,16 @@
 # desk-learn: a reminder to close the loop when a key change lands on a customer desk.
 #
 # The PowerShell half of desk-learn.py (read its header for the events, the once-per-deal-per-event-
-# per-session rule, the ledger and the Stop backstop). Same output on every input, proven by
-# hooks/tests/desk_learn_parity.py; change both or neither (invariant 3). Reminds only: exit 0,
-# never a block, never a write to a customer folder, never stderr. Fails open on anything unreadable.
+# per-session rule, the ledger, the subagent rule, the outcome close-out rule and the Stop backstop).
+# Same output on every input, proven by hooks/tests/desk_learn_parity.py; change both or neither
+# (invariant 3). Reminds only: exit 0, never a block, never a write to a customer folder, never
+# stderr. Fails open on anything unreadable.
 #
 # The one Stop switch is the environment variable BBS_DESK_LEARN_STOP: unset or "message" shows the
-# rep one line; "continue" lets the hook resume the turn once. Default is message-only.
+# rep one line; "continue" lets the hook resume the turn once. Default is message-only. The first Stop
+# after a key change only arms; a later Stop speaks.
+# Temp dir: the first of TMPDIR, TEMP, TMP that is set, else GetTempPath (which on Windows prefers TMP
+# over TEMP, unlike Python and the shell entry, so it is not trusted to pick).
 # Windows PowerShell 5.1 compatible. ASCII only (5.1 reads a script without a BOM as ANSI).
 
 $ErrorActionPreference = 'Stop'
@@ -14,25 +18,23 @@ $ErrorActionPreference = 'Stop'
 $TREE = "All RFQ's by Agency"
 $SENTINEL = '/bechtel/sentinel/'
 $MARKERS = 'bbs-desk-learn'
-$STATE_FRESH_SECONDS = 5
-$STOP_ENV = 'BBS_DESK_LEARN_STOP'
 
 $EVENTS = @{
-  'stage-sent'      = 'RFQ stage moved to sent'
-  'stage-outcome'   = 'RFQ stage moved to outcome'
+  'stage-sent'      = 'RFQ.md written at stage sent'
+  'stage-outcome'   = 'RFQ.md written at stage outcome'
   'quote-log'       = 'quote-log row added or Outcome set'
   'filled'          = 'new file in FILLED/'
   'award'           = 'PO, award or NOA file written'
   'sentinel-log'    = 'Sentinel quote-log appended'
   'sentinel-banner' = 'RFP status banner edited'
 }
-$REMINDER = 'Key change: {0} in {1}. Close the loop: ask the rep one question. Is there anything about this buyer or site to remember? If so, run `desk-remember` with their words. Did this deal teach a lesson? If so, propose one `lessons.md` line and append it on their yes.'
-$STOP_REASON = 'Key changes were made this session and nothing was captured or closed. Ask the rep one question, once: is there anything about this buyer or site to remember, or a lesson from this deal? If they give words, run `desk-remember` with them. If they say nothing, record it with `desk_memory.py close --none` through `bbs-fill`. Do not ask again.'
+$REMINDER = 'Key change: {0} in {1}. Close the loop: ask the rep one question. Anything about this buyer or site worth remembering, or a lesson from this deal? If they give words, run `desk-remember` with their own words. If they offer a lesson, show the one-line draft and append it to `learning/lessons.md` only on their yes (if the desk has no `lessons.md`, say so and write nothing). If they say nothing, run `desk_memory.py close --none`.'
+$STOP_REASON = 'Key changes were made this session and nothing was captured or closed. Ask the rep one question, once: anything about this buyer or site worth remembering, or a lesson from this deal? If they give words, run `desk-remember` with their own words. If they offer a lesson, show the one-line draft and append it to `learning/lessons.md` only on their yes (if the desk has no `lessons.md`, say so and write nothing). If they say nothing, run `desk_memory.py close --none`. Do not ask again.'
 $STOP_MESSAGE = 'bbs-sales: key changes were made this session and nothing was saved for next time. Tell Claude what to remember, or say there is nothing to remember, before you close.'
 
 $STAGE_RE = '(?m)^\*\*Stage:\*\*[ \t]*(.+?)[ \t]*\r?$'
 $DATA_ROW = '(?m)^\|[ \t]*(?:[0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{1,2}[./][0-9]{1,2}[./](?:[0-9]{2}|[0-9]{4}))[ \t]*\|'
-$BANNER = '(?m)^>[ \t]*\*\*Status'
+$BANNER = '(?m)^(?:>[ \t]*)?\*\*Status'
 $AWARD = '(?i)(?:^|[^A-Za-z])(?:PO|NOA|award|purchase[ _-]?order|notice[ _-]of[ _-]award)(?:[^A-Za-z]|$)'
 $SET_STAGE = @'
 rfq_record\.py["']?\s+set-stage\s+("[^"]*"|'[^']*'|\S+)\s+["']?(sent|outcome)["']?(?=\s|$)
@@ -41,11 +43,18 @@ $MEMORY_CAPTURE = @'
 desk_memory\.py["']?\s+(?:add|close)(?=\s|$)
 '@
 $APPEND_LOG = @'
->>[ \t]*(?:"([^"\n]*?quote-log\.md)"|'([^'\n]*?quote-log\.md)'|([^\s"';&|]*quote-log\.md))
+(?:>>|\btee[ \t]+-a)[ \t]*(?:"([^"\n]*?quote-log\.md)"|'([^'\n]*?quote-log\.md)'|([^\s"';&|]*quote-log\.md))
 '@
 $FILLED_TOKEN = '(?i)/FILLED/'
+$CLOSEOUT = '(?i)\bper BC\b|\bno order in BC\b|\[FLAG'
+$ABSOLUTE = '^(?:/|[A-Za-z]:/|~)'
 
 function Norm([string]$p) { return $p.Replace('\', '/') }
+
+function Get-Resolved([string]$n, [string]$cwd) {
+  if ($n -eq '' -or $cwd -eq '' -or [regex]::IsMatch($n, $ABSOLUTE)) { return $n }
+  return ($cwd.TrimEnd('/') + '/' + [regex]::Replace($n, '^\./', ''))
+}
 
 function Get-Safe([string]$s) {
   $r = [regex]::Replace($s, '[^A-Za-z0-9]+', '-').Trim('-')
@@ -75,7 +84,13 @@ function Get-FolderOf([string]$n) {
   return $d
 }
 
-function Get-TmpDir { return (Join-Path ([System.IO.Path]::GetTempPath()) $MARKERS) }
+function Get-TmpDir {
+  foreach ($v in 'TMPDIR', 'TEMP', 'TMP') {
+    $x = [Environment]::GetEnvironmentVariable($v)
+    if ($x) { return (Join-Path $x $MARKERS) }
+  }
+  return (Join-Path ([System.IO.Path]::GetTempPath()) $MARKERS)
+}
 
 function Read-Text([string]$path) {
   $b = [System.IO.File]::ReadAllBytes($path)
@@ -84,30 +99,61 @@ function Read-Text([string]$path) {
   return [System.Text.Encoding]::UTF8.GetString($b, $skip, $b.Length - $skip)
 }
 
-function Get-NewTexts([string]$tool, $inp) {
+function Get-StageOf([string]$text) {
+  $m = [regex]::Match($text, $STAGE_RE)
+  if ($m.Success) { return $m.Groups[1].Value.Trim().ToLowerInvariant() }
+  return $null
+}
+
+function Get-StagePath([string]$folder) { return (Join-Path (Get-TmpDir) ('stage--' + (Get-Safe $folder.ToLowerInvariant()))) }
+
+function Get-LastStage([string]$folder) {
+  try { return (Read-Text (Get-StagePath $folder)).Trim() } catch { return $null }
+}
+
+function Set-LastStage([string]$folder, [string]$st) {
+  try {
+    New-Item -ItemType Directory -Force -Path (Get-TmpDir) | Out-Null
+    [System.IO.File]::WriteAllText((Get-StagePath $folder), $st, (New-Object System.Text.UTF8Encoding($false)))
+  } catch { }
+}
+
+function Get-Pairs([string]$tool, $inp) {
   $out = New-Object System.Collections.ArrayList
-  if ($tool -eq 'Write') { [void]$out.Add([string]$inp.content) }
-  elseif ($tool -eq 'Edit') { [void]$out.Add([string]$inp.new_string) }
+  if ($tool -eq 'Edit') { [void]$out.Add(@([string]$inp.old_string, [string]$inp.new_string)) }
   elseif ($tool -eq 'MultiEdit') {
     if ($null -ne $inp.edits) {
-      foreach ($e in @($inp.edits)) { if ($null -ne $e) { [void]$out.Add([string]$e.new_string) } }
+      foreach ($e in @($inp.edits)) { if ($null -ne $e) { [void]$out.Add(@([string]$e.old_string, [string]$e.new_string)) } }
     }
   }
   return ,$out
 }
 
-function Get-StageMoved([string]$path) {
-  try { $m = [regex]::Match((Read-Text $path), $STAGE_RE) } catch { return $null }
-  if (-not $m.Success) { return $null }
-  $st = $m.Groups[1].Value.Trim().ToLowerInvariant()
-  if ($st -ne 'sent' -and $st -ne 'outcome') { return $null }
-  try {
-    $state = Join-Path (Split-Path -Parent ([System.IO.Path]::GetFullPath($path))) 'rfq-state.json'
-    $prev = [string]((Read-Text $state) | ConvertFrom-Json).stage
-    $age = ([DateTime]::UtcNow - (Get-Item -LiteralPath $state).LastWriteTimeUtc).TotalSeconds
-  } catch { return $st }
-  if ($prev -eq $st -and $age -gt $STATE_FRESH_SECONDS) { return $null }
-  return $st
+function Get-NewTexts([string]$tool, $inp) {
+  $out = New-Object System.Collections.ArrayList
+  if ($tool -eq 'Write') { [void]$out.Add([string]$inp.content) }
+  else { foreach ($p in (Get-Pairs $tool $inp)) { [void]$out.Add([string]$p[1]) } }
+  return ,$out
+}
+
+function Get-StageMoved([string]$tool, $inp, [string]$folder) {
+  $moved = $null
+  if ($tool -eq 'Write') {
+    $ns = Get-StageOf ([string]$inp.content)
+    if ($ns) {
+      if (($ns -eq 'sent' -or $ns -eq 'outcome') -and $ns -ne (Get-LastStage $folder)) { $moved = $ns }
+      Set-LastStage $folder $ns
+    }
+    return $moved
+  }
+  foreach ($p in (Get-Pairs $tool $inp)) {
+    $ns = Get-StageOf ([string]$p[1])
+    if ($ns) {
+      if (($ns -eq 'sent' -or $ns -eq 'outcome') -and $ns -ne (Get-StageOf ([string]$p[0]))) { $moved = $ns }
+      Set-LastStage $folder $ns
+    }
+  }
+  return $moved
 }
 
 function Get-LogEvent([string]$n) {
@@ -136,12 +182,16 @@ function Get-FileEvents([string]$tool, $inp) {
   if ($low.EndsWith('/learning/lessons.md')) { $script:capture = $true }
   $texts = Get-NewTexts $tool $inp
   if ($base -ceq 'RFQ.md' -and $ca) {
-    $st = Get-StageMoved $path
-    if ($st) { Add-Found ('stage-' + $st) (Get-FolderOf $n) }
+    $folder = Get-FolderOf $n
+    $st = Get-StageMoved $tool $inp $folder
+    if ($st) { Add-Found ('stage-' + $st) $folder }
   }
   elseif ($base -ceq 'quote-log.md') {
     $ev = Get-LogEvent $n
-    if ($ev -and (Test-AnyMatch $texts $DATA_ROW)) { Add-Found $ev (Get-FolderOf $n) }
+    if ($ev -and (Test-AnyMatch $texts $DATA_ROW)) {
+      if (Test-AnyMatch $texts $CLOSEOUT) { Add-Found 'closeout' (Get-FolderOf $n) }
+      else { Add-Found $ev (Get-FolderOf $n) }
+    }
   }
   elseif ($base -ceq 'CLAUDE.md' -and $sen) {
     $rest = $low.Substring($low.IndexOf($SENTINEL) + $SENTINEL.Length)
@@ -170,15 +220,16 @@ function Get-PrefixBefore([string]$s, [int]$idx) {
   return $s.Substring($start, $idx - $start)
 }
 
-function Get-BashEvents($inp) {
+function Get-BashEvents($inp, [string]$cwd) {
   $cmd = [string]$inp.command
   $ncmd = Norm $cmd
   if ([regex]::IsMatch($cmd, $MEMORY_CAPTURE)) { $script:capture = $true }
   $m = [regex]::Match($cmd, $SET_STAGE)
   if ($m.Success) {
-    $rfq = Norm ($m.Groups[1].Value.Trim([char]34, [char]39))
+    $rfq = Get-Resolved (Norm ($m.Groups[1].Value.Trim([char]34, [char]39))) $cwd
     $d = Get-Dir $rfq
     if ($d -eq '') { $d = 'RFQ' }
+    Set-LastStage $d $m.Groups[2].Value
     Add-Found ('stage-' + $m.Groups[2].Value) $d
   }
   if ($cmd.Contains('bbs-fill')) {
@@ -189,7 +240,7 @@ function Get-BashEvents($inp) {
     $g = $a.Groups[1].Value
     if ($g -eq '') { $g = $a.Groups[2].Value }
     if ($g -eq '') { $g = $a.Groups[3].Value }
-    $n = Norm $g
+    $n = Get-Resolved (Norm $g) $cwd
     $ev = Get-LogEvent $n
     if ($ev) { Add-Found $ev (Get-Dir $n) }
   }
@@ -217,47 +268,67 @@ function Invoke-PostTool($h) {
   $inp = $h.tool_input
   if ($null -eq $inp) { return $null }
   $tool = [string]$h.tool_name
+  $cwd = Norm ([string]$h.cwd)
   $script:found = New-Object System.Collections.ArrayList
   $script:capture = $false
-  if ($tool -eq 'Bash') { Get-BashEvents $inp }
+  if ($tool -eq 'Bash') { Get-BashEvents $inp $cwd }
   elseif ($tool -eq 'Write' -or $tool -eq 'Edit' -or $tool -eq 'MultiEdit') { Get-FileEvents $tool $inp }
   else { return $null }
   $sid = Get-Safe ([string]$h.session_id)
   if ($script:capture -and $sid -ne '') { Add-Ledger $sid 'C' }
-  $lines = New-Object System.Collections.ArrayList
+  $subagent = $false
+  if ($h.agent_id) { $subagent = $true }
+  $new = New-Object System.Collections.ArrayList
   foreach ($pair in $script:found) {
     $ev = $pair[0]
     $folder = Norm $pair[1]
-    $key = Get-Safe $folder.ToLowerInvariant()
-    $name = Get-CleanName (Get-Base $folder)
+    if ($ev -eq 'closeout') {
+      if ($sid -ne '') { Add-Ledger $sid "Q`tquote-log" }
+      continue
+    }
+    if ($subagent) {
+      if ($sid -ne '') { Add-Ledger $sid ("K`t" + $ev) }
+      continue
+    }
     if ($sid -ne '') {
-      $mk = Join-Path (Get-TmpDir) ($sid + '--' + $ev + '--' + $key)
+      $mk = Join-Path (Get-TmpDir) ($sid + '--' + $ev + '--' + (Get-Safe $folder.ToLowerInvariant()))
       if (Test-Path -LiteralPath $mk) { continue }
       New-Marker $mk
-      Add-Ledger $sid ("K`t" + $ev + "`t" + $name)
+      Add-Ledger $sid ("K`t" + $ev)
     }
-    if ($name -eq '') { $name = 'this folder' }
-    [void]$lines.Add(($REMINDER -f $EVENTS[$ev], $name))
+    [void]$new.Add(@($ev, $folder))
   }
-  if ($lines.Count -eq 0) { return $null }
-  $text = [string]::Join("`n", $lines.ToArray())
-  $esc = (Esc $text).Replace("`n", '\n')
-  return '{"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": "' + $esc + '"}}'
+  if ($new.Count -eq 0) { return $null }
+  if ($new.Count -eq 1) {
+    $name = Get-CleanName (Get-Base $new[0][1])
+    if ($name -eq '') { $name = 'this folder' }
+    $text = ($REMINDER -f $EVENTS[$new[0][0]], $name)
+  } else {
+    $evs = New-Object System.Collections.ArrayList
+    foreach ($p in $new) { if (-not $evs.Contains($EVENTS[$p[0]])) { [void]$evs.Add($EVENTS[$p[0]]) } }
+    $text = ($REMINDER -f ([string]::Join('; ', $evs.ToArray())), ([string]$new.Count + ' folders'))
+  }
+  return '{"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": "' + (Esc $text) + '"}}'
 }
 
-function Test-Pending([string]$sid) {
-  try { $text = Read-Text (Get-LedgerPath $sid) } catch { return $false }
+function Get-LedgerState([string]$sid) {
   $p = $false
+  $a = $false
+  try { $text = Read-Text (Get-LedgerPath $sid) } catch { return @($false, $false) }
   foreach ($l in [regex]::Split($text, '\r\n|\n|\r')) {
-    if ($l.StartsWith("K`t")) { $p = $true }
-    elseif ($l -ceq 'C') { $p = $false }
+    if ($l.StartsWith("K`t")) { $p = $true; $a = $false }
+    elseif ($l -ceq 'C') { $p = $false; $a = $false }
+    elseif ($l -ceq 'S' -and $p) { $a = $true }
   }
-  return $p
+  return @($p, $a)
 }
 
 function Invoke-Stop($h) {
   $sid = Get-Safe ([string]$h.session_id)
-  if ($sid -eq '' -or -not (Test-Pending $sid)) { return $null }
+  if ($sid -eq '') { return $null }
+  $st = Get-LedgerState $sid
+  if (-not $st[0]) { return $null }
+  if (-not $st[1]) { Add-Ledger $sid 'S'; return $null }
   $mk = Join-Path (Get-TmpDir) ($sid + '--stop')
   if (Test-Path -LiteralPath $mk) { return $null }
   $mode = ''
