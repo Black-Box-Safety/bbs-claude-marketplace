@@ -173,13 +173,12 @@ def chain(cwd, desks):
                 if os.path.isdir(below):
                     return [(below, "DESK-WIDE")]
         return []
-    if not (m.start == 0 or d[m.start - 1] in "/\\"):
-        return []           # the root's name sits inside a longer folder name: not the root
+    # The walk stops at the root folder nearest cwd (a path may name the root twice): a folder whose
+    # name is a root, i.e. a match that starts at a separator and ends where the folder ends.
+    ends = {x.end for x in desk_registry.find_all(d, desks) if x.start == 0 or d[x.start - 1] in "/\\"}
     out = []
     for n in range(MAX_UP):
-        if len(d) < m.end:
-            break
-        is_tree = len(d) == m.end
+        is_tree = len(d) in ends
         out.append((d, "DESK-WIDE" if is_tree else ("THIS FOLDER" if n == 0 else f"{n} UP")))
         if is_tree:
             return out

@@ -158,11 +158,15 @@ function Get-Chain([string]$cwd, $desks) {
     }
     return @()
   }
-  if (-not ($m.Start -eq 0 -or '/\'.IndexOf($d[$m.Start - 1]) -ge 0)) { return @() }   # the name sits inside a longer folder name
+  # The walk stops at the root folder nearest cwd (a path may name the root twice): a folder whose
+  # name is a root, i.e. a match that starts at a separator and ends where the folder ends.
+  $ends = @{}
+  foreach ($x in @(Find-BbsDeskRootAll -Path $d -Desks $desks)) {
+    if ($x.Start -eq 0 -or '/\'.IndexOf($d[$x.Start - 1]) -ge 0) { $ends[[int]$x.End] = $true }
+  }
   $out = New-Object System.Collections.ArrayList
   for ($n = 0; $n -lt $MAX_UP; $n++) {
-    if ($d.Length -lt $m.End) { break }
-    $isTree = ($d.Length -eq $m.End)
+    $isTree = $ends.ContainsKey([int]$d.Length)
     if ($isTree) { $label = 'DESK-WIDE' } elseif ($n -eq 0) { $label = 'THIS FOLDER' } else { $label = "$n UP" }
     [void]$out.Add([pscustomobject]@{ Dir = $d; Label = $label })
     if ($isTree) { return @($out) }
