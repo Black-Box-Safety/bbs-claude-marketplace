@@ -212,6 +212,18 @@ printout; neither sees the certification line or the tax, which is why the proof
 rep's. There is no Claude-rendered copy of the quote: the quote builder that made one was
 retired (Parker, in session, 2026-11-11), and BC's print is the only customer document.
 
+**Fetching BC's PDF of a released quote (read-only).** Once the rep has released the quote in BC
+and says so (the CA desk's "printed SQ-xxxxxx" text, `docs/channels/ca-desk-rules.md` "Quote PDF
+by text"; Parker, 2026-11-17), `scripts/bc_quote_pdf.py fetch SQ-xxxxxx --out <deal folder>
+--released-confirmed-by "<rep name>"` GETs BC's own PDF through the documented v2.0 navigation
+`salesQuotes({id})/pdfDocument/pdfDocumentContent` under the rep's delegated sign-in and saves
+`<Institution>_Quote_<SQ>.pdf` in the deal folder, printing the path and byte size. It writes
+nothing to BC and sends nothing. It refuses an expired quote, and a Draft one unless a named rep
+states it is released (the API reads Draft even for a released quote, so a Draft PDF with no tax
+is the failure to watch; the script prints BC's tax figure and flags zero). The R5 proof above is
+unchanged and stays the rep's: they read that PDF for `DVBE 2009473` only and for correct tax
+before it goes out, and a person sends it. This is BC's print, not a Claude-rendered copy.
+
 ## When sign-in or BC says no
 
 The table in `${CLAUDE_PLUGIN_ROOT}/skills/bc-item-entry/SKILL.md` applies verbatim; the
