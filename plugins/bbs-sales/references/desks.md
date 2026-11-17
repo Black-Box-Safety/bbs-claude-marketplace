@@ -8,7 +8,7 @@ File shape: `{"schema_version": 1, "desks": [ ... ]}`. Every desk has exactly th
 |---|---|---|
 | `desk_id` | Unique id, `^[a-z][a-z0-9-]*$`. | all loaders, `rfq_record.py`, `desk_memory.py` |
 | `kind` | `rfq` or `order`. Only `rfq` desks are searched by `find` and `find_all`. | `desks.py` |
-| `roots` | Non-empty list of folder-name roots. Matched case-insensitively (ASCII) anywhere in a path, `\` read as `/`. | `desks.py`, the guard hooks |
+| `roots` | Non-empty list of folder-name roots. Matched case-insensitively anywhere in a path, `\` read as `/`. Both loaders (`desks.py`, `Desks.ps1`) fold ASCII A-Z only. | `desks.py`, the guard hooks |
 | `deal_depth` | `[min, max]` folder levels below the root that hold a deal folder. | guard hooks, `rfq_record.py` |
 | `deal_name_rule` | How a deal folder is named. Only `date` is supported. | guard hooks |
 | `rep_min_depth` | Depth below the root at which the rep folder exists. | guard hooks, `rfq_record.py` |

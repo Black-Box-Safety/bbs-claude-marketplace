@@ -10,7 +10,8 @@ Builds one case list (paths to find, registries to load, the registry-path looku
 
 Find cases compare {desk_id, root, start, end} (or null; or a list for find_all). Load cases
 compare only "Error is null vs non-null" and the desk ids returned, never the error text.
-Offsets are code points, as Python counts them (Desks.ps1 converts from UTF-16).
+Python offsets are code points; Desks.ps1 returns native UTF-16 indices (for .Substring), and this harness converts them
+to code points, using the path itself, before comparing.
 
 When neither pwsh nor powershell is on PATH the PowerShell half is SKIPPED, not failed,
 unless BBS_REQUIRE_PS=1 is set (CI sets it, so CI proves parity rather than skipping it).
@@ -126,6 +127,8 @@ def build_cases(regs):
     find_all("accents", "default", n, [rec(CA, ROOT, 8, 27)])
     find("kelvin-before", "default", "/x/\u212a/All RFQ's by Agency/a.md", rec(CA, ROOT, 5, 24))
     find("astral-before", "default", "/x/\U0001F600/All RFQ's by Agency/a.md", rec(CA, ROOT, 5, 24))
+    find("folder-emoji", "default", "/x/\U0001F4C1/All RFQ's by Agency/a.md", rec(CA, ROOT, 5, 24))
+    find_all("folder-emoji", "default", "/x/\U0001F4C1/a/\U0001F4C1/All RFQ's by Agency/a.md", [rec(CA, ROOT, 9, 28)])
     find_all("astral-before", "default", "/x/\U0001F600/All RFQ's by Agency/a.md", [rec(CA, ROOT, 5, 24)])
     find("empty", "default", "", None)
     find_all("empty", "default", "", [])
@@ -244,6 +247,19 @@ def run_ps(spec_path, driver_path, env):
     return res
 
 
+def cp(path, i):
+    """UTF-16 index -> code-point index within path."""
+    return len(path.encode("utf-16-le")[:2 * i].decode("utf-16-le"))
+
+
+def ps_to_cp(op, v, path):
+    if op == "find" and v is not None:
+        return dict(v, start=cp(path, v["start"]), end=cp(path, v["end"]))
+    if op == "all":
+        return [dict(m, start=cp(path, m["start"]), end=cp(path, m["end"])) for m in v]
+    return v
+
+
 def norm(op, v):
     """Python-side shape of a load result for comparison with an expectation tuple."""
     if op == "load":
@@ -303,7 +319,9 @@ def main():
                 fails += 1
             else:
                 ps_fail = 0
-                for cid, op, _, _, _ in cases:
+                for cid, op, _, cpath, _ in cases:
+                    if cid in ps_out:
+                        ps_out[cid] = ps_to_cp(op, ps_out[cid], cpath)
                     if cid not in ps_out:
                         ps_fail += 1
                         print("FAIL powershell %s: no output" % cid)

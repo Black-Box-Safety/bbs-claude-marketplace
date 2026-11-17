@@ -1,3 +1,4 @@
+# Index convention: Start/End are native .NET (UTF-16) indices into the original $Path, ready for .Substring; callers wrap Find-BbsDeskRootAll in @(...).
 # Desk registry loader, PowerShell twin of scripts/desks.py. Dot-source it:  . "$PSScriptRoot\..\scripts\Desks.ps1"
 # PS 5.1-safe (no ?., no ternary, no -AsHashtable, no ConvertFrom-Json -Depth). Never throws from Get-BbsDesks.
 #
@@ -8,8 +9,8 @@
 #
 # Semantics match desks.py: '\' -> '/' on the path and on each root; ASCII-only case folding (Python's re.I|re.A,
 # so U+212A KELVIN SIGN is NOT a 'k'); only kind 'rfq' desks are searched; leftmost start wins, then the longer
-# root, then desk-then-root order; find_all is non-overlapping and ordered by start. Start and End are code-point
-# offsets (what Python counts), converted from .NET UTF-16 indexes.
+# root, then desk-then-root order; find_all is non-overlapping and ordered by start. Start and End are UTF-16 indices
+# (not Python's code points; desks_parity.py converts when comparing).
 
 $script:BbsDesksRoot = $PSScriptRoot
 
@@ -155,15 +156,6 @@ function ConvertTo-BbsAsciiLower([string]$s) {
   return $sb.ToString()
 }
 
-function Get-BbsCodePointIndex([string]$s, [int]$index) {
-  # UTF-16 index -> code-point index (Python counts code points). Each high surrogate before $index is half a pair.
-  $pairs = 0
-  for ($i = 0; $i -lt $index; $i++) {
-    if ([char]::IsHighSurrogate($s[$i])) { $pairs++ }
-  }
-  return ($index - $pairs)
-}
-
 function Add-BbsDeskMatches([string]$Path, [object[]]$Desks, $Into) {
   # Appends one record per root occurrence to the [ArrayList] $Into, in desk-then-root-then-position order.
   $s = ConvertTo-BbsAsciiLower ($Path.Replace('\', '/'))
@@ -185,7 +177,7 @@ function Add-BbsDeskMatches([string]$Path, [object[]]$Desks, $Into) {
 function ConvertTo-BbsDeskMatch($m, [string]$Path) {
   [pscustomobject]@{
     Desk = $m.Desk; Root = $m.Root
-    Start = (Get-BbsCodePointIndex $Path $m.Start); End = (Get-BbsCodePointIndex $Path $m.End)
+    Start = $m.Start; End = $m.End
   }
 }
 
