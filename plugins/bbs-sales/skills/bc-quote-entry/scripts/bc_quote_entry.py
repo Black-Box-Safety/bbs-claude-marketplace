@@ -10,7 +10,7 @@ spec, under the rep's own sign-in, with a named approval. The quote half of bc_i
 `check` reads Business Central and writes nothing. It proves the read path a commit would use
 (customers, items, salesQuotes, unitsOfMeasure), validates every field, gates on the customer
 (exists, unblocked) and on every line's item (exists, Inventory, unblocked; never created or
-patched here), duplicate-checks the external document number across sales quotes, checks that
+patched here; the one exception is the freight item SHIPPING, a Service item, sold at cost), duplicate-checks the external document number across sales quotes, checks that
 the lines sum to the total, writes `<spec>.review.md`, and prints the approval token (a hash of
 the spec file). `commit` refuses unless the token still matches the spec and --approved-by is
 the rep named on it, re-runs every gate, POSTs the header, PATCHes the ship-to with If-Match,
@@ -123,6 +123,11 @@ HEADER_READBACK = ("customerNumber", "customerName", "billToName", "shipToName",
                    "shipToCountry", "externalDocumentNumber", "documentDate", "validUntilDate",
                    "shortcutDimension1Code", "shortcutDimension2Code", "salesperson", "paymentTermsId",
                    "shipmentMethodId", "status")
+# Freight goes on its own line, on BC's existing SHIPPING item, at cost with no margin (Parker:
+# freight is a separate line at cost; quote-rules.md "lineType"). SHIPPING is a Service item in
+# BC, so it is the one non-Inventory item a quote line may carry. Allow-listed by number, not by
+# type: any other Service item still stops.
+FREIGHT_ITEMS = frozenset({"SHIPPING"})
 ITEM_MISSING = ("not in Business Central. Nothing is created or patched from here: enter it through "
                 "bc-item-entry (vendor, sourced cost, named review), then run check again.")
 
@@ -456,6 +461,10 @@ def validate_spec(spec, uoms):
                                 f"up. unitPrice {exact_text(ln.get('unitPrice'))} must be exactly "
                                 f"unitCost {exact_text(ln.get('unitCost'))}, with no fraction of a cent added. Set the price to the "
                                 f"cost, or if this is not a NASPO order, fix the contract")
+                elif num in FREIGHT_ITEMS and not at_cost(price, cost):
+                    errs.append(f"{tag}: {num} is freight, a separate line at cost with no margin. unitPrice "
+                                f"{exact_text(ln.get('unitPrice'))} must equal unitCost "
+                                f"{exact_text(ln.get('unitCost'))}")
                 elif at_cost(price, cost) and contract != "NASPO" and not (ln.get("zeroMarginOk") or spec_zero_ok):
                     errs.append(f"{tag}: unitPrice equals unitCost (0% margin); set zeroMarginOk: true on the line, or "
                                 f"on the spec when every line sells at cost by contract (Grainger on NASPO)")
@@ -566,7 +575,8 @@ def customer_gate(bc, header):
 
 
 def item_gate(bc, lines):
-    """Every line's item exists, is Inventory and unblocked. Read-only: nothing is created or patched.
+    """Every line's item exists, is Inventory (or the freight item SHIPPING, a Service item) and
+    unblocked. Read-only: nothing is created or patched.
     Returns (cards by number, errors, notes)."""
     cards, errs, notes = {}, [], []
     for ln in lines:
@@ -579,8 +589,13 @@ def item_gate(bc, lines):
             continue
         cards[num] = rb
         typ = norm(rb.get("type"))
-        if typ != "Inventory":
-            errs.append(f"item {num} ({rb.get('displayName')}) is type {typ}, not Inventory")
+        if num in FREIGHT_ITEMS:
+            if typ not in ("Inventory", "Service"):
+                errs.append(f"item {num} ({rb.get('displayName')}) is type {typ}; the freight item is a Service "
+                            f"item")
+        elif typ != "Inventory":
+            errs.append(f"item {num} ({rb.get('displayName')}) is type {typ}, not Inventory"
+                        + ("; only the freight item SHIPPING may be a Service item" if typ == "Service" else ""))
         if rb.get("blocked"):
             errs.append(f"item {num} ({rb.get('displayName')}) is blocked")
         card_cost = float(rb.get("unitCost") or 0)

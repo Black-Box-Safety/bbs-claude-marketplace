@@ -32,7 +32,8 @@ Vendor No., and create sales quotes and their lines. Nothing else, ever: no rele
 **Five gates, none of them yours to waive.**
 
 1. **Items exist.** Every line's item number is read from BC and must exist as Inventory,
-   unblocked. The script never creates or patches an item (SOP: never create an item as a
+   unblocked. The one exception is freight: its own line on BC's `SHIPPING` item (a
+   Service item), at cost with no margin and `zeroMarginOk` set. The script never creates or patches an item (SOP: never create an item as a
    side effect of quoting). A missing number stops with the instruction to enter it through
    `bc-item-entry` first.
 2. **Price has a basis.** Every line carries a cost greater than zero with the document it
@@ -144,7 +145,7 @@ the rep to run `/bbs-checkup` and send the result to Parker. Never run the scrip
 `python` or `python3` directly.
 
 It writes nothing in BC. It proves the read path, validates every field, looks the customer
-up (exists, unblocked), reads every line's item (exists, Inventory, unblocked; the card's
+up (exists, unblocked), reads every line's item (exists, Inventory or the freight item `SHIPPING`, unblocked; the card's
 cost is shown beside the spec's), duplicate-checks the external document number across sales
 quotes, confirms the lines sum to the total, writes `<spec>.review.md`, and prints an
 approval token that is a hash of the spec. Any failure is a stop with the reason; fix the

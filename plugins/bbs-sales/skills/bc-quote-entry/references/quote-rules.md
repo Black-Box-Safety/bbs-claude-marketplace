@@ -79,8 +79,8 @@ accepts them because they exist; the sheet names the code so the rep sees it.
 | Field | Value | Why |
 |---|---|---|
 | `sequence` | `line x 10000` **[script]** | Explicit sequence is accepted on POST and keeps BC's own spacing |
-| `lineType` | `Item` **[script]** | Every line is an item line; a freight line uses the existing `SHIPPING` item |
-| `lineObjectNumber` | the item number, which must already exist as Inventory and unblocked **[script]** | **Never create an item as a side effect of quoting** (SOP 4.4 rule 6). A missing number stops with the `bc-item-entry` instruction; this script has no create or patch path for items |
+| `lineType` | `Item` **[script]** | Every line is an item line; a freight line uses the existing `SHIPPING` item, at cost with no margin (`unitPrice` = `unitCost`, `zeroMarginOk` set off NASPO) **[script]** (Parker: freight is a separate line at cost) |
+| `lineObjectNumber` | the item number, which must already exist as Inventory and unblocked **[script]**; `SHIPPING` is a Service item and the only non-Inventory item allowed, by number, not by type | **Never create an item as a side effect of quoting** (SOP 4.4 rule 6). A missing number stops with the `bc-item-entry` instruction; this script has no create or patch path for items |
 | `description` | from the spec, 1-100 ASCII **[script]** | Overrides the card text on this quote only; carries the customer's tag or PO line. ASCII because downstream exports are (`SQ-104848` had to be patched for an em dash) |
 | `quantity`, `unitOfMeasureCode` | from the spec; the UoM must exist in BC **[script]** | |
 | `unitPrice` | from the spec, explicit, greater than zero **[script]** | SOP: a zero price means neither the item card nor customer pricing produced one and a human must. Explicit on every line so the card's price or a customer price list cannot slip in unseen |

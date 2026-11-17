@@ -167,6 +167,19 @@ class LineRules(unittest.TestCase):
     def test_price_below_cost_stops(self):
         self.assertTrue(any("below unitCost" in e for e in errors(self.line(unitPrice=80.0))))
 
+    def test_shipping_line_is_freight_at_cost_with_zero_margin_ok(self):
+        """Parker: freight is a separate line at cost, no margin."""
+        def with_freight(price, **flags):
+            s = spec()
+            s["lines"].append({"line": 2, "number": "SHIPPING", "description": "Freight", "qty": 1,
+                               "uom": "EA", "unitCost": 45.00, "unitPrice": price, **flags})
+            s["quoteTotalExclTax"] = round(2865.00 + price, 2)
+            return s
+        self.assertEqual(errors(with_freight(45.00, zeroMarginOk=True)), [])
+        self.assertTrue(any("0% margin" in e for e in errors(with_freight(45.00))))
+        self.assertTrue(any("SHIPPING is freight" in e for e in errors(with_freight(47.25, zeroMarginOk=True))))
+        self.assertTrue(any("SHIPPING is freight" in e for e in errors(with_freight(47.25))))
+
     def test_price_equal_cost_needs_zero_margin_ok(self):
         s = self.line(unitPrice=89.50)
         self.assertTrue(any("0% margin" in e for e in errors(s)))
@@ -540,6 +553,20 @@ class Gates(unittest.TestCase):
         _, errs, _ = m.item_gate(FakeBC(items={}), self.lines)
         self.assertEqual(len(errs), 1)
         self.assertIn("enter it through bc-item-entry", errs[0])
+
+    def test_shipping_is_the_one_service_item_allowed(self):
+        """BC's SHIPPING is a Service item; freight goes on it (quote-rules.md). Allow-listed by number."""
+        ship = [{"line": 2, "number": "SHIPPING", "unitCost": 45.0}]
+        bc = FakeBC(items={"SHIPPING": good_item("SHIPPING", type="Service", unitCost=0)})
+        cards, errs, _ = m.item_gate(bc, ship)
+        self.assertEqual(errs, [])
+        self.assertIn("SHIPPING", cards)
+        _, errs, _ = m.item_gate(FakeBC(items={"EX-6001": good_item(type="Service")}), self.lines)
+        self.assertTrue(any("type Service, not Inventory" in e and "only the freight item SHIPPING" in e
+                            for e in errs), errs)
+        _, errs, _ = m.item_gate(FakeBC(items={"SHIPPING": good_item("SHIPPING", blocked=True,
+                                                                     type="Service")}), ship)
+        self.assertTrue(any("is blocked" in e for e in errs))
 
     def test_item_type_and_blocked(self):
         _, errs, _ = m.item_gate(FakeBC(items={"EX-6001": good_item(type="Non_x002D_Inventory")}), self.lines)
