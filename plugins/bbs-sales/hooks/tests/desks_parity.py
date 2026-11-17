@@ -155,8 +155,10 @@ def build_cases(regs):
     cases.append(("load-default", "load", regs["default"], None, (True, [CA])))
     cases.append(("load-two", "load", regs["two"], None, (True, [CA, "test-desk"])))
     cases.append(("load-missing", "load", regs["missing"], None, BAD))
+    find("missing-fallback", "missing", "/x/All RFQ's by Agency/a", rec(CA, ROOT, 3, 22))
     cases.append(("regpath-env", "regpath", None, None, SENTINEL))
     cases.append(("regpath-default", "regpath_default", None, None, DEFAULT_REG))
+    cases.append(("load-env-quote", "load_env_quote", None, None, BAD))
     return cases
 
 
@@ -180,6 +182,10 @@ for c in spec["cases"]:
     elif op == "load":
         ds, err = desks.load(c["reg"])
         v = {"err_null": err is None, "ids": ",".join(d["desk_id"] for d in ds)}
+    elif op == "load_env_quote":
+        os.environ["BBS_DESKS_FILE"] = 'C:\\x"y.json'
+        ds, err = desks.load()
+        v = {"err_null": err is None, "ids": ",".join(d["desk_id"] for d in ds)}
     elif op == "regpath":
         v = desks.registry_path()
     elif op == "regpath_default":
@@ -195,7 +201,8 @@ $ErrorActionPreference = 'Stop'
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $spec = [System.IO.File]::ReadAllText($env:BBS_SPEC, $utf8) | ConvertFrom-Json
 function RecJson($m) {
-  return (@{ desk_id = $m.Desk.desk_id; root = $m.Root; start = $m.Start; end = $m.End } | ConvertTo-Json -Compress)
+  if (-not ($m.Desk -is [System.Management.Automation.PSCustomObject])) { return '{"desk_id":"<not-object>","root":"","start":-1,"end":-1}' }
+  return (@{ desk_id = $m.Desk.PSObject.Properties['desk_id'].Value; root = $m.Root; start = $m.Start; end = $m.End } | ConvertTo-Json -Compress)
 }
 foreach ($c in @($spec.cases)) {
   $op = $c.op
@@ -211,7 +218,17 @@ foreach ($c in @($spec.cases)) {
   } elseif ($op -eq 'load') {
     $d = Get-BbsDesks -Path $c.reg
     $ids = @()
-    foreach ($x in @($d.Desks)) { $ids += $x.desk_id }
+    foreach ($x in @($d.Desks)) {
+      if ($x -is [System.Management.Automation.PSCustomObject]) { $ids += $x.PSObject.Properties['desk_id'].Value } else { $ids += '<not-object>' }
+    }
+    $json = (@{ err_null = ($null -eq $d.Error); ids = ($ids -join ',') } | ConvertTo-Json -Compress)
+  } elseif ($op -eq 'load_env_quote') {
+    $env:BBS_DESKS_FILE = 'C:\x"y.json'
+    $d = Get-BbsDesks
+    $ids = @()
+    foreach ($x in @($d.Desks)) {
+      if ($x -is [System.Management.Automation.PSCustomObject]) { $ids += $x.PSObject.Properties['desk_id'].Value } else { $ids += '<not-object>' }
+    }
     $json = (@{ err_null = ($null -eq $d.Error); ids = ($ids -join ',') } | ConvertTo-Json -Compress)
   } elseif ($op -eq 'regpath') {
     $json = ConvertTo-Json (Get-BbsDeskRegistryPath)
@@ -262,7 +279,7 @@ def ps_to_cp(op, v, path):
 
 def norm(op, v):
     """Python-side shape of a load result for comparison with an expectation tuple."""
-    if op == "load":
+    if op in ("load", "load_env_quote"):
         return (v["err_null"], [i for i in v["ids"].split(",") if i])
     if op == "regpath_default":
         return os.path.normpath(v)

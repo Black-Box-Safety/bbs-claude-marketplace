@@ -31,7 +31,9 @@ function Get-BbsDeskRegistryPath {
 
 function Get-BbsFallbackDesks {
   # Fresh copy every call (the Python side deep-copies). @() because a one-element JSON array unrolls in the pipeline.
-  return ,@(ConvertFrom-Json $FALLBACK_JSON)
+  # 5.1 writes a JSON array as ONE object (no enumeration), so @() would nest it; 7 enumerates. ,@($parsed) is right on both.
+  $parsed = ConvertFrom-Json $FALLBACK_JSON
+  return ,@($parsed)
 }
 
 function Test-BbsInt($v) {
@@ -105,6 +107,13 @@ function Test-BbsDesksData($data) {
 function Get-BbsDesks {
   [CmdletBinding()]
   param([string]$Path)
+  try { return (Get-BbsDesksCore $Path) }
+  catch {
+    return [pscustomobject]@{ Desks = (Get-BbsFallbackDesks); Error = ('desks registry unreadable: ' + $_.Exception.GetType().Name + '; using built-in fallback') }
+  }
+}
+
+function Get-BbsDesksCore([string]$Path) {
   if ([string]::IsNullOrEmpty($Path)) { $Path = Get-BbsDeskRegistryPath }
   $name = [System.IO.Path]::GetFileName($Path)
 
