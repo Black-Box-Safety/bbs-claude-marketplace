@@ -236,6 +236,15 @@ def main():
             ("synthetic desk: overwrite FILLED denied",
              pre("Write", file_path=syn_packet, content="y"), "deny", two, None),
             ("synthetic root is not a desk under the default registry", syn_mv, "allow", None, None),
+            ("two desks in one command: synthetic first, CA near-duplicate still denied",
+             pre("Bash", command=f'mkdir "{syn}{sep}A{sep}x" && mkdir "{tree}{sep}CalTrans"'),
+             "deny", two, "near-duplicate of the existing folder"),
+            ("two desks in one command: CA first, synthetic second, CA near-duplicate denied",
+             pre("Bash", command=f'mkdir "{tree}{sep}CalTrans" && mkdir "{syn}{sep}A{sep}x"'),
+             "deny", two, "near-duplicate of the existing folder"),
+            ("two desks in one command: no near-duplicate anywhere allowed",
+             pre("Bash", command=f'mkdir "{syn}{sep}A{sep}Buyerr" && mkdir "{tree}{sep}Brand New Agency"'),
+             "allow", two, None),
         ]
         ctx = [
             ("session context has precedent and flags", start(mcsp),

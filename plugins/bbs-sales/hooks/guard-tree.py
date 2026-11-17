@@ -130,6 +130,14 @@ def near_duplicate(path, m):
     return None
 
 
+def desk_match(text, desk, desks):
+    """The first match in text that belongs to this desk (the leftmost, for a one-desk text), or None."""
+    for m in desk_registry.find_all(text, desks):
+        if m.desk is desk:
+            return m
+    return None
+
+
 def main():
     raw = sys.stdin.read()
     if not raw or not raw.strip():
@@ -152,21 +160,24 @@ def main():
         cmd = str(inp.get("command") or "")
         if not cmd:
             return 0
-        cm = desk_registry.find(cmd, desks)
-        if cm is None:
+        # Every desk the command names counts, not just the leftmost: a command that touches two
+        # desks gets each desk's own flags.
+        cms = desk_registry.find_all(cmd, desks)
+        if not cms:
             return 0
-        flags = cm.desk["guard"]
-        if flags["no_rename"] and re.search(r"(^|[\s;&|(])(mv|ren|rename|Rename-Item|Move-Item|git\s+mv)\b", cmd, I):
-            deny(f"Blocked: renaming or moving inside '{cm.root}' is never allowed -- folder names "
+        rename_cm = next((c for c in cms if c.desk["guard"]["no_rename"]), None)
+        filled_on = any(c.desk["guard"]["filled_immutable"] for c in cms)
+        if rename_cm is not None and re.search(r"(^|[\s;&|(])(mv|ren|rename|Rename-Item|Move-Item|git\s+mv)\b", cmd, I):
+            deny(f"Blocked: renaming or moving inside '{rename_cm.root}' is never allowed -- folder names "
                  f"carry Grainger account numbers and buyer identity (desk CLAUDE.md landmine 4). "
                  f"If a folder is truly misnamed, tell Parker.")
-        filled = flags["filled_immutable"] and re.search(r"[\\/]FILLED[\\/]", cmd, I) is not None
+        filled = filled_on and re.search(r"[\\/]FILLED[\\/]", cmd, I) is not None
         # Deletes anywhere near a FILLED path, or a redirect whose TARGET is inside FILLED.
         # Reading a packet (cat, pdftotext ... > elsewhere) stays allowed.
         if filled and re.search(r"(^|[\s;&|(])(rm|del|Remove-Item)\b", cmd, I):
             deny("Blocked: files under FILLED/ are submitted packets and immutable. Do not delete "
                  "them; save a new version alongside (e.g. -v2).")
-        if flags["filled_immutable"] and re.search(r'>{1,2}\s*("[^"]*[\\/]FILLED[\\/]|[^\s"|;&]*[\\/]FILLED[\\/])', cmd, I):
+        if filled_on and re.search(r'>{1,2}\s*("[^"]*[\\/]FILLED[\\/]|[^\s"|;&]*[\\/]FILLED[\\/])', cmd, I):
             deny("Blocked: redirecting output into FILLED/ would overwrite a submitted packet. "
                  "Write the new file alongside it (e.g. -v2).")
         # Write-only cmdlets and tee: a FILLED path anywhere in the command is the target.
@@ -174,34 +185,40 @@ def main():
             deny("Blocked: writing into FILLED/ would overwrite a submitted packet. Write the new "
                  "file alongside it (e.g. -v2).")
         # Copies: the LAST path token is the destination. Copying a packet OUT of FILLED is fine.
-        if flags["filled_immutable"] and re.search(r"(^|[\s;&|(])(cp|copy|Copy-Item|Move-Item|mv)\b", cmd, I):
+        if filled_on and re.search(r"(^|[\s;&|(])(cp|copy|Copy-Item|Move-Item|mv)\b", cmd, I):
             toks = [m.group(0).strip('"') for m in re.finditer(r'"[^"]+"|\S+', cmd)]
             paths = [t for t in toks if re.search(r"[\\/]", t) and not t.startswith("-")]
             dest = paths[-1] if paths else None
             if dest and re.search(r"[\\/]FILLED[\\/]", dest, I):
                 deny("Blocked: copying onto FILLED/ would overwrite a submitted packet. Copy to a "
                      "new name alongside it (e.g. -v2).")
-        if flags["near_duplicate"] and re.search(r"(^|[\s;&|(])(mkdir|md|New-Item)\b", cmd, I):
-            # [regex]::Match in the PowerShell version is case-SENSITIVE, unlike -match, so the
-            # quoted form is matched exactly here too; the unquoted fallback is -like, which is not.
-            m = re.search(r'"([^"]*' + re.escape(cm.root) + r'[^"]*)"', cmd)
-            tm = None
-            if m:
-                target = m.group(1)
-                tm = desk_registry.find(target, desks)
-            else:
-                target = None
-                for t in re.split(r"\s+", cmd):
-                    tm = desk_registry.find(t, desks)
-                    if tm is not None:
-                        target = t
-                        break
-            if target and tm is not None:
-                dup = near_duplicate(target, tm)
-                if dup:
-                    deny(f"Blocked: '{target}' is a near-duplicate of the existing folder '{dup}'. "
-                         f"Duplicate buyer folders hide precedent (landmine 1). Use the existing "
-                         f"folder, or ask Parker if this is genuinely a different buyer.")
+        if re.search(r"(^|[\s;&|(])(mkdir|md|New-Item)\b", cmd, I):
+            # One check per matched root whose desk has near_duplicate on. [regex]::Match in the
+            # PowerShell version is case-SENSITIVE, unlike -match, so the quoted form is matched
+            # exactly here too; the unquoted fallback is -like, which is not.
+            checked = set()
+            for c in cms:
+                if not c.desk["guard"]["near_duplicate"] or (c.desk["desk_id"], c.root) in checked:
+                    continue
+                checked.add((c.desk["desk_id"], c.root))
+                m = re.search(r'"([^"]*' + re.escape(c.root) + r'[^"]*)"', cmd)
+                tm = None
+                if m:
+                    target = m.group(1)
+                    tm = desk_match(target, c.desk, desks)
+                else:
+                    target = None
+                    for t in re.split(r"\s+", cmd):
+                        tm = desk_match(t, c.desk, desks)
+                        if tm is not None:
+                            target = t
+                            break
+                if target and tm is not None:
+                    dup = near_duplicate(target, tm)
+                    if dup:
+                        deny(f"Blocked: '{target}' is a near-duplicate of the existing folder '{dup}'. "
+                             f"Duplicate buyer folders hide precedent (landmine 1). Use the existing "
+                             f"folder, or ask Parker if this is genuinely a different buyer.")
         return 0
 
     if tool.lower() in ("write", "edit", "multiedit", "notebookedit"):

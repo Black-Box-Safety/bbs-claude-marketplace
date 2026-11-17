@@ -106,16 +106,30 @@ function NearDuplicate([string]$path, $m) {
   return $null
 }
 
+# The first match in $text that belongs to this desk (the leftmost, for a one-desk text), or $null.
+function DeskMatch([string]$text, $desk) {
+  foreach ($x in @(Find-BbsDeskRootAll -Path $text -Desks $desks)) {
+    if ([object]::ReferenceEquals($x.Desk, $desk)) { return $x }
+  }
+  return $null
+}
+
 switch ($tool) {
   { $_ -in 'Bash', 'PowerShell' } {
     $cmd = [string]$in.command
     if (-not $cmd) { exit 0 }
-    $cm = Find-BbsDeskRoot -Path $cmd -Desks $desks
-    if (-not $cm) { exit 0 }
-    $flags = $cm.Desk.guard
-    $filledOn = [bool]$flags.filled_immutable
-    if ($flags.no_rename -and $cmd -match '(^|[\s;&|(])(mv|ren|rename|Rename-Item|Move-Item|git\s+mv)\b') {
-      Deny "Blocked: renaming or moving inside '$($cm.Root)' is never allowed -- folder names carry Grainger account numbers and buyer identity (desk CLAUDE.md landmine 4). If a folder is truly misnamed, tell Parker."
+    # Every desk the command names counts, not just the leftmost: a command that touches two
+    # desks gets each desk's own flags.
+    $cms = @(Find-BbsDeskRootAll -Path $cmd -Desks $desks)
+    if ($cms.Count -eq 0) { exit 0 }
+    $renameCm = $null
+    $filledOn = $false
+    foreach ($c in $cms) {
+      if ($null -eq $renameCm -and $c.Desk.guard.no_rename) { $renameCm = $c }
+      if ($c.Desk.guard.filled_immutable) { $filledOn = $true }
+    }
+    if ($renameCm -and $cmd -match '(^|[\s;&|(])(mv|ren|rename|Rename-Item|Move-Item|git\s+mv)\b') {
+      Deny "Blocked: renaming or moving inside '$($renameCm.Root)' is never allowed -- folder names carry Grainger account numbers and buyer identity (desk CLAUDE.md landmine 4). If a folder is truly misnamed, tell Parker."
     }
     # Deletes anywhere near a FILLED path, or a redirect whose TARGET is inside FILLED. Reading
     # a packet (cat, pdftotext ... > elsewhere) stays allowed.
@@ -137,22 +151,30 @@ switch ($tool) {
         Deny "Blocked: copying onto FILLED/ would overwrite a submitted packet. Copy to a new name alongside it (e.g. -v2)."
       }
     }
-    if ($flags.near_duplicate -and $cmd -match '(^|[\s;&|(])(mkdir|md|New-Item)\b') {
-      $m = [regex]::Match($cmd, '"([^"]*' + [regex]::Escape($cm.Root) + '[^"]*)"')
-      $target = $null
-      $tm = $null
-      if ($m.Success) {
-        $target = $m.Groups[1].Value
-        $tm = Find-BbsDeskRoot -Path $target -Desks $desks
-      } else {
-        foreach ($t in ($cmd -split '\s+')) {
-          $tm = Find-BbsDeskRoot -Path $t -Desks $desks
-          if ($tm) { $target = $t; break }
+    if ($cmd -match '(^|[\s;&|(])(mkdir|md|New-Item)\b') {
+      # One check per matched root whose desk has near_duplicate on.
+      $checked = @{}
+      foreach ($c in $cms) {
+        if (-not $c.Desk.guard.near_duplicate) { continue }
+        $ck = [string]$c.Desk.desk_id + '|' + [string]$c.Root
+        if ($checked.ContainsKey($ck)) { continue }
+        $checked[$ck] = $true
+        $m = [regex]::Match($cmd, '"([^"]*' + [regex]::Escape($c.Root) + '[^"]*)"')
+        $target = $null
+        $tm = $null
+        if ($m.Success) {
+          $target = $m.Groups[1].Value
+          $tm = DeskMatch $target $c.Desk
+        } else {
+          foreach ($t in ($cmd -split '\s+')) {
+            $tm = DeskMatch $t $c.Desk
+            if ($tm) { $target = $t; break }
+          }
         }
-      }
-      if ($target -and $tm) {
-        $dup = NearDuplicate $target $tm
-        if ($dup) { Deny "Blocked: '$target' is a near-duplicate of the existing folder '$dup'. Duplicate buyer folders hide precedent (landmine 1). Use the existing folder, or ask Parker if this is genuinely a different buyer." }
+        if ($target -and $tm) {
+          $dup = NearDuplicate $target $tm
+          if ($dup) { Deny "Blocked: '$target' is a near-duplicate of the existing folder '$dup'. Duplicate buyer folders hide precedent (landmine 1). Use the existing folder, or ask Parker if this is genuinely a different buyer." }
+        }
       }
     }
     exit 0

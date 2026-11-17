@@ -233,6 +233,14 @@ $o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{
 Check 'synthetic desk: near-duplicate folder allowed (flag off)' (Decision $o) 'allow'
 $o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Write'; tool_input=@{ file_path = $synPacket; content='y' } }
 Check 'synthetic desk: overwrite FILLED denied' (Decision $o) 'deny'
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "mkdir `"$syn/A/x`" && mkdir `"$tree/CalTrans`"" } }
+Check 'two desks in one command: synthetic first, CA near-duplicate denied' (Decision $o) 'deny'
+Check 'two desks in one command: synthetic first, reason names the near-duplicate' ($o -match 'near-duplicate of the existing folder') $true
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "mkdir `"$tree/CalTrans`" && mkdir `"$syn/A/x`"" } }
+Check 'two desks in one command: CA first, CA near-duplicate denied' (Decision $o) 'deny'
+Check 'two desks in one command: CA first, reason names the near-duplicate' ($o -match 'near-duplicate of the existing folder') $true
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "mkdir `"$syn/A/Buyerr`" && mkdir `"$tree/Brand New Agency`"" } }
+Check 'two desks in one command: no near-duplicate anywhere allowed' (Decision $o) 'allow'
 Remove-Item Env:BBS_DESKS_FILE -ErrorAction SilentlyContinue
 $o = Run $guard $synMv
 Check 'synthetic root is not a desk under the default registry' (Decision $o) 'allow'
