@@ -33,7 +33,7 @@ Vendor No., and create sales quotes and their lines. Nothing else, ever: no rele
 
 1. **Items exist.** Every line's item number is read from BC and must exist as Inventory,
    unblocked. The one exception is freight: its own line on BC's `SHIPPING` item (a
-   Service item), at cost with no margin and `zeroMarginOk` set. The script never creates or patches an item (SOP: never create an item as a
+   Service item), 1 EA at cost with no margin, and `zeroMarginOk` set off NASPO. The script never creates or patches an item (SOP: never create an item as a
    side effect of quoting). A missing number stops with the instruction to enter it through
    `bc-item-entry` first.
 2. **Price has a basis.** Every line carries a cost greater than zero with the document it

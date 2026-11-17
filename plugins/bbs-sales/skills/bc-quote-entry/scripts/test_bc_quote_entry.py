@@ -180,6 +180,18 @@ class LineRules(unittest.TestCase):
         self.assertTrue(any("SHIPPING is freight" in e for e in errors(with_freight(47.25, zeroMarginOk=True))))
         self.assertTrue(any("SHIPPING is freight" in e for e in errors(with_freight(47.25))))
 
+    def test_spec_schema_example_passes_the_check_and_puts_freight_on_shipping(self):
+        doc = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "references", "spec-schema.md")
+        with open(doc, encoding="utf-8") as f:
+            text = f.read()
+        example = json.loads(text.split("## Example", 1)[1].split("```json", 1)[1].split("```", 1)[0])
+        header, lines, errs, _ = m.validate_spec(example, UOMS)
+        self.assertEqual(errs, [])
+        freight = [ln for ln in lines if ln["number"] in m.FREIGHT_ITEMS]
+        self.assertEqual(len(freight), 1)
+        self.assertTrue(freight[0]["atCost"])
+        self.assertNotIn("freight", lines[0]["description"].lower())
+
     def test_price_equal_cost_needs_zero_margin_ok(self):
         s = self.line(unitPrice=89.50)
         self.assertTrue(any("0% margin" in e for e in errors(s)))
@@ -567,6 +579,16 @@ class Gates(unittest.TestCase):
         _, errs, _ = m.item_gate(FakeBC(items={"SHIPPING": good_item("SHIPPING", blocked=True,
                                                                      type="Service")}), ship)
         self.assertTrue(any("is blocked" in e for e in errs))
+
+    def test_shipping_unit_is_its_base_unit_and_its_card_cost_is_not_a_note(self):
+        card = good_item("SHIPPING", type="Service", unitCost=1, baseUnitOfMeasureCode="EA")
+        ok = [{"line": 2, "number": "SHIPPING", "uom": "EA", "unitCost": 45.0}]
+        _, errs, notes = m.item_gate(FakeBC(items={"SHIPPING": card}), ok)
+        self.assertEqual((errs, notes), ([], []))
+        two = ok + [{"line": 3, "number": "SHIPPING", "uom": "CS", "unitCost": 12.0}]
+        _, errs, _ = m.item_gate(FakeBC(items={"SHIPPING": card}), two)
+        self.assertEqual(len(errs), 1)
+        self.assertIn("line 3 SHIPPING: uom CS is not the freight item's base unit EA", errs[0])
 
     def test_item_type_and_blocked(self):
         _, errs, _ = m.item_gate(FakeBC(items={"EX-6001": good_item(type="Non_x002D_Inventory")}), self.lines)

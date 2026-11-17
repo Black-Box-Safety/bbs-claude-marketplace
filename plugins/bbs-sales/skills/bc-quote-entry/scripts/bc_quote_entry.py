@@ -602,10 +602,18 @@ def item_gate(bc, lines):
         card_price = float(rb.get("unitPrice") or 0)
         print(f"  {num:20} EXISTS  {str(rb.get('displayName'))[:50]!r}  card cost {money(card_cost):>10}  "
               f"card price {money(card_price):>10}  {typ}{'  BLOCKED' if rb.get('blocked') else ''}")
-        if abs(card_cost - ln["unitCost"]) > 0.005:
+        # The freight card's cost is a placeholder shared by every quote; never ask the rep to update it.
+        if num not in FREIGHT_ITEMS and abs(card_cost - ln["unitCost"]) > 0.005:
             notes.append(f"line {ln['line']} {num}: card cost {money(card_cost)} differs from the spec's cost "
                          f"{money(ln['unitCost'])} ({'card is 0' if card_cost == 0 else 'the card is not patched here'}; "
                          f"the rep updates the card in BC if wanted)")
+    for ln in lines:   # every freight line, not only the first: its unit is the card's base unit
+        rb = cards.get(ln["number"])
+        if ln["number"] in FREIGHT_ITEMS and rb:
+            base = str(rb.get("baseUnitOfMeasureCode") or "").strip().upper()
+            if base and ln.get("uom") != base:
+                errs.append(f"line {ln['line']} {ln['number']}: uom {ln.get('uom')} is not the freight item's base "
+                            f"unit {base}; quote freight as 1 {base} at the freight cost")
     return cards, errs, notes
 
 
