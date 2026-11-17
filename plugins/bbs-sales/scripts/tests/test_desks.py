@@ -65,6 +65,16 @@ class TestLoad(unittest.TestCase):
         self.assertIn("desks.json", err)
         self.assertNotIn("\n", err)
 
+    def test_load_deeply_nested_json_falls_back(self):
+        # json.load raises RecursionError, not ValueError, on this; load() must still not raise
+        # and must name the same "invalid JSON" kind desk-context's error line cuts on.
+        bad = self._tmp("[" * 100000)
+        desks, err = desks_mod.load(bad)
+        self.assertEqual(desks, desks_mod.FALLBACK)
+        self.assertIn("invalid JSON", err)
+        self.assertIn("desks.json", err)
+        self.assertNotIn("\n", err)
+
     def test_load_missing_file_falls_back(self):
         desks, err = desks_mod.load("/no/such/dir/desks.json")
         self.assertEqual(desks, desks_mod.FALLBACK)

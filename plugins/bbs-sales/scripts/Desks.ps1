@@ -14,8 +14,8 @@
 
 $script:BbsDesksRoot = $PSScriptRoot
 
-# Must equal FALLBACK in desks.py as JSON (Task 10's checker compares them). The apostrophe is written ' so the
-# literal needs no quote doubling.
+# Must equal FALLBACK in desks.py as JSON (check_marketplace.py compares them). The literal is single-quoted, so the
+# apostrophe in All RFQ's by Agency is written as the JSON escape \u0027 and needs no quote doubling.
 $FALLBACK_JSON = '[{"desk_id":"ca-state","kind":"rfq","roots":["All RFQ\u0027s by Agency"],"deal_depth":[2,3],"deal_name_rule":"date","rep_min_depth":2,"guard":{"no_rename":true,"near_duplicate":true,"filled_immutable":true},"record_profile":"ca-v2"}]'
 
 $script:BbsDeskKeys = @('desk_id', 'kind', 'roots', 'deal_depth', 'deal_name_rule', 'rep_min_depth', 'guard', 'record_profile')

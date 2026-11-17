@@ -93,6 +93,8 @@ def load(path=None):
         return copy.deepcopy(FALLBACK), "%s not found (%s); using built-in fallback" % (name, p)
     except (OSError, UnicodeDecodeError) as e:
         return copy.deepcopy(FALLBACK), "%s unreadable (%s): %s; using built-in fallback" % (name, p, type(e).__name__)
+    except RecursionError:
+        return copy.deepcopy(FALLBACK), "%s invalid JSON (%s): nesting too deep; using built-in fallback" % (name, p)
     except ValueError as e:
         return copy.deepcopy(FALLBACK), "%s invalid JSON (%s): %s; using built-in fallback" % (name, p, str(e).splitlines()[0])
     err = _check(data)

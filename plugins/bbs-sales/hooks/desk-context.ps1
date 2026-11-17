@@ -1,6 +1,10 @@
 # Quote-desk buyer context, two events:
 #   SessionStart  cwd inside the desk tree: put that buyer's newest quote-log rows and open FLAGS
-#                 entries in front of Claude before the first prompt.
+#                 entries in front of Claude before the first prompt. Separately, on any SessionStart
+#                 whose cwd exists, whether or not it is inside a desk tree, if the desk registry
+#                 could not be read (not found, unreadable, invalid JSON, schema error), one final
+#                 line says so and that only the built-in California desk is active. This is the only
+#                 hook that reports a broken registry; the others silently use the California desk.
 #   PostToolUse   first Write/Edit inside a dated deal folder (<Agency>/<Buyer>/<Item M.D.YY>/ or
 #                 <Agency>/<Institution>/<Buyer>/<Item M.D.YY>/): the same rows and flags, the
 #                 buyer's CLAUDE.md / quote-log.md / FLAGS.md named as the files to keep current,

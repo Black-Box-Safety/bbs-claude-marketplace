@@ -13,7 +13,10 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
 
-import desks as desks_mod  # the desk registry loader, beside this file
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+import desks as desks_mod  # noqa: E402  the desk registry loader, beside this file (path set just above)
 
 SCHEMA_VERSION = 2
 
