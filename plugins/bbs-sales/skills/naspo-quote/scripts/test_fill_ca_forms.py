@@ -747,6 +747,34 @@ def test_agency_prefilled_values_are_kept_and_never_overwritten_silently():
         assert not code, (code, err)
 
 
+def test_empty_text_in_replace_prefilled_clears_the_field():
+    """`""` blanks a stale agency value (DAPO SQ-105512 used `" "` as a workaround,
+    because PyMuPDF ignores an empty field_value). Without replace_prefilled it is
+    still refused, like any other change to a pre-filled field."""
+    if _needs_fitz():
+        return
+    import fitz as real
+    pages = {"c.pdf": [(_header("OBS4007C"), [("Buyer Name", "text", "Stale Buyer"),
+                                              ("Bidder Signature", "text", "")])]}
+    base = {"form": "OBS4007C", "src": "c.pdf", "out": "c-out.pdf",
+            "sign": {"Bidder Signature": {"who": "parker"}}, "text": {"Buyer Name": ""}}
+    with tempfile.TemporaryDirectory() as d:
+        spec = _real_spec(d, [dict(base, replace_prefilled={"Buyer Name": "rep: stale"})],
+                          pages)
+        code, _out, err = _run_real(spec, d)
+        assert not code, (code, err)
+        out_pdf = os.path.join(spec["out_dir"], "c-out.pdf")
+        _n, values = _images_on(out_pdf)
+        assert values["Buyer Name"] == "", values
+        doc = real.open(out_pdf)
+        assert "Stale Buyer" not in doc[0].get_text(), doc[0].get_text()
+        doc.close()
+    with tempfile.TemporaryDirectory() as d:
+        spec = _real_spec(d, [base], pages)
+        code, _out, _err = _run_real(spec, d)
+        assert code and "already holds 'Stale Buyer'" in str(code), code
+
+
 def _packet_pages():
     return {"k.pdf": [
         (_header("OBS4007C"), [("Bidder Signature", "text", "")]),
