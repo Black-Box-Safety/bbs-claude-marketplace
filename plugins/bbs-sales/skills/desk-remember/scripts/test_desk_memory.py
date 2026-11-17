@@ -475,7 +475,12 @@ def main():
         check(desk_memory.POINTER_PATTERN == hook_mod.POINTER and pm and pm.group(1) == desk_memory.POINTER_PATTERN,
               "all three carry the same POINTER pattern")
         check(all(ord(c) < 128 for c in ps), "desk-memory.ps1 is ASCII (Windows PowerShell 5.1 reads it as ANSI)")
-        check(f'TREE = "{desk_memory.DESKS["ca-state"]["tree"]}"' in py and f'$TREE = "{desk_memory.DESKS["ca-state"]["tree"]}"' in ps
+        # The hooks no longer carry the tree name: they find it through the desk registry. The
+        # registry's ca-state root must still be the tree the writer writes under.
+        with open(os.path.join(HOOKS, "..", "references", "desks.json"), encoding="utf-8") as fh:
+            ca_desk = [d for d in json.load(fh)["desks"] if d["desk_id"] == "ca-state"][0]
+        check(ca_desk["roots"][0] == desk_memory.DESKS["ca-state"]["tree"]
+              and "desk_registry.find" in py and "Find-BbsDeskRoot" in ps
               and f'FILE = "{desk_memory.DESKS["ca-state"]["file"]}"' in py, "the hooks read the tree and file the writer writes")
         check(hook_mod.CONFLICT.pattern == desk_memory.CONFLICT_PATTERN and f"$CONFLICT = '{desk_memory.CONFLICT_PATTERN}'" in ps,
               "writer and both hooks agree on the conflict-copy pattern (which leaves the archive and its copies out)")

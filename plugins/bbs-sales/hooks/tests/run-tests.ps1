@@ -237,6 +237,31 @@ Remove-Item Env:BBS_DESKS_FILE -ErrorAction SilentlyContinue
 $o = Run $guard $synMv
 Check 'synthetic root is not a desk under the default registry' (Decision $o) 'allow'
 
+# 19. desk-context on the registry: the synthetic desk's precedent block, and the registry-error
+#     line (SessionStart only, final line) for a registry that cannot be read.
+$synBuyer = Join-Path (Join-Path $syn 'A') 'Buyer'
+Set-Content -Path (Join-Path $synBuyer 'quote-log.md') -Value @(
+  '| Date | Item | Quote# | Vehicle | Value | Outcome |',
+  '|---|---|---|---|---|---|',
+  '| 2026-05-06 | Synthetic cones | SQ-7001 | OPEN | 12 | won |'
+)
+$env:BBS_DESKS_FILE = $two
+$o = Run $ctx @{ hook_event_name='SessionStart'; source='startup'; cwd = $synBuyer }
+Check 'synthetic desk: session context has precedent' ($o -match 'PRECEDENT' -and $o -match 'SQ-7001' -and $o -notmatch 'registry could not be read') $true
+Remove-Item Env:BBS_DESKS_FILE -ErrorAction SilentlyContinue
+$o = Run $ctx @{ hook_event_name='SessionStart'; source='startup'; cwd = $synBuyer }
+Check 'synthetic desk: session context silent under the default registry' ($o -eq '') $true
+$badReg = Join-Path $root 'bad-desks.json'
+[IO.File]::WriteAllText($badReg, '{"schema_version": 1, "desks": [')
+$regLine = 'bbs-sales: the desk registry could not be read (bad-desks.json invalid JSON); only the built-in California desk is active.'
+$plain = Run $ctx @{ hook_event_name='SessionStart'; source='startup'; cwd = $mcsp }
+$env:BBS_DESKS_FILE = $badReg
+$o = Run $ctx @{ hook_event_name='SessionStart'; source='startup'; cwd = $mcsp }
+Check 'registry_error_line: CA output plus the final line' (($plain -ne '') -and ($o.Replace("`r`n", "`n") -ceq ($plain.Replace("`r`n", "`n") + "`n" + $regLine))) $true
+$o = RunPost (Join-Path (Join-Path $joe '9.14.26') 'form.pdf') 's1'
+Check 'registry_error_line: PostToolUse prints no line' (($o -ne '') -and ($o -notmatch 'registry could not be read')) $true
+Remove-Item Env:BBS_DESKS_FILE -ErrorAction SilentlyContinue
+
 Remove-Item -Recurse -Force $root
 Write-Host ""
 if ($fails -eq 0) { Write-Host "ALL PASS"; exit 0 } else { Write-Host "$fails FAILED"; exit 1 }

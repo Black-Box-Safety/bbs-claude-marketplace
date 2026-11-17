@@ -222,6 +222,11 @@ def main():
         os.makedirs(os.path.join(syn, "A", "Buyer"))
         syn_packet = os.path.join(syn_b, "FILLED", "p.pdf")
         write(syn_packet, ["x"])
+        syn_buyer = os.path.join(syn, "A", "Buyer")
+        write(os.path.join(syn_buyer, "quote-log.md"), [
+            "| Date | Item | Quote# | Vehicle | Value | Outcome |",
+            "|---|---|---|---|---|---|",
+            "| 2026-05-06 | Synthetic cones | SQ-7001 | OPEN | 12 | won |"])
         syn_mv = pre("Bash", command=f'mv "{syn_b}" "{syn}{sep}A{sep}C"')
         two = os.path.join(FIXTURES, "desks-two.json")
         guard_env = [
@@ -363,6 +368,47 @@ def main():
                 prc, pout, perr = run_ps("desk-context", payload)
                 check(prc == 0 and perr == "" and ctx_norm(pout) == o, name + " [parity]",
                       f"ps rc={prc} ps={ctx_norm(pout)[:120]!r} py={o[:120]!r} err={perr.strip()[:200]!r}")
+        # Registry-driven desk-context: a synthetic desk selected through BBS_DESKS_FILE gets the same
+        # precedent block the CA fixture does; the default registry does not know it; a registry that
+        # cannot be read leaves the CA output as it was, with one final line on SessionStart only.
+        bad_reg = os.path.join(_scratch[0], "bad-desks.json")
+        with open(bad_reg, "w", encoding="utf-8") as fh:
+            fh.write('{"schema_version": 1, "desks": [')
+        reg_line = ("bbs-sales: the desk registry could not be read (bad-desks.json invalid JSON); "
+                    "only the built-in California desk is active.")
+
+        def with_reg(regfile):
+            v = fresh_env()
+            v.pop("BBS_DESKS_FILE", None)
+            if regfile:
+                v["BBS_DESKS_FILE"] = regfile
+            return v
+
+        ca_plain = ctx_norm(run_py("desk-context", start(mcsp), with_reg(None))[1])
+        ctx_env = [
+            ("synthetic desk: session context has precedent", start(syn_buyer), two,
+             lambda o: "PRECEDENT" in o and "SQ-7001" in o and "Synthetic cones" in o and "registry could not be read" not in o),
+            ("synthetic desk: session context silent under the default registry", start(syn_buyer), None, lambda o: o == ""),
+            ("registry_error_line: CA output plus the final line", start(mcsp), bad_reg,
+             lambda o: ca_plain != "" and o == ca_plain + "\n" + reg_line),
+            ("registry_error_line: a valid registry prints no line", start(mcsp), two, lambda o: o == ca_plain),
+        ]
+        for name, payload, regfile, pred in ctx_env:
+            rc, out, err = run_py("desk-context", payload, with_reg(regfile))
+            o = ctx_norm(out)
+            check(rc == 0 and err == "" and pred(o), name, f"py rc={rc} out={o[:200]!r} err={err.strip()!r}")
+            if PS:
+                prc, pout, perr = run_ps("desk-context", payload, with_reg(regfile))
+                check(prc == 0 and perr == "" and ctx_norm(pout) == o, name + " [parity]",
+                      f"ps rc={prc} ps={ctx_norm(pout)[:200]!r} py={o[:200]!r} err={perr.strip()[:200]!r}")
+        # No other event prints the error: PostToolUse (first write and first touch) stays as it was.
+        for label, runner in (("py", run_py), ("ps", run_ps)):
+            if label == "ps" and not PS:
+                continue
+            plain = runner("desk-context", post(joe_deal), with_reg(None))[1]
+            broken = runner("desk-context", post(joe_deal), with_reg(bad_reg))[1]
+            check(plain != "" and broken == plain and "registry could not be read" not in broken,
+                  f"registry_error_line: PostToolUse output is unchanged [{label}]", f"plain={plain[:120]!r} broken={broken[:120]!r}")
         for name, payload, pred in sessions:
             rc, out, err = run_py("desk-context", payload, fresh_env())
             o = ctx_norm(out)

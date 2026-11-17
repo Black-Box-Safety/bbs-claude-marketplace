@@ -27,7 +27,9 @@ import re
 import sys
 import tempfile
 
-TREE = "All RFQ's by Agency"
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scripts"))
+import desks as desk_registry  # noqa: E402  (path set just above)
+
 BUYER_FILES = ("CLAUDE.md", "quote-log.md", "FLAGS.md")
 STALE_DAYS = 30
 DEAL_START = re.compile(r"^\s*[0-9]{1,2}\.[0-9]{1,2}\.(?:[0-9]{2}|[0-9]{4})(?![0-9])")
@@ -45,7 +47,6 @@ CLOSED = re.compile(r"^(closed|resolved)\b", re.I)
 BULLET = re.compile(r"^\s*[-*]\s+(.*)$")
 BULLET_DONE = re.compile(r"^(\[x\]|~~|closed\b|resolved\b)", re.I)
 LEAD_MARKUP = re.compile(r"^[`*_ ]+")
-TREE_RE = re.compile(re.escape(TREE), re.I | re.A)
 
 
 def split_lines(text):
@@ -180,8 +181,9 @@ def flags_block(path):
     return [f"OPEN FLAGS -- {path} (latest; do not repeat these mistakes):"] + ents
 
 
-def session_start(d):
-    if TREE.lower() not in d.lower():
+def session_start(d, desks):
+    m = desk_registry.find(d, desks)
+    if m is None:
         return []
     out = []
     for _ in range(5):
@@ -195,33 +197,49 @@ def session_start(d):
             out.extend(flags_block(fl))
         if out:
             break
+        if len(d) <= m.end:
+            break               # the desk's root folder is the top of the walk
         parent = os.path.dirname(d)
-        if parent == d:
+        if parent == d or len(parent) < m.end:
             break
         d = parent
     return out
 
 
-def locate(path):
+def registry_error_line(err):
+    """The one line SessionStart adds when the desk registry could not be read. The parser's own
+    wording differs between Python and PowerShell, so it is cut; the file name and the kind stay."""
+    reason = err
+    tail = "; using built-in fallback"
+    if reason.endswith(tail):
+        reason = reason[:-len(tail)]
+    reason = re.sub(r"(?s)^(.*? (?:invalid JSON|unreadable)) \(.*$", r"\1", reason)
+    return f"bbs-sales: the desk registry could not be read ({reason}); only the built-in California desk is active."
+
+
+def locate(path, desks):
     """(buyer_dir, buyer_rel, deal_name) when path is a file inside a dated deal folder, else None."""
     end = -1
-    for m in TREE_RE.finditer(path):
-        a, b = m.start(), m.end()
+    desk = None
+    for m in desk_registry.find_all(path, desks):
+        a, b = m.start, m.end
         if (a == 0 or path[a - 1] in "/\\") and b < len(path) and path[b] in "/\\":
             end = b
+            desk = m.desk
             break
     if end < 0:
         return None
+    lo, hi = desk["deal_depth"]
     sep = path[end]
     comps = [c for c in re.split(r"[\\/]+", path[end + 1:]) if c != ""]
-    if len(comps) < 4 or any(c.startswith(".") for c in comps):
+    if len(comps) < lo + 2 or any(c.startswith(".") for c in comps):
         return None
     j = -1
     for k, c in enumerate(comps[:-1]):
         if DEAL_START.search(c) or DEAL_END.search(c) or DEAL_ISO.search(c):
             j = k
             break
-    if j < 2 or j > 3:
+    if j < lo or j > hi:
         return None             # no dated deal folder, deal at agency level, or too deep to be sure
     buyer_dir = path[:end] + sep + sep.join(comps[:j])
     if not os.path.isdir(buyer_dir):
@@ -247,12 +265,12 @@ def closeout_text():
     return "\n".join(split_lines(read_text(path)))
 
 
-def first_write(h):
+def first_write(h, desks):
     ti = h.get("tool_input")
     p = ti.get("file_path") if isinstance(ti, dict) else None
     if not isinstance(p, str) or not p.strip():
         return None
-    loc = locate(p)
+    loc = locate(p, desks)
     if not loc:
         return None
     buyer_dir, rel, deal = loc
@@ -296,11 +314,11 @@ def first_write(h):
     return out
 
 
-def memory_first_touch(h):
-    """desk-memory.py's first_touch(h), loaded only for a path inside the tree."""
+def memory_first_touch(h, desks):
+    """desk-memory.py's first_touch(h, desks), loaded only for a path inside a desk's tree."""
     ti = h.get("tool_input")
     p = ti.get("file_path") if isinstance(ti, dict) else None
-    if not isinstance(p, str) or not TREE_RE.search(p):
+    if not isinstance(p, str) or desk_registry.find(p, desks) is None:
         return []
     import importlib.util
     sys.dont_write_bytecode = True      # never leave a __pycache__ in the plugin cache
@@ -308,7 +326,7 @@ def memory_first_touch(h):
         "bbs_desk_memory", os.path.join(os.path.dirname(os.path.abspath(__file__)), "desk-memory.py"))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    return mod.first_touch(h)
+    return mod.first_touch(h, desks)
 
 
 def emit(text):
@@ -327,11 +345,14 @@ def main():
         return
     if not isinstance(h, dict):
         return
+    # Loaded once. Only SessionStart below reports a registry error; load() hands back the
+    # built-in California desk on any problem, so every other event just works.
+    desks, desks_err = desk_registry.load()
 
     if h.get("hook_event_name") == "PostToolUse":
         # The matcher includes Read for desk memory; the buyer-desk reminder is about writes only.
-        out = [] if h.get("tool_name") == "Read" else (first_write(h) or [])
-        out += memory_first_touch(h)
+        out = [] if h.get("tool_name") == "Read" else (first_write(h, desks) or [])
+        out += memory_first_touch(h, desks)
         if out:
             ctx = "\n".join(out)
             emit('{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":%s}}'
@@ -341,7 +362,9 @@ def main():
     d = str(h.get("cwd") or "")
     if not d or not os.path.exists(d):
         return
-    out = session_start(d)
+    out = session_start(d, desks)
+    if desks_err:
+        out.append(registry_error_line(desks_err))
     if out:
         emit("\n".join(out) + "\n")
 
