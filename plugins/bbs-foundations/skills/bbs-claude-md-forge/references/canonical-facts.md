@@ -142,8 +142,8 @@ to fulfill unless BBS is a named reseller.
 | Revenue dashboard | Supabase `hkogytbgmaucjjaeqrgd` | |
 | Customer documents (RFQs, POs, packets) | **SharePoint** `Black Box Safety - MASTER/Customers/…` | Repos hold pointers and lessons, not the documents |
 | Grainger pricing | **Grainger MCP** — per buying account. The `b2b.blackboxsafety.com` punch-out it replaced is retired | Never the open web; never from memory. Whether a Grainger line is sold at cost depends on the channel — "Grainger sell rule, by channel" below is the one home |
-| California state RFQ working state, sent and outcome included | **Deal folders** (`RFQ.md`, `quote-log.md`); `RFQ.md` is written only through `rfq_record.py` | Ruled 2026-11-12, for now. The Sales CRM is a cross-check, and stays the count source for reports, until Quote Velocity switches to folder sent dates (switch criteria: STEWARD register, the PR #90 entry, item 6); then it is history |
-| Outreach, federal and local pipeline | Dynamics 365 Sales | Ruled 2026-11-12: deal folders replace Dynamics for California state RFQ working state only, for now |
+| RFQ working state, sent and outcome included, for every desk in bbs-sales `references/desks.json` | **Deal folders** (`RFQ.md`, the desk's `quote-log.md`); `RFQ.md` is written only through `rfq_record.py` | Ruled 2026-11-12 for California state; extended to every profiled desk 2026-11-16 (STEWARD: "Folders are the RFQ working record for every customer"). Where reps already keep `bbs_rfqs` (California state today) the Sales CRM stays a cross-check and the count source until that desk's switch; desks with no `bbs_rfqs` history are folder-only |
+| Outreach and pre-RFQ pipeline | Dynamics 365 Sales | RFQ working state left Dynamics for every profiled desk, 2026-11-16 |
 | Storefront | Shopify `bbs-supabase-test.myshopify.com`, theme "BBS — Field Manual" | Verify the live theme id with `shopify theme list` before pushing |
 | BBS form values (FEIN, permit, certs) | `plugins/bbs-sales/references/vendor_profile.json` | Skills resolve it as `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` and never re-key it |
 
@@ -185,7 +185,10 @@ new quotes, even where the customer card still defaults to it. Body armor and CS
 
 - **A win is confirmed by Business Central** — a sales quote with an `acceptedDate`, or a
   quote converted to a sales order — **or by a quote-log Outcome of *won* that the rep has
-  confirmed.** Nothing else is a win.
+  confirmed, or by a Tier 1 PO match once the matcher has passed its shadow bar** (≥95%
+  precise on ≥30 cases, signed by Parker; STEWARD: "A Tier 1 PO match becomes Won after a
+  shadow bar", 2026-11-16). Until that bar is signed, a Tier 1 match is a proposal the rep
+  folds. Nothing else is a win.
 - **`bbs_accepted` on a Sales CRM `bbs_rfqs` record: Parker's stated intent is
   "converted" ("I believe").** Parker, in session, 2026-09-28: "I believe [it] is in State
   of CA Agencies and means the quote has converted" — his own hedge, kept. Confirm the
