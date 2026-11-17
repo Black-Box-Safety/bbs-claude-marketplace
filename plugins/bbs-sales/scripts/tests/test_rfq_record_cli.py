@@ -220,6 +220,14 @@ class TestDealPathRegistry(CliBase):
         dst, state = self.compile_at(["Synthetic Desk Root", "A", "B", "2026-11-01"], self.TWO)
         self.assertEqual(state["deal_path"], os.path.abspath(dst))
 
+    def test_deal_path_sibling_folder_is_empty(self):
+        _, state = self.compile_at(["All RFQ's by Agency (old)", "A", "B", "2026-11-01"])
+        self.assertEqual(state["deal_path"], "")
+
+    def test_deal_path_sibling_first_then_real_root(self):
+        dst, state = self.compile_at(["All RFQ's by Agency (old)", "x", "All RFQ's by Agency", "A", "B", "2026-11-01"])
+        self.assertEqual(state["deal_path"], os.path.abspath(dst))
+
     def test_deal_path_outside_any_desk(self):
         _, state = self.compile_at(["Elsewhere", "A", "B", "2026-11-01"], self.TWO)
         self.assertEqual(state["deal_path"], "")

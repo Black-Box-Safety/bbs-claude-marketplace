@@ -908,7 +908,12 @@ def _read(path):
 def _deal_path(path):
     p = os.path.abspath(path)
     desks, _err = desks_mod.load()
-    return p if desks_mod.find(p, desks) else ""
+    norm = p.replace("\\", "/")
+    # A desk root followed by "/" (the old "<root>/" test); no leading boundary, as before.
+    for m in desks_mod.find_all(p, desks):
+        if norm[m.end:m.end + 1] == "/":
+            return p
+    return ""
 
 
 def _save(rec, path):
