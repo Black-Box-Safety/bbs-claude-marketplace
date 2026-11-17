@@ -60,9 +60,11 @@ root. None: Claude tells the rep and offers to create one with this skill (once 
 per session on writes). One there, at session start: Claude offers an edit when a stable
 folder fact in it (who the buyers are, how they want to be quoted, cert rules, gotchas) is
 wrong or missing. Either way it writes only when the rep says yes. Quote outcomes (won, lost,
-no-bid, the SQ number) never go in a customer `CLAUDE.md`: on the CA desk they live in
-`quote-log.md`; outside it there is no quote-log yet, so the Business Central sales quote is
-the record and no outcome file is created by hand.
+no-bid, the SQ number) never go in a customer `CLAUDE.md`: they live in the desk's outcome
+ledger, the CA desk's `quote-log.md` or Bechtel Sentinel's hand-kept `learning/quote-log.md`
+(D10.5, amending R6 on 2026-11-16), and a deal with an `RFQ.md` records its outcome through
+`rfq_record.py`. A folder on no desk has no quote-log yet, so the Business Central sales
+quote is the record and no outcome file is created by hand.
 A note a rep asks Claude to remember goes through bbs-sales' `desk-remember` into
 `LEARNED.md`, so there is one memory mechanism, not two. After an approved edit the checker
 is scoped to that file, so a template's `[TBD]` lines are never filled with guesses. It stays

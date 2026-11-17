@@ -916,7 +916,9 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **R6. #72 is narrowed — RULED 2026-11-10.**
   Adopted recommendation: "Customer-folder CLAUDE.md upkeep (#72). Sessions would update a customer folder's CLAUDE.md without being asked and record quote outcomes there." → "Narrow it. Outcomes already live in quote-log.md (#75). Notes should reuse #81's format and filters, so there is one memory system, not two." Quote outcomes live only in `quote-log.md`
   (#75). Durable customer-folder notes reuse #81's desk-memory entry format and refusal
-  table, so there is one memory mechanism, not two.
+  table, so there is one memory mechanism, not two. **Amended 2026-11-16 (D10.5):** a desk
+  with a profile may keep a hand-kept outcome record; Sentinel's `learning/quote-log.md` is
+  that desk's (entry "BBS Sales System: one desk model for every customer", below).
 - **R7. Desk memory (#81) "Open for Parker" items 1–7 accepted as recommended — RULED
   2026-11-10.**
   Adopted recommendation: "Desk memory's A1–A7 (#81)." → "Yes as listed in my last message. A3 waits for the next slice, and A4 is your SharePoint step." The items, in their own wording and each now marked RULED 2026-11-10, live
@@ -1224,6 +1226,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   - It runs in shadow until the matcher is at least 95% precise on 30 or more cases. Then it
     counts as Won automatically, and the rep can undo it.
   - Weaker matches always need a rep's confirmation.
+  - Parker signs the pass; Quinn owns the precision report. Until it is signed, a Tier 1
+    match is a proposal the rep folds.
   - Amends canon "What counts as a win" and METRICS-SIGNOFF Q-A.
 - **Sentinel adopts RFQ.md for new RFQs — RULED 2026-11-16.** Parker: "Yes, new RFQs onward".
   - Sentinel's dashboard data is built from those records.
