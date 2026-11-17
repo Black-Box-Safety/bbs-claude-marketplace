@@ -6,10 +6,12 @@
 # home for the format (AGENTS.md invariants 2 and 3), so this half says the check did not run
 # instead of running part of it.
 #
-# For an RFQ.md under "All RFQ's by Agency" (same path test as the Python half, backslashes
-# normalised): stdout {"systemMessage": NOTICE}, exit 0, writes nothing. Anything else, including
+# For an RFQ.md under a desk root from the registry (same path test as the Python half: the root with
+# a "/" on both sides, backslashes normalised; the registry error is never reported here): stdout {"systemMessage": NOTICE}, exit 0, writes nothing. Anything else, including
 # garbage on stdin: silent exit 0. hooks/tests/parity.py asserts the notice text.
 # Windows PowerShell 5.1 compatible.
+
+. (Join-Path $PSScriptRoot '..\scripts\Desks.ps1')
 
 $NOTICE = 'bbs-sales: RFQ record check needs python3; this edit was not checked. Install Python 3 (rerun the bootstrap) so RFQ.md is validated and rfq-state.json is written.'
 
@@ -23,8 +25,13 @@ $path = [string]$inp.file_path
 if ([string]::IsNullOrEmpty($path)) { exit 0 }
 
 $norm = $path.Replace('\', '/')
-if (-not $norm.Contains("/All RFQ's by Agency/")) { exit 0 }
 if (-not $norm.EndsWith('/RFQ.md', [StringComparison]::Ordinal)) { exit 0 }
+$reg = Get-BbsDesks
+$under = $false
+foreach ($m in @(Find-BbsDeskRootAll -Path $norm -Desks $reg.Desks)) {
+  if ($m.Start -ge 1 -and $norm[$m.Start - 1] -eq '/' -and $m.End -lt $norm.Length -and $norm[$m.End] -eq '/') { $under = $true; break }
+}
+if (-not $under) { exit 0 }
 
 # Built by hand, not ConvertTo-Json, so 5.1 and 7 emit the same bytes.
 $esc = $NOTICE.Replace('\', '\\').Replace('"', '\"')

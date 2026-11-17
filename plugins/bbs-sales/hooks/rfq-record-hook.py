@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""PostToolUse hook: validate an RFQ.md under "All RFQ's by Agency" and compile rfq-state.json.
+"""PostToolUse hook: validate an RFQ.md under a desk root and compile rfq-state.json.
 
 Reads the hook JSON on stdin. Acts only when
-tool_input.file_path, backslashes turned to slashes, contains "/All RFQ's by Agency/" and ends
-with "/RFQ.md"; anything else exits 0 silently.
+tool_input.file_path, backslashes turned to slashes, contains "/<desk root>/" (a root from the
+desk registry, scripts/desks.py) and ends with "/RFQ.md"; anything else exits 0 silently. The
+registry error is never printed here: load() falls back to the CA desk and only desk-context's
+SessionStart reports it.
 
 A v1 record (Status header "| Stage | State | Date |" inside the ## Status section) passes: exit 0,
 no sidecar, stdout {"systemMessage": ...} telling the rep to try `migrate --dry-run`.
@@ -20,8 +22,8 @@ import re
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scripts"))
+import desks as desk_registry  # noqa: E402  (path set just above)
 
-TREE = "All RFQ's by Agency"
 V1_NOTICE = ("bbs-sales: this RFQ.md is still in the v1 or legacy format, so it was not checked and no rfq-state.json "
              "was written. Run python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/rfq_record.py\" migrate "
              "\"<path>\" --dry-run to see whether it converts.")
@@ -50,8 +52,16 @@ def main():
         return 0
     path = str(inp.get("file_path") or "")
     norm = path.replace("\\", "/")
-    marker = "/" + TREE + "/"
-    if marker not in norm or not norm.endswith("/RFQ.md"):
+    if not norm.endswith("/RFQ.md"):
+        return 0
+    # "Under a desk" = a desk root with a "/" on both sides, the same test as "/<root>/" in the path.
+    desks, _err = desk_registry.load()          # never reports an error: only desk-context's SessionStart does
+    root = None
+    for m in desk_registry.find_all(norm, desks):
+        if m.start >= 1 and norm[m.start - 1] == "/" and m.end < len(norm) and norm[m.end] == "/":
+            root = m
+            break
+    if root is None:
         return 0
     if not os.path.isfile(path):
         return 0
@@ -76,7 +86,7 @@ def main():
             problems.append("Status row %d Date %r is not YYYY-MM-DD" % (i, r.date))
     if problems:
         return fail(problems)
-    deal = norm[norm.index(marker) + len(marker):-len("/RFQ.md")]
+    deal = norm[root.end + 1:-len("/RFQ.md")]
     rr.write_state(rec, path, deal)
     return 0
 

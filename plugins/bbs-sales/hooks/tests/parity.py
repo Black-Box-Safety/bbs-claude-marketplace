@@ -538,6 +538,40 @@ def main():
                 check(pok, name + " [ps notice]", f"ps rc={prc} state={pstate} out={pout[:200]!r} err={perr[:200]!r}")
             if fpath == bs_path and os.sep == "/" and os.path.exists(fpath):
                 os.remove(fpath)
+        # rfq-record-hook on a second desk from the registry (BBS_DESKS_FILE): the PowerShell half gives
+        # its python3 notice for an RFQ.md under "Synthetic Desk Root/" and stays silent under the
+        # default registry; a root that is only part of a folder name is not a desk either.
+        syn_rfq = os.path.join(syn_b, "2026-11-01", "RFQ.md")
+        os.makedirs(os.path.dirname(syn_rfq), exist_ok=True)
+        with open(syn_rfq, "w", encoding="utf-8", newline="") as fh:
+            fh.write(good)
+        near_rfq = os.path.join(root, "My Synthetic Desk Root copy", "A", "RFQ.md")
+        os.makedirs(os.path.dirname(near_rfq), exist_ok=True)
+        write(near_rfq, ["not a record"])
+        def rec_payload(fp):
+            return {"hook_event_name": "PostToolUse", "tool_name": "Write", "tool_input": {"file_path": fp, "content": "x"}}
+        reg_env = fresh_env()
+        reg_env["BBS_DESKS_FILE"] = two
+        rrc, rout, rerr = run_py("rfq-record-hook", rec_payload(syn_rfq), reg_env)
+        check(rrc == 0 and rerr == "" and os.path.exists(os.path.join(os.path.dirname(syn_rfq), "rfq-state.json")),
+              "rfq-record registry desk: python half validates an RFQ.md under the synthetic root and writes the sidecar", f"rc={rrc} err={rerr[:200]!r}")
+        os.remove(os.path.join(os.path.dirname(syn_rfq), "rfq-state.json"))
+        drc, dout, derr = run_py("rfq-record-hook", rec_payload(syn_rfq), fresh_env())
+        check(drc == 0 and dout == "" and derr == "" and not os.path.exists(os.path.join(os.path.dirname(syn_rfq), "rfq-state.json")),
+              "rfq-record: synthetic root is not a desk under the default registry",
+              f"rc={drc} out={dout[:120]!r} err={derr[:120]!r}")
+        if PS:
+            prc, pout, perr = run_ps("rfq-record-hook", rec_payload(syn_rfq), reg_env)
+            try:
+                pmsg = json.loads(pout)["systemMessage"]
+            except (ValueError, KeyError, TypeError):
+                pmsg = None
+            check(prc == 0 and perr.strip() == "" and pmsg == RFQ_PS_NOTICE,
+                  "rfq-record registry desk: ps half gives its python3 notice [ps notice]", f"rc={prc} out={pout[:200]!r} err={perr[:200]!r}")
+            for label, fp, env in (("default registry", syn_rfq, fresh_env()), ("near-miss root name", near_rfq, reg_env)):
+                prc, pout, perr = run_ps("rfq-record-hook", rec_payload(fp), env)
+                check(prc == 0 and perr.strip() == "" and pout.strip() == "",
+                      "rfq-record: ps half silent for " + label + " [ps notice]", f"rc={prc} out={pout[:200]!r} err={perr[:200]!r}")
         # Garbage on stdin: both halves stay silent and exit 0.
         for script in ("guard-tree", "desk-context", "rfq-record-hook"):
             for raw in (b"", b"not json", b"[1,2]"):

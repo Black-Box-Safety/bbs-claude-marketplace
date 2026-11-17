@@ -13,6 +13,8 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
 
+import desks as desks_mod  # the desk registry loader, beside this file
+
 SCHEMA_VERSION = 2
 
 STAGES = ["logged", "sourcing", "priced", "quote built", "packet built",
@@ -905,7 +907,8 @@ def _read(path):
 
 def _deal_path(path):
     p = os.path.abspath(path)
-    return p if "All RFQ's by Agency/" in p.replace(os.sep, "/") else ""
+    desks, _err = desks_mod.load()
+    return p if desks_mod.find(p, desks) else ""
 
 
 def _save(rec, path):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PreToolUse guard for the BBS quote-desk folder tree ("All RFQ's by Agency").
+"""PreToolUse guard for the BBS quote-desk folder trees (each a desk root from the registry).
 
 The Python half of guard-tree.ps1: same rules, same deny reasons, same decisions on
 every input, so a Mac without PowerShell gets the same guard a Windows machine does.

@@ -52,6 +52,34 @@ def add(at, level, text, kind="preference", author="Rep One", date="2026-11-10",
     return run(*argv)
 
 
+def synthetic_desk_checks(root, ca_agency):
+    """A second desk from the registry (BBS_DESKS_FILE) saves notes by the same depth rule as CA."""
+    two = os.path.join(HOOKS, "..", "scripts", "tests", "fixtures", "desks-two.json")
+    env = dict(os.environ, BBS_DESKS_FILE=two)
+    syn = os.path.join(root, "Synthetic Desk Root")
+    syn_agency = os.path.join(syn, "A")
+    syn_buyer = os.path.join(syn_agency, "B")
+    os.makedirs(syn_buyer)
+
+    def run_env(*argv):
+        p = subprocess.run([sys.executable, SCRIPT, *argv], capture_output=True, env=env)
+        return p.returncode, p.stdout.decode("utf-8", "replace"), p.stderr.decode("utf-8", "replace")
+
+    rc, out, err = run_env("add", "--at", syn_buyer, "--level", "1", "--author", "Rep One", "--kind", "preference",
+                           "--text", "Wants the worksheet as a PDF.", "--date", "2026-11-10")
+    check(rc == 0 and err == "" and "Saved for B" in out and os.path.isfile(os.path.join(syn_buyer, "LEARNED.md")),
+          "registry desk: a note at depth 2 is saved", out + err)
+    rc, out, err = run_env("add", "--at", syn_agency, "--level", "1", "--author", "Rep One", "--kind", "preference",
+                           "--text", "Always ask for the worksheet.", "--date", "2026-11-10")
+    ca_rc, ca_out, _ = run("add", "--at", ca_agency, "--level", "1", "--author", "Rep One", "--kind", "preference",
+                           "--text", "Always ask for the worksheet.", "--date", "2026-11-10")
+    check(rc == 2 and out.startswith("Not saved:") and out == ca_out and ca_rc == 2
+          and not os.path.exists(os.path.join(syn_agency, "LEARNED.md")),
+          "registry desk: a note at depth 1 is refused with the same sentence CA gives", out + " / " + ca_out)
+    rc, out, _ = run("where", "--at", syn_buyer)
+    check(rc == 2 and out.startswith("Not saved:"), "registry desk is unknown under the default registry", out)
+
+
 def main():
     root = tempfile.mkdtemp(prefix="bbs-desk-memory-")
     try:
@@ -484,6 +512,7 @@ def main():
               and f'FILE = "{desk_memory.DESKS["ca-state"]["file"]}"' in py, "the hooks read the tree and file the writer writes")
         check(hook_mod.CONFLICT.pattern == desk_memory.CONFLICT_PATTERN and f"$CONFLICT = '{desk_memory.CONFLICT_PATTERN}'" in ps,
               "writer and both hooks agree on the conflict-copy pattern (which leaves the archive and its copies out)")
+        synthetic_desk_checks(root, agency_a)
     finally:
         shutil.rmtree(root, ignore_errors=True)
     print("\nall pass" if fails == 0 else f"\n{fails} FAILED")

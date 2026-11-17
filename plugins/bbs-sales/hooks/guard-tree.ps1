@@ -1,4 +1,4 @@
-# PreToolUse guard for the BBS quote-desk folder tree ("All RFQ's by Agency").
+# PreToolUse guard for the BBS quote-desk folder trees (each a desk root from the registry).
 # Reads the hook JSON on stdin. Silent (exit 0, no output) = allow.
 # Deny = JSON with hookSpecificOutput.permissionDecision = "deny" and a reason Claude can relay.
 #
