@@ -215,6 +215,23 @@ def main():
             ("empty tool_input allowed", {"hook_event_name": "PreToolUse", "tool_name": "Bash"}, "allow"),
             ("unknown tool allowed", pre("Read", file_path=packet), "allow"),
         ]
+        # Synthetic second desk (guard.near_duplicate false), selected through BBS_DESKS_FILE.
+        syn = os.path.join(root, "Synthetic Desk Root")
+        syn_b = os.path.join(syn, "A", "B")
+        os.makedirs(os.path.join(syn_b, "FILLED"))
+        os.makedirs(os.path.join(syn, "A", "Buyer"))
+        syn_packet = os.path.join(syn_b, "FILLED", "p.pdf")
+        write(syn_packet, ["x"])
+        syn_mv = pre("Bash", command=f'mv "{syn_b}" "{syn}{sep}A{sep}C"')
+        two = os.path.join(FIXTURES, "desks-two.json")
+        guard_env = [
+            ("synthetic desk: mv denied naming its root", syn_mv, "deny", two, "inside 'Synthetic Desk Root'"),
+            ("synthetic desk: near-duplicate folder allowed (flag off)",
+             pre("Bash", command=f'mkdir "{syn}{sep}A{sep}Buyerr"'), "allow", two, None),
+            ("synthetic desk: overwrite FILLED denied",
+             pre("Write", file_path=syn_packet, content="y"), "deny", two, None),
+            ("synthetic root is not a desk under the default registry", syn_mv, "allow", None, None),
+        ]
         ctx = [
             ("session context has precedent and flags", start(mcsp),
              lambda o: "PRECEDENT" in o and "SQ-1001" in o and "OPEN FLAGS" in o and "wrong solicitation" in o),
@@ -321,6 +338,20 @@ def main():
             check(rc == 0 and err == "" and got[0] == want, name, f"py rc={rc} got={got[0]!r} err={err.strip()!r}")
             if PS:
                 prc, pout, perr = run_ps("guard-tree", payload)
+                pgot = decision(pout)
+                check(prc == 0 and perr == "" and pgot == got, name + " [parity]",
+                      f"ps rc={prc} ps={pgot!r} py={got!r} err={perr.strip()[:200]!r}")
+        for name, payload, want, regfile, needle in guard_env:
+            genv = dict(os.environ)
+            genv.pop("BBS_DESKS_FILE", None)
+            if regfile:
+                genv["BBS_DESKS_FILE"] = regfile
+            rc, out, err = run_py("guard-tree", payload, genv)
+            got = decision(out)
+            check(rc == 0 and err == "" and got[0] == want and (needle is None or needle in got[1]),
+                  name, f"py rc={rc} got={got!r} err={err.strip()!r}")
+            if PS:
+                prc, pout, perr = run_ps("guard-tree", payload, genv)
                 pgot = decision(pout)
                 check(prc == 0 and perr == "" and pgot == got, name + " [parity]",
                       f"ps rc={prc} ps={pgot!r} py={got!r} err={perr.strip()[:200]!r}")

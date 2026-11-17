@@ -11,7 +11,11 @@ $raw = [Console]::In.ReadToEnd()
 if ([string]::IsNullOrWhiteSpace($raw)) { exit 0 }
 try { $h = $raw | ConvertFrom-Json } catch { exit 0 }
 
-$TREE = "All RFQ's by Agency"
+. (Join-Path $PSScriptRoot '..\scripts\Desks.ps1')
+# Never reports a registry error: Get-BbsDesks hands back the CA fallback on any problem, and
+# only desk-context's SessionStart says so.
+$deskLoad = Get-BbsDesks
+$desks = $deskLoad.Desks
 $tool = $h.tool_name
 $in   = $h.tool_input
 
@@ -80,12 +84,11 @@ function IsNearDuplicate([string]$new, [string]$existing) {
 }
 
 # Given an absolute path inside the tree, find the first directory segment that does not exist
-# yet and compare it against its existing siblings. Returns the offending existing path or $null.
-function NearDuplicate([string]$path) {
-  $idx = $path.IndexOf($TREE, [StringComparison]::OrdinalIgnoreCase)
-  if ($idx -lt 0) { return $null }
-  $rootDir = $path.Substring(0, $idx + $TREE.Length)
-  $rest = $path.Substring($idx + $TREE.Length).Trim('\', '/')
+# yet and compare it against its existing siblings. $m is the desk root match on $path.
+# Returns the offending existing path or $null.
+function NearDuplicate([string]$path, $m) {
+  $rootDir = $path.Substring(0, $m.End)
+  $rest = $path.Substring($m.End).Trim('\', '/')
   if (-not $rest) { return $null }
   $segments = $rest -split '[\\/]'
   $parent = $rootDir
@@ -107,35 +110,48 @@ switch ($tool) {
   { $_ -in 'Bash', 'PowerShell' } {
     $cmd = [string]$in.command
     if (-not $cmd) { exit 0 }
-    if ($cmd.IndexOf($TREE, [StringComparison]::OrdinalIgnoreCase) -lt 0) { exit 0 }
-    if ($cmd -match '(^|[\s;&|(])(mv|ren|rename|Rename-Item|Move-Item|git\s+mv)\b') {
-      Deny "Blocked: renaming or moving inside '$TREE' is never allowed -- folder names carry Grainger account numbers and buyer identity (desk CLAUDE.md landmine 4). If a folder is truly misnamed, tell Parker."
+    $cm = Find-BbsDeskRoot -Path $cmd -Desks $desks
+    if (-not $cm) { exit 0 }
+    $flags = $cm.Desk.guard
+    $filledOn = [bool]$flags.filled_immutable
+    if ($flags.no_rename -and $cmd -match '(^|[\s;&|(])(mv|ren|rename|Rename-Item|Move-Item|git\s+mv)\b') {
+      Deny "Blocked: renaming or moving inside '$($cm.Root)' is never allowed -- folder names carry Grainger account numbers and buyer identity (desk CLAUDE.md landmine 4). If a folder is truly misnamed, tell Parker."
     }
     # Deletes anywhere near a FILLED path, or a redirect whose TARGET is inside FILLED. Reading
     # a packet (cat, pdftotext ... > elsewhere) stays allowed.
-    if ($cmd -match '[\\/]FILLED[\\/]' -and $cmd -match '(^|[\s;&|(])(rm|del|Remove-Item)\b') {
+    if ($filledOn -and $cmd -match '[\\/]FILLED[\\/]' -and $cmd -match '(^|[\s;&|(])(rm|del|Remove-Item)\b') {
       Deny "Blocked: files under FILLED/ are submitted packets and immutable. Do not delete them; save a new version alongside (e.g. -v2)."
     }
-    if ($cmd -match '>{1,2}\s*("[^"]*[\\/]FILLED[\\/]|[^\s"|;&]*[\\/]FILLED[\\/])') {
+    if ($filledOn -and $cmd -match '>{1,2}\s*("[^"]*[\\/]FILLED[\\/]|[^\s"|;&]*[\\/]FILLED[\\/])') {
       Deny "Blocked: redirecting output into FILLED/ would overwrite a submitted packet. Write the new file alongside it (e.g. -v2)."
     }
     # Write-only cmdlets and tee: a FILLED path anywhere in the command is the target.
-    if ($cmd -match '[\\/]FILLED[\\/]' -and $cmd -match '(^|[\s;&|(])(Set-Content|Add-Content|Out-File|tee)\b') {
+    if ($filledOn -and $cmd -match '[\\/]FILLED[\\/]' -and $cmd -match '(^|[\s;&|(])(Set-Content|Add-Content|Out-File|tee)\b') {
       Deny "Blocked: writing into FILLED/ would overwrite a submitted packet. Write the new file alongside it (e.g. -v2)."
     }
     # Copies: the LAST path token is the destination. Copying a packet OUT of FILLED is fine.
-    if ($cmd -match '(^|[\s;&|(])(cp|copy|Copy-Item|Move-Item|mv)\b') {
+    if ($filledOn -and $cmd -match '(^|[\s;&|(])(cp|copy|Copy-Item|Move-Item|mv)\b') {
       $tokens = [regex]::Matches($cmd, '"[^"]+"|\S+') | ForEach-Object { $_.Value.Trim('"') }
       $dest = ($tokens | Where-Object { $_ -match '[\\/]' -and $_ -notmatch '^-' } | Select-Object -Last 1)
       if ($dest -and $dest -match '[\\/]FILLED[\\/]') {
         Deny "Blocked: copying onto FILLED/ would overwrite a submitted packet. Copy to a new name alongside it (e.g. -v2)."
       }
     }
-    if ($cmd -match '(^|[\s;&|(])(mkdir|md|New-Item)\b') {
-      $m = [regex]::Match($cmd, '"([^"]*' + [regex]::Escape($TREE) + '[^"]*)"')
-      $target = if ($m.Success) { $m.Groups[1].Value } else { ($cmd -split '\s+' | Where-Object { $_ -like "*$TREE*" } | Select-Object -First 1) }
-      if ($target) {
-        $dup = NearDuplicate $target
+    if ($flags.near_duplicate -and $cmd -match '(^|[\s;&|(])(mkdir|md|New-Item)\b') {
+      $m = [regex]::Match($cmd, '"([^"]*' + [regex]::Escape($cm.Root) + '[^"]*)"')
+      $target = $null
+      $tm = $null
+      if ($m.Success) {
+        $target = $m.Groups[1].Value
+        $tm = Find-BbsDeskRoot -Path $target -Desks $desks
+      } else {
+        foreach ($t in ($cmd -split '\s+')) {
+          $tm = Find-BbsDeskRoot -Path $t -Desks $desks
+          if ($tm) { $target = $t; break }
+        }
+      }
+      if ($target -and $tm) {
+        $dup = NearDuplicate $target $tm
         if ($dup) { Deny "Blocked: '$target' is a near-duplicate of the existing folder '$dup'. Duplicate buyer folders hide precedent (landmine 1). Use the existing folder, or ask Parker if this is genuinely a different buyer." }
       }
     }
@@ -145,11 +161,14 @@ switch ($tool) {
     $p = [string]$in.file_path
     if (-not $p) { $p = [string]$in.notebook_path }
     if (-not $p) { exit 0 }
-    if ($p.IndexOf($TREE, [StringComparison]::OrdinalIgnoreCase) -lt 0) { exit 0 }
-    if ($p -match '[\\/]FILLED[\\/]' -and (Test-Path -LiteralPath $p)) {
+    $pm = Find-BbsDeskRoot -Path $p -Desks $desks
+    if (-not $pm) { exit 0 }
+    $pflags = $pm.Desk.guard
+    if ($pflags.filled_immutable -and $p -match '[\\/]FILLED[\\/]' -and (Test-Path -LiteralPath $p)) {
       Deny "Blocked: '$p' is a submitted packet under FILLED/ and is immutable. Save a new version alongside it (e.g. add -v2) instead of overwriting."
     }
-    $dup = NearDuplicate $p
+    $dup = $null
+    if ($pflags.near_duplicate) { $dup = NearDuplicate $p $pm }
     if ($dup) { Deny "Blocked: this path would create a folder that near-duplicates '$dup'. Duplicate buyer folders hide precedent (landmine 1). Write into the existing folder, or ask Parker if this is genuinely a different buyer." }
     exit 0
   }

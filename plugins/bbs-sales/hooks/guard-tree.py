@@ -20,7 +20,9 @@ import os
 import re
 import sys
 
-TREE = "All RFQ's by Agency"
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scripts"))
+import desks as desk_registry  # noqa: E402  (path set just above)
+
 # PowerShell's -match is case-insensitive by default; every pattern below was written for
 # it, so they all run with IGNORECASE here. The one exception is noted where it occurs.
 I = re.IGNORECASE
@@ -96,15 +98,12 @@ def is_near_duplicate(new, existing):
     return False
 
 
-def near_duplicate(path):
-    """Given an absolute path inside the tree, find the first directory segment that does not
-    exist yet and compare it against its existing siblings. Returns the offending existing
-    path or None."""
-    idx = path.lower().find(TREE.lower())
-    if idx < 0:
-        return None
-    root_dir = path[:idx + len(TREE)]
-    rest = path[idx + len(TREE):].strip("\\/")
+def near_duplicate(path, m):
+    """Given an absolute path inside a desk tree (m is the desk root match on it), find the first
+    directory segment that does not exist yet and compare it against its existing siblings.
+    Returns the offending existing path or None."""
+    root_dir = path[:m.end]
+    rest = path[m.end:].strip("\\/")
     if not rest:
         return None
     parent = root_dir
@@ -145,24 +144,29 @@ def main():
     inp = h.get("tool_input") or {}
     if not isinstance(inp, dict):
         inp = {}
+    # Never reports a registry error: load() hands back the CA fallback on any problem, and
+    # only desk-context's SessionStart says so.
+    desks, _err = desk_registry.load()
 
     if tool.lower() in ("bash", "powershell"):
         cmd = str(inp.get("command") or "")
         if not cmd:
             return 0
-        if TREE.lower() not in cmd.lower():
+        cm = desk_registry.find(cmd, desks)
+        if cm is None:
             return 0
-        if re.search(r"(^|[\s;&|(])(mv|ren|rename|Rename-Item|Move-Item|git\s+mv)\b", cmd, I):
-            deny(f"Blocked: renaming or moving inside '{TREE}' is never allowed -- folder names "
+        flags = cm.desk["guard"]
+        if flags["no_rename"] and re.search(r"(^|[\s;&|(])(mv|ren|rename|Rename-Item|Move-Item|git\s+mv)\b", cmd, I):
+            deny(f"Blocked: renaming or moving inside '{cm.root}' is never allowed -- folder names "
                  f"carry Grainger account numbers and buyer identity (desk CLAUDE.md landmine 4). "
                  f"If a folder is truly misnamed, tell Parker.")
-        filled = re.search(r"[\\/]FILLED[\\/]", cmd, I) is not None
+        filled = flags["filled_immutable"] and re.search(r"[\\/]FILLED[\\/]", cmd, I) is not None
         # Deletes anywhere near a FILLED path, or a redirect whose TARGET is inside FILLED.
         # Reading a packet (cat, pdftotext ... > elsewhere) stays allowed.
         if filled and re.search(r"(^|[\s;&|(])(rm|del|Remove-Item)\b", cmd, I):
             deny("Blocked: files under FILLED/ are submitted packets and immutable. Do not delete "
                  "them; save a new version alongside (e.g. -v2).")
-        if re.search(r'>{1,2}\s*("[^"]*[\\/]FILLED[\\/]|[^\s"|;&]*[\\/]FILLED[\\/])', cmd, I):
+        if flags["filled_immutable"] and re.search(r'>{1,2}\s*("[^"]*[\\/]FILLED[\\/]|[^\s"|;&]*[\\/]FILLED[\\/])', cmd, I):
             deny("Blocked: redirecting output into FILLED/ would overwrite a submitted packet. "
                  "Write the new file alongside it (e.g. -v2).")
         # Write-only cmdlets and tee: a FILLED path anywhere in the command is the target.
@@ -170,23 +174,30 @@ def main():
             deny("Blocked: writing into FILLED/ would overwrite a submitted packet. Write the new "
                  "file alongside it (e.g. -v2).")
         # Copies: the LAST path token is the destination. Copying a packet OUT of FILLED is fine.
-        if re.search(r"(^|[\s;&|(])(cp|copy|Copy-Item|Move-Item|mv)\b", cmd, I):
+        if flags["filled_immutable"] and re.search(r"(^|[\s;&|(])(cp|copy|Copy-Item|Move-Item|mv)\b", cmd, I):
             toks = [m.group(0).strip('"') for m in re.finditer(r'"[^"]+"|\S+', cmd)]
             paths = [t for t in toks if re.search(r"[\\/]", t) and not t.startswith("-")]
             dest = paths[-1] if paths else None
             if dest and re.search(r"[\\/]FILLED[\\/]", dest, I):
                 deny("Blocked: copying onto FILLED/ would overwrite a submitted packet. Copy to a "
                      "new name alongside it (e.g. -v2).")
-        if re.search(r"(^|[\s;&|(])(mkdir|md|New-Item)\b", cmd, I):
+        if flags["near_duplicate"] and re.search(r"(^|[\s;&|(])(mkdir|md|New-Item)\b", cmd, I):
             # [regex]::Match in the PowerShell version is case-SENSITIVE, unlike -match, so the
             # quoted form is matched exactly here too; the unquoted fallback is -like, which is not.
-            m = re.search(r'"([^"]*' + re.escape(TREE) + r'[^"]*)"', cmd)
+            m = re.search(r'"([^"]*' + re.escape(cm.root) + r'[^"]*)"', cmd)
+            tm = None
             if m:
                 target = m.group(1)
+                tm = desk_registry.find(target, desks)
             else:
-                target = next((t for t in re.split(r"\s+", cmd) if TREE.lower() in t.lower()), None)
-            if target:
-                dup = near_duplicate(target)
+                target = None
+                for t in re.split(r"\s+", cmd):
+                    tm = desk_registry.find(t, desks)
+                    if tm is not None:
+                        target = t
+                        break
+            if target and tm is not None:
+                dup = near_duplicate(target, tm)
                 if dup:
                     deny(f"Blocked: '{target}' is a near-duplicate of the existing folder '{dup}'. "
                          f"Duplicate buyer folders hide precedent (landmine 1). Use the existing "
@@ -197,12 +208,14 @@ def main():
         p = str(inp.get("file_path") or "") or str(inp.get("notebook_path") or "")
         if not p:
             return 0
-        if TREE.lower() not in p.lower():
+        pm = desk_registry.find(p, desks)
+        if pm is None:
             return 0
-        if re.search(r"[\\/]FILLED[\\/]", p, I) and os.path.exists(p):
+        pflags = pm.desk["guard"]
+        if pflags["filled_immutable"] and re.search(r"[\\/]FILLED[\\/]", p, I) and os.path.exists(p):
             deny(f"Blocked: '{p}' is a submitted packet under FILLED/ and is immutable. Save a new "
                  f"version alongside it (e.g. add -v2) instead of overwriting.")
-        dup = near_duplicate(p)
+        dup = near_duplicate(p, pm) if pflags["near_duplicate"] else None
         if dup:
             deny(f"Blocked: this path would create a folder that near-duplicates '{dup}'. Duplicate "
                  f"buyer folders hide precedent (landmine 1). Write into the existing folder, or ask "

@@ -216,6 +216,27 @@ Check 'rfq-record ps: notice for an RFQ.md in the tree' (RunRfq (Join-Path $rfqD
 Check 'rfq-record ps: silent outside the tree' (RunRfq (Join-Path $rfqOther 'RFQ.md')) '0||False|'
 Check 'rfq-record ps: silent for another file in the tree' (RunRfq (Join-Path $rfqDeal 'notes.md')) '0||False|'
 
+# 18. Synthetic second desk, selected with BBS_DESKS_FILE (near_duplicate false on that desk).
+$two = Join-Path (Join-Path (Join-Path (Split-Path -Parent $here) '..\scripts') 'tests\fixtures') 'desks-two.json'
+$syn = Join-Path $root 'Synthetic Desk Root'
+$synB = Join-Path (Join-Path $syn 'A') 'B'
+New-Item -ItemType Directory -Force -Path (Join-Path $synB 'FILLED') | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path (Join-Path $syn 'A') 'Buyer') | Out-Null
+$synPacket = Join-Path (Join-Path $synB 'FILLED') 'p.pdf'
+Set-Content -Path $synPacket -Value 'x'
+$synMv = @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "mv `"$synB`" `"$syn/A/C`"" } }
+$env:BBS_DESKS_FILE = $two
+$o = Run $guard $synMv
+Check 'synthetic desk: mv denied' (Decision $o) 'deny'
+Check 'synthetic desk: reason names its root' ($o -match "inside 'Synthetic Desk Root'") $true
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "mkdir `"$syn/A/Buyerr`"" } }
+Check 'synthetic desk: near-duplicate folder allowed (flag off)' (Decision $o) 'allow'
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Write'; tool_input=@{ file_path = $synPacket; content='y' } }
+Check 'synthetic desk: overwrite FILLED denied' (Decision $o) 'deny'
+Remove-Item Env:BBS_DESKS_FILE -ErrorAction SilentlyContinue
+$o = Run $guard $synMv
+Check 'synthetic root is not a desk under the default registry' (Decision $o) 'allow'
+
 Remove-Item -Recurse -Force $root
 Write-Host ""
 if ($fails -eq 0) { Write-Host "ALL PASS"; exit 0 } else { Write-Host "$fails FAILED"; exit 1 }
