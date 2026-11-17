@@ -169,8 +169,7 @@ function Get-FlagsBlock([string]$path) {
 }
 
 function Get-SessionStart([string]$d, $desks) {
-  $m = Find-BbsDeskRoot -Path $d -Desks $desks
-  if ($null -eq $m) { return @() }
+  if ($null -eq (Find-BbsDeskRoot -Path $d -Desks $desks)) { return @() }
   $out = @()
   for ($i = 0; $i -lt 5 -and $d; $i++) {
     $ql = Join-Path $d 'quote-log.md'
@@ -178,21 +177,21 @@ function Get-SessionStart([string]$d, $desks) {
     if (Test-Path -LiteralPath $ql) { $out += Get-PrecedentBlock $ql }
     if (Test-Path -LiteralPath $fl) { $out += Get-FlagsBlock $fl }
     if ($out.Count -gt 0) { break }
-    if ($d.Length -le $m.End) { break }   # the desk's root folder is the top of the walk
     $parent = Split-Path -Parent $d
-    if ($parent -eq $d -or $parent.Length -lt $m.End) { break }
+    if ($parent -eq $d) { break }
     $d = $parent
   }
   return $out
 }
 
 function Get-RegistryErrorLine([string]$err) {
-  # The one line SessionStart adds when the desk registry could not be read. The parser's own wording
-  # differs between Python and PowerShell, so it is cut; the file name and the kind stay.
+  # The one line SessionStart adds when the desk registry could not be read. The two loaders word
+  # their messages differently (parser text, schema detail), so only "<file> <kind>" is kept, with
+  # kind one of: not found, unreadable, invalid JSON, schema error.
   $reason = $err
   $tail = '; using built-in fallback'
   if ($reason.EndsWith($tail, [StringComparison]::Ordinal)) { $reason = $reason.Substring(0, $reason.Length - $tail.Length) }
-  $reason = [regex]::Replace($reason, '(?s)^(.*? (?:invalid JSON|unreadable)) \(.*$', '$1')
+  $reason = [regex]::Replace($reason, '(?s)^(.*? (?:not found|unreadable|invalid JSON|schema error)).*$', '$1')
   return "bbs-sales: the desk registry could not be read ($reason); only the built-in California desk is active."
 }
 

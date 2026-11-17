@@ -384,6 +384,20 @@ def main():
                 v["BBS_DESKS_FILE"] = regfile
             return v
 
+        schema_reg = os.path.join(_scratch[0], "bad-schema.json")
+        with open(schema_reg, "w", encoding="utf-8") as fh:
+            json.dump({"schema_version": 1, "desks": [{"desk_id": "ca-state", "kind": "rfq"}]}, fh)
+        schema_line = ("bbs-sales: the desk registry could not be read (bad-schema.json schema error); "
+                       "only the built-in California desk is active.")
+        # A desk-level FLAGS.md one level above the tree (as in the live Customers folder): SessionStart
+        # keeps walking above the root, so the tree root and an agency folder both get it.
+        above = os.path.join(root, "Desk Above")
+        above_tree = os.path.join(above, "All RFQ's by Agency")
+        above_agency = os.path.join(above_tree, "Agency Q")
+        os.makedirs(above_agency)
+        write(os.path.join(above, "FLAGS.md"), ["| Date | What | Status |", "|---|---|---|", "| 2026-10-20 | desk-level flag above the tree | open |"])
+        above_ok = lambda o: "OPEN FLAGS -- " in o and "desk-level flag above the tree" in o
+
         ca_plain = ctx_norm(run_py("desk-context", start(mcsp), with_reg(None))[1])
         ctx_env = [
             ("synthetic desk: session context has precedent", start(syn_buyer), two,
@@ -391,6 +405,10 @@ def main():
             ("synthetic desk: session context silent under the default registry", start(syn_buyer), None, lambda o: o == ""),
             ("registry_error_line: CA output plus the final line", start(mcsp), bad_reg,
              lambda o: ca_plain != "" and o == ca_plain + "\n" + reg_line),
+            ("registry_error_line: a schema error is cut to file and kind", start(mcsp), schema_reg,
+             lambda o: ca_plain != "" and o == ca_plain + "\n" + schema_line),
+            ("walk above the root: desk-level FLAGS.md found from an agency folder", start(above_agency), None, above_ok),
+            ("walk above the root: desk-level FLAGS.md found from the tree root", start(above_tree), None, above_ok),
             ("registry_error_line: a valid registry prints no line", start(mcsp), two, lambda o: o == ca_plain),
         ]
         for name, payload, regfile, pred in ctx_env:

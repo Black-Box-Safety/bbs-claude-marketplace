@@ -182,8 +182,7 @@ def flags_block(path):
 
 
 def session_start(d, desks):
-    m = desk_registry.find(d, desks)
-    if m is None:
+    if desk_registry.find(d, desks) is None:
         return []
     out = []
     for _ in range(5):
@@ -197,23 +196,22 @@ def session_start(d, desks):
             out.extend(flags_block(fl))
         if out:
             break
-        if len(d) <= m.end:
-            break               # the desk's root folder is the top of the walk
         parent = os.path.dirname(d)
-        if parent == d or len(parent) < m.end:
+        if parent == d:
             break
         d = parent
     return out
 
 
 def registry_error_line(err):
-    """The one line SessionStart adds when the desk registry could not be read. The parser's own
-    wording differs between Python and PowerShell, so it is cut; the file name and the kind stay."""
+    """The one line SessionStart adds when the desk registry could not be read. The two loaders word
+    their messages differently (parser text, schema detail), so only "<file> <kind>" is kept, with
+    kind one of: not found, unreadable, invalid JSON, schema error."""
     reason = err
     tail = "; using built-in fallback"
     if reason.endswith(tail):
         reason = reason[:-len(tail)]
-    reason = re.sub(r"(?s)^(.*? (?:invalid JSON|unreadable)) \(.*$", r"\1", reason)
+    reason = re.sub(r"(?s)^(.*? (?:not found|unreadable|invalid JSON|schema error)).*$", r"\1", reason)
     return f"bbs-sales: the desk registry could not be read ({reason}); only the built-in California desk is active."
 
 
