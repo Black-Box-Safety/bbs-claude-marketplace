@@ -140,6 +140,100 @@ FORM_FIELDS = {
     },
 }
 
+# The same forms bound into CDCR's own Packet C (cover "10/2025 Request For Quote
+# (RFQ) Packet – C", OBS 4007(C) Rev. 08/2025 front), where CDCR renamed every
+# attachment's fields with a form prefix. Read with inspect_form.py on 2026-11-17
+# from a DAPO blank (CDCR (ALL)/DAPO, RFQ of 10/5/2026, 4007(C)-(10-2025).pdf).
+# The front page keeps FORM_FIELDS' IDs, so it has no entry here. A form uses this
+# map when its signature field is in the document (field_map()). `hand` lists
+# values the bound copy has no field for: each is reported for the rep to write in.
+BOUND_FORM_FIELDS = {
+    "Darfur": {
+        # Option #1 (no activities outside the US), as on the standalone form.
+        "text": {"OBS RFQ 4007(C) - Business Name - Darfur": "legal_name"},
+        "sign": ("Darfur OBS 1500 - By Authorized Signature", "Darfur OBS 1500 - Date", "rep"),
+    },
+    "CalRecycle74": {
+        # Contractor/Company Name is the shared `OBS RFQ 4007(C) - Business Name`
+        # (front page and worksheet too), filled by the front page's map.
+        "text": {
+            "DORRR CalRec 74 - Address": "full_address",
+            "DORRR CalRec 74 - Phone_2": "phone",
+            "DORRR CalRec 74 - Item Row1": "one",
+            "DORRR CalRec 74 - Product or Services DescriptionRow1": "product_summary",
+            "DORRR CalRec 74 - 1Percent Postconsumer Recycled Content MaterialRow1":
+                "calrecycle_pcrc",
+            "DORRR CalRec 74 - 2SABRC Product Category CodeRow1": "calrecycle_sabrc",
+        },
+        "signer_fields": {"name": "DORRR CalRec 74 - Print Name",
+                          "title": "DORRR CalRec 74 - Title"},
+        "sign": ("DORRR CalRec 74 - Signature", "DORRR CalRec 74 - Date", "rep"),
+    },
+    "OBS1000": {
+        "text": {
+            "OBS 1000 - Business Name": "legal_name",
+            "OBS 1000 - Business Telephone Number": "phone",
+            "OBS 1000 - Business Address": "street",
+            "OBS 1000 - City": "city",
+            "OBS 1000 - State": "state",
+            "OBS 1000 - Zip Code": "zip",
+            "OBS 1000 - Contract  Description of Purchase": "product_summary",
+        },
+        # The standalone form's "Is GenAI utilized?" radio is two checkboxes here.
+        "checks": {"OBS 1000 - Was GenAI used - Yes": False,
+                   "OBS 1000 - Was GenAI used - No": True},
+        "sign": ("OBS 1000 - Signature", "OBS 1000 - Date", "rep"),
+    },
+    "PD843": {
+        "text": {
+            "DVBE Dec. DGS PD 843 - Name of DVBE": "legal_name",
+            "DVBE Dec. DGS PD 843 - DVBE Ref #": "dvbe_cert",
+            "DVBE Dec. DGS PD 843 - Desc": "product_summary",
+            "DVBE Dec. DGS PD 843 -  Owner/Mngr. Print Nmae 1": "owner_name",
+            "DVBE Dec. DGS PD 843 -  Page 1 of #": "one",
+            "DVBE Dec. DGS PD 843 -  Total Pg.#s": "one",
+        },
+        # The standalone form's "not a broker or agent" radio is two checkboxes here.
+        "checks": {"DVBE Dec. DGS PD 843 - DVBE not Broker": True,
+                   "DVBE Dec. DGS PD 843 - DVBE is Broker": False},
+        "sign": ("DVBE Dec. DGS PD 843 - DVBE Owner/ Mngr. Signature 1",
+                 "DVBE Dec. DGS PD 843 - Date Signed 1", "dv_owner"),
+    },
+    "STD204": {
+        "text": {
+            "Payee Data Record STD 204 - BUSINESS NAME": "legal_name",
+            "Payee Data Record STD 204 - BUSINESS MAILING ADDRESS number street apt or "
+            "suite no See instructions on Page 2": "street",
+            "Payee Data Record STD 204 - BUSINESS ADRESS CITY STATE ZIP CODE":
+                "city_state_zip",
+            "Payee Data Record STD 204 - BUSINESS EMAIL ADDRESS": "owner_email",
+            "Payee Data Record STD 204 - NAME OF AUTHORIZED PAYEE REPRESENTATIVE":
+                "owner_name",
+            "Payee Data Record STD 204 - Auth Rep TITLE": "owner_title",
+            "Payee Data Record STD 204 - Auth Rep EMAIL ADDRESS_2": "owner_email",
+            "Payee Data Record STD 204 - Auth Rep Phone#": "phone",
+        },
+        "checks": {"Payee Data Record STD 204 - All Others Checkbox": True,
+                   "Payee Data Record STD 204 - CA Resident": True},
+        "hand": ["fein"],   # Section 3's FEIN boxes are printed, not a field
+        "sign": ("Payee Data Record STD 204 - Auth Rep. Signature",
+                 "Payee Data Record STD 204 - Auth Rep Sign Date", "dv_owner"),
+    },
+}
+
+
+def field_map(kind, fields):
+    """The field map for `kind` in a document whose field names are `fields`.
+
+    The bound Packet C map when its signature field is in the document, else the
+    standalone map. A copy matching neither falls through to FORM_FIELDS, and each
+    absent ID is reported as a gap, as before.
+    """
+    bound = BOUND_FORM_FIELDS.get(kind)
+    if bound and bound["sign"][0] in fields:
+        return bound
+    return FORM_FIELDS.get(kind)
+
 
 def _signing():
     if SIGNING_SCRIPTS not in sys.path:
@@ -202,9 +296,13 @@ def build_spec(docs, vp, inp, staging):
             entry["form"] = "packet"
         signer_fields = {}
         for kind in present:
-            fmap = FORM_FIELDS.get(kind)
+            fmap = field_map(kind, fields)
             if not fmap:
                 continue
+            for key in fmap.get("hand", []):
+                gaps.append(f"[MISSING — NEEDS INPUT] {kind} in {os.path.basename(path)}: "
+                            f"this copy has no field for `{key}` ({vals[key]}); write it in "
+                            f"by hand")
             pages = {i for i, k in enumerate(kinds) if k == kind}
 
             def usable(name, kind=kind, pages=pages):

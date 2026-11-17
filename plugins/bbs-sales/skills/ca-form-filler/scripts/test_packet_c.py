@@ -38,9 +38,10 @@ REPS = {r["role"]: r for r in VP["authorized_representatives"]}
 PARKER = REPS["sales_manager"]
 
 
-def _synthetic(path, kind, prefill=None):
-    """One page carrying `kind`'s markers and every FORM_FIELDS ID for it."""
-    fmap = fpc.FORM_FIELDS[kind]
+def _synthetic(path, kind, prefill=None, bound=False):
+    """One page carrying `kind`'s markers and every FORM_FIELDS ID for it (or
+    BOUND_FORM_FIELDS', for the copy bound into CDCR's own Packet C)."""
+    fmap = (bound and fpc.BOUND_FORM_FIELDS.get(kind)) or fpc.FORM_FIELDS[kind]
     doc = fitz.open()
     page = doc.new_page(height=1400)
     page.insert_text((30, 30), " ".join(TABLE[kind]["markers"]), fontsize=8)
@@ -81,7 +82,7 @@ AGENCY = {"OBS RFQ 4007(C) - Solicitation": "CEN-26-0412",
 KINDS = ("OBS4007C", "Darfur", "CalRecycle74", "PD843", "STD204")
 
 
-def _setup(d, total, signer=None, kinds=KINDS):
+def _setup(d, total, signer=None, kinds=KINDS, bound=False):
     blanks = os.environ.get("BBS_BLANK_FORMS")
     paths = []
     for kind in kinds:
@@ -97,7 +98,7 @@ def _setup(d, total, signer=None, kinds=KINDS):
             src.save(path)
             src.close()
         else:
-            _synthetic(path, kind, AGENCY if kind == "OBS4007C" else None)
+            _synthetic(path, kind, AGENCY if kind == "OBS4007C" else None, bound)
         paths.append(path)
     root = os.path.join(d, "Black Box Safety - MASTER")
     for r in REPS.values():
@@ -217,6 +218,40 @@ def test_not_a_packet_c_stops():
         code, _text = _run(packet, ip, out)
         assert code and "not a Packet C" in str(code), code
         assert not os.path.exists(out)
+
+
+def test_bound_packet_c_ids_fill_and_sign_every_line():
+    """CDCR's bound Packet C (10/2025) prefixes every attachment's field IDs
+    ("DVBE Dec. DGS PD 843 - ...", "DORRR CalRec 74 - ..."); each form is filled
+    from BOUND_FORM_FIELDS when its signature field is there."""
+    if fitz is None:
+        return
+    kinds = KINDS + ("OBS1000",)
+    with tempfile.TemporaryDirectory() as d:
+        packet, ip, out = _setup(d, LIMIT - 0.01, kinds=kinds, bound=True)
+        code, text = _run(packet, ip, out)
+        assert not code, (code, text)
+        assert "Signatures stamped: 6" in text, text
+        assert "is not in this copy" not in text, text
+        assert "has no field for `fein`" in text, text      # printed boxes on the bound STD 204
+        _stamped, values, _pages = _inspect(out)
+        legal = VP["business_identity"]["legal_name"]
+        assert values["DVBE Dec. DGS PD 843 - Name of DVBE"] == legal, values
+        assert values["Payee Data Record STD 204 - BUSINESS NAME"] == legal, values
+        assert values["OBS RFQ 4007(C) - Business Name - Darfur"] == legal, values
+        assert values["DORRR CalRec 74 - Print Name"] == PARKER["name"], values
+        assert values["OBS 1000 - Was GenAI used - No"] not in ("", "Off", None), values
+        assert values["DVBE Dec. DGS PD 843 - DVBE not Broker"] not in ("", "Off", None), values
+
+
+def test_bound_map_is_chosen_only_when_its_signature_field_is_there():
+    standalone = {"DVBEowner1signature"}
+    bound = {fpc.BOUND_FORM_FIELDS["PD843"]["sign"][0]}
+    assert fpc.field_map("PD843", standalone) is fpc.FORM_FIELDS["PD843"]
+    assert fpc.field_map("PD843", bound) is fpc.BOUND_FORM_FIELDS["PD843"]
+    assert fpc.field_map("OBS4007C", bound) is fpc.FORM_FIELDS["OBS4007C"]
+    for kind, fmap in fpc.BOUND_FORM_FIELDS.items():
+        assert fmap["sign"][2] == TABLE[kind]["line"], kind
 
 
 def test_form_fields_cover_every_signed_kind_in_the_table():
