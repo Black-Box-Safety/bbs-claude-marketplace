@@ -783,6 +783,9 @@ def _report(profile, as_json):
             print("verify:  %s pages %s" % (payload["verify_script"],
                                             " ".join(str(n) for n in
                                                      payload["verify_pages"])))
+        elif payload.get("verify_script"):
+            print("verify:  %s every page (this profile lists none)"
+                  % payload["verify_script"])
 
 
 REFUSAL_ADVICE = {

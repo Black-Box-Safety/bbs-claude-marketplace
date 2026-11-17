@@ -244,6 +244,41 @@ def test_bound_packet_c_ids_fill_and_sign_every_line():
         assert values["DVBE Dec. DGS PD 843 - DVBE not Broker"] not in ("", "Off", None), values
 
 
+BOUND_BLANK = os.path.join(HERE, "fixtures", "cdcr-bound-packet-c-10-2025-fields.json")
+
+
+def test_bound_ids_exist_in_the_real_bound_blank_with_the_right_type():
+    """Checked against the field names read off CDCR's real bound blank, not against
+    synthetic PDFs built from BOUND_FORM_FIELDS itself, so a typo in an ID fails here."""
+    with open(BOUND_BLANK, encoding="utf-8") as fh:
+        blank = json.load(fh)["fields"]
+    want = {"text": ("Text",), "checks": ("CheckBox",), "signer_fields": ("Text",)}
+    problems = []
+    for kind, fmap in fpc.BOUND_FORM_FIELDS.items():
+        for key, types in want.items():
+            for name in (fmap.get(key) or {}):
+                name = fmap[key][name] if key == "signer_fields" else name
+                if name not in blank or blank[name]["type"] not in types:
+                    problems.append((kind, key, name, blank.get(name)))
+        sign, date, _line = fmap["sign"]
+        if sign not in blank or blank[sign]["type"] not in ("Text", "Signature"):
+            problems.append((kind, "sign", sign, blank.get(sign)))
+        if date not in blank or blank[date]["type"] != "Text":
+            problems.append((kind, "date", date, blank.get(date)))
+    for name in fpc.FORM_FIELDS["OBS4007C"]["text"]:      # the front page keeps these IDs
+        if name not in blank:
+            problems.append(("OBS4007C", "text", name, None))
+    assert not problems, problems
+
+
+def test_a_field_spanning_forms_is_reported_with_every_page_it_sits_on():
+    docs = [("/x/packet.pdf", ["OBS4007C", None, "CalRecycle74"],
+             {"OBS RFQ 4007(C) - Business Name": [0, 1, 2]})]
+    _spec, gaps = fpc.build_spec(docs, VP, {"product_summary": "x"}, tempfile.gettempdir())
+    hit = [g for g in gaps if "'OBS RFQ 4007(C) - Business Name'" in g]
+    assert hit and "p1 (OBS4007C), p2 (unidentified), p3 (CalRecycle74)" in hit[0], gaps
+
+
 def test_bound_map_is_chosen_only_when_its_signature_field_is_there():
     standalone = {"DVBEowner1signature"}
     bound = {fpc.BOUND_FORM_FIELDS["PD843"]["sign"][0]}

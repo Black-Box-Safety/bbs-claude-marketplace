@@ -313,9 +313,12 @@ def build_spec(docs, vp, inp, staging):
                                 f"this revision's ID to FORM_FIELDS")
                     return False
                 if not set(where) <= pages:
+                    spots = ", ".join(f"p{p + 1} ({kinds[p] or 'unidentified'})"
+                                      for p in sorted(set(where)))
                     gaps.append(f"[MISSING — NEEDS INPUT] {kind} in {os.path.basename(path)}: "
-                                f"field {name!r} also appears on another form's page; left "
-                                f"for the rep rather than written to both")
+                                f"field {name!r} is one field shown on {spots}; left blank "
+                                f"for the rep rather than written across forms. Typing it "
+                                f"once fills every one of those pages")
                     return False
                 return True
 
