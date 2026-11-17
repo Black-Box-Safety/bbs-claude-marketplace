@@ -143,7 +143,7 @@ to fulfill unless BBS is a named reseller.
 | Customer documents (RFQs, POs, packets) | **SharePoint** `Black Box Safety - MASTER/Customers/…` | Repos hold pointers and lessons, not the documents |
 | Grainger pricing | **Grainger MCP** — per buying account. The `b2b.blackboxsafety.com` punch-out it replaced is retired | Never the open web; never from memory. Whether a Grainger line is sold at cost depends on the channel — "Grainger sell rule, by channel" below is the one home |
 | RFQ working state, sent and outcome included, for every desk in bbs-sales `references/desks.json` | **Deal folders** (`RFQ.md`, the desk's `quote-log.md`); `RFQ.md` is written only through `rfq_record.py` | Ruled 2026-11-12 for California state; extended to every profiled desk 2026-11-16 (STEWARD: "Folders are the RFQ working record for every customer"). Where reps already keep `bbs_rfqs` (California state today) the Sales CRM stays a cross-check and the count source until that desk's switch; desks with no `bbs_rfqs` history are folder-only |
-| Outreach and pre-RFQ pipeline | Dynamics 365 Sales | RFQ working state left Dynamics for every profiled desk, 2026-11-16 |
+| Outreach and pre-RFQ pipeline | Dynamics 365 Sales | RFQ working state leaves Dynamics for each profiled desk at that desk's parity switch (ruled 2026-11-16) |
 | Storefront | Shopify `bbs-supabase-test.myshopify.com`, theme "BBS — Field Manual" | Verify the live theme id with `shopify theme list` before pushing |
 | BBS form values (FEIN, permit, certs) | `plugins/bbs-sales/references/vendor_profile.json` | Skills resolve it as `${CLAUDE_PLUGIN_ROOT}/references/vendor_profile.json` and never re-key it |
 
@@ -253,7 +253,8 @@ marketplace repo, which does not ship to rep machines.
 | Who signs the rep-signed lines (OBS 4007(B)/(C) bidder, Darfur, CalRecycle 74, OBS 1000) | 2026-09-28, widened 2026-10-01 | `ca-form-rules.md`, "Rep-signed lines and delegated signatures" |
 | Grainger sell rule — California state schedules (incl. the NASPO LPA); primes | 2026-09-18 / 2026-09-28 | "Grainger sell rule, by channel", above |
 | Customer quote number | 2026-09-28 | Systems of record, above |
-| Deal folders (`RFQ.md`, `quote-log.md`) for California state RFQ working state, sent and outcome included; Dynamics 365 Sales for outreach, federal and local pipeline | 2026-11-12 | Systems of record, above |
+| Deal folders (`RFQ.md`, `quote-log.md`) for California state RFQ working state, sent and outcome included; Dynamics 365 Sales for outreach, federal and local pipeline (extended 2026-11-16, next row) | 2026-11-12 | Systems of record, above |
+| Deal folders are the RFQ working record for every profiled desk; the CRM is kept per desk until its parity switch; Dynamics 365 Sales keeps outreach and pre-RFQ pipeline | 2026-11-16 | Systems of record, above; STEWARD register, "Folders are the RFQ working record for every customer" |
 | Customer quote is created in BC, not rendered in Claude; existing items never re-created | 2026-10-16; `bbs-quote-builder` retired 2026-11-11 | Systems of record, above; `/ca-rfq` Gate 5 |
 | Quote salesperson follows the Kim/Aanya split (KQUEZON / AANYA), never CA STATE TEAM | 2026-10-16; confirmed 2026-11-10 (R4) | Systems of record, above; `/ca-rfq` Gate 5 |
 | Delegated signatures: the six, the limit incl. tax, PNG of record, "complete the packet" is the approval | 2026-10-01 | `ca-form-rules.md`, "Rep-signed lines and delegated signatures" |
