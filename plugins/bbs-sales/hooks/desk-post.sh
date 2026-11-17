@@ -10,6 +10,7 @@
 #      input), never the whole input. A session whose cwd is inside the tree, or a Read of a file
 #      whose text says "by agency", is not a desk touch.
 #   2. A path that does not name the tree ("by Agency", any case) exits here.
+# PREFILTER-TOKENS: by Agency
 #   3. A Read in a folder desk-memory has already handled this session exits here: desk-memory
 #      writes <temp>/bbs-desk-memory/<session>--dir--<folder key> once it has, and this checks for
 #      that file. The key is the folder below "by Agency", every run of characters other than

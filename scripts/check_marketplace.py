@@ -403,7 +403,123 @@ def check(findings):
     # --- 12. Nothing shaped like an Entra client secret anywhere in plugins/ ----
     check_entra_secret_shapes(findings)
 
+    # --- 13. The desk registry stays the one home of the tree name ---
+    check_desk_registry(findings)
+
     return skills
+
+
+DESK_LITERAL = "All RFQ's by Agency"
+
+
+def _bracket_form(token):
+    """The case-insensitive glob hooks/desk-post.sh must carry for a prefilter token."""
+    return "".join(f"[{c.upper()}{c.lower()}]" if c.isalpha() else ("\\ " if c == " " else c)
+                   for c in token)
+
+
+def check_desk_registry(findings, base=None):
+    """The desk registry (references/desks.json) must stay the one home of the tree name.
+
+    1. desks.json passes desks.load()'s strict schema (imported by path: one home for the rules).
+    2. The literal tree name appears in no hook or script that is meant to read the registry.
+    3. desks.FALLBACK and Desks.ps1's $FALLBACK_JSON both equal the ca-state registry entry.
+    4. Every root carries a PREFILTER-TOKENS token (case-insensitive); desk-post.sh carries each
+       token's bracket form; desk-memory's marker token (.py and .ps1) is one of the tokens.
+    """
+    import glob
+    import importlib.util
+    base = base or os.path.join(PLUGINS, "bbs-sales")
+
+    def F(code, where, msg):
+        findings.append({"level": "FAIL", "code": code, "where": where, "msg": msg})
+
+    def read(path):
+        with open(path, encoding="utf-8", newline="") as fh:
+            return fh.read()
+
+    registry = os.path.join(base, "references", "desks.json")
+    desks_py = os.path.join(base, "scripts", "desks.py")
+    desks_ps = os.path.join(base, "scripts", "Desks.ps1")
+    post = os.path.join(base, "hooks", "desk-post.sh")
+    if not all(os.path.isfile(p) for p in (registry, desks_py, desks_ps, post)):
+        F("desk_registry_missing", rel(base), "references/desks.json, scripts/desks.py, "
+          "scripts/Desks.ps1 and hooks/desk-post.sh must all exist")
+        return
+
+    # 2. literal exclusion
+    scan = (glob.glob(os.path.join(base, "hooks", "*.py")) + glob.glob(os.path.join(base, "hooks", "*.ps1"))
+            + [os.path.join(base, "scripts", "rfq_record.py"),
+               os.path.join(base, "skills", "desk-remember", "scripts", "desk_memory.py")])
+    for path in sorted(scan):
+        if os.path.isfile(path) and DESK_LITERAL in read(path):
+            F("desk_literal", rel(path), f"contains the literal {DESK_LITERAL!r}; read the tree name "
+              "from references/desks.json through the loader (desks.py / Desks.ps1)")
+
+    # 1. schema, through the loader's own rules, on the strict json module
+    spec = importlib.util.spec_from_file_location("bbs_desks_under_check", desks_py)
+    desks = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(desks)
+    try:
+        with open(registry, encoding="utf-8") as fh:
+            data = json.load(fh, parse_constant=lambda c: (_ for _ in ()).throw(ValueError(c)))
+    except (OSError, ValueError) as exc:
+        F("desk_registry_schema", rel(registry), f"not strict JSON: {exc}")
+        return
+    _, err = desks.load(registry)
+    if err:
+        F("desk_registry_schema", rel(registry), err)
+        return
+    ca = [d for d in data["desks"] if d.get("desk_id") == "ca-state"]
+    if not ca:
+        F("desk_fallback_py", rel(registry), "no ca-state entry to compare the built-in fallbacks to")
+        return
+
+    # 3. fallbacks
+    if desks.FALLBACK != ca:
+        F("desk_fallback_py", rel(desks_py), "FALLBACK differs from the ca-state entry in references/desks.json")
+    m = re.search(r"\$FALLBACK_JSON\s*=\s*'((?:[^']|'')*)'", read(desks_ps))
+    if not m:
+        F("desk_fallback_ps", rel(desks_ps), "no single-quoted $FALLBACK_JSON literal found")
+    else:
+        try:
+            ps_fb = json.loads(m.group(1).replace("''", "'"))
+        except ValueError as exc:
+            ps_fb = None
+            F("desk_fallback_ps", rel(desks_ps), f"$FALLBACK_JSON is not JSON: {exc}")
+        if ps_fb is not None and ps_fb != ca:
+            F("desk_fallback_ps", rel(desks_ps), "$FALLBACK_JSON differs from the ca-state entry in "
+              "references/desks.json")
+
+    # 4. prefilter tokens
+    ptext = read(post)
+    tm = re.search(r"^#\s*PREFILTER-TOKENS:\s*(.+?)\s*$", ptext, re.M)
+    if not tm:
+        F("desk_prefilter_tokens", rel(post), "no '# PREFILTER-TOKENS: ...' line")
+        return
+    tokens = [t.strip() for t in tm.group(1).split(",") if t.strip()]
+    for d in data["desks"]:
+        for root in d["roots"]:
+            if not any(t.lower() in root.lower() for t in tokens):
+                F("desk_prefilter_root", rel(registry), f"root {root!r} (desk {d['desk_id']}) contains "
+                  f"none of the PREFILTER-TOKENS {tokens} in hooks/desk-post.sh, so the shell would "
+                  "exit before any interpreter saw it")
+    for t in tokens:
+        if _bracket_form(t) not in ptext:
+            F("desk_prefilter_bracket", rel(post), f"bracket form {_bracket_form(t)} of token {t!r} "
+              "is missing")
+    lower = {t.lower() for t in tokens}
+    markers = [
+        (os.path.join(base, "hooks", "desk-memory.py"), r"^BY_AGENCY\s*=\s*re\.compile\(r?[\"']([^\"']+)[\"']"),
+        (os.path.join(base, "hooks", "desk-memory.ps1"), r"function Get-DirMarker.*?\[regex\]::Match\(\$p,\s*'([^']+)'"),
+    ]
+    for path, rx in markers:
+        mm = re.search(rx, read(path), re.M | re.S) if os.path.isfile(path) else None
+        if not mm:
+            F("desk_marker_token", rel(path), "could not find the dir-marker token")
+        elif mm.group(1).lower() not in lower:
+            F("desk_marker_token", rel(path), f"dir-marker token {mm.group(1)!r} is not one of the "
+              f"PREFILTER-TOKENS {tokens}")
 
 
 def check_packet_profiles(findings):

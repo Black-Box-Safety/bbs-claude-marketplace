@@ -13,6 +13,7 @@ compare only "Error is null vs non-null" and the desk ids returned, never the er
 Python offsets are code points; Desks.ps1 returns native UTF-16 indices (for .Substring), and this harness converts them
 to code points, using the path itself, before comparing.
 
+BBS_PS=<name or path> forces the shell (default: pwsh, else powershell).
 When neither pwsh nor powershell is on PATH the PowerShell half is SKIPPED, not failed,
 unless BBS_REQUIRE_PS=1 is set (CI sets it, so CI proves parity rather than skipping it).
 
@@ -33,7 +34,9 @@ SCRIPTS = os.path.join(PLUGIN, "scripts")
 DESKS_PS = os.path.join(SCRIPTS, "Desks.ps1")
 DEFAULT_REG = os.path.join(PLUGIN, "references", "desks.json")
 TWO_REG = os.path.join(SCRIPTS, "tests", "fixtures", "desks-two.json")
-PS = shutil.which("pwsh") or shutil.which("powershell")
+# BBS_PS=powershell (or pwsh, or a full path) forces the shell; CI's windows-latest job sets
+# BBS_PS=powershell so Windows PowerShell 5.1 runs the loader. Default: pwsh, else powershell.
+PS = shutil.which(os.environ["BBS_PS"]) if os.environ.get("BBS_PS") else (shutil.which("pwsh") or shutil.which("powershell"))
 REQUIRE_PS = os.environ.get("BBS_REQUIRE_PS") == "1"
 PY = sys.executable
 SENTINEL = os.path.join("sentinel-dir", "from-env.json")
