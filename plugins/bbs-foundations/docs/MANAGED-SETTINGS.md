@@ -430,8 +430,9 @@ through the managed `env` block; a rep turns it on per session with `/caveman li
 
 ## Pending paste (2026-11-17)
 
-- The `claudeMd` change in `bbs-managed-settings.json` (outcome records live in each
-  profiled desk's `quote-log.md`; RFQ working state for every profiled desk is the deal
+- The `claudeMd` change in `bbs-managed-settings.json` (outcome records live in the desk's
+  outcome ledger: the CA desk's `quote-log.md` or Bechtel Sentinel's hand-kept
+  `learning/quote-log.md`; RFQ working state for each desk with a profile is the deal
   folders) awaits Parker's redeploy.
 - Organization-instruction text for Parker to paste into the claude.ai org settings himself:
 
