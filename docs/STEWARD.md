@@ -20,7 +20,7 @@ Four properties make it worth running:
 - **The reviewer did not write the code, and a merge happens only on Parker's ask.** An
   agent merges a PR only when Parker names it by number in that session's chat, checks are
   green, Rex has cleared it and the merging agent did not write it; the merge tool asks for
-  his Allow and auto-merge stays denied (ruled 2026-11-13, R1a, superseding R1).
+  a person's Allow (only Parker's ask in his own session authorizes it; a rep never Allows a merge) and auto-merge stays denied (ruled 2026-11-13, R1a, superseding R1).
 - **Findings return to the original worker**, which still holds the context. A fresh
   session re-deriving the change is slower and gets it less right.
 - **The steward is woken by the PR**, not by polling. Subscribe to PR activity when the

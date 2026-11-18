@@ -289,7 +289,7 @@ one exact tool and catches nothing else, and no deny rule catches any of them
 R1a (`docs/STEWARD.md`) supersedes R1 below. An agent merges only a PR Parker names by
 number in that session's chat, with checks green, no conflict, Rex's clear, not a draft,
 and not its own. The four `merge_pull_request` names in the table below move from `deny` to
-`ask`, so each merge waits for Parker's Allow; the `enable_pr_auto_merge` names and
+`ask`, so each merge waits for a person's Allow (only Parker's ask in his own session authorizes it; a rep never Allows a merge); the `enable_pr_auto_merge` names and
 `Bash(gh pr merge:*)` stay in `deny` (an agent merges through the MCP tool, one PR at a
 time, never queued). Org `ask` prompts even in auto mode. The table below still lists every
 name and its verification status; read "deny" there as "ask" for `merge_pull_request`.

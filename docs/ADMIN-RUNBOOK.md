@@ -130,7 +130,7 @@ console's connector tool controls (per-tool "Tool permission restrictions"):
   `buy_domain` (and any other `buy_*` tool it lists) and `create_or_transfer_domain` (R9 amendment, Parker, 2026-11-11:
   Vercel purchases and domain transfers ask first; still allowed), and the GitHub
   `merge_pull_request` tool (R1a, 2026-11-13: agents merge only on Parker's ask, each merge
-  waits for his Allow). Org `ask` makes Claude Code
+  waits for a person's Allow (only Parker's ask in his own session authorizes it; a rep never Allows a merge)). Org `ask` makes Claude Code
   prompt on every call, even in auto mode, and no allow rule or remembered answer skips it.
   For Microsoft 365, first make sure the tenant has approved the connector's write
   permissions: if it was approved before those were added, an Entra Global Administrator or
