@@ -192,6 +192,18 @@ class LineRules(unittest.TestCase):
             self.assertTrue(any("qty 1" in e for e in errs), errs)
         self.assertEqual(errors(self._freight(1)), [])
 
+    def test_naspo_never_carries_freight(self):
+        """docs/STEWARD.md, "Freight on quotes", RULED 2026-11-18: NASPO never has freight."""
+        s = self._freight(1)
+        s["contract"] = "NASPO"; s["pricingBasis"] = "Grainger at cost on NASPO"
+        s["lines"][0]["unitPrice"] = s["lines"][0]["unitCost"]
+        s["quoteTotalExclTax"] = round(s["lines"][0]["qty"] * s["lines"][0]["unitCost"] + 45.00, 2)
+        errs = errors(s)
+        self.assertTrue(any("never carries freight" in e for e in errs), errs)
+        s["lines"].pop()
+        s["quoteTotalExclTax"] = round(s["lines"][0]["qty"] * s["lines"][0]["unitCost"], 2)
+        self.assertEqual(errors(s), [])
+
     @staticmethod
     def _freight(qty):
         s = spec()

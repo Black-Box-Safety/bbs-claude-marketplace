@@ -123,8 +123,8 @@ HEADER_READBACK = ("customerNumber", "customerName", "billToName", "shipToName",
                    "shipToCountry", "externalDocumentNumber", "documentDate", "validUntilDate",
                    "shortcutDimension1Code", "shortcutDimension2Code", "salesperson", "paymentTermsId",
                    "shipmentMethodId", "status")
-# Freight goes on its own line, on BC's existing SHIPPING item, at cost with no margin (Parker:
-# freight is a separate line at cost; quote-rules.md "lineType"). SHIPPING is a Service item in
+# Freight goes on its own line, on BC's existing SHIPPING item, qty 1 at cost with no margin, and
+# never on a NASPO quote (docs/STEWARD.md, "Freight on quotes", RULED 2026-11-18). SHIPPING is a Service item in
 # BC, so it is the one non-Inventory item a quote line may carry. Allow-listed by number, not by
 # type: any other Service item still stops.
 FREIGHT_ITEMS = frozenset({"SHIPPING"})
@@ -437,6 +437,9 @@ def validate_spec(spec, uoms):
             qty = num_or_none(ln.get("qty"))
             if qty is None or qty <= 0:
                 errs.append(f"{tag}: qty must be a number greater than 0")
+            elif num in FREIGHT_ITEMS and contract == "NASPO":
+                errs.append(f"{tag}: {num} is freight, and a NASPO quote never carries freight (Parker, "
+                            f"2026-11-18). Remove the line; if this is not a NASPO order, fix the contract")
             elif num in FREIGHT_ITEMS and qty != 1:
                 errs.append(f"{tag}: {num} is freight, quoted as one line of qty 1 at the whole freight cost; qty "
                             f"{ln.get('qty')} would multiply the charge. Set qty to 1 and put the freight total in "
