@@ -167,18 +167,38 @@ class LineRules(unittest.TestCase):
     def test_price_below_cost_stops(self):
         self.assertTrue(any("below unitCost" in e for e in errors(self.line(unitPrice=80.0))))
 
-    def test_shipping_line_is_freight_at_cost_with_zero_margin_ok(self):
-        """Parker: freight is a separate line at cost, no margin."""
-        def with_freight(price, **flags):
+    def test_shipping_line_is_freight_at_cost_and_needs_no_zero_margin_flag(self):
+        """Parker: freight is a separate line at cost, no margin. At cost is required of the
+        freight line, so asking for zeroMarginOk as well would only confuse the rep."""
+        def with_freight(price, qty=1, **flags):
             s = spec()
-            s["lines"].append({"line": 2, "number": "SHIPPING", "description": "Freight", "qty": 1,
+            s["lines"].append({"line": 2, "number": "SHIPPING", "description": "Freight", "qty": qty,
                                "uom": "EA", "unitCost": 45.00, "unitPrice": price, **flags})
-            s["quoteTotalExclTax"] = round(2865.00 + price, 2)
+            s["quoteTotalExclTax"] = round(2865.00 + qty * price, 2)
             return s
+        self.assertEqual(errors(with_freight(45.00)), [])
         self.assertEqual(errors(with_freight(45.00, zeroMarginOk=True)), [])
-        self.assertTrue(any("0% margin" in e for e in errors(with_freight(45.00))))
-        self.assertTrue(any("SHIPPING is freight" in e for e in errors(with_freight(47.25, zeroMarginOk=True))))
         self.assertTrue(any("SHIPPING is freight" in e for e in errors(with_freight(47.25))))
+        self.assertTrue(any("SHIPPING is freight" in e for e in errors(with_freight(47.25, zeroMarginOk=True))))
+        # An ordinary item at cost still needs the flag; only freight is exempt.
+        s = spec(); s["lines"][0]["unitPrice"] = s["lines"][0]["unitCost"]
+        s["quoteTotalExclTax"] = round(s["lines"][0]["qty"] * s["lines"][0]["unitCost"], 2)
+        self.assertTrue(any("0% margin" in e for e in errors(s)))
+
+    def test_shipping_qty_is_one(self):
+        """Two of freight doubles the charge and would otherwise pass every gate."""
+        for qty in (2, 0.5):
+            errs = errors(self._freight(qty))
+            self.assertTrue(any("qty 1" in e for e in errs), errs)
+        self.assertEqual(errors(self._freight(1)), [])
+
+    @staticmethod
+    def _freight(qty):
+        s = spec()
+        s["lines"].append({"line": 2, "number": "SHIPPING", "description": "Freight", "qty": qty,
+                           "uom": "EA", "unitCost": 45.00, "unitPrice": 45.00})
+        s["quoteTotalExclTax"] = round(2865.00 + qty * 45.00, 2)
+        return s
 
     def test_spec_schema_example_passes_the_check_and_puts_freight_on_shipping(self):
         doc = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "references", "spec-schema.md")

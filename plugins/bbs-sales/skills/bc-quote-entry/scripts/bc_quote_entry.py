@@ -437,6 +437,10 @@ def validate_spec(spec, uoms):
             qty = num_or_none(ln.get("qty"))
             if qty is None or qty <= 0:
                 errs.append(f"{tag}: qty must be a number greater than 0")
+            elif num in FREIGHT_ITEMS and qty != 1:
+                errs.append(f"{tag}: {num} is freight, quoted as one line of qty 1 at the whole freight cost; qty "
+                            f"{ln.get('qty')} would multiply the charge. Set qty to 1 and put the freight total in "
+                            f"unitCost and unitPrice")
             uom = str(ln.get("uom") or "").strip().upper()
             if not uom:
                 errs.append(f"{tag}: uom is required (EA unless the customer buys a pack, case or box)")
@@ -465,7 +469,8 @@ def validate_spec(spec, uoms):
                     errs.append(f"{tag}: {num} is freight, a separate line at cost with no margin. unitPrice "
                                 f"{exact_text(ln.get('unitPrice'))} must equal unitCost "
                                 f"{exact_text(ln.get('unitCost'))}")
-                elif at_cost(price, cost) and contract != "NASPO" and not (ln.get("zeroMarginOk") or spec_zero_ok):
+                elif (at_cost(price, cost) and contract != "NASPO" and num not in FREIGHT_ITEMS
+                      and not (ln.get("zeroMarginOk") or spec_zero_ok)):
                     errs.append(f"{tag}: unitPrice equals unitCost (0% margin); set zeroMarginOk: true on the line, or "
                                 f"on the spec when every line sells at cost by contract (Grainger on NASPO)")
             gm = None

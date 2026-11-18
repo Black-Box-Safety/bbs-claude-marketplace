@@ -47,7 +47,7 @@ the check because BC would reject or ignore the PATCH. All ASCII.
 | Field | Required | Rule |
 |---|---|---|
 | `line` | yes | Positive integer, unique in the spec. Becomes the BC line `sequence` as `line x 10000` |
-| `number` | yes | The BC item number, upper-case, as the card has it. Must exist in BC as type Inventory and not be blocked; a missing number stops with "enter it through bc-item-entry". Freight is its own line on `SHIPPING` (a Service item, the one exception): 1 of the card's base unit (`EA`), priced at cost, with `zeroMarginOk` off NASPO (on NASPO at cost is already enforced) |
+| `number` | yes | The BC item number, upper-case, as the card has it. Must exist in BC as type Inventory and not be blocked; a missing number stops with "enter it through bc-item-entry". Freight is its own line on `SHIPPING` (a Service item, the one exception): qty 1 of the card's base unit (`EA`) holding the whole freight cost, priced at cost; the check enforces at cost on this line, so it needs no `zeroMarginOk` |
 | `description` | yes | 1-100 ASCII characters. The line text the customer sees; it overrides the card's description on this quote only (non-persistent) and is where the customer's tag or PO line number goes. Hyphens and straight quotes only |
 | `qty` | yes | Greater than zero |
 | `uom` | yes | A unit of measure code that exists in BC, usually `EA` |
@@ -103,8 +103,7 @@ Every value below is synthetic except the `SHIPPING` item number, which is BC's 
       "qty": 1,
       "uom": "EA",
       "unitCost": 45.00,
-      "unitPrice": 45.00,
-      "zeroMarginOk": true
+      "unitPrice": 45.00
     }
   ],
   "quoteTotalExclTax": 2865.00,
