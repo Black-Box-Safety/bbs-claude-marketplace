@@ -82,7 +82,7 @@ scope → brief → dispatch → worker opens PR → you review (fresh reviewer)
 
 Subscribe to the PR so the session wakes you when it moves. Review with `/code-review
 <PR> high`. A clear plus green checks makes a PR **ready for Parker**, not merged
-(`docs/STEWARD.md`, "Agents never merge", RULED 2026-11-10, R1).
+(`docs/STEWARD.md`, R1a, RULED 2026-11-13).
 
 **An agent merges only on Parker's own ask** (R1a, 2026-11-13): he names the PR by number in
 that session's chat, checks are green, Rex cleared it, and the merging agent did not write

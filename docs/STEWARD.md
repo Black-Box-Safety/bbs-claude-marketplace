@@ -869,15 +869,17 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **Rulings of 2026-11-10 (R1–R9) — RULED 2026-11-10.** Parker's words, in the steward session, 2026-11-10, after reading R1–R9 with the steward's recommendations: "Follow recommendations except for the last one we don't need payroll. I want vercel and supabase to be allowed". R1–R8 adopt
   the steward's recommendation as written; R9 is his exception, clarified the same day.
 - **R1a. Agents merge on Parker's ask — RULED 2026-11-13, supersedes R1.**
-  Parker, in session: "I want to add the capability for claude to merge and delete merged
+  Parker, in session: "I want to add the caability [sic] for claude to merge and delete merged
   branches/prs", then, on the steward's recommendation (merge only a PR he names by number
   in chat; checks green, no conflict, Rex cleared, not a draft, merging agent not the
   author; never auto-merge): "yes, open the merge-on-my-ask PR". Managed settings move
-  `merge_pull_request` (all four names) from `deny` to `ask`, so each merge waits for his
-  Allow; `enable_pr_auto_merge` and `Bash(gh pr merge:*)` stay denied. A GitHub comment,
+  `merge_pull_request` (all four names) from `deny` to `ask`, so each merge waits for a
+  person's Allow (only Parker's ask in his own session authorizes it; a rep never Allows a
+  merge); `enable_pr_auto_merge` and `Bash(gh pr merge:*)` stay denied. A GitHub comment,
   review, brief or scheduled trigger is never his ask. After a merge he asked for, the
   agent may delete that PR's head branch; recommended also: GitHub's "Automatically delete
-  head branches" setting. Accepted cost: the record of his approval is the chat session and
+  head branches" setting. Accepted cost: the `ask` prompt cannot tell Parker from a rep, so the
+  control is his ask in his own session; and the record of his approval is the chat session and
   the Allow click, not GitHub, since every agent posts as his account. **Open action for
   Parker:** re-paste managed settings in the admin console, and set the console's GitHub
   `merge_pull_request` from `blocked` to `ask`; until then the deny still holds everywhere.
@@ -1172,7 +1174,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   #74, #71, #53, #77, #76 and #72, each at its cleared head. It was bounded to that queue and
   ended once the R1 managed-settings deny went live: Parker, in the steward session on
   2026-11-12, after the steward sent him the file from `main` `5ae15f3` (#86): "managed
-  settings are in". From then on R1 holds without exception: Parker merges in the GitHub UI.
+  settings are in". From then on R1 holds without exception: Parker merges in the GitHub UI
+  (superseded by R1a, 2026-11-13).
   **Still open:** the live test of that paste — a payroll read is blocked, a Vercel purchase
   asks, and a new session opens on Opus at medium.
 - **BC writers: Kim, Aanya, Griffin and Joey — RULED 2026-11-11.** Parker, in the steward session: "Kim, Aanya, griffin and Joey should have

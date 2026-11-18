@@ -111,7 +111,7 @@ rule). Adding a plugin to `enabledPlugins` is routine; changing what reps may do
 ## Report
 
 When the pass is done, one report to Parker: a table of every PR touched, with **cleared:
-awaiting your merge in the GitHub UI**, **merged by Parker (seen on GitHub)**, **held: critiques
+awaiting your merge in the GitHub UI**, **merged by Parker (seen on GitHub)**, **merged on Parker's ask (#n named in chat; seen on GitHub)**, **held: critiques
 posted**, or **held: needs ruling**, one line each on why, and what he
 must do outside the repo (managed-settings re-paste, console rulings). Say what you could
 not verify. Never claim a merge you did not see succeed.
@@ -125,7 +125,8 @@ not verify. Never claim a merge you did not see succeed.
 - Skip, disable, or quarantine a check to get green.
 - Close a PR. Recommend closing in the review; Parker closes.
 - Delete a branch, push to a PR's branch, or call `update_pull_request_branch`, except
-  the mechanical `main` merge on a PR Parker asks you to bring up to date (*Decide*). Branch
+  the mechanical `main` merge on a PR Parker asks you to bring up to date (*Decide*), and
+  except the head branch of a PR you merged on Parker's ask (R1a). Any other branch
   deletion is Parker's.
 - Commit to `main` directly. Every change reaches `main` as a squash of a reviewed PR.
 

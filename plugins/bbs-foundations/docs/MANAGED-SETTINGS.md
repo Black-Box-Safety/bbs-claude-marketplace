@@ -282,7 +282,7 @@ tools: `mcp__*__outlook_send_mail`, `mcp__*__outlook_forward_mail`,
 `mcp__*__outlook_set_vacation`, `mcp__*__teams_send_chat_message`,
 `mcp__*__teams_send_channel_message` and `mcp__*__teams_reply_channel_message`. Each names
 one exact tool and catches nothing else, and no deny rule catches any of them
-(match check, PR #53, 2026-11-11). 33 ask entries in all.
+(match check, PR #53, 2026-11-11). 37 ask entries in all (four `merge_pull_request` names added by R1a, 2026-11-13).
 
 ## Agents merge on Parker's ask (2026-11-13, R1a)
 
@@ -311,9 +311,10 @@ and a sentence in an agent file is a request, not a control. So `permissions.den
 | `Bash(gh pr merge:*)` | The `gh` CLI, including `gh pr merge --auto` | Moved from `ask` to `deny`: an `ask` would let an agent put a merge in front of Parker as one more Allow click |
 
 A deny on a name that does not exist is a silent no-op, which is why the glob is there.
-After the re-paste, confirm in `/permissions` on Parker's machine that the GitHub tools
-are listed as denied, and in one cloud session that asking Claude to merge a test PR is
-refused rather than prompted.
+After the re-paste, confirm in `/permissions` on Parker's machine that
+`merge_pull_request` shows as ask, and that a merge request prompts for Allow;
+`enable_pr_auto_merge` and `gh pr merge` show as denied, and a request to use them is
+refused (R1a, 2026-11-13, superseding R1's "refused rather than prompted" test).
 
 **What it does not cover.** `gh api` (a `PUT .../pulls/<n>/merge` call), `git push` to
 `main`, and any GitHub tool on a surface managed settings do not reach (the Desktop
