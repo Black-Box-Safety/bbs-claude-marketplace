@@ -97,11 +97,19 @@ jobs:
           pwsh -NoProfile -File plugins/bbs-sales/hooks/tests/run-tests.ps1
           python3 plugins/bbs-sales/hooks/tests/parity.py | tail -3
           test "${PIPESTATUS[0]}" = "0"
+          python3 plugins/bbs-sales/hooks/tests/desks_parity.py | tail -3
+          test "${PIPESTATUS[0]}" = "0"
 
       # The RFQ record parser and CLI (scripts/rfq_record.py) that the record hook calls. Without
       # this step the parser could regress with every other check still green.
+      # (This discover also runs test_desks.py: the registry loader's schema, find() and the
+      # FALLBACK == load() check.)
       - name: RFQ record parser tests
         run: python3 -m unittest discover -s plugins/bbs-sales/scripts/tests
+
+      # The desk-registry checker's own cases (check_desk_registry in scripts/check_marketplace.py).
+      - name: Desk registry checker tests
+        run: python3 -m unittest discover -s scripts/tests
 
       # Desk memory: the writer's refusals (no price, account, cert or contract fact in a note)
       # and the isolation loop (a note saved for one buyer is shown there and not in a sibling
@@ -264,3 +272,22 @@ jobs:
           test "${PIPESTATUS[0]}" = "0"
       - name: bbs-fill launcher tests (macOS)
         run: python3 plugins/bbs-sales/scripts/tests/test_bbs_fill.py
+
+  # Desks.ps1 must also load under Windows PowerShell 5.1 (reps on Windows run it when pwsh 7 is
+  # absent). windows-latest ships both; BBS_PS=powershell makes the harness use 5.1, not pwsh.
+  desks-windows-ps51:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Desk registry loader parity (Windows PowerShell 5.1)
+        shell: bash
+        env:
+          BBS_REQUIRE_PS: "1"
+          BBS_PS: powershell
+        run: |
+          powershell -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
+          python plugins/bbs-sales/hooks/tests/desks_parity.py | tail -5
+          test "${PIPESTATUS[0]}" = "0"

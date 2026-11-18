@@ -279,6 +279,13 @@ Code runs hooks through picks the interpreter: `pwsh` 7, else Windows PowerShell
 `python3`. A machine with none of the three sees a message saying the guard did not run and the
 call went ahead unguarded, instead of looking guarded.
 
+Which folder is "the desk" is not written into the hooks. `references/desks.json` is the desk
+registry: each desk lists its root folder name(s), deal depth and guard rules, and every hook and
+script reads it through `scripts/desks.py` (Python) or `scripts/Desks.ps1` (PowerShell). Each
+loader carries a built-in `ca-state` fallback, so a missing or invalid registry falls back to
+today's desk and says so. `scripts/check_marketplace.py` keeps the registry, both fallbacks and the
+`desk-post.sh` prefilter in step (`check_desk_registry`). Notes: `references/desks.md`.
+
 | Hook | When | What it does |
 |---|---|---|
 | `guard-tree.ps1` / `.py` | Before Bash / PowerShell / Write / Edit | Denies renames or moves inside `All RFQ's by Agency` (folder names carry account numbers); denies creating a buyer or agency folder whose name near-duplicates a sibling (case, spaces, `(ALL)`, a dropped or added word, two typos); denies overwriting anything under `FILLED/`, including a shell delete or a redirect into a submitted packet (reading one stays allowed) |

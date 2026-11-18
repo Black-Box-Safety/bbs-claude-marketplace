@@ -40,16 +40,31 @@ import os
 import re
 import sys
 
-# One profile per desk. Another desk adopts this by adding a profile, not a second script.
-DESKS = {
-    "ca-state": {
-        "tree": "All RFQ's by Agency",
-        "file": "LEARNED.md",
-        # Levels a rep may write to directly, counted in folders below the tree folder.
-        # Depth 1 is an agency, depth 0 the whole desk: those change by Parker's ruling.
-        "rep_min_depth": 2,
-    },
-}
+# The plugin's scripts folder holds the desk registry loader: <plugin>/skills/desk-remember/scripts/ -> <plugin>/scripts/.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "scripts"))
+import desks as desk_registry  # noqa: E402  (path set just above)
+
+LEARNED_FILE = "LEARNED.md"
+
+
+def profile_for(path):
+    """(desk_id, profile, root_dir) for the desk root in path, or None. One profile per desk in the registry:
+    another desk adopts this by being added there, not by a second script. rep_min_depth counts folders
+    below the root folder: depth 1 is an agency, depth 0 the whole desk, and those change by Parker's ruling."""
+    full = os.path.abspath(path)
+    norm = full.replace("\\", "/")
+    desks, _err = desk_registry.load()   # never reports an error: only desk-context's SessionStart does
+    for m in desk_registry.find_all(full, desks):
+        if (m.start == 0 or norm[m.start - 1] == "/") and (m.end == len(norm) or norm[m.end] == "/"):
+            return (m.desk["desk_id"],
+                    {"tree": m.root, "file": LEARNED_FILE, "rep_min_depth": m.desk["rep_min_depth"]},
+                    full[:m.end])
+    return None
+
+
+# Read-only view of the registry for callers that want the tree and file by desk id (test_desk_memory.py).
+DESKS = {d["desk_id"]: {"tree": d["roots"][0], "file": LEARNED_FILE, "rep_min_depth": d["rep_min_depth"]}
+         for d in desk_registry.load()[0] if d["kind"] == "rfq"}
 KINDS = ("preference", "change", "watch-out")
 MAX_TEXT = 200
 MAX_AUTHOR = 60
@@ -151,16 +166,10 @@ def split_path(p):
 
 def find_desk(path):
     """(profile, tree_dir, components below the tree) or raise Refused."""
-    full = os.path.abspath(path)
-    for name, prof in DESKS.items():
-        m = None
-        for hit in re.finditer(re.escape(prof["tree"]), full, re.I):
-            a, b = hit.start(), hit.end()
-            if (a == 0 or full[a - 1] in "/\\") and (b == len(full) or full[b] in "/\\"):
-                m = hit
-                break
-        if m:
-            return prof, full[:m.end()], split_path(full[m.end():])
+    hit = profile_for(path)
+    if hit:
+        _desk_id, prof, tree_dir = hit
+        return prof, tree_dir, split_path(os.path.abspath(path)[len(tree_dir):])
     raise Refused("that folder is not inside a customer desk this skill knows, so nothing was saved")
 
 

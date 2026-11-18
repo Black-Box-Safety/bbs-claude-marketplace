@@ -34,7 +34,9 @@ import re
 import sys
 import tempfile
 
-TREE = "All RFQ's by Agency"
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scripts"))
+import desks as desk_registry  # noqa: E402  (path set just above)
+
 FILE = "LEARNED.md"
 PER_LEVEL = 12
 MAX_UP = 8
@@ -48,7 +50,6 @@ MARKERS = "bbs-desk-memory"
 DEAL = re.compile(r"^\s*[0-9]{1,2}\.[0-9]{1,2}\.(?:[0-9]{2}|[0-9]{4})(?![0-9])"
                   r"|[ _-][0-9]{1,2}\.[0-9]{1,2}\.(?:[0-9]{2}|[0-9]{4})\s*$"
                   r"|[ _-][0-9]{4}-[0-9]{2}-[0-9]{2}\s*$")
-TREE_RE = re.compile(re.escape(TREE), re.I | re.A)
 ENTRY = re.compile(
     r"^- ([0-9]{4}-[0-9]{2}-[0-9]{2}) \| ([^|]{1,60}) \| (preference|change|watch-out) \| ([^|]{1,300})"
     r"( \| wider: [^|]{1,120})?$")
@@ -158,19 +159,26 @@ def base(d):
     return d[last_sep(d) + 1:]
 
 
-def chain(cwd):
-    """[(folder, label)] from cwd up to the tree folder, nearest first; [] when cwd is not placed."""
+def chain(cwd, desks):
+    """[(folder, label)] from cwd up to the desk's root folder, nearest first; [] when cwd is not placed."""
     d = strip_seps(cwd)
-    tree = TREE.lower()
-    # One level above the tree (the desk root the workspace opens): the desk-wide file only.
-    if tree not in d.lower():
-        below = d + os.sep + TREE
-        if os.path.isdir(below):
-            return [(below, "DESK-WIDE")]
+    m = desk_registry.find(d, desks)
+    # One level above a desk's root (the folder the workspace opens): the desk-wide file only.
+    if m is None:
+        for desk in desks:
+            if desk.get("kind") != "rfq":
+                continue
+            for root in desk["roots"]:
+                below = d + os.sep + root
+                if os.path.isdir(below):
+                    return [(below, "DESK-WIDE")]
         return []
+    # The walk stops at the root folder nearest cwd (a path may name the root twice): a folder whose
+    # name is a root, i.e. a match that starts at a separator and ends where the folder ends.
+    ends = {x.end for x in desk_registry.find_all(d, desks) if x.start == 0 or d[x.start - 1] in "/\\"}
     out = []
     for n in range(MAX_UP):
-        is_tree = base(d).lower() == tree
+        is_tree = len(d) in ends
         out.append((d, "DESK-WIDE" if is_tree else ("THIS FOLDER" if n == 0 else f"{n} UP")))
         if is_tree:
             return out
@@ -181,9 +189,9 @@ def chain(cwd):
     return []               # could not place the folder under the tree: show nothing
 
 
-def collect(cwd):
+def collect(cwd, desks):
     out = []
-    for d, label in chain(cwd):
+    for d, label in chain(cwd, desks):
         out.extend(level_block(d, label))
     return out
 
@@ -196,16 +204,19 @@ def same(d):
     return strip_seps(d).replace("\\", "/").lower()
 
 
-def touched(p):
+def touched(p, desks):
     """(folder, its path below the tree) for a file under a buyer or institution folder, else None.
 
     The folder is the file's own, cut above a dated deal folder (a deal is never a level), and must
-    be at least two below the tree: an agency file or a deal at agency level is not a first touch."""
+    be at least the desk's rep_min_depth below the tree (two for California): an agency file or a
+    deal at agency level is not a first touch."""
     end = -1
-    for m in TREE_RE.finditer(p):
-        a, b = m.start(), m.end()
+    desk = None
+    for m in desk_registry.find_all(p, desks):
+        a, b = m.start, m.end
         if (a == 0 or p[a - 1] in "/\\") and b < len(p) and p[b] in "/\\":
             end = b
+            desk = m.desk
             break
     if end < 0:
         return None
@@ -218,7 +229,7 @@ def touched(p):
         if DEAL.search(c):
             break
         folder.append(c)
-    if len(folder) < 2:
+    if len(folder) < desk["rep_min_depth"]:
         return None
     d = p[:end] + sep + sep.join(folder)
     if not os.path.isdir(d):
@@ -252,7 +263,7 @@ def mark(path):
         pass                # no marker: the notes repeat (or the shell starts the interpreter), never blocks
 
 
-def first_touch(h):
+def first_touch(h, desks=None):
     """Lines for desk-context.py's PostToolUse reply, or [] when there is nothing new to show.
 
     Whatever it decides, it then marks the file's folder done for this session, so the next Read
@@ -261,11 +272,13 @@ def first_touch(h):
     p = ti.get("file_path") if isinstance(ti, dict) else None
     if not isinstance(p, str) or not p.strip():
         return []
+    if desks is None:
+        desks, _err = desk_registry.load()      # never reports an error: only SessionStart does
     sid = h.get("session_id")
     mdir = None
     if isinstance(sid, str) and sid.strip():
         mdir = os.path.join(tempfile.gettempdir(), MARKERS)
-    out = touch_lines(p, h, sid, mdir)
+    out = touch_lines(p, h, sid, mdir, desks)
     if mdir:
         dm = dir_marker(p, mdir, sid)
         if dm:
@@ -273,16 +286,16 @@ def first_touch(h):
     return out
 
 
-def touch_lines(p, h, sid, mdir):
-    t = touched(p)
+def touch_lines(p, h, sid, mdir, desks):
+    t = touched(p, desks)
     if not t:
         return []
     d, folder = t
     cwd = h.get("cwd")
-    shown = {same(x) for x, _ in chain(cwd)} if isinstance(cwd, str) and cwd else set()
+    shown = {same(x) for x, _ in chain(cwd, desks)} if isinstance(cwd, str) and cwd else set()
     blocks = []
     marks = []
-    for n, (dd, lab) in enumerate(chain(d)):
+    for n, (dd, lab) in enumerate(chain(d, desks)):
         rel = "/".join(folder[:len(folder) - n])
         if same(dd) in shown:
             continue
@@ -337,7 +350,8 @@ def main():
     d = h.get("cwd")
     if not isinstance(d, str) or not d or not os.path.isdir(d):
         return
-    out = collect(d)
+    desks, _err = desk_registry.load()          # never reports an error: only desk-context's SessionStart does
+    out = collect(d, desks)
     if out:
         sys.stdout.flush()
         sys.stdout.buffer.write(("\n".join([HEAD] + out) + "\n").encode("utf-8"))

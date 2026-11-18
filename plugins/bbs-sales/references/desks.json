@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "desks": [
+    {
+      "desk_id": "ca-state",
+      "kind": "rfq",
+      "roots": ["All RFQ's by Agency"],
+      "deal_depth": [2, 3],
+      "deal_name_rule": "date",
+      "rep_min_depth": 2,
+      "guard": {"no_rename": true, "near_duplicate": true, "filled_immutable": true},
+      "record_profile": "ca-v2"
+    }
+  ]
+}

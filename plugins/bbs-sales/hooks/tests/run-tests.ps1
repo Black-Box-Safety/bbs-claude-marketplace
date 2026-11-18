@@ -216,6 +216,60 @@ Check 'rfq-record ps: notice for an RFQ.md in the tree' (RunRfq (Join-Path $rfqD
 Check 'rfq-record ps: silent outside the tree' (RunRfq (Join-Path $rfqOther 'RFQ.md')) '0||False|'
 Check 'rfq-record ps: silent for another file in the tree' (RunRfq (Join-Path $rfqDeal 'notes.md')) '0||False|'
 
+# 18. Synthetic second desk, selected with BBS_DESKS_FILE (near_duplicate false on that desk).
+$two = Join-Path (Join-Path (Join-Path (Split-Path -Parent $here) '..\scripts') 'tests\fixtures') 'desks-two.json'
+$syn = Join-Path $root 'Synthetic Desk Root'
+$synB = Join-Path (Join-Path $syn 'A') 'B'
+New-Item -ItemType Directory -Force -Path (Join-Path $synB 'FILLED') | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path (Join-Path $syn 'A') 'Buyer') | Out-Null
+$synPacket = Join-Path (Join-Path $synB 'FILLED') 'p.pdf'
+Set-Content -Path $synPacket -Value 'x'
+$synMv = @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "mv `"$synB`" `"$syn/A/C`"" } }
+$env:BBS_DESKS_FILE = $two
+$o = Run $guard $synMv
+Check 'synthetic desk: mv denied' (Decision $o) 'deny'
+Check 'synthetic desk: reason names its root' ($o -match "inside 'Synthetic Desk Root'") $true
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "mkdir `"$syn/A/Buyerr`"" } }
+Check 'synthetic desk: near-duplicate folder allowed (flag off)' (Decision $o) 'allow'
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Write'; tool_input=@{ file_path = $synPacket; content='y' } }
+Check 'synthetic desk: overwrite FILLED denied' (Decision $o) 'deny'
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "mkdir `"$syn/A/x`" && mkdir `"$tree/CalTrans`"" } }
+Check 'two desks in one command: synthetic first, CA near-duplicate denied' (Decision $o) 'deny'
+Check 'two desks in one command: synthetic first, reason names the near-duplicate' ($o -match 'near-duplicate of the existing folder') $true
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "mkdir `"$tree/CalTrans`" && mkdir `"$syn/A/x`"" } }
+Check 'two desks in one command: CA first, CA near-duplicate denied' (Decision $o) 'deny'
+Check 'two desks in one command: CA first, reason names the near-duplicate' ($o -match 'near-duplicate of the existing folder') $true
+$o = Run $guard @{ hook_event_name='PreToolUse'; tool_name='Bash'; tool_input=@{ command = "mkdir `"$syn/A/Buyerr`" && mkdir `"$tree/Brand New Agency`"" } }
+Check 'two desks in one command: no near-duplicate anywhere allowed' (Decision $o) 'allow'
+Remove-Item Env:BBS_DESKS_FILE -ErrorAction SilentlyContinue
+$o = Run $guard $synMv
+Check 'synthetic root is not a desk under the default registry' (Decision $o) 'allow'
+
+# 19. desk-context on the registry: the synthetic desk's precedent block, and the registry-error
+#     line (SessionStart only, final line) for a registry that cannot be read.
+$synBuyer = Join-Path (Join-Path $syn 'A') 'Buyer'
+Set-Content -Path (Join-Path $synBuyer 'quote-log.md') -Value @(
+  '| Date | Item | Quote# | Vehicle | Value | Outcome |',
+  '|---|---|---|---|---|---|',
+  '| 2026-05-06 | Synthetic cones | SQ-7001 | OPEN | 12 | won |'
+)
+$env:BBS_DESKS_FILE = $two
+$o = Run $ctx @{ hook_event_name='SessionStart'; source='startup'; cwd = $synBuyer }
+Check 'synthetic desk: session context has precedent' ($o -match 'PRECEDENT' -and $o -match 'SQ-7001' -and $o -notmatch 'registry could not be read') $true
+Remove-Item Env:BBS_DESKS_FILE -ErrorAction SilentlyContinue
+$o = Run $ctx @{ hook_event_name='SessionStart'; source='startup'; cwd = $synBuyer }
+Check 'synthetic desk: session context silent under the default registry' ($o -eq '') $true
+$badReg = Join-Path $root 'bad-desks.json'
+[IO.File]::WriteAllText($badReg, '{"schema_version": 1, "desks": [')
+$regLine = 'bbs-sales: the desk registry could not be read (bad-desks.json invalid JSON); only the built-in California desk is active.'
+$plain = Run $ctx @{ hook_event_name='SessionStart'; source='startup'; cwd = $mcsp }
+$env:BBS_DESKS_FILE = $badReg
+$o = Run $ctx @{ hook_event_name='SessionStart'; source='startup'; cwd = $mcsp }
+Check 'registry_error_line: CA output plus the final line' (($plain -ne '') -and ($o.Replace("`r`n", "`n") -ceq ($plain.Replace("`r`n", "`n") + "`n" + $regLine))) $true
+$o = RunPost (Join-Path (Join-Path $joe '9.14.26') 'form.pdf') 's1'
+Check 'registry_error_line: PostToolUse prints no line' (($o -ne '') -and ($o -notmatch 'registry could not be read')) $true
+Remove-Item Env:BBS_DESKS_FILE -ErrorAction SilentlyContinue
+
 Remove-Item -Recurse -Force $root
 Write-Host ""
 if ($fails -eq 0) { Write-Host "ALL PASS"; exit 0 } else { Write-Host "$fails FAILED"; exit 1 }

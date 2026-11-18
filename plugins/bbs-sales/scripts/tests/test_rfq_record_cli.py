@@ -235,5 +235,41 @@ class TestCli(CliBase):
         self.assertEqual(rc.returncode, 1)
 
 
+class TestDealPathRegistry(CliBase):
+    TWO = os.path.join(FIX, "desks-two.json")
+
+    def compile_at(self, parts, desks_file=None):
+        d = os.path.join(self.tmp, *parts)
+        os.makedirs(d)
+        dst = os.path.join(d, "RFQ.md")
+        shutil.copy(os.path.join(FIX, "v2_competitive_sourcing.md"), dst)
+        env = dict(os.environ)
+        if desks_file:
+            env["BBS_DESKS_FILE"] = desks_file
+        rc = subprocess.run([sys.executable, SCRIPT, "compile", dst], capture_output=True, text=True, env=env)
+        self.assertEqual(rc.returncode, 0, rc.stderr)
+        return dst, json.loads(slurp(os.path.join(d, "rfq-state.json")))
+
+    def test_deal_path_synthetic_desk(self):
+        dst, state = self.compile_at(["Synthetic Desk Root", "A", "B", "2026-11-01"], self.TWO)
+        self.assertEqual(state["deal_path"], os.path.abspath(dst))
+
+    def test_deal_path_sibling_folder_is_empty(self):
+        _, state = self.compile_at(["All RFQ's by Agency (old)", "A", "B", "2026-11-01"])
+        self.assertEqual(state["deal_path"], "")
+
+    def test_deal_path_sibling_first_then_real_root(self):
+        dst, state = self.compile_at(["All RFQ's by Agency (old)", "x", "All RFQ's by Agency", "A", "B", "2026-11-01"])
+        self.assertEqual(state["deal_path"], os.path.abspath(dst))
+
+    def test_deal_path_outside_any_desk(self):
+        _, state = self.compile_at(["Elsewhere", "A", "B", "2026-11-01"], self.TWO)
+        self.assertEqual(state["deal_path"], "")
+
+    def test_deal_path_synthetic_root_is_not_a_desk_by_default(self):
+        _, state = self.compile_at(["Synthetic Desk Root", "A", "B", "2026-11-01"])
+        self.assertEqual(state["deal_path"], "")
+
+
 if __name__ == "__main__":
     unittest.main()

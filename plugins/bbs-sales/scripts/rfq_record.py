@@ -13,6 +13,11 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+import desks as desks_mod  # noqa: E402  the desk registry loader, beside this file (path set just above)
+
 SCHEMA_VERSION = 2
 
 STAGES = ["logged", "sourcing", "priced", "quote built", "packet built",
@@ -1014,7 +1019,13 @@ def _read(path):
 
 def _deal_path(path):
     p = os.path.abspath(path)
-    return p if "All RFQ's by Agency/" in p.replace(os.sep, "/") else ""
+    desks, _err = desks_mod.load()
+    norm = p.replace("\\", "/")
+    # A desk root followed by "/" (the old "<root>/" test); no leading boundary, as before.
+    for m in desks_mod.find_all(p, desks):
+        if norm[m.end:m.end + 1] == "/":
+            return p
+    return ""
 
 
 # A OneDrive conflict copy of RFQ.md is named RFQ-<COMPUTERNAME>.md, or RFQ-<COMPUTERNAME>-<n>.md

@@ -27,7 +27,7 @@
 
 $ErrorActionPreference = 'SilentlyContinue'
 $utf8 = New-Object System.Text.UTF8Encoding($false)
-$TREE = "All RFQ's by Agency"
+. (Join-Path $PSScriptRoot '..\scripts\Desks.ps1')
 $FILE = 'LEARNED.md'
 $PER_LEVEL = 12
 $MAX_UP = 8
@@ -143,18 +143,30 @@ function Get-Base([string]$d) {
   return $d.Substring((Last-Sep $d) + 1)
 }
 
-function Get-Chain([string]$cwd) {
-  # [{Dir, Label}] from cwd up to the tree folder, nearest first; empty when cwd is not placed.
+function Get-Chain([string]$cwd, $desks) {
+  # [{Dir, Label}] from cwd up to the desk's root folder, nearest first; empty when cwd is not placed.
   $d = Strip-Seps $cwd
-  # One level above the tree (the desk root the workspace opens): the desk-wide file only.
-  if ($d.IndexOf($TREE, $ORDI) -lt 0) {
-    $below = $d + $SEP + $TREE
-    if ([System.IO.Directory]::Exists($below)) { return @([pscustomobject]@{ Dir = $below; Label = 'DESK-WIDE' }) }
+  $m = Find-BbsDeskRoot -Path $d -Desks $desks
+  # One level above a desk's root (the folder the workspace opens): the desk-wide file only.
+  if ($null -eq $m) {
+    foreach ($desk in @($desks)) {
+      if (-not ($desk.kind -ceq 'rfq')) { continue }
+      foreach ($root in @($desk.roots)) {
+        $below = $d + $SEP + $root
+        if ([System.IO.Directory]::Exists($below)) { return @([pscustomobject]@{ Dir = $below; Label = 'DESK-WIDE' }) }
+      }
+    }
     return @()
+  }
+  # The walk stops at the root folder nearest cwd (a path may name the root twice): a folder whose
+  # name is a root, i.e. a match that starts at a separator and ends where the folder ends.
+  $ends = @{}
+  foreach ($x in @(Find-BbsDeskRootAll -Path $d -Desks $desks)) {
+    if ($x.Start -eq 0 -or '/\'.IndexOf($d[$x.Start - 1]) -ge 0) { $ends[[int]$x.End] = $true }
   }
   $out = New-Object System.Collections.ArrayList
   for ($n = 0; $n -lt $MAX_UP; $n++) {
-    $isTree = [string]::Equals((Get-Base $d), $TREE, $ORDI)
+    $isTree = $ends.ContainsKey([int]$d.Length)
     if ($isTree) { $label = 'DESK-WIDE' } elseif ($n -eq 0) { $label = 'THIS FOLDER' } else { $label = "$n UP" }
     [void]$out.Add([pscustomobject]@{ Dir = $d; Label = $label })
     if ($isTree) { return @($out) }
@@ -165,9 +177,9 @@ function Get-Chain([string]$cwd) {
   return @()   # could not place the folder under the tree: show nothing
 }
 
-function Get-Memory([string]$cwd) {
+function Get-Memory([string]$cwd, $desks) {
   $out = New-Object System.Collections.ArrayList
-  foreach ($lv in @(Get-Chain $cwd)) {
+  foreach ($lv in @(Get-Chain $cwd $desks)) {
     foreach ($line in @(Get-LevelBlock $lv.Dir $lv.Label)) { [void]$out.Add($line) }
   }
   return @($out)
@@ -177,13 +189,15 @@ function Get-MemSafe([string]$s) { return [regex]::Replace($s, '[^A-Za-z0-9]+', 
 
 function Get-Same([string]$d) { return (Strip-Seps $d).Replace('\', '/').ToLowerInvariant() }
 
-function Get-Touched([string]$p) {
+function Get-Touched([string]$p, $desks) {
   # {Dir, Folder} for a file under a buyer or institution folder, else $null. The folder is the
-  # file's own, cut above a dated deal folder, and at least two below the tree.
+  # file's own, cut above a dated deal folder, and at least the desk's rep_min_depth below the
+  # tree (two for California).
   $end = -1
-  foreach ($m in [regex]::Matches($p, [regex]::Escape($TREE), $MEM_ICASE)) {
-    $a = $m.Index; $b = $m.Index + $m.Length
-    if (($a -eq 0 -or '/\'.IndexOf($p[$a - 1]) -ge 0) -and $b -lt $p.Length -and '/\'.IndexOf($p[$b]) -ge 0) { $end = $b; break }
+  $desk = $null
+  foreach ($m in @(Find-BbsDeskRootAll -Path $p -Desks $desks)) {
+    $a = $m.Start; $b = $m.End
+    if (($a -eq 0 -or '/\'.IndexOf($p[$a - 1]) -ge 0) -and $b -lt $p.Length -and '/\'.IndexOf($p[$b]) -ge 0) { $end = $b; $desk = $m.Desk; break }
   }
   if ($end -lt 0) { return $null }
   $sep = [string]$p[$end]
@@ -195,7 +209,7 @@ function Get-Touched([string]$p) {
     if ([regex]::IsMatch($comps[$k], $DEAL)) { break }
     [void]$folder.Add([string]$comps[$k])
   }
-  if ($folder.Count -lt 2) { return $null }
+  if ($folder.Count -lt [int]$desk.rep_min_depth) { return $null }
   $d = $p.Substring(0, $end) + $sep + (@($folder) -join $sep)
   if (-not [System.IO.Directory]::Exists($d)) { return $null }
   return [pscustomobject]@{ Dir = $d; Folder = [string[]]$folder.ToArray([string]) }
@@ -222,7 +236,7 @@ function Set-Marker([string]$path) {
   } catch { }
 }
 
-function Get-MemoryFirstTouch($h) {
+function Get-MemoryFirstTouch($h, $desks) {
   # Lines for desk-context.ps1's PostToolUse reply, or nothing when there is nothing new to show.
   # Whatever it decides, it then marks the file's folder done for this session, so the next Read
   # there ends in hooks/desk-post.sh without starting an interpreter.
@@ -235,7 +249,7 @@ function Get-MemoryFirstTouch($h) {
   if (($sid -is [string]) -and -not [string]::IsNullOrWhiteSpace($sid)) {
     $mdir = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), $MARKERS)
   }
-  $out = @(Get-TouchLines $p $h $sid $mdir)
+  $out = @(Get-TouchLines $p $h $sid $mdir $desks)
   if ($mdir) {
     $dm = Get-DirMarker $p $mdir $sid
     if ($dm) { Set-Marker $dm }
@@ -243,16 +257,16 @@ function Get-MemoryFirstTouch($h) {
   return @($out)
 }
 
-function Get-TouchLines([string]$p, $h, $sid, $mdir) {
-  $t = Get-Touched $p
+function Get-TouchLines([string]$p, $h, $sid, $mdir, $desks) {
+  $t = Get-Touched $p $desks
   if ($null -eq $t) { return @() }
   $folder = @($t.Folder)
   $cwd = $h.cwd
   $shown = @{}
-  if (($cwd -is [string]) -and $cwd) { foreach ($x in @(Get-Chain $cwd)) { $shown[(Get-Same $x.Dir)] = $true } }
+  if (($cwd -is [string]) -and $cwd) { foreach ($x in @(Get-Chain $cwd $desks)) { $shown[(Get-Same $x.Dir)] = $true } }
   $blocks = New-Object System.Collections.ArrayList
   $marks = New-Object System.Collections.ArrayList
-  $chain = @(Get-Chain $t.Dir)
+  $chain = @(Get-Chain $t.Dir $desks)
   for ($n = 0; $n -lt $chain.Count; $n++) {
     $lv = $chain[$n]
     $rel = ''
@@ -304,7 +318,10 @@ if ($MyInvocation.InvocationName -ne '.') {
         if (($h.source -is [string]) -and $h.source -ceq 'compact') { Reset-Markers $h.session_id }
         $d = $h.cwd
         if ($d -is [string] -and $d -and [System.IO.Directory]::Exists($d)) {
-          $out = @(Get-Memory $d)
+          # Never reports a registry error: Get-BbsDesks hands back the CA fallback on any problem,
+          # and only desk-context's SessionStart says so.
+          $desks = @((Get-BbsDesks).Desks)
+          $out = @(Get-Memory $d $desks)
           if ($out.Count -gt 0) {
             $all = @($HEAD) + $out
             $bytes = $utf8.GetBytes(($all -join "`n") + "`n")

@@ -1,6 +1,10 @@
 # Quote-desk buyer context, two events:
 #   SessionStart  cwd inside the desk tree: put that buyer's newest quote-log rows and open FLAGS
-#                 entries in front of Claude before the first prompt.
+#                 entries in front of Claude before the first prompt. Separately, on any SessionStart
+#                 whose cwd exists, whether or not it is inside a desk tree, if the desk registry
+#                 could not be read (not found, unreadable, invalid JSON, schema error), one final
+#                 line says so and that only the built-in California desk is active. This is the only
+#                 hook that reports a broken registry; the others silently use the California desk.
 #   PostToolUse   first Write/Edit inside a dated deal folder (<Agency>/<Buyer>/<Item M.D.YY>/ or
 #                 <Agency>/<Institution>/<Buyer>/<Item M.D.YY>/): the same rows and flags, the
 #                 buyer's CLAUDE.md / quote-log.md / FLAGS.md named as the files to keep current,
@@ -19,7 +23,7 @@
 
 $ErrorActionPreference = 'SilentlyContinue'
 $utf8 = New-Object System.Text.UTF8Encoding($false)
-$TREE = "All RFQ's by Agency"
+. (Join-Path $PSScriptRoot '..\scripts\Desks.ps1')
 $BUYER_FILES = @('CLAUDE.md', 'quote-log.md', 'FLAGS.md')
 $STALE_DAYS = 30
 # The final outcomes, in the order of rfq_record.OUTCOMES (scripts/rfq_record.py), the one source;
@@ -168,8 +172,8 @@ function Get-FlagsBlock([string]$path) {
   return @("OPEN FLAGS -- $path (latest; do not repeat these mistakes):") + $ents
 }
 
-function Get-SessionStart([string]$d) {
-  if ($d.IndexOf($TREE, [StringComparison]::OrdinalIgnoreCase) -lt 0) { return @() }
+function Get-SessionStart([string]$d, $desks) {
+  if ($null -eq (Find-BbsDeskRoot -Path $d -Desks $desks)) { return @() }
   $out = @()
   for ($i = 0; $i -lt 5 -and $d; $i++) {
     $ql = Join-Path $d 'quote-log.md'
@@ -184,23 +188,37 @@ function Get-SessionStart([string]$d) {
   return $out
 }
 
-function Find-Buyer([string]$path) {
+function Get-RegistryErrorLine([string]$err) {
+  # The one line SessionStart adds when the desk registry could not be read. The two loaders word
+  # their messages differently (parser text, schema detail), so only "<file> <kind>" is kept, with
+  # kind one of: not found, unreadable, invalid JSON, schema error.
+  $reason = $err
+  $tail = '; using built-in fallback'
+  if ($reason.EndsWith($tail, [StringComparison]::Ordinal)) { $reason = $reason.Substring(0, $reason.Length - $tail.Length) }
+  $reason = [regex]::Replace($reason, '(?s)^(.*? (?:not found|unreadable|invalid JSON|schema error)).*$', '$1')
+  return "bbs-sales: the desk registry could not be read ($reason); only the built-in California desk is active."
+}
+
+function Find-Buyer([string]$path, $desks) {
   $end = -1
-  foreach ($m in [regex]::Matches($path, [regex]::Escape($TREE), $ICASE)) {
-    $a = $m.Index; $b = $m.Index + $m.Length
-    if (($a -eq 0 -or '/\'.IndexOf($path[$a - 1]) -ge 0) -and $b -lt $path.Length -and '/\'.IndexOf($path[$b]) -ge 0) { $end = $b; break }
+  $desk = $null
+  foreach ($m in @(Find-BbsDeskRootAll -Path $path -Desks $desks)) {
+    $a = $m.Start; $b = $m.End
+    if (($a -eq 0 -or '/\'.IndexOf($path[$a - 1]) -ge 0) -and $b -lt $path.Length -and '/\'.IndexOf($path[$b]) -ge 0) { $end = $b; $desk = $m.Desk; break }
   }
   if ($end -lt 0) { return $null }
+  $lo = [int]$desk.deal_depth[0]
+  $hi = [int]$desk.deal_depth[1]
   $sep = [string]$path[$end]
   $comps = @([regex]::Split($path.Substring($end + 1), '[\\/]+') | Where-Object { $_ -ne '' })
-  if ($comps.Count -lt 4) { return $null }
+  if ($comps.Count -lt ($lo + 2)) { return $null }
   foreach ($c in $comps) { if ($c.StartsWith('.')) { return $null } }
   $j = -1
   for ($k = 0; $k -lt $comps.Count - 1; $k++) {
     $c = $comps[$k]
     if ([regex]::IsMatch($c, $DEAL_START) -or [regex]::IsMatch($c, $DEAL_END) -or [regex]::IsMatch($c, $DEAL_ISO)) { $j = $k; break }
   }
-  if ($j -lt 2 -or $j -gt 3) { return $null }
+  if ($j -lt $lo -or $j -gt $hi) { return $null }
   $buyerDir = $path.Substring(0, $end) + $sep + ($comps[0..($j - 1)] -join $sep)
   if (-not (Test-Path -LiteralPath $buyerDir -PathType Container)) { return $null }
   $have = $false
@@ -218,12 +236,12 @@ function Find-Buyer([string]$path) {
 
 function Get-Safe([string]$s) { return [regex]::Replace($s, '[^A-Za-z0-9]+', '-') }
 
-function Get-FirstWrite($h) {
+function Get-FirstWrite($h, $desks) {
   $ti = $h.tool_input
   $p = $null
   if ($null -ne $ti) { $p = $ti.file_path }
   if (-not ($p -is [string]) -or [string]::IsNullOrWhiteSpace($p)) { return @() }
-  $loc = Find-Buyer $p
+  $loc = Find-Buyer $p $desks
   if ($null -eq $loc) { return @() }
   $buyerDir = $loc.Dir
 
@@ -303,15 +321,19 @@ try {
     $h = $null
     try { $h = $raw | ConvertFrom-Json } catch { $h = $null }
     if ($null -ne $h -and $h -isnot [array] -and $h -isnot [string] -and $h -isnot [ValueType]) {
+      # Loaded once. Only SessionStart below reports a registry error; Get-BbsDesks hands back the
+      # built-in California desk on any problem, so every other event just works.
+      $deskLoad = Get-BbsDesks
+      $desks = @($deskLoad.Desks)
       if ($h.hook_event_name -eq 'PostToolUse') {
         # The matcher includes Read for desk memory; the buyer-desk reminder is about writes only.
         $out = @()
-        if (-not (($h.tool_name -is [string]) -and $h.tool_name -ceq 'Read')) { $out = @(Get-FirstWrite $h) }
+        if (-not (($h.tool_name -is [string]) -and $h.tool_name -ceq 'Read')) { $out = @(Get-FirstWrite $h $desks) }
         $tp = $null
         if ($null -ne $h.tool_input) { $tp = $h.tool_input.file_path }
-        if (($tp -is [string]) -and [regex]::IsMatch($tp, [regex]::Escape($TREE), $ICASE)) {
+        if (($tp -is [string]) -and ($null -ne (Find-BbsDeskRoot -Path $tp -Desks $desks))) {
           . (Join-Path $PSScriptRoot 'desk-memory.ps1')
-          $out += @(Get-MemoryFirstTouch $h)
+          $out += @(Get-MemoryFirstTouch $h $desks)
         }
         if ($out.Count -gt 0) {
           $ctx = $out -join "`n"
@@ -320,7 +342,8 @@ try {
       } else {
         $d = [string]$h.cwd
         if ($d -and (Test-Path -LiteralPath $d)) {
-          $out = @(Get-SessionStart $d)
+          $out = @(Get-SessionStart $d $desks)
+          if ($null -ne $deskLoad.Error) { $out += (Get-RegistryErrorLine ([string]$deskLoad.Error)) }
           if ($out.Count -gt 0) { Emit (($out -join "`n") + "`n") }
         }
       }
