@@ -15,6 +15,7 @@ import contextlib
 import io
 import json
 import os
+import re
 import sys
 import tempfile
 import traceback
@@ -167,6 +168,7 @@ def test_at_or_over_the_limit_or_no_total_writes_it_unsigned():
             assert not code, (total, code)
             assert "SIGNATURES WITHHELD" in text, (total, text)
             assert text.count("⚑ SIGNATURE REQUIRED") == 5, (total, text)
+            assert "Stamped on packet pages" not in text, (total, text)
 
 
 def test_a_delegate_without_a_png_gets_blank_flagged_lines_and_jackson_still_signs():
@@ -234,7 +236,11 @@ def test_bound_packet_c_ids_fill_and_sign_every_line():
         assert "Signatures stamped: 6" in text, text
         assert "is not in this copy" not in text, text
         assert "has no field for `fein`" in text, text      # printed boxes on the bound STD 204
-        _stamped, values, _pages = _inspect(out)
+        stamped, values, _pages = _inspect(out)
+        listed = re.search(r"Stamped on packet pages: ([\d, ]+)", text)
+        assert listed, text
+        assert [int(p) for p in listed.group(1).split(",")] == stamped, (listed.group(1), stamped)
+        assert len(stamped) == 6, stamped
         legal = VP["business_identity"]["legal_name"]
         assert values["DVBE Dec. DGS PD 843 - Name of DVBE"] == legal, values
         assert values["Payee Data Record STD 204 - BUSINESS NAME"] == legal, values

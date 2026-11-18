@@ -390,6 +390,23 @@ def _signer_who(vp, inp):
     return None
 
 
+def _sign_pages(form, fitz, offset):
+    """1-based pages of the merged packet that carry this form's signature fields.
+
+    Read from the source copy: stamping deletes the signature widget, and filling
+    never adds or drops a page, so source page n is merged page offset + n.
+    """
+    names = set(form.get("sign") or {})
+    if not names:
+        return []
+    src = fitz.open(form["src"])
+    try:
+        return [offset + page.number + 1 for page in src
+                if any(w.field_name in names for w in (page.widgets() or []))]
+    finally:
+        src.close()
+
+
 def report(docs):
     lines, found = ["Packet C assembly:"], {}
     for path, kinds, _f in docs:
@@ -453,9 +470,10 @@ def main():
             kept += form_kept
         if unapplied:
             sys.exit("STOP: " + "\n".join(unapplied) + "\nNothing written.")
-        merged = fitz.open()
+        merged, sign_pages = fitz.open(), []
         for form in spec["forms"]:
             part = fitz.open(os.path.join(staging, form["out"]))
+            sign_pages += _sign_pages(form, fitz, merged.page_count)
             merged.insert_pdf(part)
             part.close()
         tmp = os.path.join(staging, "merged.pdf")
@@ -470,6 +488,10 @@ def main():
     stamped = sum(len(f.get("sign") or {}) for f in spec["forms"])
     print(f"Signatures stamped: {stamped}"
           + ("" if not ctx["withheld"] else " — SIGNATURES WITHHELD, the packet is UNSIGNED"))
+    if sign_pages:
+        print(("Signature lines, left unsigned, on packet pages: " if ctx["withheld"] else
+               "Stamped on packet pages: ") + ", ".join(str(p) for p in sign_pages)
+              + " (look at these first)")
     for line in kept + gaps + ctx["withheld"]:
         print(line)
     print("\nRender every page and look at it before sending (verify_script in the "
