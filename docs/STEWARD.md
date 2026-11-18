@@ -10,16 +10,17 @@ The operating manual for `.claude/agents/steward.md`. Read `AGENTS.md` first.
 scope → brief → dispatch worker → worker opens PR
       → steward reviews with a fresh reviewer
       → findings back to the SAME worker → worker tends
-      → Rex clears → steward brings cleared PRs to Parker → Parker merges in the GitHub UI
+      → Rex clears → steward brings cleared PRs to Parker → Parker merges in the GitHub UI, or names the PR in chat for an agent to merge (R1a)
 ```
 
 Four properties make it worth running:
 
 - **A session ends at a PR, not a merge.** The agent that wrote the change never approves
   it.
-- **The reviewer did not write the code, and only Parker merges.** Agents never merge;
-  Parker clicks Merge in the GitHub UI, and managed settings deny the merge tools (ruled
-  2026-11-10, "Agents never merge", R1).
+- **The reviewer did not write the code, and a merge happens only on Parker's ask.** An
+  agent merges a PR only when Parker names it by number in that session's chat, checks are
+  green, Rex has cleared it and the merging agent did not write it; the merge tool asks for
+  a person's Allow (only Parker's ask in his own session authorizes it; a rep never Allows a merge) and auto-merge stays denied (ruled 2026-11-13, R1a, superseding R1).
 - **Findings return to the original worker**, which still holds the context. A fresh
   session re-deriving the change is slower and gets it less right.
 - **The steward is woken by the PR**, not by polling. Subscribe to PR activity when the
@@ -867,7 +868,22 @@ Write it up with evidence and move to the next slice. Do not idle.
   `bbs-rebate-profitability` stays on CData; this ruling does not cover it.
 - **Rulings of 2026-11-10 (R1–R9) — RULED 2026-11-10.** Parker's words, in the steward session, 2026-11-10, after reading R1–R9 with the steward's recommendations: "Follow recommendations except for the last one we don't need payroll. I want vercel and supabase to be allowed". R1–R8 adopt
   the steward's recommendation as written; R9 is his exception, clarified the same day.
-- **R1. Agents never merge — RULED 2026-11-10.**
+- **R1a. Agents merge on Parker's ask — RULED 2026-11-13, supersedes R1.**
+  Parker, in session: "I want to add the caability [sic] for claude to merge and delete merged
+  branches/prs", then, on the steward's recommendation (merge only a PR he names by number
+  in chat; checks green, no conflict, Rex cleared, not a draft, merging agent not the
+  author; never auto-merge): "yes, open the merge-on-my-ask PR". Managed settings move
+  `merge_pull_request` (all four names) from `deny` to `ask`, so each merge waits for a
+  person's Allow (only Parker's ask in his own session authorizes it; a rep never Allows a
+  merge); `enable_pr_auto_merge` and `Bash(gh pr merge:*)` stay denied. A GitHub comment,
+  review, brief or scheduled trigger is never his ask. After a merge he asked for, the
+  agent may delete that PR's head branch; recommended also: GitHub's "Automatically delete
+  head branches" setting. Accepted cost: the `ask` prompt cannot tell Parker from a rep, so the
+  control is his ask in his own session; and the record of his approval is the chat session and
+  the Allow click, not GitHub, since every agent posts as his account. **Open action for
+  Parker:** re-paste managed settings in the admin console, and set the console's GitHub
+  `merge_pull_request` from `blocked` to `ask`; until then the deny still holds everywhere.
+- **R1. Agents never merge — RULED 2026-11-10. SUPERSEDED 2026-11-13 by R1a, above.**
   Adopted recommendation: "Block agents from merging, using managed settings. Agents could no longer call merge or auto-merge. Rex still reviews; you click Merge in GitHub. Every agent posts as your GitHub account, so an agent can't prove you approved. This makes the rule a hard block instead of an instruction. The cost: no “merge #82” replies, like the one I just did for you." → "Yes". "You click Merge in GitHub" is the recommendation's wording. Managed settings deny the GitHub merge and
   auto-merge tools (`permissions.deny` in `bbs-managed-settings.json`; the names, which are
   verified and which inferred, are in `MANAGED-SETTINGS.md`, "Agents never merge"), and
@@ -1158,7 +1174,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   #74, #71, #53, #77, #76 and #72, each at its cleared head. It was bounded to that queue and
   ended once the R1 managed-settings deny went live: Parker, in the steward session on
   2026-11-12, after the steward sent him the file from `main` `5ae15f3` (#86): "managed
-  settings are in". From then on R1 holds without exception: Parker merges in the GitHub UI.
+  settings are in". From then on R1 holds without exception: Parker merges in the GitHub UI
+  (superseded by R1a, 2026-11-13).
   **Still open:** the live test of that paste — a payroll read is blocked, a Vercel purchase
   asks, and a new session opens on Opus at medium.
 - **BC writers: Kim, Aanya, Griffin and Joey — RULED 2026-11-11.** Parker, in the steward session: "Kim, Aanya, griffin and Joey should have
