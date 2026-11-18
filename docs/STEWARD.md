@@ -937,7 +937,9 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **R6. #72 is narrowed — RULED 2026-11-10.**
   Adopted recommendation: "Customer-folder CLAUDE.md upkeep (#72). Sessions would update a customer folder's CLAUDE.md without being asked and record quote outcomes there." → "Narrow it. Outcomes already live in quote-log.md (#75). Notes should reuse #81's format and filters, so there is one memory system, not two." Quote outcomes live only in `quote-log.md`
   (#75). Durable customer-folder notes reuse #81's desk-memory entry format and refusal
-  table, so there is one memory mechanism, not two.
+  table, so there is one memory mechanism, not two. **Amended 2026-11-16 (D10.5):** a desk
+  with a profile may keep a hand-kept outcome record; Sentinel's `learning/quote-log.md` is
+  that desk's (entry "BBS Sales System: one desk model for every customer", below).
 - **R7. Desk memory (#81) "Open for Parker" items 1–7 accepted as recommended — RULED
   2026-11-10.**
   Adopted recommendation: "Desk memory's A1–A7 (#81)." → "Yes as listed in my last message. A3 waits for the next slice, and A4 is your SharePoint step." The items, in their own wording and each now marked RULED 2026-11-10, live
@@ -1222,6 +1224,48 @@ Write it up with evidence and move to the next slice. Do not idle.
   form-filling job, and tile 3 ("Outside Sales, it doesn't sign for you") covers her.
   `/bbs-my-voice` learns only from her own Sent Items, so drafting in Jackson's voice is
   shown as Not built yet.
+- **BBS Sales System: one desk model for every customer — RULED 2026-11-16.** Parker, in
+  session; design `docs/superpowers/specs/2026-11-16-bbs-sales-system-design.md`, approved
+  2026-11-17 ("Approve design"). Records here the program decisions D10.1–D10.5 kept in
+  `Customers/State of CA Agencies/sales-process/docs/pm/DECISIONS.md`:
+  - folders plus interactive dashboards are the target;
+  - one desk model, rolled out by desk profile;
+  - reps update the CRM (D10.1);
+  - a desk that declares a profile may keep a hand-kept outcome record, and Sentinel's
+    `learning/quote-log.md` is that desk's (D10.5, amends R6);
+  - agents in the CA tree always use and update `desk-remember`.
+- **Quote-sent capture is an Exchange mail flow rule — RULED 2026-11-16.** Parker: "Exchange
+  mail rule". Outbound mail carrying a BC sales-quote PDF is copied to one logging mailbox.
+  Parker creates the rule.
+- **The logging mailbox is read metadata only — RULED 2026-11-16.** Parker: "Metadata only".
+  - A script on Parker's Mac keeps sender, buyer domain, sent timestamp and quote number.
+  - Bodies and attachments are never stored or read by Claude.
+  - Retention is about 90 days.
+  - For this mailbox only, this supersedes 2026-10-30 spec §13.8 item 1 and 2026-11-12 spec §7.
+- **A Tier 1 PO match becomes Won after a shadow bar — RULED 2026-11-16.** Parker: "Auto after
+  it proves out".
+  - Tier 1 means the PO cites our quote number and the customer and pre-tax total check out.
+  - It runs in shadow until the matcher is at least 95% precise on 30 or more cases. Then it
+    counts as Won automatically, and the rep can undo it.
+  - Weaker matches always need a rep's confirmation.
+  - Parker signs the pass; Quinn owns the precision report. Until it is signed, a Tier 1
+    match is a proposal the rep folds.
+  - Amends canon "What counts as a win" and METRICS-SIGNOFF Q-A.
+- **Sentinel adopts RFQ.md for new RFQs — RULED 2026-11-16.** Parker: "Yes, new RFQs onward".
+  - Sentinel's dashboard data is built from those records.
+  - The tracker xlsx, hand indexes and stage JSON collapse into one store.
+  - Existing RFQs are untouched.
+- **Folders are the RFQ working record for every customer — RULED 2026-11-16.** Parker: "Yes,
+  CRM until a switch". Reps keep updating the CRM until each desk passes a parity switch (two
+  straight weeks where folder sent and CRM Submitted agree within 1 per rep per week, with ≥90%
+  of in-scope deals carrying a sent date). Then CRM entry stops for that desk. Amends
+  canon "Systems of record" (2026-11-12, CA state only).
+- **Build approach: extend in place — RULED 2026-11-16.** Parker: "Extend in place". The outcome
+  engine runs as a routine on Parker's Mac.
+- **CSU/UC and body armor are not in the first build — RULED 2026-11-17.** Parker: "I want to
+  integrate Joey's down the line for CSU/UC. That is a very recurring order based system and
+  does not have the system type of RFQ basis." CSU/UC gets its own order-desk design. Body armor
+  is out unless Parker says otherwise.
 
 ---
 

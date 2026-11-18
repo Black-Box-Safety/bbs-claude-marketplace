@@ -439,3 +439,18 @@ through the managed `env` block; a rep turns it on per session with `/caveman li
   with the paperclip or by dragging it in.
 - **No `bbs-bc-mcp-proxy`.** Retired 2026-09-02 in favour of the Business Central claude.ai
   connector.
+
+## Pending paste (2026-11-17)
+
+- The `claudeMd` change in `bbs-managed-settings.json` (outcome records live in the desk's
+  outcome ledger: the CA desk's `quote-log.md` or Bechtel Sentinel's hand-kept
+  `learning/quote-log.md`; RFQ working state for each desk with a profile is the deal
+  folders) awaits Parker's redeploy.
+- Organization-instruction text for Parker to paste into the claude.ai org settings himself:
+
+```text
+- Mail, files, and CRM access are the signed-in person's. Do not imply you can see a
+  teammate's mailbox. One exception (Parker, 2026-11-16): the quote-sent logging mailbox is
+  read metadata-only (sender, buyer domain, timestamp, quote number) by the outcome engine on
+  Parker's Mac; no session reads its bodies or attachments.
+```
