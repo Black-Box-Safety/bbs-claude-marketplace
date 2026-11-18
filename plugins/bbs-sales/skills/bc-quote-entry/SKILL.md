@@ -32,8 +32,10 @@ Vendor No., and create sales quotes and their lines. Nothing else, ever: no rele
 **Five gates, none of them yours to waive.**
 
 1. **Items exist.** Every line's item number is read from BC and must exist as Inventory,
-   unblocked. The script never creates or patches an item (SOP: never create an item as a
-   side effect of quoting). A missing number stops with the instruction to enter it through
+   unblocked. The one exception is freight: its own line on BC's `SHIPPING` item (a
+   Service item), qty 1 EA at the whole freight cost, no margin, and never on a `NASPO`
+   quote. The script checks the freight line is at cost, so it needs no `zeroMarginOk`. The script never creates or
+   patches an item (SOP: never create an item as a side effect of quoting). A missing number stops with the instruction to enter it through
    `bc-item-entry` first.
 2. **Price has a basis.** Every line carries a cost greater than zero with the document it
    came from, and a price that is never below it. On a `NASPO` quote every line's price
@@ -144,7 +146,7 @@ the rep to run `/bbs-checkup` and send the result to Parker. Never run the scrip
 `python` or `python3` directly.
 
 It writes nothing in BC. It proves the read path, validates every field, looks the customer
-up (exists, unblocked), reads every line's item (exists, Inventory, unblocked; the card's
+up (exists, unblocked), reads every line's item (exists, Inventory or the freight item `SHIPPING`, unblocked; the card's
 cost is shown beside the spec's), duplicate-checks the external document number across sales
 quotes, confirms the lines sum to the total, writes `<spec>.review.md`, and prints an
 approval token that is a hash of the spec. Any failure is a stop with the reason; fix the
@@ -244,7 +246,7 @@ page; nothing in the script changes.
 | "The item isn't in BC, just quote it as a text line" | Every line is an item line by SOP. Enter the item through `bc-item-entry`, then quote. |
 | "Leave the price at zero, I'll fill it in BC" | A zero price is a line nobody priced. The gate stops; price it or drop it. |
 | "Mark it up later, use cost as the price for now" | Only on a schedule where cost is the price by contract, with `zeroMarginOk` and the basis saying so. Otherwise it is a pricing decision the rep makes before the sheet. |
-| "It's NASPO but add a few percent for freight" | Grainger on NASPO sells at cost, never marked up. The check stops on any NASPO line priced above cost. |
+| "It's NASPO but add a few percent for freight" | Grainger on NASPO sells at cost, never marked up, and a NASPO quote never carries freight. The check stops on any NASPO line priced above cost and on a `SHIPPING` line on NASPO. |
 | "The RFQ number is already on an old quote, just reuse it" | The duplicate gate stops on purpose. The rep decides: revise in BC, or a new external document number. |
 | "Ship it to the customer's default address, it's close enough" | The default is sometimes another state and another tax jurisdiction (the Bechtel Utah case). The spec carries the RFQ's delivery point and the gate checks it. |
 | "Set valid-until to 30 days" | BC computes document date + 60 by SOP. A different validity is a change the rep makes in BC and defends. |

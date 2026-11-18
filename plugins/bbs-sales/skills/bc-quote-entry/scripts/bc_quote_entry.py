@@ -10,7 +10,7 @@ spec, under the rep's own sign-in, with a named approval. The quote half of bc_i
 `check` reads Business Central and writes nothing. It proves the read path a commit would use
 (customers, items, salesQuotes, unitsOfMeasure), validates every field, gates on the customer
 (exists, unblocked) and on every line's item (exists, Inventory, unblocked; never created or
-patched here), duplicate-checks the external document number across sales quotes, checks that
+patched here; the one exception is the freight item SHIPPING, a Service item, sold at cost), duplicate-checks the external document number across sales quotes, checks that
 the lines sum to the total, writes `<spec>.review.md`, and prints the approval token (a hash of
 the spec file). `commit` refuses unless the token still matches the spec and --approved-by is
 the rep named on it, re-runs every gate, POSTs the header, PATCHes the ship-to with If-Match,
@@ -123,6 +123,11 @@ HEADER_READBACK = ("customerNumber", "customerName", "billToName", "shipToName",
                    "shipToCountry", "externalDocumentNumber", "documentDate", "validUntilDate",
                    "shortcutDimension1Code", "shortcutDimension2Code", "salesperson", "paymentTermsId",
                    "shipmentMethodId", "status")
+# Freight goes on its own line, on BC's existing SHIPPING item, qty 1 at cost with no margin, and
+# never on a NASPO quote (docs/STEWARD.md, "Freight on quotes", RULED 2026-11-18). SHIPPING is a Service item in
+# BC, so it is the one non-Inventory item a quote line may carry. Allow-listed by number, not by
+# type: any other Service item still stops.
+FREIGHT_ITEMS = frozenset({"SHIPPING"})
 ITEM_MISSING = ("not in Business Central. Nothing is created or patched from here: enter it through "
                 "bc-item-entry (vendor, sourced cost, named review), then run check again.")
 
@@ -432,6 +437,13 @@ def validate_spec(spec, uoms):
             qty = num_or_none(ln.get("qty"))
             if qty is None or qty <= 0:
                 errs.append(f"{tag}: qty must be a number greater than 0")
+            elif num in FREIGHT_ITEMS and contract == "NASPO":
+                errs.append(f"{tag}: {num} is freight, and a NASPO quote never carries freight (Parker, "
+                            f"2026-11-18). Remove the line; if this is not a NASPO order, fix the contract")
+            elif num in FREIGHT_ITEMS and qty != 1:
+                errs.append(f"{tag}: {num} is freight, quoted as one line of qty 1 at the whole freight cost; qty "
+                            f"{ln.get('qty')} would multiply the charge. Set qty to 1 and put the freight total in "
+                            f"unitCost and unitPrice")
             uom = str(ln.get("uom") or "").strip().upper()
             if not uom:
                 errs.append(f"{tag}: uom is required (EA unless the customer buys a pack, case or box)")
@@ -456,7 +468,12 @@ def validate_spec(spec, uoms):
                                 f"up. unitPrice {exact_text(ln.get('unitPrice'))} must be exactly "
                                 f"unitCost {exact_text(ln.get('unitCost'))}, with no fraction of a cent added. Set the price to the "
                                 f"cost, or if this is not a NASPO order, fix the contract")
-                elif at_cost(price, cost) and contract != "NASPO" and not (ln.get("zeroMarginOk") or spec_zero_ok):
+                elif num in FREIGHT_ITEMS and not at_cost(price, cost):
+                    errs.append(f"{tag}: {num} is freight, a separate line at cost with no margin. unitPrice "
+                                f"{exact_text(ln.get('unitPrice'))} must equal unitCost "
+                                f"{exact_text(ln.get('unitCost'))}")
+                elif (at_cost(price, cost) and contract != "NASPO" and num not in FREIGHT_ITEMS
+                      and not (ln.get("zeroMarginOk") or spec_zero_ok)):
                     errs.append(f"{tag}: unitPrice equals unitCost (0% margin); set zeroMarginOk: true on the line, or "
                                 f"on the spec when every line sells at cost by contract (Grainger on NASPO)")
             gm = None
@@ -566,7 +583,8 @@ def customer_gate(bc, header):
 
 
 def item_gate(bc, lines):
-    """Every line's item exists, is Inventory and unblocked. Read-only: nothing is created or patched.
+    """Every line's item exists, is Inventory (or the freight item SHIPPING, a Service item) and
+    unblocked. Read-only: nothing is created or patched.
     Returns (cards by number, errors, notes)."""
     cards, errs, notes = {}, [], []
     for ln in lines:
@@ -579,18 +597,31 @@ def item_gate(bc, lines):
             continue
         cards[num] = rb
         typ = norm(rb.get("type"))
-        if typ != "Inventory":
-            errs.append(f"item {num} ({rb.get('displayName')}) is type {typ}, not Inventory")
+        if num in FREIGHT_ITEMS:
+            if typ not in ("Inventory", "Service"):
+                errs.append(f"item {num} ({rb.get('displayName')}) is type {typ}; the freight item is a Service "
+                            f"item")
+        elif typ != "Inventory":
+            errs.append(f"item {num} ({rb.get('displayName')}) is type {typ}, not Inventory"
+                        + ("; only the freight item SHIPPING may be a Service item" if typ == "Service" else ""))
         if rb.get("blocked"):
             errs.append(f"item {num} ({rb.get('displayName')}) is blocked")
         card_cost = float(rb.get("unitCost") or 0)
         card_price = float(rb.get("unitPrice") or 0)
         print(f"  {num:20} EXISTS  {str(rb.get('displayName'))[:50]!r}  card cost {money(card_cost):>10}  "
               f"card price {money(card_price):>10}  {typ}{'  BLOCKED' if rb.get('blocked') else ''}")
-        if abs(card_cost - ln["unitCost"]) > 0.005:
+        # The freight card's cost is a placeholder shared by every quote; never ask the rep to update it.
+        if num not in FREIGHT_ITEMS and abs(card_cost - ln["unitCost"]) > 0.005:
             notes.append(f"line {ln['line']} {num}: card cost {money(card_cost)} differs from the spec's cost "
                          f"{money(ln['unitCost'])} ({'card is 0' if card_cost == 0 else 'the card is not patched here'}; "
                          f"the rep updates the card in BC if wanted)")
+    for ln in lines:   # every freight line, not only the first: its unit is the card's base unit
+        rb = cards.get(ln["number"])
+        if ln["number"] in FREIGHT_ITEMS and rb:
+            base = str(rb.get("baseUnitOfMeasureCode") or "").strip().upper()
+            if base and ln.get("uom") != base:
+                errs.append(f"line {ln['line']} {ln['number']}: uom {ln.get('uom')} is not the freight item's base "
+                            f"unit {base}; quote freight as 1 {base} at the freight cost")
     return cards, errs, notes
 
 

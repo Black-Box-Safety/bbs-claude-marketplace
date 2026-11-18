@@ -18,7 +18,7 @@ first).
 | `salesperson` | yes | The BC salesperson code of the Account Manager who owns the agency: `KQUEZON` or `AANYA` on a state quote, `JMAGLIATO` or `UNIVERSITY` on higher education. Never `PMARSHALL` on a state quote (Parker holds no accounts there) and never `CA STATE TEAM` on any new quote, even where the customer card still defaults to it: the check stops on both. The read-back gate compares it with the header BC wrote |
 | `shipTo` | yes | The delivery point, below. PATCHed onto the header after the POST and gated by read-back before any line is added |
 | `costSource` | yes | Where every line's cost was read, with a number or date: the vendor quote number and date, or the Grainger account and date the price was read. The same guess-words that fail `bc-item-entry` fail here |
-| `pricingBasis` | yes | How the sell price was reached, in a sentence a rep can defend: margin over cost, freight folded in, the schedule rule (Grainger at cost on NASPO). Printed on the review sheet |
+| `pricingBasis` | yes | How the sell price was reached, in a sentence a rep can defend: margin over cost, freight on its own `SHIPPING` line at cost, the schedule rule (Grainger at cost on NASPO). Printed on the review sheet |
 | `lines` | yes | One object per quote line, below. At least one |
 | `quoteTotalExclTax` | yes | Sum of `qty x unitPrice` across the lines, to the cent. The check stops if the lines do not add up to it; the commit stops if BC's total differs from it |
 | `preparedBy` | yes | The rep's name; printed on the sheet and matched against `--approved-by` on commit |
@@ -47,7 +47,7 @@ the check because BC would reject or ignore the PATCH. All ASCII.
 | Field | Required | Rule |
 |---|---|---|
 | `line` | yes | Positive integer, unique in the spec. Becomes the BC line `sequence` as `line x 10000` |
-| `number` | yes | The BC item number, upper-case, as the card has it. Must exist in BC as type Inventory and not be blocked; a missing number stops with "enter it through bc-item-entry" |
+| `number` | yes | The BC item number, upper-case, as the card has it. Must exist in BC as type Inventory and not be blocked; a missing number stops with "enter it through bc-item-entry". Freight is its own line on `SHIPPING` (a Service item, the one exception): qty 1 of the card's base unit (`EA`) holding the whole freight cost, priced at cost; the check enforces at cost on this line, so it needs no `zeroMarginOk`. A `NASPO` quote never carries freight, so the check refuses `SHIPPING` there |
 | `description` | yes | 1-100 ASCII characters. The line text the customer sees; it overrides the card's description on this quote only (non-persistent) and is where the customer's tag or PO line number goes. Hyphens and straight quotes only |
 | `qty` | yes | Greater than zero |
 | `uom` | yes | A unit of measure code that exists in BC, usually `EA` |
@@ -63,7 +63,7 @@ quote in BC; this spec carries no tax.
 
 ## Example
 
-Every value below is synthetic.
+Every value below is synthetic except the `SHIPPING` item number, which is BC's real freight item.
 
 ```json
 {
@@ -85,16 +85,25 @@ Every value below is synthetic.
     "shipToCountry": "US"
   },
   "costSource": "Example Distributor quote Q-000001 dated 01/02/2026: 30 EA EX-6001 @ 89.50, freight 45.00",
-  "pricingBasis": "5.0% over cost with the 45.00 freight folded into the unit price: (89.50 x 1.05 -> 94.00) + (45.00 / 30 = 1.50) = 95.50",
+  "pricingBasis": "5.0% over cost: 89.50 x 1.05 -> 94.00; the 45.00 freight on its own SHIPPING line at cost",
   "lines": [
     {
       "line": 1,
       "number": "EX-6001",
-      "description": "Example Mfr EX-6001 Aluminized Helmet Cover - special order, freight incl.",
+      "description": "Example Mfr EX-6001 Aluminized Helmet Cover - special order",
       "qty": 30,
       "uom": "EA",
       "unitCost": 89.50,
-      "unitPrice": 95.50
+      "unitPrice": 94.00
+    },
+    {
+      "line": 2,
+      "number": "SHIPPING",
+      "description": "Freight",
+      "qty": 1,
+      "uom": "EA",
+      "unitCost": 45.00,
+      "unitPrice": 45.00
     }
   ],
   "quoteTotalExclTax": 2865.00,
@@ -119,7 +128,8 @@ came from, the approval token), then one row per line:
 
 | # | Item No. | Description | Qty | UoM | Cost | Price | Ext. price | GM% | Card |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | EX-6001 | Example Mfr EX-6001 Aluminized Helmet Cover - special order, freight incl. | 30 | EA | 89.50 | 95.50 | 2,865.00 | 6.3 | cost 89.50, price 0.00 |
+| 1 | EX-6001 | Example Mfr EX-6001 Aluminized Helmet Cover - special order | 30 | EA | 89.50 | 94.00 | 2,820.00 | 4.8 | cost 89.50, price 0.00 |
+| 2 | SHIPPING | Freight | 1 | EA | 45.00 | 45.00 | 45.00 | 0.0 AT COST | cost 1.00, price 0.00 |
 
 and the total excluding tax. The rep reads this sheet, not the JSON. The token is the one
 the commit command needs, and it changes whenever the spec file changes.

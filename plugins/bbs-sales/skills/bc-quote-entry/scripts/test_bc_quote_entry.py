@@ -167,6 +167,63 @@ class LineRules(unittest.TestCase):
     def test_price_below_cost_stops(self):
         self.assertTrue(any("below unitCost" in e for e in errors(self.line(unitPrice=80.0))))
 
+    def test_shipping_line_is_freight_at_cost_and_needs_no_zero_margin_flag(self):
+        """Parker: freight is a separate line at cost, no margin. At cost is required of the
+        freight line, so asking for zeroMarginOk as well would only confuse the rep."""
+        def with_freight(price, qty=1, **flags):
+            s = spec()
+            s["lines"].append({"line": 2, "number": "SHIPPING", "description": "Freight", "qty": qty,
+                               "uom": "EA", "unitCost": 45.00, "unitPrice": price, **flags})
+            s["quoteTotalExclTax"] = round(2865.00 + qty * price, 2)
+            return s
+        self.assertEqual(errors(with_freight(45.00)), [])
+        self.assertEqual(errors(with_freight(45.00, zeroMarginOk=True)), [])
+        self.assertTrue(any("SHIPPING is freight" in e for e in errors(with_freight(47.25))))
+        self.assertTrue(any("SHIPPING is freight" in e for e in errors(with_freight(47.25, zeroMarginOk=True))))
+        # An ordinary item at cost still needs the flag; only freight is exempt.
+        s = spec(); s["lines"][0]["unitPrice"] = s["lines"][0]["unitCost"]
+        s["quoteTotalExclTax"] = round(s["lines"][0]["qty"] * s["lines"][0]["unitCost"], 2)
+        self.assertTrue(any("0% margin" in e for e in errors(s)))
+
+    def test_shipping_qty_is_one(self):
+        """Two of freight doubles the charge and would otherwise pass every gate."""
+        for qty in (2, 0.5):
+            errs = errors(self._freight(qty))
+            self.assertTrue(any("qty 1" in e for e in errs), errs)
+        self.assertEqual(errors(self._freight(1)), [])
+
+    def test_naspo_never_carries_freight(self):
+        """docs/STEWARD.md, "Freight on quotes", RULED 2026-11-18: NASPO never has freight."""
+        s = self._freight(1)
+        s["contract"] = "NASPO"; s["pricingBasis"] = "Grainger at cost on NASPO"
+        s["lines"][0]["unitPrice"] = s["lines"][0]["unitCost"]
+        s["quoteTotalExclTax"] = round(s["lines"][0]["qty"] * s["lines"][0]["unitCost"] + 45.00, 2)
+        errs = errors(s)
+        self.assertTrue(any("never carries freight" in e for e in errs), errs)
+        s["lines"].pop()
+        s["quoteTotalExclTax"] = round(s["lines"][0]["qty"] * s["lines"][0]["unitCost"], 2)
+        self.assertEqual(errors(s), [])
+
+    @staticmethod
+    def _freight(qty):
+        s = spec()
+        s["lines"].append({"line": 2, "number": "SHIPPING", "description": "Freight", "qty": qty,
+                           "uom": "EA", "unitCost": 45.00, "unitPrice": 45.00})
+        s["quoteTotalExclTax"] = round(2865.00 + qty * 45.00, 2)
+        return s
+
+    def test_spec_schema_example_passes_the_check_and_puts_freight_on_shipping(self):
+        doc = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "references", "spec-schema.md")
+        with open(doc, encoding="utf-8") as f:
+            text = f.read()
+        example = json.loads(text.split("## Example", 1)[1].split("```json", 1)[1].split("```", 1)[0])
+        header, lines, errs, _ = m.validate_spec(example, UOMS)
+        self.assertEqual(errs, [])
+        freight = [ln for ln in lines if ln["number"] in m.FREIGHT_ITEMS]
+        self.assertEqual(len(freight), 1)
+        self.assertTrue(freight[0]["atCost"])
+        self.assertNotIn("freight", lines[0]["description"].lower())
+
     def test_price_equal_cost_needs_zero_margin_ok(self):
         s = self.line(unitPrice=89.50)
         self.assertTrue(any("0% margin" in e for e in errors(s)))
@@ -540,6 +597,30 @@ class Gates(unittest.TestCase):
         _, errs, _ = m.item_gate(FakeBC(items={}), self.lines)
         self.assertEqual(len(errs), 1)
         self.assertIn("enter it through bc-item-entry", errs[0])
+
+    def test_shipping_is_the_one_service_item_allowed(self):
+        """BC's SHIPPING is a Service item; freight goes on it (quote-rules.md). Allow-listed by number."""
+        ship = [{"line": 2, "number": "SHIPPING", "unitCost": 45.0}]
+        bc = FakeBC(items={"SHIPPING": good_item("SHIPPING", type="Service", unitCost=0)})
+        cards, errs, _ = m.item_gate(bc, ship)
+        self.assertEqual(errs, [])
+        self.assertIn("SHIPPING", cards)
+        _, errs, _ = m.item_gate(FakeBC(items={"EX-6001": good_item(type="Service")}), self.lines)
+        self.assertTrue(any("type Service, not Inventory" in e and "only the freight item SHIPPING" in e
+                            for e in errs), errs)
+        _, errs, _ = m.item_gate(FakeBC(items={"SHIPPING": good_item("SHIPPING", blocked=True,
+                                                                     type="Service")}), ship)
+        self.assertTrue(any("is blocked" in e for e in errs))
+
+    def test_shipping_unit_is_its_base_unit_and_its_card_cost_is_not_a_note(self):
+        card = good_item("SHIPPING", type="Service", unitCost=1, baseUnitOfMeasureCode="EA")
+        ok = [{"line": 2, "number": "SHIPPING", "uom": "EA", "unitCost": 45.0}]
+        _, errs, notes = m.item_gate(FakeBC(items={"SHIPPING": card}), ok)
+        self.assertEqual((errs, notes), ([], []))
+        two = ok + [{"line": 3, "number": "SHIPPING", "uom": "CS", "unitCost": 12.0}]
+        _, errs, _ = m.item_gate(FakeBC(items={"SHIPPING": card}), two)
+        self.assertEqual(len(errs), 1)
+        self.assertIn("line 3 SHIPPING: uom CS is not the freight item's base unit EA", errs[0])
 
     def test_item_type_and_blocked(self):
         _, errs, _ = m.item_gate(FakeBC(items={"EX-6001": good_item(type="Non_x002D_Inventory")}), self.lines)

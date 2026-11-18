@@ -228,6 +228,17 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
+- **Freight on quotes — RULED 2026-11-18 (PR #105).** Two rulings, both Parker's:
+  - *Freight is its own line, at cost, no margin.* Parker corrected the RFQ 820876 quote on
+    2026-09-28: freight first rolled into the unit price, then a separate line with margin,
+    then "no margin on shipping". So freight is never folded into a product's unit price and
+    never carries margin. In `bc-quote-entry` it is one `SHIPPING` line, qty 1 EA, at cost.
+  - *NASPO never has freight.* Parker, in session, 2026-11-18: "For NASPO, there is never
+    freight." `bc-quote-entry` refuses a `SHIPPING` line on a `NASPO` quote.
+
+  Answers Rex's findings 1 and 2 on #105. The `bc-quote-entry` script, `SKILL.md`,
+  `quote-rules.md` and `spec-schema.md` cite this entry.
+
 - **Folders replace the CRM as the pipeline record; dashboard and folder sync (PR #90) — RULED
   2026-11-12.** Parker, in session, 2026-11-12: "The dashboard and quote log should be connected.
   I want to move from the CRM being the statement of record to our folders." On PR #90's
