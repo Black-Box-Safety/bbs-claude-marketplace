@@ -255,6 +255,10 @@ Then hand the rep the file list and call out, in the response itself, any
 judgment call you made on their behalf — CalRecycle values, a shortened
 description, a substituted item. Those are the things that come back to bite.
 
+## 8. Close the loop
+
+In the hand-off reply. Ask the rep one question, in plain words, naming no files or commands: anything about this buyer or site worth remembering, or a lesson from this deal? If they give words, run `desk-remember` with their own words. If they offer a lesson, show the one-line draft and append it to `learning/lessons.md` only on their yes; if the desk has no `lessons.md` yet, say so plainly and write nothing. If they say nothing, run `desk-remember`'s `close --none`. Ask once; this never delays the hand-off.
+
 ## The folder is the training data
 
 `Customers/State of CA Agencies/` holds every prior packet — blanks the agency

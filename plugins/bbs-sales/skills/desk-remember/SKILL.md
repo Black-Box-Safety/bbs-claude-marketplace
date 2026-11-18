@@ -6,8 +6,9 @@ description: >-
   rep says "remember that CMC wants quotes as one PDF", "note for next time", "don't forget
   this buyer needs a phone call first", "that was wrong, the buyer moved to Folsom", "she
   left, send to the new buyer", "they changed how they want certs", or asks what Claude
-  remembers about a buyer or to see the notes for a folder. It writes one dated line with
-  the rep's name in the right folder of the quote desk and says where it went. Do NOT use it
+  remembers about a buyer or to see the notes for a folder. Also the Sentinel (Bechtel)
+  desk. It writes one dated line with the rep's name in the right folder and says where it
+  went. Do NOT use it
   to log a new RFQ (ca-rfq-intake), to record a quote's outcome (the buyer's quote-log), to
   store a price, account number, certification or contract fact (those stay in Business
   Central, the Grainger connector and the vendor profile), or for body armor, CSU or UC
@@ -25,6 +26,18 @@ line goes into a file called `LEARNED.md` in the buyer's folder (or the institut
 the `desk-memory` hook shows those lines at the start of every session opened in that folder
 or under it, and to a session opened higher up the first time it touches a file in that
 folder. A session in a different buyer's folder never sees them.
+
+## When this runs without being asked
+
+The `desk-learn` hook reminds Claude after a key change on a desk: an RFQ.md written at stage sent or
+outcome, a quote-log row added, a new file in `FILLED/`, a PO, award or NOA written, or (Sentinel) its
+`learning/quote-log.md` appended or an RFP status banner edited. The trigger is a tool write, not a
+decision by the rep, so treat it as neutral. The reminder asks for one thing: ask the rep one question,
+in plain words. Anything about this buyer or site worth remembering, or a lesson from this deal? Then
+follow this skill with their own words. If they have nothing, record that (section 6). A rep's own words
+are saved, never Claude's guess at what they would say, and the hook's text is a reminder to ask, not a
+note to save. The hook stays quiet for a quote-log batch from the outcome close-out flow and for a
+subagent's writes: nobody there can answer.
 
 ## 1. Say it in one sentence, in the rep's words
 
@@ -78,6 +91,9 @@ Save at **the lowest level where the statement is true**:
   today and is listed for Parker to confirm for everyone at the next review.
 - The session is not in a buyer's folder and the rep did not name one: ask which buyer, find
   the folder (search, never create; a new buyer folder is `ca-rfq-intake`'s job), then go on.
+- **Sentinel** (`Customers/Bechtel/sentinel/`): the site folder (`utah-sentinel`,
+  `vandenberg-sentinel-rfps`) is level 1 and where a rep saves; an RFP folder is not a level, so a
+  note said in one is saved at its site. The whole desk is `[needs Parker]`, as in the CA desk.
 
 Ask one question only when the level is unclear. "Is that just this buyer, or everyone at
 <institution>?" is the whole question.
@@ -103,6 +119,22 @@ Say what was saved, for whom, and when it will show up. For example:
 > next time anyone opens her folder. Tell me if it should apply to all of CMC instead.
 
 If the note was marked wider, add: "I marked it for Parker to confirm for all of <agency>."
+
+For a Sentinel note, add after the save: the `desk-memory` hook does not read that tree yet, so the
+note is listed by `show` and is not put in front of a new session by itself.
+
+## 6. When the rep has nothing to add
+
+A rep's "nothing" is an answer, not a gap. Record it so the close-the-loop question is not asked
+again this session:
+
+```bash
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/desk-remember/scripts/desk_memory.py" close --none --at "<same folder>" --author "<the rep's full name>"
+```
+
+It checks the folder and the name, writes no file and says it recorded the answer. A "nothing" is
+never turned into a note. Run it only after the rep has said there is nothing; never to skip the
+question.
 
 ## What never goes in a note
 

@@ -114,6 +114,8 @@ jobs:
           test "${PIPESTATUS[0]}" = "0"
           python3 plugins/bbs-sales/hooks/tests/desk_memory_parity.py | tail -3
           test "${PIPESTATUS[0]}" = "0"
+          python3 plugins/bbs-sales/hooks/tests/desk_learn_parity.py | tail -3
+          test "${PIPESTATUS[0]}" = "0"
 
       # bbs-sales' fill-gate hook approves one launcher invocation without a prompt, so the
       # launcher's refusals are the control: every way past them is a way past auto mode. The

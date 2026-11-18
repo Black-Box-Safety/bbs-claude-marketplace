@@ -217,6 +217,10 @@ itself every judgment call made on their behalf. Those are the ones that come ba
 is the rep's, outside this command. Do not draft-and-send, do not queue, do
 not offer to transmit. The rep reviews and the rep sends.
 
+## Gate 9 — Close the loop, in the hand-off reply
+
+Not a step after the stop: the question rides in the same reply that hands the rep the file list. `desk-remember` owns it. Ask the rep one question, in plain words, naming no files or commands: anything about this buyer or site worth remembering, or a lesson from this deal? If they give words, run `desk-remember` with their own words. If they offer a lesson, show the one-line draft and append it to `learning/lessons.md` only on their yes; if the desk has no `lessons.md` yet, say so plainly and write nothing. If they say nothing, run `desk-remember`'s `close --none`. Ask once; this gate never delays or reopens the hand-off, and it writes nothing the rep did not say.
+
 ---
 
 ## What this command deliberately does not do
