@@ -39,7 +39,10 @@ set -f   # no globbing: a path segment like '*' must stay literal
 # the sales quote). Item cards: Parker, 2026-10-16, the rep's named sign-off on the review sheet
 # is the gate, no Allow click on top. The sales quote: R3, Parker, 2026-11-10, allowed only
 # because its check stops a NASPO line priced above cost; if that gate goes, this entry goes in
-# the same PR (MANAGED-SETTINGS.md, "Business Central writes"). Keep comments out of the array:
+# the same PR (MANAGED-SETTINGS.md, "Business Central writes"). bc_quote_pdf.py, the last entry,
+# writes nothing to Business Central: it GETs a released quote's own PDF under the rep's delegated
+# sign-in and saves it in the deal folder (Parker, 2026-11-17, "Quote PDF by text"; allow-list entry
+# ruled 2026-11-17, docs/STEWARD.md after R3). Keep comments out of the array:
 # the tests read it one entry per line.
 ALLOWED=(
   "ca-form-filler/scripts/fill_obs_packet.py"
@@ -53,6 +56,7 @@ ALLOWED=(
   "desk-remember/scripts/desk_memory.py"
   "bc-item-entry/scripts/bc_item_entry.py"
   "bc-quote-entry/scripts/bc_quote_entry.py"
+  "bc-quote-entry/scripts/bc_quote_pdf.py"
 )
 
 die() { printf 'bbs-fill: REFUSED — %s\nNothing was run.\n' "$1" >&2; exit 64; }
