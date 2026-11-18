@@ -494,7 +494,7 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
       </dl>
       <div class="why">
         <div><h3>How to use them for outbound</h3><p class="body">The queue tells you what must go out today. Clear it, then spend the rest of the day on the call list. A quote that went silent is a reason to call the buyer, not a line to leave alone.</p></div>
-        <div><h3>What keeps them right</h3><p class="body">File every request through <code>/ca-rfq</code>, and write the outcome (won, lost, no answer, no bid) in the buyer’s quote log. Until Parker says otherwise, keep entering the submitted date in the Sales CRM as you do now. Once the pipeline page and its outcome buttons are live, you will not update a status by hand.</p></div>
+        <div><h3>What keeps them right</h3><p class="body">File every request through <code>/ca-rfq</code>, and write the outcome (won, lost, no answer, no bid, or cancelled when the agency withdrew the solicitation or never awarded it) in the buyer’s quote log. The outcome list and when each applies live in <code>rfq-record-v2.md</code> in the <code>ca-rfq-intake</code> skill. Until Parker says otherwise, keep entering the submitted date in the Sales CRM as you do now. Once the pipeline page and its outcome buttons are live, you will not update a status by hand.</p></div>
       </div>
     </section>
 
@@ -605,7 +605,7 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
         <div><h3>One RFQ per session</h3><p>Type <code>/clear</code> before the next one. For a deal that runs over several days, <code>/rename</code> the session so you can resume it tomorrow.</p></div>
         <div><h3>Say “flag that”</h3><p>When a draft is wrong, one line goes in the buyer’s <code>FLAGS.md</code>. Catching it is the system working; Parker uses the flags to fix the skill.</p></div>
         <div><h3>Tell it what the buyer likes</h3><p>“Remember that…” the first time you learn a buyer habit. The next rep in that folder gets it for free.</p></div>
-        <div><h3>Record the outcome</h3><p>Won, lost, no answer or no bid goes in the buyer’s quote log. Claude lists old quotes with no outcome so you can close them.</p></div>
+        <div><h3>Record the outcome</h3><p>Won, lost, no answer, no bid or cancelled goes in the buyer’s quote log (<code>rfq-record-v2.md</code> has the definitions). Claude lists old quotes with no outcome so you can close them.</p></div>
         <div><h3>Ask before you dig</h3><p>“What did we quote them last time?” Claude reads the quote log and Business Central and cites what it found.</p></div>
       </div>
     </section>
@@ -666,7 +666,7 @@ section>h2{font-size:var(--s-h2);margin-bottom:14px}
       <ul class="coming">
         <li><b>A monthly roll-up of desk notes</b> and a way to mark old ones, so Parker can confirm agency-wide notes in one pass.</li>
         <li><b>The RFQ Pipeline dashboard</b>, built and in review. Parker shares the link when it goes live.</li>
-        <li><b>Sent and outcome buttons on the pipeline dashboard</b> (Mark sent, Won, Lost, No answer, No bid). A click is written back into the deal’s <code>RFQ.md</code> and the buyer’s quote log after approval, so you never type a status twice.</li>
+        <li><b>Sent and outcome buttons on the pipeline dashboard</b> (Mark sent, Won, Lost, No answer, No bid). Cancelled has no button yet; record it in the quote log. A click is written back into the deal’s <code>RFQ.md</code> and the buyer’s quote log after approval, so you never type a status twice.</li>
         <li><b>A one-time catch-up</b> for Kim and Aanya: a prompt that finds the quotes you have already sent, in your own Sent mail and Business Central, so the pipeline page can show them. Parker sends it when it is ready.</li>
         <li><b>An RFQ inbox folder</b> that new requests land in, once Parker’s intake flow is live.</li>
       </ul>
