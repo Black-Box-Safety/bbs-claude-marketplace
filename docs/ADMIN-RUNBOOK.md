@@ -122,7 +122,8 @@ console's connector tool controls (per-tool "Tool permission restrictions"):
   `mcp__claude_ai_<connector>__<tool>` entries and the `mcp__*__<tool>` globs; currently
   Outlook send-draft, the SignNow and QuickBooks send-class tools, every QuickBooks
   `qbo_payroll_*` tool (admins included, ruled 2026-10-02 and kept by R9, 2026-11-10), and
-  the GitHub `merge_pull_request` and `enable_pr_auto_merge` tools (R1, 2026-11-10). The
+  the GitHub `enable_pr_auto_merge` tool (R1, 2026-11-10). The GitHub `merge_pull_request`
+  tool moves from blocked to **`ask`** (Parker, 2026-11-13, superseding R1). The
   console takes tool names, not globs: set each named tool, and when a connector adds a
   payroll tool, set it too);
 - set to **`ask`** every Microsoft 365 tool that `permissions.ask` names (the Outlook and

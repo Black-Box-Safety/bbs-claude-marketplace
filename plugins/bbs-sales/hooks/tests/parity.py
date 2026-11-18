@@ -215,6 +215,37 @@ def main():
             ("empty tool_input allowed", {"hook_event_name": "PreToolUse", "tool_name": "Bash"}, "allow"),
             ("unknown tool allowed", pre("Read", file_path=packet), "allow"),
         ]
+        # Synthetic second desk (guard.near_duplicate false), selected through BBS_DESKS_FILE.
+        syn = os.path.join(root, "Synthetic Desk Root")
+        syn_b = os.path.join(syn, "A", "B")
+        os.makedirs(os.path.join(syn_b, "FILLED"))
+        os.makedirs(os.path.join(syn, "A", "Buyer"))
+        syn_packet = os.path.join(syn_b, "FILLED", "p.pdf")
+        write(syn_packet, ["x"])
+        syn_buyer = os.path.join(syn, "A", "Buyer")
+        write(os.path.join(syn_buyer, "quote-log.md"), [
+            "| Date | Item | Quote# | Vehicle | Value | Outcome |",
+            "|---|---|---|---|---|---|",
+            "| 2026-05-06 | Synthetic cones | SQ-7001 | OPEN | 12 | won |"])
+        syn_mv = pre("Bash", command=f'mv "{syn_b}" "{syn}{sep}A{sep}C"')
+        two = os.path.join(FIXTURES, "desks-two.json")
+        guard_env = [
+            ("synthetic desk: mv denied naming its root", syn_mv, "deny", two, "inside 'Synthetic Desk Root'"),
+            ("synthetic desk: near-duplicate folder allowed (flag off)",
+             pre("Bash", command=f'mkdir "{syn}{sep}A{sep}Buyerr"'), "allow", two, None),
+            ("synthetic desk: overwrite FILLED denied",
+             pre("Write", file_path=syn_packet, content="y"), "deny", two, None),
+            ("synthetic root is not a desk under the default registry", syn_mv, "allow", None, None),
+            ("two desks in one command: synthetic first, CA near-duplicate still denied",
+             pre("Bash", command=f'mkdir "{syn}{sep}A{sep}x" && mkdir "{tree}{sep}CalTrans"'),
+             "deny", two, "near-duplicate of the existing folder"),
+            ("two desks in one command: CA first, synthetic second, CA near-duplicate denied",
+             pre("Bash", command=f'mkdir "{tree}{sep}CalTrans" && mkdir "{syn}{sep}A{sep}x"'),
+             "deny", two, "near-duplicate of the existing folder"),
+            ("two desks in one command: no near-duplicate anywhere allowed",
+             pre("Bash", command=f'mkdir "{syn}{sep}A{sep}Buyerr" && mkdir "{tree}{sep}Brand New Agency"'),
+             "allow", two, None),
+        ]
         ctx = [
             ("session context has precedent and flags", start(mcsp),
              lambda o: "PRECEDENT" in o and "SQ-1001" in o and "OPEN FLAGS" in o and "wrong solicitation" in o),
@@ -324,6 +355,20 @@ def main():
                 pgot = decision(pout)
                 check(prc == 0 and perr == "" and pgot == got, name + " [parity]",
                       f"ps rc={prc} ps={pgot!r} py={got!r} err={perr.strip()[:200]!r}")
+        for name, payload, want, regfile, needle in guard_env:
+            genv = dict(os.environ)
+            genv.pop("BBS_DESKS_FILE", None)
+            if regfile:
+                genv["BBS_DESKS_FILE"] = regfile
+            rc, out, err = run_py("guard-tree", payload, genv)
+            got = decision(out)
+            check(rc == 0 and err == "" and got[0] == want and (needle is None or needle in got[1]),
+                  name, f"py rc={rc} got={got!r} err={err.strip()!r}")
+            if PS:
+                prc, pout, perr = run_ps("guard-tree", payload, genv)
+                pgot = decision(pout)
+                check(prc == 0 and perr == "" and pgot == got, name + " [parity]",
+                      f"ps rc={prc} ps={pgot!r} py={got!r} err={perr.strip()[:200]!r}")
         for name, payload, pred in ctx:
             rc, out, err = run_py("desk-context", payload)
             o = ctx_norm(out)
@@ -332,6 +377,65 @@ def main():
                 prc, pout, perr = run_ps("desk-context", payload)
                 check(prc == 0 and perr == "" and ctx_norm(pout) == o, name + " [parity]",
                       f"ps rc={prc} ps={ctx_norm(pout)[:120]!r} py={o[:120]!r} err={perr.strip()[:200]!r}")
+        # Registry-driven desk-context: a synthetic desk selected through BBS_DESKS_FILE gets the same
+        # precedent block the CA fixture does; the default registry does not know it; a registry that
+        # cannot be read leaves the CA output as it was, with one final line on SessionStart only.
+        bad_reg = os.path.join(_scratch[0], "bad-desks.json")
+        with open(bad_reg, "w", encoding="utf-8") as fh:
+            fh.write('{"schema_version": 1, "desks": [')
+        reg_line = ("bbs-sales: the desk registry could not be read (bad-desks.json invalid JSON); "
+                    "only the built-in California desk is active.")
+
+        def with_reg(regfile):
+            v = fresh_env()
+            v.pop("BBS_DESKS_FILE", None)
+            if regfile:
+                v["BBS_DESKS_FILE"] = regfile
+            return v
+
+        schema_reg = os.path.join(_scratch[0], "bad-schema.json")
+        with open(schema_reg, "w", encoding="utf-8") as fh:
+            json.dump({"schema_version": 1, "desks": [{"desk_id": "ca-state", "kind": "rfq"}]}, fh)
+        schema_line = ("bbs-sales: the desk registry could not be read (bad-schema.json schema error); "
+                       "only the built-in California desk is active.")
+        # A desk-level FLAGS.md one level above the tree (as in the live Customers folder): SessionStart
+        # keeps walking above the root, so the tree root and an agency folder both get it.
+        above = os.path.join(root, "Desk Above")
+        above_tree = os.path.join(above, "All RFQ's by Agency")
+        above_agency = os.path.join(above_tree, "Agency Q")
+        os.makedirs(above_agency)
+        write(os.path.join(above, "FLAGS.md"), ["| Date | What | Status |", "|---|---|---|", "| 2026-10-20 | desk-level flag above the tree | open |"])
+        above_ok = lambda o: "OPEN FLAGS -- " in o and "desk-level flag above the tree" in o
+
+        ca_plain = ctx_norm(run_py("desk-context", start(mcsp), with_reg(None))[1])
+        ctx_env = [
+            ("synthetic desk: session context has precedent", start(syn_buyer), two,
+             lambda o: "PRECEDENT" in o and "SQ-7001" in o and "Synthetic cones" in o and "registry could not be read" not in o),
+            ("synthetic desk: session context silent under the default registry", start(syn_buyer), None, lambda o: o == ""),
+            ("registry_error_line: CA output plus the final line", start(mcsp), bad_reg,
+             lambda o: ca_plain != "" and o == ca_plain + "\n" + reg_line),
+            ("registry_error_line: a schema error is cut to file and kind", start(mcsp), schema_reg,
+             lambda o: ca_plain != "" and o == ca_plain + "\n" + schema_line),
+            ("walk above the root: desk-level FLAGS.md found from an agency folder", start(above_agency), None, above_ok),
+            ("walk above the root: desk-level FLAGS.md found from the tree root", start(above_tree), None, above_ok),
+            ("registry_error_line: a valid registry prints no line", start(mcsp), two, lambda o: o == ca_plain),
+        ]
+        for name, payload, regfile, pred in ctx_env:
+            rc, out, err = run_py("desk-context", payload, with_reg(regfile))
+            o = ctx_norm(out)
+            check(rc == 0 and err == "" and pred(o), name, f"py rc={rc} out={o[:200]!r} err={err.strip()!r}")
+            if PS:
+                prc, pout, perr = run_ps("desk-context", payload, with_reg(regfile))
+                check(prc == 0 and perr == "" and ctx_norm(pout) == o, name + " [parity]",
+                      f"ps rc={prc} ps={ctx_norm(pout)[:200]!r} py={o[:200]!r} err={perr.strip()[:200]!r}")
+        # No other event prints the error: PostToolUse (first write and first touch) stays as it was.
+        for label, runner in (("py", run_py), ("ps", run_ps)):
+            if label == "ps" and not PS:
+                continue
+            plain = runner("desk-context", post(joe_deal), with_reg(None))[1]
+            broken = runner("desk-context", post(joe_deal), with_reg(bad_reg))[1]
+            check(plain != "" and broken == plain and "registry could not be read" not in broken,
+                  f"registry_error_line: PostToolUse output is unchanged [{label}]", f"plain={plain[:120]!r} broken={broken[:120]!r}")
         for name, payload, pred in sessions:
             rc, out, err = run_py("desk-context", payload, fresh_env())
             o = ctx_norm(out)
@@ -443,6 +547,40 @@ def main():
                 check(pok, name + " [ps notice]", f"ps rc={prc} state={pstate} out={pout[:200]!r} err={perr[:200]!r}")
             if fpath == bs_path and os.sep == "/" and os.path.exists(fpath):
                 os.remove(fpath)
+        # rfq-record-hook on a second desk from the registry (BBS_DESKS_FILE): the PowerShell half gives
+        # its python3 notice for an RFQ.md under "Synthetic Desk Root/" and stays silent under the
+        # default registry; a root that is only part of a folder name is not a desk either.
+        syn_rfq = os.path.join(syn_b, "2026-11-01", "RFQ.md")
+        os.makedirs(os.path.dirname(syn_rfq), exist_ok=True)
+        with open(syn_rfq, "w", encoding="utf-8", newline="") as fh:
+            fh.write(good)
+        near_rfq = os.path.join(root, "My Synthetic Desk Root copy", "A", "RFQ.md")
+        os.makedirs(os.path.dirname(near_rfq), exist_ok=True)
+        write(near_rfq, ["not a record"])
+        def rec_payload(fp):
+            return {"hook_event_name": "PostToolUse", "tool_name": "Write", "tool_input": {"file_path": fp, "content": "x"}}
+        reg_env = fresh_env()
+        reg_env["BBS_DESKS_FILE"] = two
+        rrc, rout, rerr = run_py("rfq-record-hook", rec_payload(syn_rfq), reg_env)
+        check(rrc == 0 and rerr == "" and os.path.exists(os.path.join(os.path.dirname(syn_rfq), "rfq-state.json")),
+              "rfq-record registry desk: python half validates an RFQ.md under the synthetic root and writes the sidecar", f"rc={rrc} err={rerr[:200]!r}")
+        os.remove(os.path.join(os.path.dirname(syn_rfq), "rfq-state.json"))
+        drc, dout, derr = run_py("rfq-record-hook", rec_payload(syn_rfq), fresh_env())
+        check(drc == 0 and dout == "" and derr == "" and not os.path.exists(os.path.join(os.path.dirname(syn_rfq), "rfq-state.json")),
+              "rfq-record: synthetic root is not a desk under the default registry",
+              f"rc={drc} out={dout[:120]!r} err={derr[:120]!r}")
+        if PS:
+            prc, pout, perr = run_ps("rfq-record-hook", rec_payload(syn_rfq), reg_env)
+            try:
+                pmsg = json.loads(pout)["systemMessage"]
+            except (ValueError, KeyError, TypeError):
+                pmsg = None
+            check(prc == 0 and perr.strip() == "" and pmsg == RFQ_PS_NOTICE,
+                  "rfq-record registry desk: ps half gives its python3 notice [ps notice]", f"rc={prc} out={pout[:200]!r} err={perr[:200]!r}")
+            for label, fp, env in (("default registry", syn_rfq, fresh_env()), ("near-miss root name", near_rfq, reg_env)):
+                prc, pout, perr = run_ps("rfq-record-hook", rec_payload(fp), env)
+                check(prc == 0 and perr.strip() == "" and pout.strip() == "",
+                      "rfq-record: ps half silent for " + label + " [ps notice]", f"rc={prc} out={pout[:200]!r} err={perr[:200]!r}")
         # Garbage on stdin: both halves stay silent and exit 0.
         for script in ("guard-tree", "desk-context", "rfq-record-hook"):
             for raw in (b"", b"not json", b"[1,2]"):

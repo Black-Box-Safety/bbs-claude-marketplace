@@ -75,6 +75,40 @@ class TestCli(CliBase):
         self.assertEqual(rc.returncode, 1)
         self.assertIn("backward", rc.stderr)
         rc = run_cli(["set-stage", self.rfq, "priced", "--date", "2026-10-29", "--evidence", "x", "--force"])
+        self.assertEqual(rc.returncode, 1)
+        self.assertIn("--by", rc.stderr)
+        rc = run_cli(["set-stage", self.rfq, "priced", "--date", "2026-10-29", "--evidence", "x", "--force", "--by", "Test Rep"])
+        self.assertEqual(rc.returncode, 0, rc.stderr)
+
+    def test_set_stage_cli_refuses_conflict_copy(self):
+        open(os.path.join(os.path.dirname(self.rfq), "RFQ-REP-LAPTOP.md"), "w").close()
+        rc = run_cli(["set-stage", self.rfq, "quote built", "--date", "2026-10-28", "--evidence", "SQ-100001"])
+        self.assertEqual(rc.returncode, 1)
+        self.assertIn("conflict copy", rc.stderr)
+        self.assertIn("RFQ-REP-LAPTOP.md", rc.stderr)
+
+    def test_conflict_copy_blocks_every_cli_write(self):
+        open(os.path.join(os.path.dirname(self.rfq), "RFQ-DESKTOP-AB12CD.md"), "w").close()
+        rc = run_cli(["set-header", self.rfq, "BC quote", "SQ-900002"])
+        self.assertEqual(rc.returncode, 1); self.assertIn("conflict copy", rc.stderr)
+        self.assertIn("rename it", rc.stderr)
+        row = '{"num": 1, "vendor": "Test Vendor", "vendor_ref": "Q1.pdf", "cost": 1.0, "sell": 1.2, ' \
+              '"strategy": "vendor quote", "lead": "5 days", "line_stage": "vendor quoted", "evidence": "Q1.pdf"}'
+        rc = run_cli(["upsert-pricing", self.rfq, "--json", row])
+        self.assertEqual(rc.returncode, 1); self.assertIn("conflict copy", rc.stderr)
+
+    def test_a_reps_notes_file_does_not_block(self):
+        open(os.path.join(os.path.dirname(self.rfq), "RFQ-notes.md"), "w").close()
+        rc = run_cli(["set-header", self.rfq, "BC quote", "SQ-900002"])
+        self.assertEqual(rc.returncode, 0, rc.stderr)
+
+    def test_set_stage_cli_conflict_needs_correct(self):
+        rc = run_cli(["set-stage", self.rfq, "quote built", "--date", "2026-10-28", "--evidence", "SQ-100001"])
+        self.assertEqual(rc.returncode, 0, rc.stderr)
+        rc = run_cli(["set-stage", self.rfq, "quote built", "--date", "2026-10-29", "--evidence", "SQ-100001"])
+        self.assertEqual(rc.returncode, 1); self.assertIn("conflict", rc.stderr)
+        rc = run_cli(["set-stage", self.rfq, "quote built", "--date", "2026-10-29", "--evidence", "SQ-100001",
+                      "--correct", "quote re-issued", "--by", "Test Rep"])
         self.assertEqual(rc.returncode, 0, rc.stderr)
 
     def test_pipes_quotes_newlines_round_trip(self):
@@ -199,6 +233,42 @@ class TestCli(CliBase):
         self.assertEqual(run_cli(["validate", self.v1]).returncode, 0)
         rc = run_cli(["migrate", self.v1])
         self.assertEqual(rc.returncode, 1)
+
+
+class TestDealPathRegistry(CliBase):
+    TWO = os.path.join(FIX, "desks-two.json")
+
+    def compile_at(self, parts, desks_file=None):
+        d = os.path.join(self.tmp, *parts)
+        os.makedirs(d)
+        dst = os.path.join(d, "RFQ.md")
+        shutil.copy(os.path.join(FIX, "v2_competitive_sourcing.md"), dst)
+        env = dict(os.environ)
+        if desks_file:
+            env["BBS_DESKS_FILE"] = desks_file
+        rc = subprocess.run([sys.executable, SCRIPT, "compile", dst], capture_output=True, text=True, env=env)
+        self.assertEqual(rc.returncode, 0, rc.stderr)
+        return dst, json.loads(slurp(os.path.join(d, "rfq-state.json")))
+
+    def test_deal_path_synthetic_desk(self):
+        dst, state = self.compile_at(["Synthetic Desk Root", "A", "B", "2026-11-01"], self.TWO)
+        self.assertEqual(state["deal_path"], os.path.abspath(dst))
+
+    def test_deal_path_sibling_folder_is_empty(self):
+        _, state = self.compile_at(["All RFQ's by Agency (old)", "A", "B", "2026-11-01"])
+        self.assertEqual(state["deal_path"], "")
+
+    def test_deal_path_sibling_first_then_real_root(self):
+        dst, state = self.compile_at(["All RFQ's by Agency (old)", "x", "All RFQ's by Agency", "A", "B", "2026-11-01"])
+        self.assertEqual(state["deal_path"], os.path.abspath(dst))
+
+    def test_deal_path_outside_any_desk(self):
+        _, state = self.compile_at(["Elsewhere", "A", "B", "2026-11-01"], self.TWO)
+        self.assertEqual(state["deal_path"], "")
+
+    def test_deal_path_synthetic_root_is_not_a_desk_by_default(self):
+        _, state = self.compile_at(["Synthetic Desk Root", "A", "B", "2026-11-01"])
+        self.assertEqual(state["deal_path"], "")
 
 
 if __name__ == "__main__":

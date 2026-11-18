@@ -10,16 +10,17 @@ The operating manual for `.claude/agents/steward.md`. Read `AGENTS.md` first.
 scope → brief → dispatch worker → worker opens PR
       → steward reviews with a fresh reviewer
       → findings back to the SAME worker → worker tends
-      → Rex clears → steward brings cleared PRs to Parker → Parker merges in the GitHub UI
+      → Rex clears → steward brings cleared PRs to Parker → merged on Parker's Allow
 ```
 
 Four properties make it worth running:
 
 - **A session ends at a PR, not a merge.** The agent that wrote the change never approves
   it.
-- **The reviewer did not write the code, and only Parker merges.** Agents never merge;
-  Parker clicks Merge in the GitHub UI, and managed settings deny the merge tools (ruled
-  2026-11-10, "Agents never merge", R1).
+- **The reviewer did not write the code, and Parker approves every merge.** An agent may
+  merge a PR that Rex cleared, with CI green and no conflict, and the merge waits for
+  Parker's own Allow click; auto-merge stays denied (ruled 2026-11-13, "A merge waits for
+  Parker's Allow", superseding R1).
 - **Findings return to the original worker**, which still holds the context. A fresh
   session re-deriving the change is slower and gets it less right.
 - **The steward is woken by the PR**, not by polling. Subscribe to PR activity when the
@@ -227,6 +228,25 @@ Write it up with evidence and move to the next slice. Do not idle.
 - Removing a control. Say it is wrong; do not delete it.
 
 ### Already open for Parker
+
+- **A merge waits for Parker's Allow — RULED 2026-11-13, superseding R1 (2026-11-10).**
+  Parker, in the session that built the sync slices: "you are permitted to do the merges and
+  deletes of branches", then "I want to change the settings for myself across the entire
+  ecosystem"; asked what a merge should require, he chose "Ask each time", and for scope
+  "Every BBS repo". What changes: managed settings move the GitHub `merge_pull_request` tools
+  and `gh pr merge` from `deny` to `ask`, and keep auto-merge (`enable_pr_auto_merge`,
+  `gh pr merge --auto`) and `gh pr merge --admin` denied. Before asking, the agent confirms
+  Rex (or the repo's named reviewer) cleared the PR, CI is green on its head and it has no
+  conflict. An agent may delete a branch whose PR merged. Detail and rule names:
+  `plugins/bbs-foundations/docs/MANAGED-SETTINGS.md`, "A merge waits for Parker's Allow".
+  Other repos: bbs-shopify's own rule (its `docs/runbooks/git-and-release-hygiene.md` §2.2,
+  Parker 2026-11-13) and bbs-bd-program's merge delegation to its steward already allow agent
+  merges on Parker's word; both were blocked only by the org-wide deny, and the Allow click
+  now sits on top of their own conditions. **Open actions for Parker:** (1) re-paste the
+  managed settings from `bbs-managed-settings.json` in the admin console; (2) in the console,
+  move the GitHub connector's `merge_pull_request` from blocked to ask (keep
+  `enable_pr_auto_merge` blocked; `docs/ADMIN-RUNBOOK.md`). Until both are done, merge tools
+  stay refused everywhere.
 
 - **Folders replace the CRM as the pipeline record; dashboard and folder sync (PR #90) — RULED
   2026-11-12.** Parker, in session, 2026-11-12: "The dashboard and quote log should be connected.
@@ -867,10 +887,11 @@ Write it up with evidence and move to the next slice. Do not idle.
   `bbs-rebate-profitability` stays on CData; this ruling does not cover it.
 - **Rulings of 2026-11-10 (R1–R9) — RULED 2026-11-10.** Parker's words, in the steward session, 2026-11-10, after reading R1–R9 with the steward's recommendations: "Follow recommendations except for the last one we don't need payroll. I want vercel and supabase to be allowed". R1–R8 adopt
   the steward's recommendation as written; R9 is his exception, clarified the same day.
-- **R1. Agents never merge — RULED 2026-11-10.**
+- **R1. Agents never merge — RULED 2026-11-10. Superseded 2026-11-13** by "A merge waits for
+  Parker's Allow", above: merges move to `ask`; auto-merge stays denied.
   Adopted recommendation: "Block agents from merging, using managed settings. Agents could no longer call merge or auto-merge. Rex still reviews; you click Merge in GitHub. Every agent posts as your GitHub account, so an agent can't prove you approved. This makes the rule a hard block instead of an instruction. The cost: no “merge #82” replies, like the one I just did for you." → "Yes". "You click Merge in GitHub" is the recommendation's wording. Managed settings deny the GitHub merge and
   auto-merge tools (`permissions.deny` in `bbs-managed-settings.json`; the names, which are
-  verified and which inferred, are in `MANAGED-SETTINGS.md`, "Agents never merge"), and
+  verified and which inferred, were in `MANAGED-SETTINGS.md`, "Agents never merge", now "A merge waits for Parker's Allow"), and
   `gh pr merge` moves from `ask` to `deny`. Rex reviews and posts "Cleared — awaiting
   Parker's merge approval"; Parker clicks Merge in the GitHub UI. Why: every agent posts as
   Parker's GitHub account (pjm3wv), so no agent can prove Parker approved; a deny is a
@@ -916,7 +937,9 @@ Write it up with evidence and move to the next slice. Do not idle.
 - **R6. #72 is narrowed — RULED 2026-11-10.**
   Adopted recommendation: "Customer-folder CLAUDE.md upkeep (#72). Sessions would update a customer folder's CLAUDE.md without being asked and record quote outcomes there." → "Narrow it. Outcomes already live in quote-log.md (#75). Notes should reuse #81's format and filters, so there is one memory system, not two." Quote outcomes live only in `quote-log.md`
   (#75). Durable customer-folder notes reuse #81's desk-memory entry format and refusal
-  table, so there is one memory mechanism, not two.
+  table, so there is one memory mechanism, not two. **Amended 2026-11-16 (D10.5):** a desk
+  with a profile may keep a hand-kept outcome record; Sentinel's `learning/quote-log.md` is
+  that desk's (entry "BBS Sales System: one desk model for every customer", below).
 - **R7. Desk memory (#81) "Open for Parker" items 1–7 accepted as recommended — RULED
   2026-11-10.**
   Adopted recommendation: "Desk memory's A1–A7 (#81)." → "Yes as listed in my last message. A3 waits for the next slice, and A4 is your SharePoint step." The items, in their own wording and each now marked RULED 2026-11-10, live
@@ -1158,7 +1181,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   #74, #71, #53, #77, #76 and #72, each at its cleared head. It was bounded to that queue and
   ended once the R1 managed-settings deny went live: Parker, in the steward session on
   2026-11-12, after the steward sent him the file from `main` `5ae15f3` (#86): "managed
-  settings are in". From then on R1 holds without exception: Parker merges in the GitHub UI.
+  settings are in". From then on R1 held without exception until 2026-11-13, when "A merge
+  waits for Parker's Allow" superseded it.
   **Still open:** the live test of that paste — a payroll read is blocked, a Vercel purchase
   asks, and a new session opens on Opus at medium.
 - **BC writers: Kim, Aanya, Griffin and Joey — RULED 2026-11-11.** Parker, in the steward session: "Kim, Aanya, griffin and Joey should have
@@ -1200,6 +1224,48 @@ Write it up with evidence and move to the next slice. Do not idle.
   form-filling job, and tile 3 ("Outside Sales, it doesn't sign for you") covers her.
   `/bbs-my-voice` learns only from her own Sent Items, so drafting in Jackson's voice is
   shown as Not built yet.
+- **BBS Sales System: one desk model for every customer — RULED 2026-11-16.** Parker, in
+  session; design `docs/superpowers/specs/2026-11-16-bbs-sales-system-design.md`, approved
+  2026-11-17 ("Approve design"). Records here the program decisions D10.1–D10.5 kept in
+  `Customers/State of CA Agencies/sales-process/docs/pm/DECISIONS.md`:
+  - folders plus interactive dashboards are the target;
+  - one desk model, rolled out by desk profile;
+  - reps update the CRM (D10.1);
+  - a desk that declares a profile may keep a hand-kept outcome record, and Sentinel's
+    `learning/quote-log.md` is that desk's (D10.5, amends R6);
+  - agents in the CA tree always use and update `desk-remember`.
+- **Quote-sent capture is an Exchange mail flow rule — RULED 2026-11-16.** Parker: "Exchange
+  mail rule". Outbound mail carrying a BC sales-quote PDF is copied to one logging mailbox.
+  Parker creates the rule.
+- **The logging mailbox is read metadata only — RULED 2026-11-16.** Parker: "Metadata only".
+  - A script on Parker's Mac keeps sender, buyer domain, sent timestamp and quote number.
+  - Bodies and attachments are never stored or read by Claude.
+  - Retention is about 90 days.
+  - For this mailbox only, this supersedes 2026-10-30 spec §13.8 item 1 and 2026-11-12 spec §7.
+- **A Tier 1 PO match becomes Won after a shadow bar — RULED 2026-11-16.** Parker: "Auto after
+  it proves out".
+  - Tier 1 means the PO cites our quote number and the customer and pre-tax total check out.
+  - It runs in shadow until the matcher is at least 95% precise on 30 or more cases. Then it
+    counts as Won automatically, and the rep can undo it.
+  - Weaker matches always need a rep's confirmation.
+  - Parker signs the pass; Quinn owns the precision report. Until it is signed, a Tier 1
+    match is a proposal the rep folds.
+  - Amends canon "What counts as a win" and METRICS-SIGNOFF Q-A.
+- **Sentinel adopts RFQ.md for new RFQs — RULED 2026-11-16.** Parker: "Yes, new RFQs onward".
+  - Sentinel's dashboard data is built from those records.
+  - The tracker xlsx, hand indexes and stage JSON collapse into one store.
+  - Existing RFQs are untouched.
+- **Folders are the RFQ working record for every customer — RULED 2026-11-16.** Parker: "Yes,
+  CRM until a switch". Reps keep updating the CRM until each desk passes a parity switch (two
+  straight weeks where folder sent and CRM Submitted agree within 1 per rep per week, with ≥90%
+  of in-scope deals carrying a sent date). Then CRM entry stops for that desk. Amends
+  canon "Systems of record" (2026-11-12, CA state only).
+- **Build approach: extend in place — RULED 2026-11-16.** Parker: "Extend in place". The outcome
+  engine runs as a routine on Parker's Mac.
+- **CSU/UC and body armor are not in the first build — RULED 2026-11-17.** Parker: "I want to
+  integrate Joey's down the line for CSU/UC. That is a very recurring order based system and
+  does not have the system type of RFQ basis." CSU/UC gets its own order-desk design. Body armor
+  is out unless Parker says otherwise.
 
 ---
 
