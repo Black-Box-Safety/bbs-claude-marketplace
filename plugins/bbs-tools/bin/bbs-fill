@@ -41,8 +41,8 @@ set -f   # no globbing: a path segment like '*' must stay literal
 # because its check stops a NASPO line priced above cost; if that gate goes, this entry goes in
 # the same PR (MANAGED-SETTINGS.md, "Business Central writes"). bc_quote_pdf.py, the last entry,
 # writes nothing to Business Central: it GETs a released quote's own PDF under the rep's delegated
-# sign-in and saves it in the deal folder (Parker, 2026-11-17, "Quote PDF by text"; his ruling on
-# this entry is pending the PR). Keep comments out of the array:
+# sign-in and saves it in the deal folder (Parker, 2026-11-17, "Quote PDF by text"; allow-list entry
+# ruled 2026-11-17, docs/STEWARD.md after R3). Keep comments out of the array:
 # the tests read it one entry per line.
 ALLOWED=(
   "ca-form-filler/scripts/fill_obs_packet.py"

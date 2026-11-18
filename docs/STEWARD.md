@@ -901,6 +901,12 @@ Write it up with evidence and move to the next slice. Do not idle.
   Allow click, but **only after** #68 enforces NASPO lines at cost, per the rule in
   `plugins/bbs-foundations/skills/bbs-claude-md-forge/references/canonical-facts.md`, "Grainger sell rule, by channel". The named review sheet stays the gate. Until that check
   ships in #68, the script stays off the list.
+- **`bc_quote_pdf.py` may go on the `bbs-fill` allow list — RULED 2026-11-17.** Parker, in
+  session, asked whether the entry PR #106 proposes should stay: "yes add it". No Allow click
+  for the read-only fetch of BC's own PDF of a released quote. Unlike R3 it writes nothing to
+  Business Central: one GET of `pdfDocumentContent` under the rep's delegated sign-in, saved
+  to the deal folder. Its own refusals (Expired; Draft unless a named rep states released)
+  and the R5 proof read-back stay the gate, and a person sends the PDF.
 - **R4. Salesperson split on the Kim/Aanya California state book — RULED 2026-11-10.**
   Adopted recommendation: "Who is salesperson on a state quote. Kim's 18 agencies get KQUEZON, all others AANYA, and PMARSHALL never." → "Confirm the rule and the list of 18. Keep one copy of the list in the shared facts file instead of five." The CA state book scope from canon (body armor and CSU/UC outside the book) is applied here as an existing ruling, not a new one.
   Within that book, `KQUEZON` for Kim's 18 agencies, `AANYA` for all others, `PMARSHALL`
