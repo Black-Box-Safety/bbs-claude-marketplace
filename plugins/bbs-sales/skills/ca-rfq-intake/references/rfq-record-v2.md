@@ -43,7 +43,7 @@ outcome row's Evidence carries one of the outcome values.
 ## Enums
 
 - Stages: logged, sourcing, priced, quote built, packet built, delivered to rep, sent, outcome.
-- Outcomes: won, lost, no answer, no bid.
+- Outcomes: won, lost, no answer, no bid, cancelled (the solicitation was withdrawn or not awarded).
 - Line stages: open, sourcing, vendor quoted, priced, quoted, substituted, parked, no bid.
 - Strategies: NASPO at cost, BPO price list, cost plus <n>% (matches `^cost plus \d+(\.\d+)?%$`),
   competitive bid, vendor quote, substitute offered, parked, no bid.

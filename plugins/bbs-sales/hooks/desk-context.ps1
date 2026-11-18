@@ -22,6 +22,9 @@ $utf8 = New-Object System.Text.UTF8Encoding($false)
 $TREE = "All RFQ's by Agency"
 $BUYER_FILES = @('CLAUDE.md', 'quote-log.md', 'FLAGS.md')
 $STALE_DAYS = 30
+# The final outcomes, in the order of rfq_record.OUTCOMES (scripts/rfq_record.py), the one source;
+# hooks/tests/parity.py fails if this list drifts from it.
+$FINAL_OUTCOMES = @('won', 'lost', 'no answer', 'no bid', 'cancelled')
 $DEAL_START = '^\s*[0-9]{1,2}\.[0-9]{1,2}\.(?:[0-9]{2}|[0-9]{4})(?![0-9])'
 $DEAL_END = '[ _-][0-9]{1,2}\.[0-9]{1,2}\.(?:[0-9]{2}|[0-9]{4})\s*$'
 $DEAL_ISO = '[ _-][0-9]{4}-[0-9]{2}-[0-9]{2}\s*$'
@@ -115,7 +118,7 @@ function Get-Stale($rows) {
     if (($now - (Day-Number $r.D)) -le $STALE_DAYS) { continue }
     $outcome = ''
     if ($r.Cells.Count -gt 5) { $outcome = [regex]::Replace($r.Cells[5], '^[`*_ ]+', '') }
-    if ([regex]::IsMatch($outcome, '^(won|lost|no answer)\b', $ICASE) -or $outcome.ToLowerInvariant().Contains('[flag')) { continue }
+    if ([regex]::IsMatch($outcome, "^($($FINAL_OUTCOMES -join '|'))\b", $ICASE) -or $outcome.ToLowerInvariant().Contains('[flag')) { continue }
     $out += $r
   }
   return @($out | Sort-Object -Property @{ Expression = { $_.Key * 1000000 + $_.Idx } })
@@ -248,7 +251,7 @@ function Get-FirstWrite($h) {
     $rows = Get-LogRows (Split-Lines (Read-Text $ql))
     $stale = @(Get-Stale $rows)
     if ($stale.Count -gt 0) {
-      $out += "OUTCOMES TO CLOSE -- $($stale.Count) quote-log rows older than $STALE_DAYS days have no final outcome (won / lost / no answer):"
+      $out += "OUTCOMES TO CLOSE -- $($stale.Count) quote-log rows older than $STALE_DAYS days have no final outcome ($($FINAL_OUTCOMES -join ' / ')):"
       $top = $stale
       if ($stale.Count -gt 10) { $top = @($stale[0..9]) }
       foreach ($r in $top) { $out += $r.Line }

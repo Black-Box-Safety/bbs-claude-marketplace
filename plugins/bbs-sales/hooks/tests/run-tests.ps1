@@ -154,7 +154,9 @@ Set-Content -Path (Join-Path $joe 'quote-log.md') -Value @(
   '| 9.14.26 | V-belts | 900021 | OBS 4007(A) | 3668.70 | priced, awaiting signature |',
   '| 10.7.26 | Refrigerants | SQ-105100 | OBS 4007(B) | 23981.10 | packet signed, not sent |',
   '| 2026-03-04 | Nitrile gloves | SQ-1001 | NASPO | 2400 | won |',
-  '| 7.13.23 | Gloves | SQ-0001 | NASPO | 100 | sent |'
+  '| 7.13.23 | Gloves | SQ-0001 | NASPO | 100 | sent |',
+  '| 8.15.26 | Rope | SQ-6006 | NASPO | 15 | no bid - out of scope |',
+  '| 8.20.26 | Cones | SQ-7007 | NASPO | 12 | cancelled - solicitation withdrawn |'
 )
 Set-Content -Path (Join-Path $joe 'FLAGS.md') -Value @(
   '| Date | What | Status |', '|---|---|---|',

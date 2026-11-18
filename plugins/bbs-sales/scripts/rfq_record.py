@@ -17,7 +17,7 @@ SCHEMA_VERSION = 2
 
 STAGES = ["logged", "sourcing", "priced", "quote built", "packet built",
           "delivered to rep", "sent", "outcome"]
-OUTCOMES = ["won", "lost", "no answer", "no bid"]
+OUTCOMES = ["won", "lost", "no answer", "no bid", "cancelled"]
 LINE_STAGES = ["open", "sourcing", "vendor quoted", "priced", "quoted",
                "substituted", "parked", "no bid"]
 STRATEGIES = ["NASPO at cost", "BPO price list", "cost plus <n>%", "competitive bid",
