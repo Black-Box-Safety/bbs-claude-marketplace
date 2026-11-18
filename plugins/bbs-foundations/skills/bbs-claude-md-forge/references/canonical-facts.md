@@ -153,9 +153,14 @@ The single home for whether a Grainger line may carry markup. Skills point here.
 
 | Channel | Rule | Ruling |
 |---|---|---|
-| California state agencies — CA state schedules, including the NASPO ValuePoint CA MRO Statewide LPA (number in *Contract vehicles*, above) | **At cost.** The Grainger MCP's `unitPrice` is BBS's cost *and* the customer price, never marked up; BBS is paid through the contract rebate | Parker, ruled 2026-09-18; "confirmed" in session 2026-09-28 |
+| California state agencies — CA state schedules, including the NASPO ValuePoint CA MRO Statewide LPA (number in *Contract vehicles*, above) | **At cost, no freight.** The Grainger MCP's `unitPrice` is BBS's cost *and* the customer price, never marked up, and no freight line is added; BBS is paid through the contract rebate | Parker, ruled 2026-09-18; "confirmed" in session 2026-09-28; "no freight" added in the managed company memory, 2026-11-18 |
 | Prime contractors (e.g. Bechtel) | **Grainger lines may be marked up.** Before pricing, the rep asks BBS's Grainger account manager for a discount on the items, prices from that discounted cost, then applies whatever markup the rep chooses. No markup figure is set — never invent one — and never invent a discount | Parker, in session, 2026-09-28: "For primes, grainger products can be increased. reps should ask for a discount from our grainger account manager first." |
 | National and local cooperative contracts (Sourcewell, NPPGov, UC/OMNIA, local co-ops), direct federal, private | **Open for Parker.** Do not infer a rule from the rows above; ask the rep | — |
+
+**Market data shapes strategy, never a quoted number.** SCPRS, the web and other competitive
+data inform pricing strategy and margin at the deal level (Parker, managed company memory,
+2026-11-18); a price or cost on a quote still comes only from a system of record or a vendor's
+own quote.
 
 On a quote created through `bc-quote-entry` the NASPO row is enforced: a `contract: NASPO`
 line whose price is not exactly its cost stops the check (R3, 2026-11-10). On an open

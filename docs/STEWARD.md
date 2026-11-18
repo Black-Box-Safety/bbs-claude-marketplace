@@ -229,6 +229,24 @@ Write it up with evidence and move to the next slice. Do not idle.
 
 ### Already open for Parker
 
+- **Company memory loosened — RULED 2026-11-18.** Parker edited the managed `claudeMd` in the
+  admin console and, asked whether to restore two rules it dropped, said: "I want them out, i
+  want their to be more flexibility and i odnt care about the claim that mcuh. Reps know it and
+  this is slowing us down." Then: "we dont need a PR just change any record in the git". What
+  changed in company memory: (1) the sentence that BBS is not a California small business and
+  never claims the 5% SB preference (SCM 1204) is gone; the intro and the certification line
+  still say California is DVBE only, and canon is unchanged; (2) "Never release, send, or
+  convert a quote, and never post a document" is gone from the Business Central line; the org
+  instructions and `bc-quote-entry` still carry it; (3) Grainger at cost is scoped to California
+  state government customers and adds "no freight" (canon's Grainger sell rule updated to match);
+  "All-Grainger requests are NASPO -> Provision Connect" is gone; (4) the stale model-ID line is
+  gone; (5) the AUP line adds inside sales from the Sentinel and State of CA Agencies folders and
+  SCPRS and market data for deal-level pricing strategy (canon adds: market data shapes
+  strategy, never a quoted number, which Parker chose). Committed straight to `main` at his
+  instruction. **Open action for Parker:** re-paste `claudeMd` from `bbs-managed-settings.json`,
+  because #102 widened its systems-of-record and customer-folder lines to the Sentinel desk after
+  the 2026-11-18 paste.
+
 - **A merge waits for Parker's Allow — RULED 2026-11-13, superseding R1 (2026-11-10).**
   Parker, in the session that built the sync slices: "you are permitted to do the merges and
   deletes of branches", then "I want to change the settings for myself across the entire

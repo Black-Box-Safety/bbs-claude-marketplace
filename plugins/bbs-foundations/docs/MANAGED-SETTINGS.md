@@ -208,7 +208,9 @@ releases, sends, converts or posts, and it runs only after the rep approves the 
 sheet by name. The `claudeMd` block now carries one rule naming the whole BC write
 boundary (items, Vendor No. on items, sales quotes and their lines; the PM
 Claude/BC-Write-API scripts and the `bc-item-entry` and `bc-quote-entry` skills; named
-approval in the chat; never release, send, convert or post). Before this the company memory named no
+approval in the chat). Its "never release, send, convert or post" clause was taken out by Parker on
+2026-11-18 (STEWARD, "Company memory loosened"); `bc-quote-entry` itself still never releases,
+sends, converts or posts. Before this the company memory named no
 BC write rule, only the systems-of-record line. Detail stays here, not in `claudeMd`:
 `bc_quote_entry.py` **is** on the `bbs-fill` allow list under R3 (Parker, 2026-11-10), which
 allowed it only once its check stops every NASPO line whose price is not exactly its cost.
