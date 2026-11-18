@@ -236,8 +236,10 @@ Write it up with evidence and move to the next slice. Do not idle.
   - *NASPO never has freight.* Parker, in session, 2026-11-18: "For NASPO, there is never
     freight." `bc-quote-entry` refuses a `SHIPPING` line on a `NASPO` quote.
 
-  Answers Rex's findings 1 and 2 on #105. The `bc-quote-entry` script, `SKILL.md`,
-  `quote-rules.md` and `spec-schema.md` cite this entry.
+  Answers Rex's findings 1 and 2 on #105. The `bc-quote-entry` script, its test and
+  `quote-rules.md` cite this entry; `SKILL.md` and `spec-schema.md` state the rule and
+  point to `quote-rules.md`, since this file does not ship with the plugin. The script
+  also stops a second `SHIPPING` line.
 
 - **Folders replace the CRM as the pipeline record; dashboard and folder sync (PR #90) — RULED
   2026-11-12.** Parker, in session, 2026-11-12: "The dashboard and quote log should be connected.

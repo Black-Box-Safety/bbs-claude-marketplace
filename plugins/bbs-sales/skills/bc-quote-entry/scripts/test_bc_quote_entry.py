@@ -192,6 +192,19 @@ class LineRules(unittest.TestCase):
             self.assertTrue(any("qty 1" in e for e in errs), errs)
         self.assertEqual(errors(self._freight(1)), [])
 
+    def test_second_shipping_line_stops(self):
+        """Two freight lines of qty 1 double the charge just as qty 2 does; an ordinary
+        repeated item still only warns."""
+        s = self._freight(1)
+        s["lines"].append(dict(s["lines"][1], line=3))
+        s["quoteTotalExclTax"] = round(s["quoteTotalExclTax"] + 45.00, 2)
+        errs = errors(s)
+        self.assertTrue(any("line 3: SHIPPING is freight and goes on one line only" in e for e in errs), errs)
+        s = spec()
+        s["lines"].append(dict(s["lines"][0], line=2))
+        s["quoteTotalExclTax"] = round(s["quoteTotalExclTax"] * 2, 2)
+        self.assertEqual(errors(s), [])
+
     def test_naspo_never_carries_freight(self):
         """docs/STEWARD.md, "Freight on quotes", RULED 2026-11-18: NASPO never has freight."""
         s = self._freight(1)

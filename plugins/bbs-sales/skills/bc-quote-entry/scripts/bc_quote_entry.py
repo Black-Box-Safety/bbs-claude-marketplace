@@ -420,7 +420,10 @@ def validate_spec(spec, uoms):
             elif num != num.upper():
                 errs.append(f"{tag}: item numbers are upper-case in BC (Code field); write it as {num.upper()!r} "
                             f"so the lookup finds the card")
-            if num in seen_num:
+            if num in seen_num and num in FREIGHT_ITEMS:
+                errs.append(f"{tag}: {num} is freight and goes on one line only, at the whole freight cost; a "
+                            f"second {num} line charges freight twice. Combine them into one line")
+            elif num in seen_num:
                 warns.append(f"{tag}: item {num} appears on more than one line")
             seen_num.add(num)
             desc = str(ln.get("description") or "")
