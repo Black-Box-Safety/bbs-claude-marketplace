@@ -794,6 +794,82 @@ def test_agency_prefilled_values_are_kept_and_never_overwritten_silently():
         assert not code, (code, err)
 
 
+def test_empty_text_in_replace_prefilled_clears_the_field():
+    """`""` blanks a stale agency value (DAPO SQ-105512 used `" "` as a workaround,
+    because PyMuPDF ignores an empty field_value). Without replace_prefilled it is
+    still refused, like any other change to a pre-filled field."""
+    if _needs_fitz():
+        return
+    import fitz as real
+    pages = {"c.pdf": [(_header("OBS4007C"), [("Buyer Name", "text", "Stale Buyer"),
+                                              ("Bidder Signature", "text", "")])]}
+    base = {"form": "OBS4007C", "src": "c.pdf", "out": "c-out.pdf",
+            "sign": {"Bidder Signature": {"who": "parker"}}, "text": {"Buyer Name": ""}}
+    with tempfile.TemporaryDirectory() as d:
+        spec = _real_spec(d, [dict(base, replace_prefilled={"Buyer Name": "rep: stale"})],
+                          pages)
+        code, _out, err = _run_real(spec, d)
+        assert not code, (code, err)
+        out_pdf = os.path.join(spec["out_dir"], "c-out.pdf")
+        _n, values = _images_on(out_pdf)
+        assert values["Buyer Name"] == "", values
+        doc = real.open(out_pdf)
+        assert "Stale Buyer" not in doc[0].get_text(), doc[0].get_text()
+        doc.close()
+    with tempfile.TemporaryDirectory() as d:
+        spec = _real_spec(d, [base], pages)
+        code, _out, _err = _run_real(spec, d)
+        assert code and "already holds 'Stale Buyer'" in str(code), code
+
+
+def _shared_field_pdf(path, value):
+    """Two pages showing ONE text field: a parent holding /T and /V, a kid widget
+    per page (how CDCR's bound packet shows `OBS RFQ 4007(C) - Business Name`)."""
+    import fitz as real
+    doc = real.open()
+    for _ in range(2):
+        page = doc.new_page()
+        page.insert_text((40, 40), _header("OBS4007C"), fontsize=9)
+        w = real.Widget()
+        w.field_name, w.rect = "Shared", real.Rect(40, 80, 300, 98)
+        w.field_type, w.field_value = real.PDF_WIDGET_TYPE_TEXT, value
+        page.add_widget(w)
+    kids = [w.xref for page in doc for w in page.widgets()]
+    parent = doc.get_new_xref()
+    doc.update_object(parent, f"<< /FT /Tx /T (Shared) /V ({value}) /Kids ["
+                      + " ".join(f"{k} 0 R" for k in kids) + "] >>")
+    for k in kids:
+        for key in ("T", "V", "FT"):
+            doc.xref_set_key(k, key, "null")
+        doc.xref_set_key(k, "Parent", f"{parent} 0 R")
+    doc.xref_set_key(doc.pdf_catalog(), "AcroForm/Fields", f"[{parent} 0 R]")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    doc.save(path)
+    doc.close()
+    return parent
+
+
+def test_empty_text_clears_a_field_shown_on_several_pages():
+    if _needs_fitz():
+        return
+    import fitz as real
+    with tempfile.TemporaryDirectory() as d:
+        form = {"form": "OBS4007C", "src": "s.pdf", "out": "s-out.pdf", "text": {"Shared": ""},
+                "replace_prefilled": {"Shared": "rep: stale agency copy"}}
+        spec = _real_spec(d, [form], {})
+        parent = _shared_field_pdf(os.path.join(spec["src_dir"], "s.pdf"), "Stale Name")
+        doc = real.open(os.path.join(spec["src_dir"], "s.pdf"))
+        assert [w.field_value for p in doc for w in p.widgets()] == ["Stale Name"] * 2
+        doc.close()
+        code, _out, err = _run_real(spec, d)
+        assert not code, (code, err)
+        doc = real.open(os.path.join(spec["out_dir"], "s-out.pdf"))
+        assert doc.xref_get_key(parent, "V") == ("string", ""), doc.xref_get_key(parent, "V")
+        assert [w.field_value for p in doc for w in p.widgets()] == ["", ""]
+        assert not any("Stale Name" in p.get_text() for p in doc)
+        doc.close()
+
+
 def _packet_pages():
     return {"k.pdf": [
         (_header("OBS4007C"), [("Bidder Signature", "text", "")]),

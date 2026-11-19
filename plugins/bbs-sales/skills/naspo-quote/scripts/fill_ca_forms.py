@@ -77,7 +77,9 @@ same file).
   spec value that would change a non-empty field is refused unless the field is
   listed in the form's `replace_prefilled` with the reason (the rep's call: the
   vendor profile wins over an agency's stale copy of BBS's own details, but
-  someone says so per field). Every kept value is reported.
+  someone says so per field). Every kept value is reported. A `text` value of
+  `""` on a `replace_prefilled` field blanks it (a stale agency copy of a field
+  BBS leaves empty); no `" "` workaround is needed.
 
 Notes that save you a debugging cycle:
 
@@ -846,6 +848,23 @@ def check_sign_pages(spec, doc, index, ctx):
     _raise(problems)
 
 
+def _clear_text(doc, page, w):
+    """Blank a text field. PyMuPDF ignores `field_value = ""` and keeps the old
+    value, so /V is written directly: on the widget when it carries the field's
+    name, else on its parent (a field shown on several pages keeps /V there).
+    The appearance is then rebuilt from the empty value."""
+    holder = w.xref
+    parent = doc.xref_get_key(w.xref, "Parent")
+    if parent[0] == "xref" and doc.xref_get_key(w.xref, "T")[0] == "null":
+        holder = int(parent[1].split()[0])
+    doc.xref_set_key(holder, "V", "()")
+    for fresh in (page.widgets() or []):
+        if fresh.xref == w.xref:
+            fresh.text_fontsize = w.text_fontsize
+            fresh.update()
+            return
+
+
 def _doc_page(doc, pno):
     for i, page in enumerate(doc):
         if i == pno:
@@ -877,9 +896,12 @@ def fill_form(spec, sig_paths, src_dir, out_dir, master_root=None, ctx=None):
                 if str(getattr(w, "field_value", "") or "").strip() and name not in \
                         (spec.get("replace_prefilled") or {}):
                     continue  # same value already there (anything else was refused)
-                w.field_value = str(text[name])
                 w.text_fontsize = sizes.get(name, 8)
-                w.update()
+                if str(text[name]) == "":
+                    _clear_text(doc, page, w)
+                else:
+                    w.field_value = str(text[name])
+                    w.update()
             elif name in checks:
                 states = w.button_states() or {}
                 ons = [s for s in (states.get("normal") or []) + (states.get("down") or [])

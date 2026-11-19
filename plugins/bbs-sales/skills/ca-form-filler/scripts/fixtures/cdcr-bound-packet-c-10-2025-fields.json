@@ -1,0 +1,2911 @@
+{
+ "_source": "Field names, types and 1-based pages of CDCR's bound Packet C blank (cover '10/2025 Request For Quote (RFQ) Packet - C', OBS 4007(C) Rev. 08/2025 front), read with PyMuPDF 2026-11-17 from a DAPO RFQ of 10/5/2026. Names only; no field values are recorded.",
+ "fields": {
+  "DORRR CalRec 74 - 1Percent Postconsumer Recycled Content MaterialRow1": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - 1Percent Postconsumer Recycled Content MaterialRow2": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - 1Percent Postconsumer Recycled Content MaterialRow3": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - 1Percent Postconsumer Recycled Content MaterialRow4": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - 1Percent Postconsumer Recycled Content MaterialRow5": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - 1Percent Postconsumer Recycled Content MaterialRow6": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - 2SABRC Product Category CodeRow1": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - 2SABRC Product Category CodeRow2": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - 2SABRC Product Category CodeRow3": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - 2SABRC Product Category CodeRow4": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - 2SABRC Product Category CodeRow5": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - 2SABRC Product Category CodeRow6": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Address": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Date": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Email": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Item Row1": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Item Row2": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Item Row3": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Item Row4": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Item Row5": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Item Row6": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - PO": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Phone": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Phone_2": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Print Name": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Product or Services DescriptionRow1": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Product or Services DescriptionRow2": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Product or Services DescriptionRow3": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Product or Services DescriptionRow4": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Product or Services DescriptionRow5": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Product or Services DescriptionRow6": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Purchase Order  RFQ  RFP  IFB  Cal Card Order Row1": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Purchase Order  RFQ  RFP  IFB  Cal Card Order Row2": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Purchase Order  RFQ  RFP  IFB  Cal Card Order Row3": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Purchase Order  RFQ  RFP  IFB  Cal Card Order Row4": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Purchase Order  RFQ  RFP  IFB  Cal Card Order Row5": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Purchase Order  RFQ  RFP  IFB  Cal Card Order Row6": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Purchasing Agent": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - SABRC compliant1": {
+   "type": "CheckBox",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - SABRC compliant2": {
+   "type": "CheckBox",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - SABRC compliant3": {
+   "type": "CheckBox",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - SABRC compliant4": {
+   "type": "CheckBox",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - SABRC compliant5": {
+   "type": "CheckBox",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - SABRC compliant6": {
+   "type": "CheckBox",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Signature": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - State Agency": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DORRR CalRec 74 - Title": {
+   "type": "Text",
+   "pages": [
+    14
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  51% Checkbox 1": {
+   "type": "CheckBox",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  51% Checkbox 2": {
+   "type": "CheckBox",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Date Sihned 2": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Final Mngr. Date Signed": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Final Owner Print Name": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Final Print - DVBE Mngr Name": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Final Signature - Mngr. Signature": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Firm Phone#": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Frim Address": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Name - Acting as Broker/Agent": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Owner Address": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Owner Date Signed": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Owner Phone#": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Owner Signature": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Owner Tax ID #": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Owner/Mngr. Print Name 2": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Owner/Mngr. Print Nmae 1": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Owner/Mngr. Signature 2": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Page 1 of #": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 -  Total Pg.#s": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 - DVBE Owner/ Mngr. Signature 1": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 - DVBE Ref #": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 - DVBE is Broker": {
+   "type": "CheckBox",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 - DVBE not Broker": {
+   "type": "CheckBox",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 - Date Signed 1": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 - Desc": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 - Name of DVBE": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "DVBE Dec. DGS PD 843 - SCPRS Ref. #": {
+   "type": "Text",
+   "pages": [
+    19
+   ]
+  },
+  "Darfur OBS 1500 - By Authorized Signature": {
+   "type": "Text",
+   "pages": [
+    13
+   ]
+  },
+  "Darfur OBS 1500 - By Authorized Signature_3": {
+   "type": "Text",
+   "pages": [
+    13
+   ]
+  },
+  "Darfur OBS 1500 - CompanyVendor Name Printed_2": {
+   "type": "Text",
+   "pages": [
+    13
+   ]
+  },
+  "Darfur OBS 1500 - CompanyVendor Name Printed_3": {
+   "type": "Text",
+   "pages": [
+    13
+   ]
+  },
+  "Darfur OBS 1500 - Date": {
+   "type": "Text",
+   "pages": [
+    13
+   ]
+  },
+  "Darfur OBS 1500 - Date Executed": {
+   "type": "Text",
+   "pages": [
+    13
+   ]
+  },
+  "Darfur OBS 1500 - Executed in the County and State Of": {
+   "type": "Text",
+   "pages": [
+    13
+   ]
+  },
+  "Darfur OBS 1500 - Federal ID Number": {
+   "type": "Text",
+   "pages": [
+    13
+   ]
+  },
+  "Darfur OBS 1500 - Federal ID Number_2": {
+   "type": "Text",
+   "pages": [
+    13
+   ]
+  },
+  "Darfur OBS 1500 - Printed Name and Title of Person Signing": {
+   "type": "Text",
+   "pages": [
+    13
+   ]
+  },
+  "Darfur OBS 1500 - Printed Name and Title of Person Signing_2": {
+   "type": "Text",
+   "pages": [
+    13
+   ]
+  },
+  "Darfur OBS 1500 -Auth. Signature": {
+   "type": "Text",
+   "pages": [
+    13
+   ]
+  },
+  "Fax": {
+   "type": "Text",
+   "pages": [
+    3
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - %": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - % 2": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - % 3": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - 51% rental": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - 51% rental 2": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - 51% rental 3": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Address, email": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Address, email 2": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Address, email 3": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Broker/Agent No": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Broker/Agent Yes": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Certification": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Certification 2": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Certification 3": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Eqpt. Rental N/A": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Eqpt. Rental No": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Eqpt. Rental Yes": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Good standing": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Good standing 2": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Good standing 3": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Name, phone, fax": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Name, phone, fax 2": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Name, phone, fax 3": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Pg 1 - #of pgs": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Pg 1 - Pg #": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Product list - 1": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Product list - 2": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Work or goods": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Work or goods 2": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written - Work or goods 3": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written -Cert# N/A": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written -Certification #": {
+   "type": "Text",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written -Sub No": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "GSPD-05-105 Bidder Dec. Written -Sub Yes": {
+   "type": "CheckBox",
+   "pages": [
+    11
+   ]
+  },
+  "OBS 1000 - 1 Provide a brief overview of the workload that is being performed": {
+   "type": "Text",
+   "pages": [
+    16
+   ]
+  },
+  "OBS 1000 - 2 Which aspects of the workflow will the GenAI support and how will you use GenAI": {
+   "type": "Text",
+   "pages": [
+    16
+   ]
+  },
+  "OBS 1000 - 3 How is the GenAI solution delivered": {
+   "type": "Text",
+   "pages": [
+    17
+   ]
+  },
+  "OBS 1000 - 4 How will users access the solution": {
+   "type": "Text",
+   "pages": [
+    17
+   ]
+  },
+  "OBS 1000 - 5 What types of data will this business process use": {
+   "type": "Text",
+   "pages": [
+    17
+   ]
+  },
+  "OBS 1000 - Business Address": {
+   "type": "Text",
+   "pages": [
+    16
+   ]
+  },
+  "OBS 1000 - Business Name": {
+   "type": "Text",
+   "pages": [
+    16
+   ]
+  },
+  "OBS 1000 - Business Telephone Number": {
+   "type": "Text",
+   "pages": [
+    16
+   ]
+  },
+  "OBS 1000 - City": {
+   "type": "Text",
+   "pages": [
+    16
+   ]
+  },
+  "OBS 1000 - Contract  Description of Purchase": {
+   "type": "Text",
+   "pages": [
+    16
+   ]
+  },
+  "OBS 1000 - Date": {
+   "type": "Text",
+   "pages": [
+    17
+   ]
+  },
+  "OBS 1000 - Number Bidder ID/ Vendor ID (opitional)": {
+   "type": "Text",
+   "pages": [
+    16
+   ]
+  },
+  "OBS 1000 - Signature": {
+   "type": "Signature",
+   "pages": [
+    17
+   ]
+  },
+  "OBS 1000 - State": {
+   "type": "Text",
+   "pages": [
+    16
+   ]
+  },
+  "OBS 1000 - Was GenAI used - No": {
+   "type": "CheckBox",
+   "pages": [
+    16
+   ]
+  },
+  "OBS 1000 - Was GenAI used - Yes": {
+   "type": "CheckBox",
+   "pages": [
+    16
+   ]
+  },
+  "OBS 1000 - Will there be training - No": {
+   "type": "CheckBox",
+   "pages": [
+    17
+   ]
+  },
+  "OBS 1000 - Will there be training - Yes": {
+   "type": "CheckBox",
+   "pages": [
+    17
+   ]
+  },
+  "OBS 1000 - Zip Code": {
+   "type": "Text",
+   "pages": [
+    16
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Comment Text": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L10": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L11": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L12": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L13": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L14": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L15": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L16": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L17": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L18": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L19": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L20": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L21": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L22": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L23": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L3": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L4": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L5": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L6": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L7": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L8": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Description L9": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Descriptions L1": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Descriptions L2": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L1": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L10": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L11": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L12": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L13": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L14": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L15": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L16": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L17": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L18": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L19": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L2": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L20": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L21": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L22": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L23": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L3": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L4": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L6": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L7": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L8": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price L9": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Ext Price LOBS Line-Item Cost Wrksht - Ext Price L5": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Grand Total": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L1": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L10": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L11": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L12": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L13": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L14": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L15": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L16": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L17": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L18": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L19": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L2": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L20": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L21": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L22": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L23": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L3": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L4": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L5": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L6": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L7": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L8": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Itm/Part# L9": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm - L1": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm L2": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L10": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L11": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L12": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L13": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L14": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L15": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L16": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L17": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L18": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L19": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L20": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L21": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L22": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L23": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L3": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L4": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L5": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L6": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L7": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L8": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Line Itm# L9": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L1": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L10": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L11": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L12": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L13": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L14": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L15": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L16": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L17": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L18": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L19": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L2": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L20": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L21": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L22": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L23": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L3": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L4": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L5": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L6": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L7": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L8": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - PCRC L9": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L1": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L10": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L11": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L12": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L13": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L14": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L15": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L16": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L17": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L18": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L19": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L20": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L21": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L22": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L23": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L3": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L4": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L5": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L6": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L7": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L8": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - QTY L9": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Qty L2": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - S&H": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Subtotal": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L1": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L10": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L11": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L12": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L13": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L14": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L15": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L16": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L17": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L18": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L19": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L2": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L20": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L21": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L22": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L23": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L3": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L4": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L5": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L6": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L7": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L8": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit L9": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L1": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L10": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L11": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L12": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L13": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L14": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L15": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L16": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L17": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L18": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L19": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L2": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L20": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L21": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L22": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L23": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L3": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L4": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L5": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L6": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L7": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L8": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS Line-Item Cost Wrksht - Unit Price L9": {
+   "type": "Text",
+   "pages": [
+    10
+   ]
+  },
+  "OBS RFQ 4007 (C) Manufacturer -No": {
+   "type": "CheckBox",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007 (C) Manufacturer -Yes": {
+   "type": "CheckBox",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) -  Sellers Permit": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Address 5": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - All or None": {
+   "type": "CheckBox",
+   "pages": [
+    3
+   ]
+  },
+  "OBS RFQ 4007(C) - Bids Offering Prepaid Freight": {
+   "type": "CheckBox",
+   "pages": [
+    3
+   ]
+  },
+  "OBS RFQ 4007(C) - Business Address L1": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Business Address L2": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Business Address L3": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Business Address L4": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Business Contact Email": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Business Contact Person": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Business Contact Phone": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Business ContactTitle": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Business Name": {
+   "type": "Text",
+   "pages": [
+    2,
+    10,
+    14
+   ]
+  },
+  "OBS RFQ 4007(C) - Business Name - Darfur": {
+   "type": "Text",
+   "pages": [
+    13
+   ]
+  },
+  "OBS RFQ 4007(C) - Buyer Email": {
+   "type": "Text",
+   "pages": [
+    3
+   ]
+  },
+  "OBS RFQ 4007(C) - Buyer Fax#": {
+   "type": "Text",
+   "pages": [
+    4
+   ]
+  },
+  "OBS RFQ 4007(C) - Buyer Name": {
+   "type": "Text",
+   "pages": [
+    3
+   ]
+  },
+  "OBS RFQ 4007(C) - Buyer Phone": {
+   "type": "Text",
+   "pages": [
+    3
+   ]
+  },
+  "OBS RFQ 4007(C) - Cert Exp Date": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - DVBE Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Delivery Date Requirement": {
+   "type": "Text",
+   "pages": [
+    3
+   ]
+  },
+  "OBS RFQ 4007(C) - Discount Percentage": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Due Date": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Federal Employer Identification Number FEIN": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Individual Itms": {
+   "type": "CheckBox",
+   "pages": [
+    3
+   ]
+  },
+  "OBS RFQ 4007(C) - MB Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Other Text": {
+   "type": "Text",
+   "pages": [
+    9
+   ]
+  },
+  "OBS RFQ 4007(C) - Payment discount": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Prepaid Freight/Add": {
+   "type": "CheckBox",
+   "pages": [
+    3
+   ]
+  },
+  "OBS RFQ 4007(C) - Rlease Date": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - SB Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - SB/MB/DVBE Cert": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007(C) - Shipping Address 1": {
+   "type": "Text",
+   "pages": [
+    3
+   ]
+  },
+  "OBS RFQ 4007(C) - Shipping Address 2": {
+   "type": "Text",
+   "pages": [
+    3
+   ]
+  },
+  "OBS RFQ 4007(C) - Solicitation#": {
+   "type": "Text",
+   "pages": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    13,
+    16,
+    19
+   ]
+  },
+  "OBS RFQ 4007(C) -Shipping Address 3": {
+   "type": "Text",
+   "pages": [
+    3
+   ]
+  },
+  "OBS RFQ 4007C) - Bidder Signature": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "OBS RFQ 4007C) - Sig Date": {
+   "type": "Text",
+   "pages": [
+    2
+   ]
+  },
+  "Payee Data Record STD 204 - All Others Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Auth Rep EMAIL ADDRESS_2": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Auth Rep Phone#": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Auth Rep Sign Date": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Auth Rep TITLE": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Auth Rep. Signature": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - BUSINESS ADRESS CITY STATE ZIP CODE": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - BUSINESS EMAIL ADDRESS": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - BUSINESS MAILING ADDRESS number street apt or suite no See instructions on Page 2": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - BUSINESS NAME": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - BUSINESS NAME DBA NAME or DISREGARDED SINGLE MEMBER LLC NAME If different from above": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - CA Non-Resident": {
+   "type": "CheckBox",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - CA Resident": {
+   "type": "CheckBox",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - CORPORATION see instructions on page 2 MEDICAL eg dentistry chiropractic etc LEGAL eg attorney services EXEMPT eg nonprofit ALL OTHERS": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Copy of FTB Withholding": {
+   "type": "CheckBox",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Estae/Trust Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Exempt Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Legal Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Med Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - NAME OF AUTHORIZED PAYEE REPRESENTATIVE": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - No Srvcs in CA": {
+   "type": "CheckBox",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Partnership Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Payee Data Record STD 204 - State Dept.CITY": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - STATE AGENCY\\DEPARTMENT\\ OFFICE": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - STATE Dept. State": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Single LLC Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Sole Proprietor Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - Stae Dept Address ZIP CODE": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - State Dept FAX": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - State Dept TELEPHONE include area code": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - State Dept UNIT\\SECTION": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - State Dept. EMAIL ADDRESS_3": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Payee Data Record STD 204 - State Dept. MAILING ADDRESS": {
+   "type": "Text",
+   "pages": [
+    22
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Accounting Contact Fax": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Accounting Contact Name": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Accounting Contact Phone": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Accounting Contact Title": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Biz Physical Address": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Biz Physical Address City": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Commodity Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - DBA": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - DVBE Cert Exp Date": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - DVBE Cert#": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - DVBE Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - FEIN/SSN": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Factoring Vendor - City": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Factoring Vendor - Name & DBA": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Factoring Vendor - State": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Factoring Vendor - Street / PO": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Factoring Vendor - Zip": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Legal Biz Name": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - MB Cert #": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - MB Cert Exp Date": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - MB Cert#": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - N-P Rec Cert #": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - N-P Rec Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - N-P Rec Exp Date": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - NP Vet Srvc Cert #": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - NP Vet Srvc Cert Exp Date": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - NP Vet Srvc Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Physical Address State": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Physical Address Zip": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - RTO Company CA": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - RTO Company Name": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - RTO Company State": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - RTO Company Street / PO Box": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - RTO Company Zip": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - SB Cert #": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - SB Cert Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - SB Cert Exp. Date": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - SB-PW Cert Exp Date": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - SB-PW Cert#": {
+   "type": "Text",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - SB-PW Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Sales Contact Email": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Sales Contact Fax": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Sales Contact Name": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Sales Contact Phone": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Sales Contact Title": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Tax Withholdings - NonEE Compensation": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Tax Withholdings - Rents": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Tax Withholdings -Crop Insurance": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Tax Withholdings -Direct Sales": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Tax Withholdings -EGPP": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Tax Withholdings -Fishing Boats": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Tax Withholdings -Gross Proceeds Paid": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Tax Withholdings -Healthcare Payments": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Tax Withholdings -Other INcome": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Tax Withholdings -Royalties": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Tax Withholdings -State Tax Withheld": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Tax Withholdings -Sub Payments": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Product Text": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - A or A": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Authorizes Foreign Agnt": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Corp": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Estate": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Fiduciary": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Gov. or Int": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - LLC C-Corp": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - LLC P": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - LLC S-Corp": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Legal Corp": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Med Corp": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Nominee": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Non-Profit Corp": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Private": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Qualified Intermediary": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - SM LLC": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Sole Prop": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Tax Exenpt Org": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Recipient - Unknown": {
+   "type": "CheckBox",
+   "pages": [
+    21
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Srvc Text": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Type of Srvc. Checkbox": {
+   "type": "CheckBox",
+   "pages": [
+    20
+   ]
+  },
+  "Supplement Vendor Payee Data Rec - Website Address": {
+   "type": "Text",
+   "pages": [
+    20
+   ]
+  }
+ }
+}

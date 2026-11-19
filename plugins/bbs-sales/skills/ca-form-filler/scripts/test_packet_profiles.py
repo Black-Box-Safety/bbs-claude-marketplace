@@ -109,6 +109,16 @@ def test_obs_packet_resolves_to_the_obs_profile():
     assert fill["verify_pages"] == [2, 12, 16, 21, 24], fill
 
 
+def test_packet_c_renders_every_page():
+    """Packet C's signed pages move with each copy (the bound 10/2025 packet's p1 is a
+    cover), so it lists no verify_pages: the rep renders and sees every page."""
+    profiles, errors = load_profiles(DEFAULT_PROFILES_DIR)
+    assert not errors, errors
+    c = next(p for p in profiles if p.packet_id == "obs-4007c")
+    assert not c.meta["fill"].get("verify_pages"), c.meta["fill"]
+    assert c.meta["fill"].get("verify_script"), c.meta["fill"]
+
+
 def test_unknown_packet_falls_through_to_path_b():
     profiles, _ = load_profiles(DEFAULT_PROFILES_DIR)
     assert recognize(UNRELATED_PACKET_TEXT, profiles) is None
