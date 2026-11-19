@@ -183,6 +183,30 @@
   },
   "disableBypassPermissionsMode": "disable",
   "channelsEnabled": true,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^mcp__.+__(outlook_(send_mail|forward_mail|send_draft|respond_to_event|create_filter|set_vacation|create_event|update_event|delete_event)|teams_(send_chat_message|send_channel_message|reply_channel_message|create_chat)|merge_pull_request|buy_.+|create_or_transfer_domain|send_later)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat >/dev/null; d(){ f=--chan; f=\"$f\"nels; p=$PPID; i=0; while [ \"$i\" -lt 8 ]; do case \"$p\" in ''|0|1) break;; esac; case \" $(ps -o args= -p \"$p\" 2>/dev/null) \" in *\" $f \"*|*\" $f=\"*) return 0;; esac; p=$(ps -o ppid= -p \"$p\" 2>/dev/null | tr -d ' '); i=$((i+1)); done; [ -n \"${BBS_CHANNEL_SESSION:-}\" ]; }; d && printf '%s\\n' '{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"deny\", \"permissionDecisionReason\": \"BBS managed rule: this session takes channel messages (started with --channels), so its Allow prompts can be answered by text. Sends, invites, mail rules, merges, pushes, deploys and purchases never run from a channel session. Draft it instead (Outlook draft, branch, plan) and tell the person; they finish it from Outlook, GitHub or a normal session. Rule: bbs-foundations docs/MANAGED-SETTINGS.md, section Channel sessions cannot send.\"}}'; exit 0",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "IN=$(cat); case \"$IN\" in *'git push'*|*'gh pr create'*|*'gh pr merge'*|*'vercel deploy'*|*'shopify theme push'*) ;; *) exit 0;; esac; d(){ f=--chan; f=\"$f\"nels; p=$PPID; i=0; while [ \"$i\" -lt 8 ]; do case \"$p\" in ''|0|1) break;; esac; case \" $(ps -o args= -p \"$p\" 2>/dev/null) \" in *\" $f \"*|*\" $f=\"*) return 0;; esac; p=$(ps -o ppid= -p \"$p\" 2>/dev/null | tr -d ' '); i=$((i+1)); done; [ -n \"${BBS_CHANNEL_SESSION:-}\" ]; }; d && printf '%s\\n' '{\"hookSpecificOutput\": {\"hookEventName\": \"PreToolUse\", \"permissionDecision\": \"deny\", \"permissionDecisionReason\": \"BBS managed rule: this session takes channel messages (started with --channels), so its Allow prompts can be answered by text. Sends, invites, mail rules, merges, pushes, deploys and purchases never run from a channel session. Draft it instead (Outlook draft, branch, plan) and tell the person; they finish it from Outlook, GitHub or a normal session. Rule: bbs-foundations docs/MANAGED-SETTINGS.md, section Channel sessions cannot send.\"}}'; exit 0",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
   "pluginConfigs": {
     "cc-plugin-sec-default@builtin": {
       "options": {
