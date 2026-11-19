@@ -148,7 +148,10 @@ case. `line` is whose signature the form carries: `rep` (the signer the rep name
 `dv_owner` (Jackson), or `null` (no signature applied). A page that matches no form, or
 more than one, gets no signature. (`none: ["OBS 4007"]` keeps the 4007(B)/(C) attachment
 list, which names the Darfur and Bidder Declaration forms near the top of its last page,
-from reading as those forms.)
+from reading as those forms.) PD 843 is identified by its title and the statute its
+instructions cite, not by its form number: CDCR's bound RFQ packet for NASPO MRO LPA
+7-25-51-02 (Centinela, seen 2026-11-16) prints the header as "(Rev. /20 )" with no
+extractable "PD 843", and the citation sits about 370 characters in, inside the window.
 
 <!-- bbs-form-table:begin -->
 ```json
@@ -158,7 +161,7 @@ from reading as those forms.)
   "Darfur":       {"markers": ["OBS 1500", "DARFUR CONTRACTING ACT"], "none": ["OBS 4007"], "line": "rep"},
   "CalRecycle74": {"markers": ["CalRecycle 74", "Postconsu"],      "none": [],              "line": "rep"},
   "OBS1000":      {"markers": ["GENAI REPORTING AND FACTSHEET", "OBS 1000"], "none": [],    "line": "rep"},
-  "PD843":        {"markers": ["DISABLED VETERAN BUSINESS ENTERPRISE DECLARATIONS", "PD 843"], "none": [], "line": "dv_owner"},
+  "PD843":        {"markers": ["DISABLED VETERAN BUSINESS ENTERPRISE DECLARATIONS", "Military and Veterans Code Section 999.2"], "none": [], "line": "dv_owner"},
   "STD204":       {"markers": ["PAYEE DATA RECORD", "STD 204"],    "none": ["SUPPLEMENT"],  "line": "dv_owner"},
   "STD205":       {"markers": ["PAYEE DATA RECORD SUPPLEMENT", "STATE CONTROLLERS OFFICE"], "none": [], "line": "dv_owner"},
   "Supplement":   {"markers": ["SUPPLEMENT VENDOR PAYEE DATA RECORD"], "none": [],          "line": null},
