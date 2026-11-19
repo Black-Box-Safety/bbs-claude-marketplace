@@ -25,6 +25,7 @@ when that file changes, change the block.
 | `env.CLAUDE_CODE_PACKAGE_MANAGER_AUTO_UPDATE=1` | A winget- or Homebrew-installed Claude Code updates itself | A native install ignores it. Moved from the Windows bootstrap's saved copy (2026-10-01) |
 | `pluginConfigs` → `cc-plugin-sec-default@builtin` → `allowManagedModsOnly: true` | Only the organization's own mods load; a mod a user installs, loads with `--plugin-dir`, or Claude writes mid-session does not (Parker, 2026-10-02) | A user's mod can approve a call an `ask` rule would prompt for, so without this the per-send Allow could be skipped. Plugins' `hooks/hooks.json` hooks (ours) are not mods and keep running. A mod in a plugin from a GitHub marketplace counts as a user's and stops loading; as of 2026-10-02 none of ours or the pinned commons ship one (`impeccable` and `claudeforge` track moving branches, so recheck when they update) |
 | `channelsEnabled: true` | Channels are allowed for the organization (managed-only key) | It was set in the console's live copy (v12) and missing here, so pasting this file would have turned channels off (Parker, 2026-10-02) |
+| `hooks` → `PreToolUse` (channel-session send guard) | In a session started with `--channels`, denies the send-class, invite, mail-rule, merge, push, deploy and purchase tools before any Allow prompt opens. Every other session is untouched | A channel can relay Allow prompts to a phone, where a texted `yes <code>` approves them and the prompt shows only the tool name. See "Channel sessions cannot send" below. **PENDING** Parker's ruling |
 | `disableBypassPermissionsMode` | Nobody can run `--dangerously-skip-permissions` | For a team that is not native with AI, the permission prompt is the seatbelt |
 | `claudeMd` | Company memory injected into **every** session on every machine | The eleven rules that hold everywhere (the Business Central write boundary added 2026-11-10, R2; customer-folder CLAUDE.md upkeep, ask first, R6), the exact strings, the systems of record, and where the detail lives. Managed-settings-only field, so it cannot be overridden by a repo file. This is the fastest path to "the same answer Parker would give" |
 | `companyAnnouncements` | One rotating line at startup | Onboarding by repetition |
@@ -390,6 +391,64 @@ Design: `docs/superpowers/specs/2026-11-11-bbs-fill-into-bbs-sales.md`.
   which opens only after check 12 passes on a rep machine running `bbs-sales` 0.16.0. Then
   Parker re-pastes. Never re-paste that change before the new `bbs-sales` is on rep machines.
 
+## Channel sessions cannot send (2026-11-19, PENDING Parker's ruling)
+
+**Why.** The CA desk runs Claude Code with the official iMessage channel
+(`claude --channels plugin:imessage@claude-plugins-official`, launched by `ca-desk.sh` on
+Parker's Mac). That plugin opts in to permission relay (`claude/channel/permission` in its
+`server.ts`, version 0.2.0): every Allow prompt is texted to the owner's self-chat as
+`Permission request [abcde]`, and a reply of `yes abcde` approves it. For every tool except
+Bash the texted prompt carries only the tool name and a one-line description, not the
+recipients or body. So the `ask` rule on `outlook_send_mail` and the other sends, which
+exists so a person reads the email before it goes, could be cleared from a phone without
+seeing it. That is the reason `outlook_send_draft` is denied (its prompt shows only a message
+id). Claude Code docs: "Anyone who can reply through the channel can approve or deny tool use
+in your session" (*channels*, Security) and "Claude Code applies whichever answer arrives
+first" (*channels-reference*, Relay permission prompts).
+
+**What the file does.** `hooks.PreToolUse` carries two inline shell hooks:
+
+- **MCP tools** matching
+  `^mcp__.+__(outlook_(send_mail|forward_mail|send_draft|respond_to_event|create_filter|set_vacation|create_event|update_event|delete_event)|teams_(send_chat_message|send_channel_message|reply_channel_message|create_chat)|merge_pull_request|buy_.+|create_or_transfer_domain|send_later)$`.
+  This covers everything in `permissions.ask` that reaches outside the company, on any connector
+  prefix. Outlook **drafts** (`outlook_create_draft`, `outlook_update_draft`) are not matched:
+  drafting is the desk's job.
+- **Bash** commands containing `git push`, `gh pr create`, `gh pr merge`, `vercel deploy`
+  or `shopify theme push` (the Bash entries in `permissions.ask`). Any other command exits
+  at the first `case` without starting a process.
+
+Each hook returns `permissionDecision: "deny"` only when the session is a channel session,
+and gives no decision otherwise, so ordinary sessions keep today's per-send Allow. A deny
+returned before the prompt means there is nothing to relay. A channel session is one where:
+
+1. an ancestor of the hook process, up to 8 levels, has `--channels` as a whole argument
+   (`--channels <plugin>` or `--channels=<plugin>`). The string is built in two halves so
+   the hook's own command line, which Claude Code runs under `sh -c`, never matches itself; or
+2. `BBS_CHANNEL_SESSION` is set in the environment (`ca-desk.sh` exports it as a second
+   signal).
+
+**What it does not cover.**
+
+- A browser. The superpowers-chrome tool is allowed org-wide, and a browser signed in to
+  Outlook on the web can press Send without any MCP tool being called. Nothing here stops that.
+  Desk rule: in a channel session the browser reads and downloads; it never composes, sends or
+  replies.
+- Non-send Allow prompts (an unlisted Bash command, a Write) still relay. For Bash the text
+  shows the command. Approvals by text are governed by `ca-desk-rules.md`, "Approvals by text".
+- Windows Git Bash `ps` has no `-o`, so detection there falls back to `BBS_CHANNEL_SESSION`.
+  The iMessage channel is macOS only.
+
+**Tested.** In a cloud container (Linux `ps`), on 2026-11-19: no channel ancestor gives no
+decision; a `--channels <plugin>` ancestor, a trailing `--channels`, and the environment
+variable each give deny; `--channelsfoo` does not match; a Bash `ls` under a channel ancestor
+gives no decision; `git push` under one gives deny, and with no channel ancestor gives no
+decision. The matcher accepts the `claude_ai_Microsoft_365`, `Microsoft_365`, `github` and
+`claude-code-remote` prefixes and rejects `outlook_create_draft`, `outlook_update_draft`, the
+iMessage `reply` tool and the Business Central read tools. **Not yet tested on macOS against a
+live `claude --channels` session.** Acceptance: on Parker's Mac, in the desk session, ask Claude
+to send a test email; expect a refusal that names this section, and no prompt on the phone.
+Then, in a normal session, the same request must still stop for an Allow.
+
 ## Empowerment posture (2026-09-11)
 
 Ruling: reps may install skills, author their own, and experiment. The strict lockdown keys
@@ -412,7 +471,7 @@ through the managed `env` block; a rep turns it on per session with `/caveman li
   `~/grainger-api/mcp/.env` on admin machines. FEIN, seller's permit and cert numbers live
   in `plugins/bbs-sales/references/vendor_profile.json`, committed deliberately in this
   private repo — not re-keyed into a CLAUDE.md.
-- **No hooks.** The plugins carry their own (`bbs-foundations` and `bbs-website` inject
+- **No hooks, except the channel-session send guard.** That one is a control, not doctrine, so it sits beside the `ask` and `deny` rules (see "Channel sessions cannot send"). The plugins carry their own (`bbs-foundations` and `bbs-website` inject
   doctrine, `bbs-foundations` also reminds a session in a customer folder to offer to create or fix
   that customer's `CLAUDE.md` (asks first, R6), outside the CA quote desk, `bbs-sales` guards the quote-desk tree); `bbs-website` ships one template
   validator in `bbs-database`'s repo settings where it belongs.
@@ -456,3 +515,9 @@ through the managed `env` block; a rep turns it on per session with `/caveman li
   read metadata-only (sender, buyer domain, timestamp, quote number) by the outcome engine on
   Parker's Mac; no session reads its bodies or attachments.
 ```
+
+## Pending paste (2026-11-19)
+
+- `hooks.PreToolUse` channel-session send guard ("Channel sessions cannot send"). It waits for
+  Parker's ruling and the macOS acceptance test in that section, then a redeploy. It changes
+  nothing outside a `--channels` session.
