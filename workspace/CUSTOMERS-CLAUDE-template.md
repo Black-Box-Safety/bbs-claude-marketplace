@@ -14,7 +14,8 @@ A CLAUDE.md closer to where you are **wins on specifics**. This file never overr
 |---|---|---|
 | `State of CA Agencies/` | The California state quote desk. Live. | its `CLAUDE.md` |
 | `Bechtel/sentinel/` | The Bechtel Sentinel desk (federal prime). Live. | its `CLAUDE.md` |
-| Any other customer folder | Usually **legacy**: filed by hand over years, no CLAUDE.md, no log | below |
+| `Federal Agencies/`, `Navy/`, `USACE-Walla Walla/`, `Grainger Huntsville/` | Live federal and referral accounts | each one's `CLAUDE.md` |
+| Any folder with no `CLAUDE.md` | Usually **legacy**: filed by hand over years, no log | below |
 | `_ARCHIVE-…`, `DO NOT USE …` | Dead trees | nothing; do not work in them |
 | Loose files at this level | Unfiled strays | leave them where they are |
 
