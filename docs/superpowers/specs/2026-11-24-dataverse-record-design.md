@@ -24,11 +24,14 @@ The rule a rep needs: **the folder is where you work; Claude keeps the record.**
 3. The account model tells a California institution from a federal office, and knows that DEA
    and FBI are siblings under one department without ever merging them.
 4. Every federal and prime contract BBS holds or held is a row that past performance can cite.
-5. The record works from any Claude surface, including a cloud session with no folder on disk.
+5. A long pursuit (a solicitation, a proposal, a vehicle BBS is chasing) is its own record,
+   separate from an RFQ, and what it taught is in front of Claude when the next request from
+   that account or its department arrives, whether the pursuit was won or lost.
+6. The record works from any Claude surface, including a cloud session with no folder on disk.
 
 **Non-goals**
 - Moving, renaming or merging customer folders.
-- Quote lines, costs and margins in Dataverse (§6.3). Business Central keeps quotes.
+- Quote lines, costs and margins in Dataverse (§6.4). Business Central keeps quotes.
 - Remembered notes and flags (`LEARNED.md`, `FLAGS.md`). They are context and stay in folders.
 - Body armor and CSU/UC, as in the 2026-11-16 design.
 - Retiring the Dynamics 365 Sales app. That is a later ruling (O7); nothing is uninstalled here.
@@ -168,9 +171,10 @@ Reps already use it, its rows are numbered up to `RFQ-005927`, and that number i
 | `bbs_outcome`, `bbs_outcomedate`, `bbs_outcomeevidence`, `bbs_lossreason` | `OUTCOMES` from the same file. Replaces the unused `Accepted` flag |
 | `bbs_sentdate` | From evidence, never from a BC field (2026-11-16 design §4) |
 | `bbs_bcquote` | The SQ number. The quote itself stays in Business Central |
-| `bbs_requesttype` | State order, informal competitive, micro-purchase, RFQ, BPA call, proposal, sources sought |
+| `bbs_requesttype` | State order, informal competitive, micro-purchase, RFQ, BPA call. A proposal or a sources-sought response is a pursuit (§6.3), not a deal |
 | `bbs_solicitationno`, `bbs_portal`, `bbs_setaside`, `bbs_naics` | Federal; empty on a state deal |
 | `bbs_vehicle`, `bbs_contractid` | The vehicle, and the contract row when the deal is an order under one |
+| `bbs_pursuitid` | The pursuit this request came out of, when there is one (§6.3) |
 | `bbs_enduserid`, `bbs_referredbyid` | §5.3 |
 | `bbs_folderpath`, `bbs_desk` | The deal folder; the desk id from `desks.json` |
 
@@ -193,7 +197,59 @@ Seeded, row by row with a source, from the candidate list in
 `Federal Biz Dev/federal-sales-team/research/inventory-files.md` §3. A row whose evidence was
 not found stays not citable.
 
-### 6.3 What stays out of Dataverse
+### 6.3 Pursuit: a separate record from a deal
+
+A deal is a request with lines to price now: hours to days, ends in a quote and a PO. A
+pursuit is something BBS is chasing over weeks or months: a solicitation, a proposal, a
+sources-sought response, a cooperative vehicle, a large program. They differ in every way
+that matters to a record, so they are two tables, not one table with a type column.
+
+| | Deal (`bbs_rfq`) | Pursuit (`bbs_pursuit`, new) |
+|---|---|---|
+| Cycle | Hours to days | Weeks to months |
+| Stages | `STAGES` in `rfq_record.py` | Identified, qualifying, bid or no-bid decided, shaping, response in work, submitted, decided |
+| What it holds | Lines, a quote number, a sent date | Estimated value, decision date, incumbent, competitors, teaming and supplier commitments, bid or no-bid reason |
+| Notes | Rare | The point: calls, site visits, questions and answers, debrief |
+| Ends in | Won, lost, no answer, no bid, cancelled | Awarded, lost, no bid, cancelled, withdrawn by the buyer |
+| A win creates | A PO | Usually a **contract** row (§6.2), which then receives deals |
+
+**It is a pursuit when** more than a quote is owed, or there is nothing to price yet, or a
+win would create a contract or a vehicle. Otherwise it is a deal. The channel does not decide
+it: the California body armor LPA and a NASPO rebid are pursuits; an FBI micro-purchase is a
+deal.
+
+**How they connect.** Pursuit → contract → deals, for a BPA or a vehicle. Pursuit → deals
+directly, when a buyer met during a pursuit later sends a request; the deal carries
+`bbs_pursuitid`. Nothing is copied between them.
+
+**What a pursuit leaves behind, won or lost.** Notes are kept as dated entries on the pursuit
+(Dataverse's standard notes on the row), written by Claude after the rep approves, from the
+rep's own words or a document. At close, three fields are required: why it went the way it
+did, what BBS learned (the winner and the price where the award is public, the requirement
+that hurt, the contact worth keeping), and what to do next and when. A lost pursuit is not
+closed until they are filled.
+
+**How those insights reach the next RFQ.** When a deal is opened on an account, Claude reads
+the pursuits on that account, on its parent, and on its siblings under the same level-1
+organization, and shows the rep the closing fields of each. A lost FBI proposal is in front
+of whoever works the next DEA request. This is a read through the hierarchy in §5.1, not a
+second copy of the lesson.
+
+**What is there today.** The Sales app's standard `opportunity` table holds a handful of rows
+of exactly this kind (a $2.3M university program, SWAT kits, "NASPO"), entered by three reps;
+most were not touched after the day they were created. `lead` holds two rows. The eight
+newest opportunities span September 2025 to June 2026. [FLAG: full counts not read.]
+
+**Why a new table and not `opportunity`.** `opportunity` belongs to the Sales app Parker has
+ruled BBS will stop using; Microsoft lists it among the tables that app installs. A record
+BBS means to keep should not depend on an app BBS means to drop. The few existing rows are
+copied across on an approved sheet. [FLAG: whether `opportunity` survives an uninstall of the
+Sales app was not verified; O10.]
+
+**The pursuit's documents** live in a folder like any other; the row carries its path. The
+folder is where the proposal is written; the row is where its status and lessons are.
+
+### 6.4 What stays out of Dataverse
 
 Line items, vendor costs, sell prices and margin stay in `RFQ.md`'s working tables and in the
 Business Central quote. They are working papers with cost data in them, and the 2026-11-16
@@ -284,6 +340,9 @@ this design is ruled on. The registry (S2, merged) and the record validator are 
 | O7 | When, and whether, the Dynamics 365 Sales app is retired, and what license reps then need | Ask the Microsoft partner before anything is removed. Microsoft's table-licensing page says custom tables need a Power Apps license; what a rep needs when only Claude touches the data was not confirmed |
 | O8 | Who makes the Dataverse schema change (the earlier outside builder, or in house) | [MISSING — NEEDS INPUT] |
 | O9 | `bbs_customertype`: reuse or replace with `bbs_channel` | Read its options first |
+| O10 | Pursuits in a new `bbs_pursuit` table, or in the Sales app's `opportunity` table | New table, if O7 confirms `opportunity` goes with the app; otherwise still a new table, so the record does not depend on the app |
+| O11 | Federal pursuits: the federal-sales-team program names the Sweetspot platform for pursuit work. One home for a pursuit's status | Dataverse holds status and lessons; Sweetspot stays a drafting and search tool. Parker to confirm, since that program has its own ledger |
+| O12 | Who may open a pursuit, and who signs the bid or no-bid decision | [MISSING — NEEDS INPUT] |
 
 ## 13. Build sequence
 
@@ -297,11 +356,12 @@ this design is ruled on. The registry (S2, merged) and the record validator are 
 | D5 | Pilot, then the CA switch | Two weeks of matching entries; canon rows changed |
 | D6 | Outcomes: proposals from events, backfill | A won deal carries its PO and date |
 | D7 | Contracts seeded; Sentinel and contract accounts join | A federal bid can list citable contracts by department |
+| D7a | `bbs_pursuit`, its close-out fields, and the hierarchy read at deal intake; existing opportunities copied on an approved sheet | Opening a deal on one component shows a closed pursuit at a sibling component |
 | D8 | Sales app retirement, if ruled | — |
 
 ## 14. Sources
 
-- Sales CRM connector, read 2026-11-24: `WhoAmI`; attribute metadata for `bbs_rfq` and
+- Sales CRM connector, read 2026-11-24: the eight newest `opportunities` and all `leads`; `WhoAmI`; attribute metadata for `bbs_rfq` and
   `account`; the three newest `bbs_rfqs` rows; accounts matching DOJ, FBI, DEA, Marshals, VA,
   Bechtel and Corrections; accounts with a parent; `bbs_accepted eq true` and
   `bbs_ponumber ne null` (both empty).
