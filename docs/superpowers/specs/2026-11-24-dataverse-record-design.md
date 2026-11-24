@@ -116,8 +116,9 @@ match for two and none for three.
 
 A long solicitation, proposal or vehicle is still a different thing from an RFQ: weeks to
 months, notes are the point, and what it taught matters after a loss. In this version it is
-**a type on the `bbs_rfq` row, not a new table** (ruled 2026-11-24, superseding the same
-day's new-table ruling). A pursuit row adds an estimated value, a decision date, and three
+**a type on the `bbs_rfq` row, not a new table**. That is a proposal, not a ruling: Parker's
+ruling of the same day says a new table, and the type-column alternative waits for his
+confirmation (`docs/STEWARD.md`, 2026-11-24). A pursuit row adds an estimated value, a decision date, and three
 close-out fields required before it is closed: why it went the way it did, what BBS learned,
 and what to do next and when. Dated notes sit on the row. Any rep may open one and assign its
 owner. Dataverse holds its status.
