@@ -262,18 +262,54 @@ needed for the pricing loop is open (O2).
 
 ## 7. How Claude writes
 
+### 7.0 What Microsoft already ships (read 2026-11-24; the first draft missed this)
+
+The first draft of this section assumed BBS's own Sales CRM connector was the only way in. It
+is not. Microsoft Learn documents two things that change the options:
+
+- **A Dataverse MCP server, built into every environment** at `<org>/api/mcp`. Its tools
+  include `create_record`, `update_record`, `read_query` (SQL `SELECT`), `describe`, `search`,
+  file upload and download, and `invoke_api` for a Dataverse Custom API. It also has
+  `delete_record`, `create_table`, `update_table` and `delete_table`. Claude Code and Claude
+  desktop are named clients. The person signs in as themselves, so a write is theirs in
+  Dataverse and their security role decides what they may touch.
+  - It must be switched on per environment, and each non-Microsoft client allowed by an
+    administrator; a tenant administrator consents to the client first.
+  - Two ways to connect: a local proxy (`npx @microsoft/dataverse mcp <org>`, needs Node), or
+    the remote endpoint with an Entra app BBS registers.
+  - **It is billed.** Since 2025-12-15, calls from agents built outside Copilot Studio are
+    charged in Copilot Credits (`search_data` by usage; the other tools at a per-10-responses
+    rate). The FAQ says holders of qualifying Dynamics 365 Premium or Microsoft 365 Copilot
+    licenses are not charged for Dynamics 365 data. [FLAG: the rates, and whether BBS's
+    licenses qualify, were not read. Dropping the Sales licenses could turn this charge on.]
+  - Its tool names have already changed once; an allow or deny list by tool name has to be
+    kept current.
+- **A Dataverse plugin for AI agents (preview)**, installable in Claude Code
+  (`dataverse@claude-plugins-official`). Its skills build schema (`dv-metadata`: tables,
+  columns, relationships, forms, views), package it (`dv-solution`), load and query data, and
+  manage settings and roles (`dv-admin`, `dv-security`). Microsoft states the skills are
+  guidance, not a security boundary, and that preview features may change or be withdrawn.
+  It includes bulk delete and role assignment, so it is a maintainer tool, never a rep's.
+
 ### 7.1 Approaches considered
 
 | | Approach | Trade-off | Verdict |
 |---|---|---|---|
-| **1** | **The connector gains a create tool, limited to named tables and columns; managed settings put create and update in `ask`.** | Works on every surface, including cloud. Each write shows the rep an Allow prompt. Needs a connector change and the application user's role widened. | **Recommended.** |
+| **0** | **Microsoft's Dataverse MCP server, each rep signed in as themselves, under a BBS security role that allows create and update on the four tables and nothing else; managed settings deny the delete and table tools and put create and update in `ask`.** | No connector to build or maintain. Writes carry the rep's own identity, and the limits are enforced by Dataverse on every surface, not by a skill. Costs: per-call billing (§7.0), administrator consent and allow-listing, a tool surface Microsoft has already renamed once, and a connection to prove from the Desktop app, VS Code and a cloud session. | **Recommended, subject to a sandbox test and the billing answer (O13).** |
+| 1 | BBS's own connector gains a create tool, limited to named tables and columns; managed settings put create and update in `ask`. | BBS controls the tool list and pays no per-call charge. Every write is the application user's, so who entered it has to be carried in a column; BBS maintains the connector. | **Fallback** if O13 or the sandbox test goes against approach 0. |
 | 2 | A script run through the fill launcher, with a review sheet, like the Business Central writes. | Reuses a proven pattern. Runs only where the folder tree and Python are, which today is one Mac. | No: it rebuilds the single-machine limit this design removes. |
 | 3 | A Power Automate flow as the write endpoint. | Server-side. Adds a second place where write logic lives and a licensing question. | Not for writes. Fits events (§9). |
 
 ### 7.2 Rules for a write
 
-- **One writer.** `rfq_record.py` stays the only code that changes a deal. It writes Dataverse
-  first, then renders the folder copy. A skill never calls the connector's write tools itself.
+- **One writer.** One place decides what a valid deal change is. The first draft named
+  `rfq_record.py`; that has a gap this draft did not address: a script needs its own Dataverse
+  sign-in on every machine, and it does not run in a cloud session. Two ways to close it, for
+  D4 to choose after the sandbox test: (a) a Dataverse Custom API, called through
+  `invoke_api`, that is the writer and enforces the rules on the server for every client; or
+  (b) the skill validates with `rfq_record.py`'s lists and then calls `create_record`, with
+  Dataverse column rules as the backstop. [FLAG: authoring a Custom API was not confirmed to
+  be within the plugin's skills.]
 - **A person approves.** Claude shows the review sheet (what will be created or changed, on
   which account); the rep approves by name; the Allow prompt is the second check.
 - **Search before create,** for accounts and contacts, by name and by parent. This is the
@@ -342,10 +378,13 @@ this design is ruled on. The registry (S2, merged) and the record validator are 
 | O5 | Make quote value optional on `bbs_rfq` | Yes |
 | O6 | Who builds and owns the read view | The existing RFQ pipeline dashboard, repointed |
 | O7 | When, and whether, the Dynamics 365 Sales app is retired, and what license reps then need | Ask the Microsoft partner before anything is removed. Microsoft's table-licensing page says custom tables need a Power Apps license; what a rep needs when only Claude touches the data was not confirmed |
-| O8 | Who makes the Dataverse schema change (the earlier outside builder, or in house) | [MISSING — NEEDS INPUT] |
+| O8 | Who makes the Dataverse schema change (the earlier outside builder, or in house) | In house is now practical: Parker, in Claude Code with Microsoft's Dataverse plugin, in a sandbox environment first, packaged as a solution and imported to production. Parker to rule |
 | O9 | `bbs_customertype`: reuse or replace with `bbs_channel` | Read its options first |
 | O10 | Pursuits in a new `bbs_pursuit` table, or in the Sales app's `opportunity` table | **RULED 2026-11-24: new table.** |
 | O11 | Federal pursuits: the federal-sales-team program names the Sweetspot platform for pursuit work. One home for a pursuit's status | **RULED 2026-11-24: Dataverse holds status.** Sweetspot stays a drafting and search tool. That program's own ledger (`Federal Biz Dev/federal-sales-team/docs/pm/DECISIONS.md`) needs the same entry; it is on SharePoint and was not edited from here |
+| O13 | What the Dataverse MCP server costs BBS per call, and whether that changes when the Sales licenses go | Ask the Microsoft partner with O7; read the Copilot Studio rate page first |
+| O14 | Reps write through Microsoft's MCP server as themselves (approach 0) or through BBS's connector (approach 1) | Approach 0, after the sandbox test |
+| O15 | Bring Microsoft's Dataverse plugin into the marketplace as a maintainer-tier commons entry, through the `docs/COMMONS.md` lifecycle | Yes, for Parker only. It carries role assignment and bulk delete |
 | O12 | Who may open a pursuit, and who signs the bid or no-bid decision | **RULED 2026-11-24: "the rep can assign."** Read as: any rep may open a pursuit and assign its owner. [FLAG: the ruling does not name who signs bid or no-bid. This draft assumes the assigned owner decides and records the reason; Parker to confirm or name someone else] |
 
 ## 13. Build sequence
@@ -353,8 +392,9 @@ this design is ruled on. The registry (S2, merged) and the record validator are 
 | Slice | What | Done when |
 |---|---|---|
 | D0 | This design and its open rulings ruled | Recorded in the register |
-| D1 | Schema: account columns, `bbs_rfq` columns, `bbs_rfqevent`, `bbs_contract` | Columns read back through the connector |
-| D2 | Connector: limited create, versioned update; managed settings `ask`; checker registry row | A create is refused outside the named tables |
+| D0a | Sandbox test: a copy environment, Microsoft's MCP server on, one rep-role user. Create and update a deal as that user from the Desktop app, VS Code and a cloud session; confirm delete and table tools are refused by the role | A written result per surface; O13 and O14 ruled |
+| D1 | Schema, built in the sandbox and shipped as a solution: account columns, `bbs_rfq` columns, `bbs_rfqevent`, `bbs_contract`, `bbs_pursuit`; the rep security role | Columns read back in production |
+| D2 | Write path per O14; managed settings: deny delete and table tools, `ask` on create and update; checker registry row | A create outside the four tables is refused |
 | D3 | Account sheets for DOJ and VA, approved and applied | DEA and FBI share a parent; no approved pair left unmerged |
 | D4 | `rfq_record.py` writes through; intake creates the deal; folder copy rendered | The CA pilot rep logs a deal without opening the CRM |
 | D5 | Pilot, then the CA switch | Two weeks of matching entries; canon rows changed |
@@ -369,6 +409,10 @@ this design is ruled on. The registry (S2, merged) and the record validator are 
   `account`; the three newest `bbs_rfqs` rows; accounts matching DOJ, FBI, DEA, Marshals, VA,
   Bechtel and Corrections; accounts with a parent; `bbs_accepted eq true` and
   `bbs_ponumber ne null` (both empty).
+- Microsoft Learn, read 2026-11-24: "Microsoft Dataverse plugin for AI agents reference (preview)",
+  "Security and governance for the Dataverse plugin for AI agents (preview)", "Connect to
+  Dataverse with Model Context Protocol" (tool list and billing note), and search excerpts of
+  the non-Microsoft-clients, configuration, preview-tools and FAQ pages.
 - Microsoft Learn, "License requirements for tables" and "Restricted tables requiring
   Dynamics 365 licenses", read 2026-11-24.
 - `plugins/bbs-sales/scripts/rfq_record.py` (`STAGES`, `OUTCOMES`, `HEADER_KEYS_V2`).
