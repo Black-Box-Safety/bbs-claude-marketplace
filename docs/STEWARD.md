@@ -1305,6 +1305,16 @@ Write it up with evidence and move to the next slice. Do not idle.
     outcomes, a person approves every write.
   - Design: `docs/superpowers/specs/2026-11-24-dataverse-record-design.md` (draft; its open
     rulings wait for Parker).
+- **Pursuits are their own record, in a new Dataverse table — RULED 2026-11-24.** Parker, in
+  session, to three questions put to him (new table or the Sales app's `opportunity` table;
+  where federal pursuit status lives; who may open a pursuit and who signs bid or no-bid):
+  "new table, dataverse holds status, the rep can assign."
+  - A long solicitation, proposal or vehicle is a pursuit, separate from an RFQ; design §6.3.
+  - Dataverse holds a pursuit's status and lessons. Sweetspot stays a drafting and search tool.
+  - Any rep may open a pursuit and assign its owner.
+  - **Not ruled:** who signs the bid or no-bid decision. The design assumes the assigned owner
+    and flags it.
+  - Takes effect with the Dataverse ruling above, not before.
 
 ---
 

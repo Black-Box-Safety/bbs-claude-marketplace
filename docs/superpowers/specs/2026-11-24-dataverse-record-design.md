@@ -240,11 +240,15 @@ of exactly this kind (a $2.3M university program, SWAT kits, "NASPO"), entered b
 most were not touched after the day they were created. `lead` holds two rows. The eight
 newest opportunities span September 2025 to June 2026. [FLAG: full counts not read.]
 
-**Why a new table and not `opportunity`.** `opportunity` belongs to the Sales app Parker has
+**Why a new table and not `opportunity`** (ruled 2026-11-24, O10). `opportunity` belongs to the Sales app Parker has
 ruled BBS will stop using; Microsoft lists it among the tables that app installs. A record
 BBS means to keep should not depend on an app BBS means to drop. The few existing rows are
 copied across on an approved sheet. [FLAG: whether `opportunity` survives an uninstall of the
-Sales app was not verified; O10.]
+Sales app was not verified; it no longer decides anything, since the new table is ruled.]
+
+**Who opens and owns one** (ruled 2026-11-24, O12). Any rep may open a pursuit and assign its
+owner. The owner is the row's owner in Dataverse and the person Claude asks for the close-out
+fields.
 
 **The pursuit's documents** live in a folder like any other; the row carries its path. The
 folder is where the proposal is written; the row is where its status and lessons are.
@@ -340,9 +344,9 @@ this design is ruled on. The registry (S2, merged) and the record validator are 
 | O7 | When, and whether, the Dynamics 365 Sales app is retired, and what license reps then need | Ask the Microsoft partner before anything is removed. Microsoft's table-licensing page says custom tables need a Power Apps license; what a rep needs when only Claude touches the data was not confirmed |
 | O8 | Who makes the Dataverse schema change (the earlier outside builder, or in house) | [MISSING — NEEDS INPUT] |
 | O9 | `bbs_customertype`: reuse or replace with `bbs_channel` | Read its options first |
-| O10 | Pursuits in a new `bbs_pursuit` table, or in the Sales app's `opportunity` table | New table, if O7 confirms `opportunity` goes with the app; otherwise still a new table, so the record does not depend on the app |
-| O11 | Federal pursuits: the federal-sales-team program names the Sweetspot platform for pursuit work. One home for a pursuit's status | Dataverse holds status and lessons; Sweetspot stays a drafting and search tool. Parker to confirm, since that program has its own ledger |
-| O12 | Who may open a pursuit, and who signs the bid or no-bid decision | [MISSING — NEEDS INPUT] |
+| O10 | Pursuits in a new `bbs_pursuit` table, or in the Sales app's `opportunity` table | **RULED 2026-11-24: new table.** |
+| O11 | Federal pursuits: the federal-sales-team program names the Sweetspot platform for pursuit work. One home for a pursuit's status | **RULED 2026-11-24: Dataverse holds status.** Sweetspot stays a drafting and search tool. That program's own ledger (`Federal Biz Dev/federal-sales-team/docs/pm/DECISIONS.md`) needs the same entry; it is on SharePoint and was not edited from here |
+| O12 | Who may open a pursuit, and who signs the bid or no-bid decision | **RULED 2026-11-24: "the rep can assign."** Read as: any rep may open a pursuit and assign its owner. [FLAG: the ruling does not name who signs bid or no-bid. This draft assumes the assigned owner decides and records the reason; Parker to confirm or name someone else] |
 
 ## 13. Build sequence
 
