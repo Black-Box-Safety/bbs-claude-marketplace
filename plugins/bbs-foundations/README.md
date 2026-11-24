@@ -66,7 +66,8 @@ ledger, the CA desk's `quote-log.md` or Bechtel Sentinel's hand-kept `learning/q
 `rfq_record.py`. A folder on no desk has no quote-log yet, so the Business Central sales
 quote is the record and no outcome file is created by hand.
 A note a rep asks Claude to remember goes through bbs-sales' `desk-remember` into
-`LEARNED.md`, so there is one memory mechanism, not two. After an approved edit the checker
+`LEARNED.md`, so there is one memory mechanism, not two, except a dated pursuit note, which
+goes in that pursuit folder's `PURSUIT.md` (Parker, 2026-11-24). After an approved edit the checker
 is scoped to that file, so a template's `[TBD]` lines are never filled with guesses. It stays
 silent in `State of CA Agencies/`, which bbs-sales keeps, and in folders named
 `DO NOT USE …`. The text lives in `hooks/customer-folder/`; `customer-folder.ps1` and
