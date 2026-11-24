@@ -159,7 +159,7 @@ Federal first: DOJ and its components, then VA. No account is deleted.
 
 ### 6.1 Deal: extend `bbs_rfq`, do not replace it
 
-Reps and 5,900-odd numbered rows already use it, and its autonumber is the `CRM RFQ` key
+Reps already use it, its rows are numbered up to `RFQ-005927`, and that number is the `CRM RFQ` key
 `RFQ.md` already carries.
 
 | Add | Notes |
