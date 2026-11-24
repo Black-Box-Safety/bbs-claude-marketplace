@@ -1284,7 +1284,28 @@ Write it up with evidence and move to the next slice. Do not idle.
   integrate Joey's down the line for CSU/UC. That is a very recurring order based system and
   does not have the system type of RFQ basis." CSU/UC gets its own order-desk design. Body armor
   is out unless Parker says otherwise.
+- **Dataverse is the record for accounts, buyers, deals, outcomes and contracts; folders stay the
+  rep's workspace — RULED 2026-11-24, NOT YET IN EFFECT.** Parker, in session: "ok yes dataverse
+  should be the system of record. I dont want to use micrsoft sales, but utilize claude as a
+  functional crm and sales enablement tool", then "folders work well and i liek them because tey
+  are simple for reps and many of the requests come from email and we can just save the docs and
+  launch by pointing. i dont want to cause confusion", then "yes that matches, record it and
+  start the design" to this wording:
+  - Folders stay the rep's workspace and the home for documents and Claude's context.
+  - Dataverse is the record for accounts, buyers, deals, outcomes and contracts, written by
+    Claude after the rep approves.
+  - Business Central stays the record for quotes, orders and invoices.
+  - Reps do not hand-enter RFQs in the CRM once Claude can create them.
+  - **Until the switch in the design, nothing changes for a rep or an agent:** deal folders stay
+    the RFQ working record, reps keep entering `bbs_rfqs`, and no skill writes to Dataverse.
+    The Sales CRM connector cannot create a record today.
+  - Supersedes, at that switch: "Folders are the RFQ working record for every customer"
+    (2026-11-16), the 2026-11-12 CA-state ruling it extended, and "Claude never writes the CRM"
+    (sales-system design §6.9). Leaves standing: one writer per deal record, propose-only
+    outcomes, a person approves every write.
+  - Design: `docs/superpowers/specs/2026-11-24-dataverse-record-design.md` (draft; its open
+    rulings wait for Parker).
 
 ---
 
-Owner: Parker Marshall. Last verified 2026-10-02; rulings register updated 2026-11-12.
+Owner: Parker Marshall. Last verified 2026-10-02; rulings register updated 2026-11-24.
