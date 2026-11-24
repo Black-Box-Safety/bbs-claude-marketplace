@@ -1315,6 +1315,26 @@ Write it up with evidence and move to the next slice. Do not idle.
   - **Not ruled:** who signs the bid or no-bid decision. The design assumes the assigned owner
     and flags it.
   - Takes effect with the Dataverse ruling above, not before.
+- **The Dataverse design is cut to the simple plan; pursuits are a type on the RFQ row — RULED
+  2026-11-24.** Parker, in session: "i dont want to unneccesarrily build somehting, we dont
+  need compliex, but simple and working", then, to three questions put to him (shrink the
+  design draft to the six-item plan; pursuits in the new table or as a type column on the RFQ
+  table; how orders are entered in Business Central): "yes and yes, they are converted frm
+  quote".
+  - The design is the six-step plan in `docs/superpowers/specs/2026-11-24-dataverse-record-design.md`:
+    three settings, Claude creating the `bbs_rfq` row from the folder, one Business Central
+    order flow, and the unused flows switched off.
+  - **Pursuits: a type on `bbs_rfq`, not a new table.** This supersedes "new table" in the
+    entry above, made earlier the same day. Read from "yes" to an either-or question where the
+    type column was the recommendation; Parker to correct if he meant the new table. "Dataverse
+    holds status" and "the rep can assign" stand.
+  - Parker's statement of fact: Business Central orders are converted from the quote. The
+    2026-11-16 sales-system design §4 says California desk orders are mostly keyed fresh; the
+    design flags the conflict and checks a sample before the order flow is built.
+  - Also said the same day, and recorded in the design: reps both track the email and save to
+    the folder; the folder takes precedence because it launches the Claude session; the
+    tracked-email path is "a starting point, but not where we want to be reliant"; "the
+    document automation from that we do not use".
 
 ---
 

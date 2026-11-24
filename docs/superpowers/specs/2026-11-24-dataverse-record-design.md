@@ -1,428 +1,139 @@
-# Dataverse as the sales record, folders as the workspace — design
+# The folder leads, the record follows — design (short version)
 
-Status: **DRAFT for Parker's approval, 2026-11-24. Nothing here is built.** Author: a Claude
-Code session with Parker. Ruling it rests on: `docs/STEWARD.md`, "Dataverse is the record for
-accounts, buyers, deals, outcomes and contracts; folders stay the rep's workspace"
-(2026-11-24, not yet in effect). Amends `2026-11-16-bbs-sales-system-design.md` where the two
-disagree; §11 lists what changes there.
+Status: **DRAFT for Parker's approval, 2026-11-24. Nothing here is built.** This replaces the
+longer draft of the same date (in git history), after Parker's direction in session: "i dont
+want to unnecessarily build something, we dont need complex, but simple and working", and
+"yes" to shrinking the design to the plan below. Rulings: `docs/STEWARD.md`, the three
+2026-11-24 entries.
 
 ## 1. Intent
 
-A rep saves the buyer's email and attachments to a folder and points Claude at it. That does
-not change. What changes is where the record of the deal lives: today a rep types it into the
-Sales CRM by hand and Claude writes a second copy into `RFQ.md`. After this design Claude
-writes one record, in Dataverse, after the rep approves it, and the folder shows a read-only
-copy.
+A rep saves the buyer's email and attachments into the deal folder and points Claude at it.
+That is the whole of the rep's job, and it does not change. Claude registers the deal in
+Dataverse from that folder, and Business Central reports the win. Nobody types a record.
 
-The rule a rep needs: **the folder is where you work; Claude keeps the record.**
+**The folder is where you work; Claude keeps the record.**
 
-## 2. Goals, non-goals, anti-goals
+## 2. What is already there (read 2026-11-24)
 
-**Goals**
-1. One record per account, buyer, deal, outcome and contract, in Dataverse, written by Claude.
-2. A rep's steps do not grow. Hand entry of an RFQ in the CRM stops.
-3. The account model tells a California institution from a federal office, and knows that DEA
-   and FBI are siblings under one department without ever merging them.
-4. Every federal and prime contract BBS holds or held is a row that past performance can cite.
-5. A long pursuit (a solicitation, a proposal, a vehicle BBS is chasing) is its own record,
-   separate from an RFQ, and what it taught is in front of Claude when the next request from
-   that account or its department arrives, whether the pursuit was won or lost.
-6. The record works from any Claude surface, including a cloud session with no folder on disk.
+An outside builder's admin account owns a working Dataverse and Power Automate build
+(September 2025 to April 2026). Reps use part of it every day.
 
-**Non-goals**
-- Moving, renaming or merging customer folders.
-- Quote lines, costs and margins in Dataverse (§6.4). Business Central keeps quotes.
-- Remembered notes and flags (`LEARNED.md`, `FLAGS.md`). They are context and stay in folders.
-- Body armor and CSU/UC, as in the 2026-11-16 design.
-- Retiring the Dynamics 365 Sales app. That is a later ruling (O7); nothing is uninstalled here.
-
-**Anti-goals — failure even if it technically works**
-- A rep has to open a CRM screen to keep a deal current.
-- Two places a rep or an agent can type the same fact.
-- A write to Dataverse that no person approved.
-- A federal deal recorded against a department-level account, or a California rule (DVBE
-  wording, Grainger at cost) applied because an account's channel was guessed.
-- A merge of two accounts without Parker's approval of the pair.
-
-## 3. What is there today (read 2026-11-24 through the Sales CRM connector)
-
-- Environment `blackboxsafety.crm.dynamics.com`. The connector authenticates as an application
-  user, so every write it makes is attributed to that user, not to the rep.
-- **`bbs_rfq`** is live and in daily use: the newest row is `RFQ-005927` (created 11/24), the
-  three newest were entered by two reps. 47 custom columns: account, contact, received and due
-  dates, quote value, quote method, PO number, bill-to and ship-to, status (`In Progress`,
-  `Submitted` seen), and an `Accepted` flag.
-- **Outcomes are not recorded.** Zero rows have `Accepted` = yes and zero carry a PO number.
-- **A required field produces placeholder data.** Quote value is required, and an in-progress
-  row carries $1.00.
-- **Accounts: California has hierarchy, federal has none.** CDCR, CalVet, DSH, CHP, Caltrans
-  and CAL FIRE each have institutions parented under them. Every federal account read has no
-  parent: "Drug Enforcement Administration (DEA)", "DEA El Paso Field Division", "Federal
-  Bureau of Investigations", two FBI field offices, "Federal Department of Justice (DOJ)" and
-  "United States Department of Justice" all sit flat and unrelated. VA medical centers are
-  flat beside an unlinked "Department of Veterans Affairs".
-- **Duplicates.** At least eight spellings of CalVet, five of the U.S. Marshals Service, two
-  federal DOJ, three California DOJ, two "Nevada Dept. of Corrections".
-- **`bbs_customertype` is empty** on every account read, so nothing marks state from federal.
-- The account table also holds suppliers and at least one individual.
-- The account carries `bbs_graingeraccountnumber`. Buying-account numbers therefore already
-  live in Dataverse; they are never projected into git or a published page.
-- **The connector cannot create a record.** It reads and updates only, updates are off unless
-  the deployment sets `CRM_ALLOW_WRITES=1`, and an update uses `If-Match: *` (last write wins).
-- [FLAG: total row counts, the status and customer-type option values, which app screen reps
-  use to enter `bbs_rfq`, and where the connector's source lives were not read.]
-
-## 4. State and federal are different businesses
-
-One schema has to carry both without pretending they are the same. The differences that shape
-the model:
-
-| | California state | Federal |
+| Piece | State | Verdict |
 |---|---|---|
-| Who asks, who buys, who uses | Usually one person at one institution | Often three parties: the end user, a contracting office that may sit elsewhere, and a program or small-business office |
-| Hierarchy | Agency → institution. Shallow and stable | Department → component → office or site. DOJ → FBI → a field office |
-| Rhythm | Constant small requests from known buyers | Occasional solicitations, or orders against a contract BBS already holds |
-| Request types | NASPO or LPA order, BPO order, informal competitive quote | Micro-purchase, RFQ, BPA call, full proposal, sources-sought response |
-| Where it arrives | The buyer's email | Email, SAM.gov, GSA eBuy, Unison, DIBBS, a prime's portal |
-| Certification | DVBE 2009473 only; never small business | SDVOSB; small business per NAICS; nonmanufacturer rule |
-| Price rule | Grainger price is the customer price on state schedules | No at-cost rule; set per solicitation |
-| Paperwork | State form packet | Reps and certs, FAR and DFARS clauses, country of origin per line |
-| What a win leaves behind | A PO | A contract with a number, a period and a contracting officer: past performance |
-| Outcome evidence | The PO in `Customer PO's` | An award notice, often public; sometimes a debrief or a protest |
-| Record weight | Desk: every request is a deal | Contract account or positioned account (§5.4) |
+| `bbs_rfq` table (rows numbered to `RFQ-005927`), email history on each row, Teams notice on reassignment | In use | Keep |
+| Flows that create the row when a rep tracks an email, or mail reaches the RFQ inbox | In use; a second step for the rep on top of saving to the folder. Parker: "it just isnt as efficient as the workflow i created" | Keep until step 4 works, then retire |
+| A SharePoint folder per RFQ in a separate `account` library, with the attachments | Created automatically; reps work in the Customers tree instead | Stop creating |
+| Flows that read RFQ documents, convert attachments and generate two state forms | Parker: "the document automation from that we do not use" | Switch off |
+| Duplicate detection | All nine built-in rules inactive; at least eight spellings of CalVet, five of the U.S. Marshals Service | Switch on |
+| Win or loss | Never recorded: no row is accepted, none has a PO number | Step 5 |
+| Microsoft's sales agent flows | Installed, in draft | Leave in draft |
 
-Certification, price rule and paperwork are **not** stored per deal. They follow from the
-account's channel and stay where they are ruled today (canon, the channel `CLAUDE.md`, the
-skills). Dataverse stores the channel; it does not restate the rule.
+## 3. The plan
 
-## 5. Accounts
-
-### 5.1 One table, three levels
-
-Use the standard `account` table and its existing parent lookup. Add a level so a query can
-tell a department from an office:
-
-| Level | California state | Federal | Prime |
+| # | Change | Kind | Done when |
 |---|---|---|---|
-| 1 Organization | Agency (CDCR) | Department (DOJ, VA, DoD) | Company (Bechtel National) |
-| 2 Component | usually none | Agency or component (FBI, DEA, USMS, ATF) | Program (Sentinel, WTP) |
-| 3 Buying unit | Institution or facility | Office, field division, medical center, district | Site |
+| 1 | Activate duplicate detection on account name; merge duplicates from a sheet Parker approves, pair by pair | Setting | No approved pair left unmerged; a new duplicate account is caught |
+| 2 | Turn on auditing for `account` and `bbs_rfq` | Setting | A change shows who made it |
+| 3 | Move the kept flows off the outside builder's admin account to an owner BBS controls | Setting | No kept flow is owned by that account |
+| 4 | Claude creates and updates the `bbs_rfq` row from the deal folder, after the rep approves | New ability | A rep logs a deal by pointing Claude at a folder, without tracking the email |
+| 5 | One flow: a new Business Central sales order marks the matching `bbs_rfq` row won, with order number, amount and customer PO | New flow | A converted quote shows as won with no one typing |
+| 6 | Switch off the unused document and form flows and the per-RFQ folder creation; after step 4 is proven, the row-creating flows | Switch off | Those flows are off and nothing a rep uses broke |
 
-**A deal attaches to the lowest level known, never to level 1.** DEA and FBI are two level-2
-accounts with the same level-1 parent. That one link is what lets Claude answer "what have we
-done inside DOJ" for an FBI opportunity without ever treating DEA's buyers, contracts or
-prices as FBI's.
+Order: 1 to 3 first, they are settings. Then 4, then 5. Step 6's first half any time after
+checking that the document flow is not called by a flow that is still needed.
 
-### 5.2 New columns on `account`
+### Step 4 in detail
 
-| Column | Purpose |
-|---|---|
-| `bbs_channel` | CA state, Federal, Prime, State and local, Commercial. Drives which rules apply. Required before any deal is created |
-| `bbs_level` | 1, 2 or 3 as above |
-| `bbs_weight` | Desk, Contract account, Positioned account, Dormant (§5.4) |
-| `bbs_bccustomerno` | The Business Central customer number. One account, one BC customer, where BC has one |
-| `bbs_folderpath` | Path under `MASTER/Customers/`, as the folder is named today |
-| `bbs_agencycode`, `bbs_officecode` | Federal only: the department or sub-tier code and the contracting office code, so a public award record can be matched to the account |
-| `bbs_recordkind` | Customer, Supplier, Other. Keeps suppliers and individuals out of customer views without deleting them |
+- **Key the row on the folder path.** Pointing Claude at the same folder twice finds the same
+  row. [FLAG: whether the tools can find-or-create in one call was not verified; if not,
+  Claude looks the row up, then writes.]
+- **What Claude writes:** account, buyer, received and due dates, the folder path, and later
+  the Business Central quote number, the value, the sent date, and an outcome the rep states.
+  Quote value stops being a required column; it is what produced $1.00 placeholder rows.
+- **A person approves.** Claude shows what it will create or change and on which account; the
+  rep approves by name.
+- **Search before create,** for the account and the buyer.
+- **Which tool.** Microsoft's Dataverse MCP server, each rep signed in as themselves under a
+  role that allows create and update on these rows and nothing else. Fallback: BBS's own
+  connector gains a create tool. A sandbox test decides: create and update a deal from the
+  Desktop app, VS Code and a cloud session, and confirm delete and table tools are refused.
+  The server is billed per call for agents built outside Copilot Studio.
+  [FLAG: the rate and whether BBS's licenses are exempt were not read.]
+- **Why not a flow on the folder.** Microsoft's documentation says files arriving by sync or
+  by move do not trigger flows; reps save through OneDrive sync.
+- **Accepted:** a request no rep opens in Claude gets no row. Nothing is quoted without that
+  session.
 
-`bbs_customertype` exists and is empty. [FLAG: read its options before deciding whether
-`bbs_channel` replaces it or fills it.]
+### Step 5 in detail
 
-### 5.3 Relationships that are not parent and child
+- Parker, 2026-11-24: orders "are converted frm quote". Make Order carries the quote number
+  onto the order, which is the link the flow needs. [FLAG: the 2026-11-16 sales-system design
+  §4 says California desk orders are mostly keyed fresh. Check twenty recent orders before
+  building.]
+- **One small addition in Business Central is needed.** The order's Quote No. is not among
+  the fields the Business Central connector returns for `salesOrders`, nor in the order
+  archive (read 2026-11-24). Either expose that one field, or match on customer plus the
+  customer PO number where the rep entered it.
+- **Lost** is not automatic: a quote past its valid-until date with no order is put to the
+  rep, who gives the outcome and the reason.
 
-Hierarchy cannot express these, and each one changes how a deal is worked:
+## 4. Pursuits
 
-| Relationship | Example | How it is recorded |
-|---|---|---|
-| A contracting office buys for an end user | A VA network contracting office awards for several medical centers; Washington Headquarters Services awards the DoD OIG vest BPA | Two lookups on the deal and the contract: **customer** (who issues the order) and **end user** (who receives it) |
-| A prime buys for a government program | Bechtel buys for Sentinel under Northrop's Air Force contract | **End customer** lookup on the contract, pointing at the government account |
-| A partner refers the deal | Grainger Huntsville referrals | **Referred by** lookup on the deal |
+A long solicitation, proposal or vehicle is still a different thing from an RFQ: weeks to
+months, notes are the point, and what it taught matters after a loss. In this version it is
+**a type on the `bbs_rfq` row, not a new table** (ruled 2026-11-24, superseding the same
+day's new-table ruling). A pursuit row adds an estimated value, a decision date, and three
+close-out fields required before it is closed: why it went the way it did, what BBS learned,
+and what to do next and when. Dated notes sit on the row. Any rep may open one and assign its
+owner. Dataverse holds its status.
 
-For a California deal all of these are empty or equal to the customer, which is the
-structural difference between the two businesses in one sentence. No generic relationship
-table in the first build; three named lookups cover every case found on disk.
+When a deal is opened on an account, Claude reads the pursuits on that account and on the
+accounts sharing its parent, and shows the rep their close-out fields. That is how a lost FBI
+proposal reaches the next DEA request, and it needs the parent links in §5.
 
-### 5.4 Weight decides how much record an account gets
+## 5. Later, only when wanted
 
-| Weight | Accounts | Deals | Contracts |
-|---|---|---|---|
-| **Desk** (CA state, Sentinel) | Full hierarchy | Every request | Vehicles only |
-| **Contract account** (USACE Walla Walla, DoD OIG) | Yes | One per call or order | One row per contract, kept current |
-| **Positioned account** | Yes, with buyers | Only when a request arrives | Past contracts, for citing |
-| **Dormant** | Row only | None | None |
+- **Parent links for federal accounts.** California institutions already have parents; DEA,
+  FBI and the Justice Department accounts sit flat. Setting parents is data cleanup on the
+  existing column, done from the same approved sheet as step 1. No build.
+- **A contracts table** for federal past performance: number, type, period, ceiling,
+  contracting officer, where the award document is, and a citable flag only Parker sets.
+- **Connection roles** (contracting office versus end user; prime versus end customer),
+  a built-in feature, when a federal deal first needs it.
 
-### 5.5 Cleaning what is there
+## 6. Not doing
 
-Propose-only. Claude produces a sheet per department or agency: the level each account should
-take, the parent it should get, and the pairs that look like duplicates. Parker approves the
-sheet by name; only then are parents set, and merges are done one approved pair at a time.
-Federal first: DOJ and its components, then VA. No account is deleted.
+Opportunities and quotes inside the Sales app; the built-in Business Central and Sales sync;
+sequences, forecasting and conversation intelligence; Microsoft's sales agents; Copilot
+Studio; the Outlook sales add-in; Dataverse business skills; a second copy of the deal
+rendered into the folder; line items, costs or margins in Dataverse. `RFQ.md`, the quote
+log, remembered notes and flags stay in the folder exactly as they are.
 
-## 6. Deals, outcomes and contracts
+## 7. Not verified
 
-### 6.1 Deal: extend `bbs_rfq`, do not replace it
+- BBS's Sales license tier, and whether one flow across Business Central and Dataverse is
+  covered by it.
+- Whether auditing is already on; whether a row Claude creates triggers duplicate detection.
+- Whether the unused document flow consumes paid AI capacity. Microsoft states seeded
+  AI Builder credits stop for licenses bought or renewed from 2026-11-01.
+- Whether the Dataverse MCP server connects from every surface a rep uses.
+- What reps need for a license if the Sales app is later dropped. Nothing here drops it.
 
-Reps already use it, its rows are numbered up to `RFQ-005927`, and that number is the `CRM RFQ` key
-`RFQ.md` already carries.
+## 8. Sources
 
-| Add | Notes |
-|---|---|
-| `bbs_stage` | The eight stages in `rfq_record.py` `STAGES`. That list stays the one source |
-| `bbs_outcome`, `bbs_outcomedate`, `bbs_outcomeevidence`, `bbs_lossreason` | `OUTCOMES` from the same file. Replaces the unused `Accepted` flag |
-| `bbs_sentdate` | From evidence, never from a BC field (2026-11-16 design §4) |
-| `bbs_bcquote` | The SQ number. The quote itself stays in Business Central |
-| `bbs_requesttype` | State order, informal competitive, micro-purchase, RFQ, BPA call. A proposal or a sources-sought response is a pursuit (§6.3), not a deal |
-| `bbs_solicitationno`, `bbs_portal`, `bbs_setaside`, `bbs_naics` | Federal; empty on a state deal |
-| `bbs_vehicle`, `bbs_contractid` | The vehicle, and the contract row when the deal is an order under one |
-| `bbs_pursuitid` | The pursuit this request came out of, when there is one (§6.3) |
-| `bbs_enduserid`, `bbs_referredbyid` | §5.3 |
-| `bbs_folderpath`, `bbs_desk` | The deal folder; the desk id from `desks.json` |
-
-**Which fields a deal must have is decided by the writer from the account's channel and the
-request type, not by a required column.** Required columns are what produced the $1.00 rows.
-Quote value stops being required (O5).
-
-A child table, `bbs_rfqevent` (stage, date, evidence, entered for which rep), is the status
-log. It is the audit trail the application-user attribution otherwise loses.
-
-### 6.2 Contract: a new table, `bbs_contract`
-
-Number, type (BPA, IDIQ, purchase order, task order, LPA), customer, end user, end customer,
-period start and end, option years, ceiling, set-aside, NAICS, contracting officer and COR
-(contact lookups), where the award document is, and three past-performance fields: a
-questionnaire or CPARS on file (yes, no, requested), relevance tags, and **citable**, which
-only Parker sets. Dollars invoiced are read from Business Central when asked, never stored.
-
-Seeded, row by row with a source, from the candidate list in
-`Federal Biz Dev/federal-sales-team/research/inventory-files.md` §3. A row whose evidence was
-not found stays not citable.
-
-### 6.3 Pursuit: a separate record from a deal
-
-A deal is a request with lines to price now: hours to days, ends in a quote and a PO. A
-pursuit is something BBS is chasing over weeks or months: a solicitation, a proposal, a
-sources-sought response, a cooperative vehicle, a large program. They differ in every way
-that matters to a record, so they are two tables, not one table with a type column.
-
-| | Deal (`bbs_rfq`) | Pursuit (`bbs_pursuit`, new) |
-|---|---|---|
-| Cycle | Hours to days | Weeks to months |
-| Stages | `STAGES` in `rfq_record.py` | Identified, qualifying, bid or no-bid decided, shaping, response in work, submitted, decided |
-| What it holds | Lines, a quote number, a sent date | Estimated value, decision date, incumbent, competitors, teaming and supplier commitments, bid or no-bid reason |
-| Notes | Rare | The point: calls, site visits, questions and answers, debrief |
-| Ends in | Won, lost, no answer, no bid, cancelled | Awarded, lost, no bid, cancelled, withdrawn by the buyer |
-| A win creates | A PO | Usually a **contract** row (§6.2), which then receives deals |
-
-**It is a pursuit when** more than a quote is owed, or there is nothing to price yet, or a
-win would create a contract or a vehicle. Otherwise it is a deal. The channel does not decide
-it: the California body armor LPA and a NASPO rebid are pursuits; an FBI micro-purchase is a
-deal.
-
-**How they connect.** Pursuit → contract → deals, for a BPA or a vehicle. Pursuit → deals
-directly, when a buyer met during a pursuit later sends a request; the deal carries
-`bbs_pursuitid`. Nothing is copied between them.
-
-**What a pursuit leaves behind, won or lost.** Notes are kept as dated entries on the pursuit
-(Dataverse's standard notes on the row), written by Claude after the rep approves, from the
-rep's own words or a document. At close, three fields are required: why it went the way it
-did, what BBS learned (the winner and the price where the award is public, the requirement
-that hurt, the contact worth keeping), and what to do next and when. A lost pursuit is not
-closed until they are filled.
-
-**How those insights reach the next RFQ.** When a deal is opened on an account, Claude reads
-the pursuits on that account, on its parent, and on its siblings under the same level-1
-organization, and shows the rep the closing fields of each. A lost FBI proposal is in front
-of whoever works the next DEA request. This is a read through the hierarchy in §5.1, not a
-second copy of the lesson.
-
-**What is there today.** The Sales app's standard `opportunity` table holds a handful of rows
-of exactly this kind (a $2.3M university program, SWAT kits, "NASPO"), entered by three reps;
-most were not touched after the day they were created. `lead` holds two rows. The eight
-newest opportunities span September 2025 to June 2026. [FLAG: full counts not read.]
-
-**Why a new table and not `opportunity`** (ruled 2026-11-24, O10). `opportunity` belongs to the Sales app Parker has
-ruled BBS will stop using; Microsoft lists it among the tables that app installs. A record
-BBS means to keep should not depend on an app BBS means to drop. The few existing rows are
-copied across on an approved sheet. [FLAG: whether `opportunity` survives an uninstall of the
-Sales app was not verified; it no longer decides anything, since the new table is ruled.]
-
-**Who opens and owns one** (ruled 2026-11-24, O12). Any rep may open a pursuit and assign its
-owner. The owner is the row's owner in Dataverse and the person Claude asks for the close-out
-fields.
-
-**The pursuit's documents** live in a folder like any other; the row carries its path. The
-folder is where the proposal is written; the row is where its status and lessons are.
-
-### 6.4 What stays out of Dataverse
-
-Line items, vendor costs, sell prices and margin stay in `RFQ.md`'s working tables and in the
-Business Central quote. They are working papers with cost data in them, and the 2026-11-16
-anti-goals keep cost out of anything broadly visible. Whether line-level outcomes are later
-needed for the pricing loop is open (O2).
-
-## 7. How Claude writes
-
-### 7.0 What Microsoft already ships (read 2026-11-24; the first draft missed this)
-
-The first draft of this section assumed BBS's own Sales CRM connector was the only way in. It
-is not. Microsoft Learn documents two things that change the options:
-
-- **A Dataverse MCP server, built into every environment** at `<org>/api/mcp`. Its tools
-  include `create_record`, `update_record`, `read_query` (SQL `SELECT`), `describe`, `search`,
-  file upload and download, and `invoke_api` for a Dataverse Custom API. It also has
-  `delete_record`, `create_table`, `update_table` and `delete_table`. Claude Code and Claude
-  desktop are named clients. The person signs in as themselves, so a write is theirs in
-  Dataverse and their security role decides what they may touch.
-  - It must be switched on per environment, and each non-Microsoft client allowed by an
-    administrator; a tenant administrator consents to the client first.
-  - Two ways to connect: a local proxy (`npx @microsoft/dataverse mcp <org>`, needs Node), or
-    the remote endpoint with an Entra app BBS registers.
-  - **It is billed.** Since 2025-12-15, calls from agents built outside Copilot Studio are
-    charged in Copilot Credits (`search_data` by usage; the other tools at a per-10-responses
-    rate). The FAQ says holders of qualifying Dynamics 365 Premium or Microsoft 365 Copilot
-    licenses are not charged for Dynamics 365 data. [FLAG: the rates, and whether BBS's
-    licenses qualify, were not read. Dropping the Sales licenses could turn this charge on.]
-  - Its tool names have already changed once; an allow or deny list by tool name has to be
-    kept current.
-- **A Dataverse plugin for AI agents (preview)**, installable in Claude Code
-  (`dataverse@claude-plugins-official`). Its skills build schema (`dv-metadata`: tables,
-  columns, relationships, forms, views), package it (`dv-solution`), load and query data, and
-  manage settings and roles (`dv-admin`, `dv-security`). Microsoft states the skills are
-  guidance, not a security boundary, and that preview features may change or be withdrawn.
-  It includes bulk delete and role assignment, so it is a maintainer tool, never a rep's.
-
-### 7.1 Approaches considered
-
-| | Approach | Trade-off | Verdict |
-|---|---|---|---|
-| **0** | **Microsoft's Dataverse MCP server, each rep signed in as themselves, under a BBS security role that allows create and update on the four tables and nothing else; managed settings deny the delete and table tools and put create and update in `ask`.** | No connector to build or maintain. Writes carry the rep's own identity, and the limits are enforced by Dataverse on every surface, not by a skill. Costs: per-call billing (§7.0), administrator consent and allow-listing, a tool surface Microsoft has already renamed once, and a connection to prove from the Desktop app, VS Code and a cloud session. | **Recommended, subject to a sandbox test and the billing answer (O13).** |
-| 1 | BBS's own connector gains a create tool, limited to named tables and columns; managed settings put create and update in `ask`. | BBS controls the tool list and pays no per-call charge. Every write is the application user's, so who entered it has to be carried in a column; BBS maintains the connector. | **Fallback** if O13 or the sandbox test goes against approach 0. |
-| 2 | A script run through the fill launcher, with a review sheet, like the Business Central writes. | Reuses a proven pattern. Runs only where the folder tree and Python are, which today is one Mac. | No: it rebuilds the single-machine limit this design removes. |
-| 3 | A Power Automate flow as the write endpoint. | Server-side. Adds a second place where write logic lives and a licensing question. | Not for writes. Fits events (§9). |
-
-### 7.2 Rules for a write
-
-- **One writer.** One place decides what a valid deal change is. The first draft named
-  `rfq_record.py`; that has a gap this draft did not address: a script needs its own Dataverse
-  sign-in on every machine, and it does not run in a cloud session. Two ways to close it, for
-  D4 to choose after the sandbox test: (a) a Dataverse Custom API, called through
-  `invoke_api`, that is the writer and enforces the rules on the server for every client; or
-  (b) the skill validates with `rfq_record.py`'s lists and then calls `create_record`, with
-  Dataverse column rules as the backstop. [FLAG: authoring a Custom API was not confirmed to
-  be within the plugin's skills.]
-- **A person approves.** Claude shows the review sheet (what will be created or changed, on
-  which account); the rep approves by name; the Allow prompt is the second check.
-- **Search before create,** for accounts and contacts, by name and by parent. This is the
-  duplicate-buyer-folder rule applied to rows.
-- **Reps do not create level-1 or level-2 accounts.** Claude proposes; Parker approves.
-- **No delete.** Updates carry the row's version, so a stale write fails instead of winning.
-- **The rep is the owner** of the row; the event log names who it was entered for.
-
-## 8. What the rep and the session see
-
-- **Intake.** The rep points Claude at the folder. Intake resolves the account and buyer,
-  shows the sheet, and on approval creates the deal. The rep never opens the CRM.
-- **Folder copy.** `RFQ.md`'s header and status table and the buyer's `quote-log.md` are
-  rendered from Dataverse and marked generated. The existing guard hook rejects a hand edit to
-  those parts. The lines and pricing tables stay hand-and-skill edited as now.
-- **Session start.** The existing hooks keep reading the folder copy, so a local session is
-  oriented exactly as today. A session with no folder on disk reads the same facts from
-  Dataverse on its first step.
-- **Lag is stated, not hidden.** A write from a cloud session reaches the folder copy at the
-  next refresh. The copy prints when it was generated.
-- **A read view.** One dashboard reads Dataverse for Parker and the reps, so the pipeline is
-  visible when Claude is not in the loop (O6).
-
-## 9. Events
-
-Power Automate, cloud side: a new file in `Customer PO's` and a new message in the shared
-quote mailbox each raise a **proposal** (a possible win, a possible sent date). A proposal
-changes nothing until a rep approves it. This moves the fetch half of the outcome engine off
-Parker's Mac; the matcher is unchanged. [FLAG: Power Automate entitlement not checked.]
-
-## 10. Transition
-
-1. **Nothing changes for reps** until step 4. They keep entering `bbs_rfqs` by hand.
-2. Schema additions and the connector change ship. The account cleanup sheets for DOJ and VA
-   are approved and applied.
-3. **Pilot:** one rep, the CA desk, two weeks. Claude creates the deal; the rep also enters it
-   by hand; the two are compared row by row.
-4. **Switch,** per desk: when the pilot matches, reps stop hand entry. This is the moment the
-   2026-11-24 ruling takes effect for that desk, and canon's Systems of record rows change in
-   the same pull request.
-5. Outcomes backfill from the desk quote-logs, as proposals a rep approves.
-6. Contracts are seeded; Sentinel and the contract accounts join.
-
-## 11. What this changes in the 2026-11-16 design
-
-| There | Here |
-|---|---|
-| Folders are the record (R-S5) | Dataverse is the record; the folder holds a rendered copy |
-| Claude never writes the CRM (§6.9) | Claude writes it, through one writer, after approval |
-| Reps stop CRM entry when folders and CRM agree for two weeks | Reps stop when Claude's entries and theirs agree for two weeks |
-| The one metric stays on `bbs_rfqs` until the switch | It stays on `bbs_rfqs`, permanently |
-| Engine fetchers on Parker's Mac | Fetchers move to cloud events (§9) |
-| Unchanged | One writer per deal, the stage and outcome lists, propose-only outcomes, the desk registry, the learning loop, the pricing loop |
-
-Slices of that build that add hand-kept or script-kept state to markdown should pause until
-this design is ruled on. The registry (S2, merged) and the record validator are reused.
-
-## 12. Open rulings for Parker
-
-| # | Question | Recommendation |
-|---|---|---|
-| O1 | Write approval: approval by name plus the Allow prompt, or the Allow prompt alone | Both, as with Business Central |
-| O2 | Line items in Dataverse later, for line-level win rates | Not in this build; revisit with the pricing loop |
-| O3 | Outreach and pre-RFQ pipeline: which table holds it once the Sales app is not the tool | [FLAG: not read today.] Decide after the deal switch |
-| O4 | Who may create or re-parent level-1 and level-2 accounts | Parker only |
-| O5 | Make quote value optional on `bbs_rfq` | Yes |
-| O6 | Who builds and owns the read view | The existing RFQ pipeline dashboard, repointed |
-| O7 | When, and whether, the Dynamics 365 Sales app is retired, and what license reps then need | Ask the Microsoft partner before anything is removed. Microsoft's table-licensing page says custom tables need a Power Apps license; what a rep needs when only Claude touches the data was not confirmed |
-| O8 | Who makes the Dataverse schema change (the earlier outside builder, or in house) | In house is now practical: Parker, in Claude Code with Microsoft's Dataverse plugin, in a sandbox environment first, packaged as a solution and imported to production. Parker to rule |
-| O9 | `bbs_customertype`: reuse or replace with `bbs_channel` | Read its options first |
-| O10 | Pursuits in a new `bbs_pursuit` table, or in the Sales app's `opportunity` table | **RULED 2026-11-24: new table.** |
-| O11 | Federal pursuits: the federal-sales-team program names the Sweetspot platform for pursuit work. One home for a pursuit's status | **RULED 2026-11-24: Dataverse holds status.** Sweetspot stays a drafting and search tool. That program's own ledger (`Federal Biz Dev/federal-sales-team/docs/pm/DECISIONS.md`) needs the same entry; it is on SharePoint and was not edited from here |
-| O13 | What the Dataverse MCP server costs BBS per call, and whether that changes when the Sales licenses go | Ask the Microsoft partner with O7; read the Copilot Studio rate page first |
-| O14 | Reps write through Microsoft's MCP server as themselves (approach 0) or through BBS's connector (approach 1) | Approach 0, after the sandbox test |
-| O15 | Bring Microsoft's Dataverse plugin into the marketplace as a maintainer-tier commons entry, through the `docs/COMMONS.md` lifecycle | Yes, for Parker only. It carries role assignment and bulk delete |
-| O12 | Who may open a pursuit, and who signs the bid or no-bid decision | **RULED 2026-11-24: "the rep can assign."** Read as: any rep may open a pursuit and assign its owner. [FLAG: the ruling does not name who signs bid or no-bid. This draft assumes the assigned owner decides and records the reason; Parker to confirm or name someone else] |
-
-## 13. Build sequence
-
-| Slice | What | Done when |
-|---|---|---|
-| D0 | This design and its open rulings ruled | Recorded in the register |
-| D0a | Sandbox test: a copy environment, Microsoft's MCP server on, one rep-role user. Create and update a deal as that user from the Desktop app, VS Code and a cloud session; confirm delete and table tools are refused by the role | A written result per surface; O13 and O14 ruled |
-| D1 | Schema, built in the sandbox and shipped as a solution: account columns, `bbs_rfq` columns, `bbs_rfqevent`, `bbs_contract`, `bbs_pursuit`; the rep security role | Columns read back in production |
-| D2 | Write path per O14; managed settings: deny delete and table tools, `ask` on create and update; checker registry row | A create outside the four tables is refused |
-| D3 | Account sheets for DOJ and VA, approved and applied | DEA and FBI share a parent; no approved pair left unmerged |
-| D4 | `rfq_record.py` writes through; intake creates the deal; folder copy rendered | The CA pilot rep logs a deal without opening the CRM |
-| D5 | Pilot, then the CA switch | Two weeks of matching entries; canon rows changed |
-| D6 | Outcomes: proposals from events, backfill | A won deal carries its PO and date |
-| D7 | Contracts seeded; Sentinel and contract accounts join | A federal bid can list citable contracts by department |
-| D7a | `bbs_pursuit`, its close-out fields, and the hierarchy read at deal intake; existing opportunities copied on an approved sheet | Opening a deal on one component shows a closed pursuit at a sibling component |
-| D8 | Sales app retirement, if ruled | — |
-
-## 14. Sources
-
-- Sales CRM connector, read 2026-11-24: the eight newest `opportunities` and all `leads`; `WhoAmI`; attribute metadata for `bbs_rfq` and
-  `account`; the three newest `bbs_rfqs` rows; accounts matching DOJ, FBI, DEA, Marshals, VA,
-  Bechtel and Corrections; accounts with a parent; `bbs_accepted eq true` and
-  `bbs_ponumber ne null` (both empty).
-- Microsoft Learn, read 2026-11-24: "Microsoft Dataverse plugin for AI agents reference (preview)",
-  "Security and governance for the Dataverse plugin for AI agents (preview)", "Connect to
-  Dataverse with Model Context Protocol" (tool list and billing note), and search excerpts of
-  the non-Microsoft-clients, configuration, preview-tools and FAQ pages.
-- Microsoft Learn, "License requirements for tables" and "Restricted tables requiring
-  Dynamics 365 licenses", read 2026-11-24.
-- `plugins/bbs-sales/scripts/rfq_record.py` (`STAGES`, `OUTCOMES`, `HEADER_KEYS_V2`).
-- `docs/superpowers/specs/2026-11-16-bbs-sales-system-design.md`.
-- SharePoint, read 2026-11-24: `Customers/Federal Agencies/CLAUDE.md`;
-  `Customers/State of CA Agencies/docs/archive/migration/CUSTOMERS-RESTRUCTURE-PLAN.md`;
-  `Federal Biz Dev/federal-sales-team/research/inventory-files.md`.
-- The state and federal comparison in §4 combines those files with general federal
-  procurement practice. Rows not traceable to a BBS file are the author's summary, for Parker
-  to correct.
+- Sales CRM connector, read 2026-11-24: `bbs_rfq` and `account` columns and newest rows;
+  accounts by name and by parent; opportunities and leads; tracked emails; document
+  locations and sites; cloud flows and their owners; duplicate rules; notes and tasks.
+- Business Central connector, read 2026-11-24: fields of `salesOrders`, `salesQuoteArchives`
+  and `salesOrderArchives`.
+- Microsoft 365 connector, read 2026-11-24: the `account` library folder for one RFQ.
+- A review of Microsoft Learn by a research subagent, 2026-11-24, with page links, covering
+  email tracking, SharePoint document locations, Business Central triggers and webhooks,
+  duplicate detection, auditing, flow ownership, the Sales features in §6 and the SharePoint
+  file-trigger limitation. Its judgments are its own; its Learn citations were not re-read.
+- Microsoft Learn, read directly 2026-11-24: the Dataverse MCP server tool list and billing
+  note; the Dataverse plugin for AI agents reference and security pages; table licensing.
 
 ---
 
