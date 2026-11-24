@@ -44,6 +44,11 @@
       "category": "foundations"
     },
     {
+      "name": "bbs-desk",
+      "source": "./plugins/bbs-desk",
+      "category": "foundations"
+    },
+    {
       "name": "agent-team",
       "source": "./plugins/agent-team",
       "category": "foundations"

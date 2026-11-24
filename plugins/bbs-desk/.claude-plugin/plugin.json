@@ -1,0 +1,15 @@
+{
+  "name": "bbs-desk",
+  "description": "Starts every session as a Black Box Safety operations teammate instead of a software engineer. Carries one forced output style, BBS Desk: settle the job, the folder and the system of record first, run tools quietly, answer in business words. Disable this plugin to get Claude Code's standard engineering behaviour back. No skills.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Black Box Safety, Inc."
+  },
+  "keywords": [
+    "bbs",
+    "foundations",
+    "onboarding",
+    "output-style",
+    "session-start"
+  ]
+}

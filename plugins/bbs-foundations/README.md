@@ -17,7 +17,7 @@ the same contract, a claim of SB certification BBS does not hold, model IDs thre
 old, an `@` import chain that looked wired and loaded nothing. Every one of those is a
 question a teammate eventually has to ask Parker. This plugin exists to stop asking.
 
-**Jump to:** [The skill](#the-skill) · [The desk style](#the-desk-style) · [Setup](#setup) · [Command](#command) · [The rules that don't bend](#the-rules-that-dont-bend) · [What's planned](#whats-planned)
+**Jump to:** [The skill](#the-skill) · [Setup](#setup) · [Command](#command) · [The rules that don't bend](#the-rules-that-dont-bend) · [What's planned](#whats-planned)
 
 ## The skill
 
@@ -33,21 +33,6 @@ a customer folder on OneDrive that is not git at all), the 25 rules that recur a
 repos, the exact strings, and a deterministic checker that fails on a wrong LPA number the
 same way it fails on a broken link. If neither tool is installed, everything here still
 works.
-
-## The desk style
-
-`output-styles/bbs-desk.md` is an output style named **BBS Desk**. Claude Code's standard
-instructions are written for software engineering; almost nobody at BBS uses it for that.
-The style replaces that role with an operations teammate: settle the job, the folder and the
-system of record before answering, run tools quietly, answer in business words, and never
-debug at a rep. It holds no company fact. Prices, certifications, signatures and sends stay
-governed by company memory, the folder's `CLAUDE.md` and each skill.
-
-It is **not forced**. Nothing changes until a person picks it: `/output-style` and choose
-`bbs-foundations:BBS Desk`, or set `"outputStyle": "bbs-foundations:BBS Desk"` in a settings
-file. Forcing it for everyone (`force-for-plugin: true`) would also change Parker's coding
-sessions in this repo and the web repos, so how it is switched on for reps is Parker's call
-and is not made here. Subagents keep their own instructions; a style does not reach them.
 
 ## Setup
 
