@@ -35,10 +35,11 @@ company memory (the managed `claudeMd` block), the folder's `CLAUDE.md` and each
 Disable the plugin. Tested 2026-11-24 on Claude Code 2.1.331: a project `outputStyle`
 setting does **not** override a forced plugin style; disabling the plugin does. A session
 started inside a source-code repository is told to do engineering work properly, so the
-style is safe there, but a maintainer who wants the standard behaviour disables `bbs-desk`.
+style is safe there, and that exception is what a maintainer's coding session relies on.
 
-Whether managed settings enable this plugin for everyone is Parker's call. Managed
-`enabledPlugins` locks a plugin on, for Parker too.
+Managed settings enable this plugin for everyone (Parker, in session, 2026-11-24). Managed
+`enabledPlugins` locks a plugin on, for Parker too, so the off switch is that row in
+`bbs-foundations/docs/bbs-managed-settings.json`, not a setting on one machine.
 
 ---
 
