@@ -94,6 +94,13 @@ price, so a desk or customer `CLAUDE.md` closer to the work always wins on speci
 
 Parker stamps it at the Customers root. It is not edited on SharePoint from this repo.
 
+## Templates for work folders
+
+`PURSUIT-template.md` (one per pursuit folder), `CONTRACT-template.md` (one per contract
+folder) and `PAST-PERFORMANCE-template.md` (one list, at `Customers/Federal Agencies/`).
+The Customers floor file says when each is used. They are copied into a folder when the work
+starts; nothing stamps them in bulk.
+
 ## Web (`bbs-web`)
 
 Four git clones in one window. Product truth is `bbs-database`; Shopify renders it;

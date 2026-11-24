@@ -242,6 +242,7 @@ app registration, the expected output of each step and what each error means are
 | Command | Does |
 |---|---|
 | `/ca-rfq` | The whole desk order under one contract: intake gate, recognition, extraction, eligibility, pricing, quote, packet and signature, visual verification, delivery. It carries order and gates only — every step runs the skill that owns it, so the command cannot drift away from the skills it invokes. |
+| `/rfq` | The same running order for a customer that is not a California state agency: federal, a prime, local government, a utility, commercial. Files the request, extracts the lines, checks precedent, prices, builds the Business Central quote, and stops at the rep. It leaves out the California-only gates (state form packet, NASPO at-cost, DVBE wording) and takes the channel from the customer's own `CLAUDE.md`. A state request is sent to `/ca-rfq`; a pursuit is sent to its `PURSUIT.md`. |
 | `/ca-territory-handoff` | Segment a book and turn it into a dated, prioritized call list. Runs `ca-territory-handoff`; stops before any outreach is written. |
 
 Agents:

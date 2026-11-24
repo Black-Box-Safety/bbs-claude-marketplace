@@ -14,6 +14,7 @@ is blocked for everyone.
 |---|---|---|---|
 | Cold outreach / follow-up email | Ask Claude to draft it; once, run `/bbs-my-voice` so it sounds like you | `bbs-foundations` (voice) | Outlook helps sampling for voice |
 | California state RFQ just arrived | Tell Claude what arrived, or `/ca-rfq` (it files first, then prices) | `bbs-sales` | BC, Grainger, M365, SCPRS as assigned |
+| A quote request from any other customer (federal, a prime, local, utility, commercial) | Open the customer's folder and run `/rfq` | `bbs-sales` | BC, Grainger as assigned |
 | Taking over a CA state book / which accounts went quiet / who to call first | Ask for a handoff, or `/ca-territory-handoff` (`ca-territory-handoff`) | `bbs-sales` | **Business Central**; Sales CRM and SCPRS help |
 | Prep for a site visit or meeting at a CA state facility | Ask to prep the visit (`ca-site-visit-brief`); agency-wide background is `ca-agency-primer`; review the finished brief with `ca-visit-readiness-review` | `bbs-sales` | **Business Central**; Sales CRM and SCPRS help |
 | Weekly sales report for the CA state team | Ask for the weekly sales report (`bbs-weekly-sales-report`) | `bbs-sales` | **Sales CRM**; Business Central and Outlook help |

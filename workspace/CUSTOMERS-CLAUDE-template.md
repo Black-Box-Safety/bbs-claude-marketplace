@@ -23,6 +23,21 @@ A CLAUDE.md closer to where you are **wins on specifics**. This file never overr
 Do not assume its layout, its forms or its prices are current. Several customers appear under
 more than one name; `State of CA Agencies/DUPLICATE-TREES.md` lists the known dead duplicates.
 
+## Three kinds of work folder under a customer
+
+| Kind | What it is | Its file | How it is worked |
+|---|---|---|---|
+| **Deal** | A request with lines to price now | none outside a desk; the Business Central quote is the record | `/ca-rfq` for a California state agency, `/rfq` for everyone else |
+| **Contract** | An agreement BBS holds: a BPA, a term contract, a vehicle | `CONTRACT.md` | each call or order is a deal folder inside it |
+| **Pursuit** | A solicitation, a proposal or a long project: weeks or months, more than a quote | `PURSUIT.md` | notes, dates and people kept as it goes |
+
+**Pursuit notes.** When a rep tells you something about a pursuit (a call, a site visit, an
+answer to a question, a debrief), offer to add it to that folder's `PURSUIT.md` as a dated
+entry in their words, with their name. Add it only when they say yes. Never rewrite an
+earlier entry. Before a pursuit is closed, won or lost, ask for the three close-out lines.
+When a request arrives from a customer, read the `PURSUIT.md` files under it first: a lost
+pursuit is often where the next request came from.
+
 ## Every session, before the first answer
 
 1. **Which customer and which deal.** Name the folder you are in. If the request is about a
