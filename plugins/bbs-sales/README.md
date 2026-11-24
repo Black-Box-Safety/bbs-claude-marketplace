@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/desk-CA%20state%20business%2C%20both%20directions-051c2c" alt="California state business, both directions">
-  <img src="https://img.shields.io/badge/skills-21-b19800" alt="21 skills">
+  <img src="https://img.shields.io/badge/skills-22-b19800" alt="22 skills">
   <img src="https://img.shields.io/badge/pricing-at%20cost%20on%20CA%20schedules-2dd4bf" alt="At cost on CA schedules">
 </p>
 
@@ -117,6 +117,7 @@ any NASPO line priced above cost (Parker, 2026-11-10, R3).
 | Skill | Fires when | Stops at |
 |---|---|---|
 | `bc-item-entry` | A rep says "add these items to BC", "these SKUs aren't in Business Central yet", "set up the item cards for this PO", or hands over a vendor quote or price list and wants the products on file | Item cards created and read back, each with a vendor, a cost, Inventory / PRODUCTS / INVENTORY / TAXABLE, and a log of who approved. No quote, no order, no vendor card |
+| `rfq-workbook` | `/rfq` or `/ca-rfq` reaches the workbook step, or a rep says "start the working sheet", "make the sourcing workbook", "what is still unpriced" | One internal Excel workbook in the deal folder: a row per line with the offered manufacturer and SKU, source and alternative source, cost with its source, price, margin and a pricing note, plus supplier and comparison sheets. A cost is refused without its source and a price without its note. Closed with the outcome and the lesson. Never customer-facing |
 | `bc-quote-entry` | A rep has priced an RFQ and says "create the quote in BC", "build the sales quote for this RFQ", "make the SQ", or `/ca-rfq` and `naspo-quote` reach the build-the-quote step | A Draft sales quote in BC with the SQ number BC assigned, header gated on customer, ship-to, terms, CONTRACT and salesperson, every line and the total verified by read-back, and a log of who approved. A person releases, prints and sends from BC |
 
 The same shape on both (ruled 2026-10-14 and 2026-10-16, `docs/STEWARD.md` in the

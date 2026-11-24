@@ -47,10 +47,16 @@ No outcome file is created by hand: outside a desk, the Business Central quote i
 **Gate.** The line count carried forward equals the line count the request asks for.
 Quantities and units are the buyer's, carried exactly.
 
-## Gate 3 — Precedent
+## Gate 3 — Open the working workbook, and read the earlier ones
 
-What BBS quoted and sold this customer before: its folder first, then Business Central
-(`bc_customer_snapshot`, `bc_get_sales_document`). Cite what is found, with its date.
+`rfq-workbook`. Create this request's workbook from the extracted lines. It is internal and
+it is where every cost, source, price and pricing note is written from here on.
+
+Then precedent: the earlier workbooks in this customer's deal folders (the price, how it was
+set, the outcome and the lesson), then Business Central (`bc_customer_snapshot`,
+`bc_get_sales_document`). Cite what is found, with its date.
+
+**Gate.** The workbook exists and has one row per line of Gate 2.
 
 ## Gate 4 — Price
 
@@ -65,6 +71,8 @@ What BBS quoted and sold this customer before: its folder first, then Business C
 - Every unit price has a source and a date beside it. No source, no price: `[FLAG: why]`.
 - **The Grainger account is the one the customer's `CLAUDE.md` names.** If none is named,
   stop that line and ask the rep; the wrong account returns a wrong price that looks valid.
+- **Every cost and every price is in the workbook as it is found,** the cost with its source
+  and the price with a note saying how it was set. `rfq-workbook` refuses either without it.
 - **The California at-cost rule does not apply here.** The sell price is the rep's call
   within what the customer's file and the channel file say. Show cost, sell and margin to
   the rep; none of the three goes on anything the customer sees except the sell price.
@@ -74,7 +82,8 @@ What BBS quoted and sold this customer before: its folder first, then Business C
 `bc-item-entry` for any item not yet in Business Central, then `bc-quote-entry`. Both act
 only after the rep approves the review sheet by name.
 
-**Gates.** The quote number is the one Business Central assigned, read back. Customer
+**Gates.** `rfq-workbook`'s `show` reports no gaps: every line is priced or marked No bid.
+The quote's lines and prices are the workbook's. The quote number is the one Business Central assigned, read back. Customer
 number, salesperson and contract code come from the customer's `CLAUDE.md` or from the rep,
 never from the California defaults. A person releases, prints and sends from Business
 Central.
@@ -87,8 +96,12 @@ supports is `[FLAG: why]` and goes to the rep.
 
 ## Gate 7 — Deliver to the rep, and stop
 
-State what is ready for review, what is still open, and where each file is. **The run ends
+State what is ready for review, what is still open, and where each file is. Give the rep
+the workbook's totals: cost, sell and margin. **The run ends
 with a person.** This command has no send step.
+
+**When the outcome is known,** close the workbook: the outcome and, in the rep's words, why
+and what to do differently next time.
 
 If the rep says something worth keeping about this customer, and `desk-remember` does not
 cover this folder, say so and offer the edit to the customer's `CLAUDE.md` instead.

@@ -91,6 +91,24 @@ mean arriving at Gate 4 with no list; it means the list comes from the other own
 agree, or the difference is named out loud. A line silently dropped here is a
 non-responsive bid later.
 
+## The working workbook — opened after Gate 2, kept through Gate 8
+
+`rfq-workbook` creates one internal workbook in the deal folder from the lines Gate 2
+produced: what was asked for, what is offered, the source and any alternative, the cost with
+its source, the price and a note saying how it was set. It is the Sentinel desk's sourcing
+workbook, used here the same way (Parker, in session, 2026-11-24).
+
+- **On the state path,** `naspo-quote` still owns pricing. When its pricing is done, write its
+  priced lines into the workbook with `rfq-workbook`; do not start `naspo-quote` again to do
+  it. A NASPO line's pricing note says so.
+- **On every other route,** each cost and each price goes into the workbook as it is found.
+- **Gate, checked before Gate 5:** `rfq-workbook`'s `show` reports no gaps, and the lines and
+  prices on the Business Central quote are the workbook's.
+- The workbook does not replace `RFQ.md` or the buyer's quote log. It is the working paper;
+  they are the record. Where they disagree, stop and tell the rep.
+- When the outcome is known, close the workbook with the reason and the lesson in the rep's
+  words.
+
 ## Gate 3 — Eligibility, when the vehicle requires it
 
 Run `dgs-bpo-item-check` when Gate 1 named the DGS BPO. **Skip it** on any other vehicle.
