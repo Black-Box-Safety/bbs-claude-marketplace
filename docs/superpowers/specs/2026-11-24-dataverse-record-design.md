@@ -37,7 +37,7 @@ An outside builder's admin account owns a working Dataverse and Power Automate b
 | 2 | Turn on auditing for `account` and `bbs_rfq` | Setting | A change shows who made it |
 | 3 | Move the kept flows off the outside builder's admin account to an owner BBS controls | Setting | No kept flow is owned by that account |
 | 4 | Claude creates and updates the `bbs_rfq` row from the deal folder, after the rep approves | New ability | A rep logs a deal by pointing Claude at a folder, without tracking the email |
-| 5 | One flow: a new Business Central sales order marks the matching `bbs_rfq` row won, with order number, amount and customer PO | New flow | A converted quote shows as won with no one typing |
+| 5 | The customer's PO marks the deal won: Claude records the PO number from the deal folder; one flow on a posted Business Central invoice adds the order number and amount by matching that PO number | New flow | A won deal carries its PO, order number and invoiced amount with no one typing them |
 | 6 | Switch off the unused document and form flows and the per-RFQ folder creation; after step 4 is proven, the row-creating flows | Switch off | Those flows are off and nothing a rep uses broke |
 
 Order: 1 to 3 first, they are settings. Then 4, then 5. Step 6's first half any time after
@@ -67,28 +67,40 @@ checking that the document flow is not called by a flow that is still needed.
 
 ### Step 5 in detail
 
-Orders reach Business Central two ways, and the flow has to handle both (Parker, 2026-11-24:
-orders "are converted frm quote"; then "provision connect orders are keyed from their and
-imported into busines central", "those are naspo state orders").
+**The customer's PO number is the key, not a quote number.** It is the one number that
+appears on the buyer's PO, and on the Business Central invoice whichever way the order was
+entered.
 
-| Path | Which orders | What links the order to the deal |
-|---|---|---|
-| Converted from the Business Central quote | Competitive and open-market quotes, federal, Sentinel | The quote number, which Make Order carries onto the order |
-| Keyed in Provision Connect, imported | NASPO state orders | The Provision Connect number. Imported orders carry a number of the form `44472-1` in the order's external document field (read 2026-11-24: 25 of the 40 newest orders, the NASPO state ones among them; the same form appears on CSU, UC and LADWP orders, which are outside this build) |
+Orders reach Business Central two ways (Parker, 2026-11-24: orders "are converted frm
+quote"; "provision connect orders are keyed from their and imported into busines central",
+"those are naspo state orders"; and the Provision Connect quote and order numbers differ:
+"the order gets a new one").
 
-- **Converted orders need one small addition in Business Central.** The order's Quote No. is
-  not among the fields the connector returns for `salesOrders`, nor in the order archive.
-  Either expose that one field, or match on customer plus the customer's PO number where the
-  rep entered it.
-- **Imported orders need the Provision Connect number on the deal row.** `RFQ.md` already has
-  a "PC quote" line. [FLAG: whether the number on the imported order is the same number the
-  rep sees when they quote in Provision Connect, or a different order number assigned later,
-  was not verified. If it is the same, Claude records it at quoting and the match is exact.
-  If not, the rep gives Claude the order number when they key the order.]
+| Path | Which orders | Quote number on the order | Customer PO on the invoice |
+|---|---|---|---|
+| Converted from the Business Central quote | Competitive and open-market quotes, federal, Sentinel | Carried by Make Order, but not returned by the connector | Yes |
+| Keyed in Provision Connect, imported | NASPO state orders. The order's external document field holds a Provision Connect order number of the form `44472-1` | None; the Provision Connect order number is new at order time | Yes: all 12 of the newest NASPO invoices carry it in `customerPurchaseOrderReference`, with the order number beside it (read 2026-11-24) |
+
+So the flow is one rule for both paths:
+
+1. **The PO arriving is the win.** The rep saves the PO into the deal folder, as the folder
+   convention already says, and Claude records won, the PO number and the date on the deal
+   row after the rep approves.
+2. **Business Central supplies the money.** A flow on a posted invoice finds the deal row
+   with the same customer and PO number and writes the order number and invoiced amount. Where
+   no deal row carries that PO number, the flow proposes the closest open deal for that
+   customer to the rep; it does not decide.
+
+Nothing has to change in Business Central for this, and neither the quote number nor the
+Provision Connect number has to be captured. [FLAG: the PO number shows on invoices, not in
+the fields the connector returns for open orders, so the amount arrives at invoicing, not at
+order entry. The 2026-11-16 design notes POs also land in a shared `Customer PO's` folder;
+whether reps also save them in the deal folder was not confirmed.]
+
 - **This explains the 2026-11-16 design's "mostly keyed fresh":** on the California desk most
   orders are NASPO, and those are imported, not converted.
-- **Lost** is not automatic: a quote past its valid-until date with no order is put to the
-  rep, who gives the outcome and the reason.
+- **Lost** is not automatic: a quote past its valid-until date with no PO is put to the rep,
+  who gives the outcome and the reason.
 
 ## 4. Pursuits
 
