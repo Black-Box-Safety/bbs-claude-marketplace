@@ -958,6 +958,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   table, so there is one memory mechanism, not two. **Amended 2026-11-16 (D10.5):** a desk
   with a profile may keep a hand-kept outcome record; Sentinel's `learning/quote-log.md` is
   that desk's (entry "BBS Sales System: one desk model for every customer", below).
+  **Amended 2026-11-24:** a dated pursuit note goes in the pursuit folder's `PURSUIT.md`,
+  not through `desk-remember` (entry "`/rfq` and the working workbook", below).
 - **R7. Desk memory (#81) "Open for Parker" items 1–7 accepted as recommended — RULED
   2026-11-10.**
   Adopted recommendation: "Desk memory's A1–A7 (#81)." → "Yes as listed in my last message. A3 waits for the next slice, and A4 is your SharePoint step." The items, in their own wording and each now marked RULED 2026-11-10, live
@@ -1365,16 +1367,28 @@ Write it up with evidence and move to the next slice. Do not idle.
   - **`rfq_workbook.py` is on the `bbs-fill` allow list (the ruling R3 requires):** "yes open
     the pr and add it to the allow list". It writes one internal workbook at the path given,
     refuses to overwrite, and cannot send, quote or sign.
-  - **Pursuit notes: NEEDS PARKER'S RULING.** Parker asked for "notes for longer term prjects
-    or solicitaitons" and placed a floor file at `MASTER/Customers/CLAUDE.md` whose text lets
-    Claude append a dated entry to a pursuit folder's `PURSUIT.md`, in the rep's words, when
-    the rep says yes. That conflicts with the managed company memory ("goes through
-    desk-remember into LEARNED.md, never hand-written") and with R6 (one memory mechanism).
-    His words do not rule on the exception. Open, for him to choose: (a) accept the exception
-    and change the company-memory sentence to name `PURSUIT.md`; or (b) pursuit notes go through
-    `desk-remember`, extended to pursuit folders, and the floor file's paragraph is replaced.
-    Until he rules, the live floor file and company memory disagree; an agent follows company
-    memory and tells the rep.
+  - **Pursuit notes are the one exception to desk-remember — RULED 2026-11-24, COMPANY MEMORY
+    NOT YET RE-PASTED.** Parker asked for "notes for longer term prjects or solicitaitons" and
+    placed a floor file at `MASTER/Customers/CLAUDE.md` whose text lets Claude append a dated
+    entry to a pursuit folder's `PURSUIT.md`, in the rep's words, when the rep says yes. That
+    conflicted with the managed company memory ("goes through desk-remember into LEARNED.md,
+    never hand-written") and with R6 (one memory mechanism). Put to him as three choices (1
+    accept the exception and draft a company-memory change; 2 route pursuit notes through
+    `desk-remember`; 3 remove the paragraph for now), he ruled: "1, accept the exception and
+    draft the change".
+    - What the exception is: a dated note on a pursuit (a call, a site visit, an answer to a
+      question, a debrief) is a log of that pursuit, not a remembered rule. It goes in that
+      pursuit folder's `PURSUIT.md`, in the rep's words with their name, only when the rep says
+      yes, and an earlier entry is never rewritten.
+    - What it is not: how to work a customer, a buyer's preference, or anything else a rep
+      asks Claude to remember. Those still go through `desk-remember` into `LEARNED.md` (R6
+      stands for everything but `PURSUIT.md`).
+    - Where it is written: the `claudeMd` string in
+      `plugins/bbs-foundations/docs/bbs-managed-settings.json` (the drafted change), the
+      customer-folder hook's `present.md`, and `workspace/CUSTOMERS-CLAUDE-template.md`.
+    - **Open action for Parker:** re-paste `claudeMd` from `bbs-managed-settings.json` after
+      this merges. Until then the deployed company memory still carries the old sentence, and
+      this entry is the authority for the exception.
   - **SharePoint: copy, never delete.** Parker: "do not delete things, you can copy but do not
     delete". Applies to every agent working the document store.
 ---
