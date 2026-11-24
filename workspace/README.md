@@ -82,6 +82,18 @@ The desk folder's `CLAUDE.md` (stamped from `DESK-CLAUDE-template.md`) is what m
 Claude sessions know the folder rules. For a Cursor session (maintainers only), Parker also
 stamps `.cursor/rules/bbs-invariants.mdc` at the desk root from this repo.
 
+## The Customers floor (`CUSTOMERS-CLAUDE-template.md`)
+
+Claude Code loads every `CLAUDE.md` from the session's folder up to the drive root, so one
+file at `MASTER/Customers/CLAUDE.md` reaches every session started anywhere below it: the
+California desk, Bechtel Sentinel and every legacy customer folder. This template is that
+file. It holds how BBS works a customer on any desk (settle the customer, the channel and
+the precedent first; how to treat a request, a price, a folder) and a map of what is live
+and what is legacy. It carries no channel's certification or form rules, no buyer and no
+price, so a desk or customer `CLAUDE.md` closer to the work always wins on specifics.
+
+Parker stamps it at the Customers root. It is not edited on SharePoint from this repo.
+
 ## Web (`bbs-web`)
 
 Four git clones in one window. Product truth is `bbs-database`; Shopify renders it;
