@@ -67,14 +67,26 @@ checking that the document flow is not called by a flow that is still needed.
 
 ### Step 5 in detail
 
-- Parker, 2026-11-24: orders "are converted frm quote". Make Order carries the quote number
-  onto the order, which is the link the flow needs. [FLAG: the 2026-11-16 sales-system design
-  §4 says California desk orders are mostly keyed fresh. Check twenty recent orders before
-  building.]
-- **One small addition in Business Central is needed.** The order's Quote No. is not among
-  the fields the Business Central connector returns for `salesOrders`, nor in the order
-  archive (read 2026-11-24). Either expose that one field, or match on customer plus the
-  customer PO number where the rep entered it.
+Orders reach Business Central two ways, and the flow has to handle both (Parker, 2026-11-24:
+orders "are converted frm quote"; then "provision connect orders are keyed from their and
+imported into busines central", "those are naspo state orders").
+
+| Path | Which orders | What links the order to the deal |
+|---|---|---|
+| Converted from the Business Central quote | Competitive and open-market quotes, federal, Sentinel | The quote number, which Make Order carries onto the order |
+| Keyed in Provision Connect, imported | NASPO state orders | The Provision Connect number. Imported orders carry a number of the form `44472-1` in the order's external document field (read 2026-11-24: 25 of the 40 newest orders, the NASPO state ones among them; the same form appears on CSU, UC and LADWP orders, which are outside this build) |
+
+- **Converted orders need one small addition in Business Central.** The order's Quote No. is
+  not among the fields the connector returns for `salesOrders`, nor in the order archive.
+  Either expose that one field, or match on customer plus the customer's PO number where the
+  rep entered it.
+- **Imported orders need the Provision Connect number on the deal row.** `RFQ.md` already has
+  a "PC quote" line. [FLAG: whether the number on the imported order is the same number the
+  rep sees when they quote in Provision Connect, or a different order number assigned later,
+  was not verified. If it is the same, Claude records it at quoting and the match is exact.
+  If not, the rep gives Claude the order number when they key the order.]
+- **This explains the 2026-11-16 design's "mostly keyed fresh":** on the California desk most
+  orders are NASPO, and those are imported, not converted.
 - **Lost** is not automatic: a quote past its valid-until date with no order is put to the
   rep, who gives the outcome and the reason.
 
