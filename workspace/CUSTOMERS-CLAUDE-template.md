@@ -13,8 +13,10 @@ A CLAUDE.md closer to where you are **wins on specifics**. This file never overr
 | Folder | What it is | Read next |
 |---|---|---|
 | `State of CA Agencies/` | The California state quote desk. Live. | its `CLAUDE.md` |
-| `Bechtel/sentinel/` | The Bechtel Sentinel desk (federal prime). Live. | its `CLAUDE.md` |
-| `Federal Agencies/`, `Navy/`, `USACE-Walla Walla/`, `Grainger Huntsville/` | Live federal and referral accounts | each one's `CLAUDE.md` |
+| `Bechtel/` | Bechtel as a federal prime: `sentinel/` is the Sentinel desk (live); `Bechtel - DOE/` holds the DOE site work | each one's `CLAUDE.md` |
+| `Federal Agencies/` | Every federal agency, one folder each. **All federal work goes here.** Folders that used to sit at this level were copied into each agency's `_From Customers root (copied 2026-11-24)` and are worked there | its `CLAUDE.md`, then the agency's |
+| A folder holding `_COPIED to Federal Agencies - read me.md` | An **old federal folder**. Its work continues in the copy the note names | the note. Add nothing new here and delete nothing; Parker clears these after his audit |
+| `Grainger Huntsville/` | Live referral account | its `CLAUDE.md` |
 | Any folder with no `CLAUDE.md` | Usually **legacy**: filed by hand over years, no log | below |
 | `_ARCHIVE-…`, `DO NOT USE …` | Dead trees | nothing; do not work in them |
 | Loose files at this level | Unfiled strays | leave them where they are |
