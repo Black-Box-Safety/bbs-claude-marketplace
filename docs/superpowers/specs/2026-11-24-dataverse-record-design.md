@@ -94,8 +94,18 @@ So the flow is one rule for both paths:
 Nothing has to change in Business Central for this, and neither the quote number nor the
 Provision Connect number has to be captured. [FLAG: the PO number shows on invoices, not in
 the fields the connector returns for open orders, so the amount arrives at invoicing, not at
-order entry. The 2026-11-16 design notes POs also land in a shared `Customer PO's` folder;
-whether reps also save them in the deal folder was not confirmed.]
+order entry.]
+
+**Where the PO is saved has to change.** Today POs go only to the shared `Customer PO's`
+folder (Parker, 2026-11-24: "just po folder"), not the deal folder; Parker: "we can change
+that". Rule 1 needs the PO in the deal folder. [FLAG: who else relies on the shared folder
+(purchasing, accounts receivable, the BPO status report) was not confirmed. If someone does,
+the rep saves to the deal folder and the copy in the shared folder continues until that is
+settled.]
+
+**Matching on amount alone is a backstop, not the method.** A check of five recent orders
+against open Business Central quotes for the same customer (2026-11-24) found an exact total
+match for two and none for three.
 
 - **This explains the 2026-11-16 design's "mostly keyed fresh":** on the California desk most
   orders are NASPO, and those are imported, not converted.
