@@ -958,6 +958,8 @@ Write it up with evidence and move to the next slice. Do not idle.
   table, so there is one memory mechanism, not two. **Amended 2026-11-16 (D10.5):** a desk
   with a profile may keep a hand-kept outcome record; Sentinel's `learning/quote-log.md` is
   that desk's (entry "BBS Sales System: one desk model for every customer", below).
+  **Amended 2026-11-24:** a dated pursuit note goes in the pursuit folder's `PURSUIT.md`,
+  not through `desk-remember` (entry "`/rfq` and the working workbook", below).
 - **R7. Desk memory (#81) "Open for Parker" items 1–7 accepted as recommended — RULED
   2026-11-10.**
   Adopted recommendation: "Desk memory's A1–A7 (#81)." → "Yes as listed in my last message. A3 waits for the next slice, and A4 is your SharePoint step." The items, in their own wording and each now marked RULED 2026-11-10, live
@@ -1284,7 +1286,111 @@ Write it up with evidence and move to the next slice. Do not idle.
   integrate Joey's down the line for CSU/UC. That is a very recurring order based system and
   does not have the system type of RFQ basis." CSU/UC gets its own order-desk design. Body armor
   is out unless Parker says otherwise.
+- **Dataverse is the record for accounts, buyers, deals, outcomes and contracts; folders stay the
+  rep's workspace — RULED 2026-11-24, NOT YET IN EFFECT.** Parker, in session: "ok yes dataverse
+  should be the system of record. I dont want to use micrsoft sales, but utilize claude as a
+  functional crm and sales enablement tool", then "folders work well and i liek them because tey
+  are simple for reps and many of the requests come from email and we can just save the docs and
+  launch by pointing. i dont want to cause confusion", then "yes that matches, record it and
+  start the design" to this wording:
+  - Folders stay the rep's workspace and the home for documents and Claude's context.
+  - Dataverse is the record for accounts, buyers, deals, outcomes and contracts, written by
+    Claude after the rep approves.
+  - Business Central stays the record for quotes, orders and invoices.
+  - Reps do not hand-enter RFQs in the CRM once Claude can create them.
+  - **Until the switch in the design, nothing changes for a rep or an agent:** deal folders stay
+    the RFQ working record, reps keep entering `bbs_rfqs`, and no skill writes to Dataverse.
+    The Sales CRM connector cannot create a record today.
+  - Supersedes, at that switch: "Folders are the RFQ working record for every customer"
+    (2026-11-16), the 2026-11-12 CA-state ruling it extended, and "Claude never writes the CRM"
+    (sales-system design §6.9). Leaves standing: one writer per deal record, propose-only
+    outcomes, a person approves every write.
+  - Design: `docs/superpowers/specs/2026-11-24-dataverse-record-design.md` (draft; its open
+    rulings wait for Parker).
+- **Pursuits are their own record, in a new Dataverse table — RULED 2026-11-24.** Parker, in
+  session, to three questions put to him (new table or the Sales app's `opportunity` table;
+  where federal pursuit status lives; who may open a pursuit and who signs bid or no-bid):
+  "new table, dataverse holds status, the rep can assign."
+  - A long solicitation, proposal or vehicle is a pursuit, separate from an RFQ; design §6.3.
+  - Dataverse holds a pursuit's status and lessons. Sweetspot stays a drafting and search tool.
+  - Any rep may open a pursuit and assign its owner.
+  - **Not ruled:** who signs the bid or no-bid decision. The design assumes the assigned owner
+    and flags it.
+  - Takes effect with the Dataverse ruling above, not before.
+- **The Dataverse design is cut to the simple plan — RULED 2026-11-24. Pursuits as a type on
+  the RFQ row — NEEDS PARKER'S CONFIRMATION.** Parker, in session: "i dont want to unneccesarrily build somehting, we dont
+  need compliex, but simple and working", then, to three questions put to him (shrink the
+  design draft to the six-item plan; pursuits in the new table or as a type column on the RFQ
+  table; how orders are entered in Business Central): "yes and yes, they are converted frm
+  quote".
+  - The design is the six-step plan in `docs/superpowers/specs/2026-11-24-dataverse-record-design.md`:
+    three settings, Claude creating the `bbs_rfq` row from the folder, one Business Central
+    order flow, and the unused flows switched off.
+  - **Pursuits: a type on `bbs_rfq`, or the new table ruled earlier the same day: NOT RULED.**
+    Parker answered "yes" to an either-or question (keep the new table, or use a type column)
+    in which the type column was the recommendation. That is not a ruling. Until he says which,
+    the earlier "new table" entry above stands, and the design's §4 is a proposal. "Dataverse
+    holds status" and "the rep can assign" stand.
+  - Parker's statement of fact: Business Central orders are converted from the quote. The
+    2026-11-16 sales-system design §4 says California desk orders are mostly keyed fresh; the
+    design flags the conflict and checks a sample before the order flow is built.
+  - Also said the same day, and recorded in the design: reps both track the email and save to
+    the folder; the folder takes precedence because it launches the Claude session; the
+    tracked-email path is "a starting point, but not where we want to be reliant"; "the
+    document automation from that we do not use".
 
+- **`bbs-desk`: every session starts as a BBS sales desk, forced through managed settings —
+  RULED 2026-11-24, NOT YET IN EFFECT.** Parker, in session: "My team doesn't need any kind of
+  coding instincts. I also don't want it to have to be something they go out of their way to
+  start, from the jump their sessions should know our company and know their rooted in sales
+  or business processes". He was given three ways to switch on the BBS Desk output style:
+  **A**, add `bbs-desk` to managed `enabledPlugins` (no step for a rep; locked on for everyone,
+  Parker's own coding sessions included); **B**, leave it out of managed settings so each rep
+  installs it once and Parker can disable it; **C**, group configurations, which need an
+  Enterprise plan. He answered: "Yes do A".
+  - The row is in `bbs-managed-settings.json`. It changes nothing on any machine until Parker
+    pastes that file into the admin console, after the merge.
+  - It was tested only by loading a throwaway plugin carrying the same style on Claude Code
+    2.1.331. The Desktop app, VS Code and a rep machine were not tried, and Parker's coding
+    sessions under it are untested. **Before the paste:** one rep machine, one real request.
+  - The only off switch is removing the row.
+- **`/rfq` and the working workbook — RULED 2026-11-24.** Parker, in session.
+  - `/rfq` for customers outside the California desk, and the Customers floor file: "yes" to
+    both, then "i added it to the folder" (the floor file is live at `MASTER/Customers/CLAUDE.md`,
+    placed by Parker).
+  - The working workbook is a step of `/rfq` and `/ca-rfq`: "i want to hvae a step of the rfq
+    and ca rfq to be to create a working excel document that can be referened with line item,
+    sku, mfg, source, alternative source if need, cost, price, pricing notes (how we determined
+    sales price), and others that would be beneficial". It carries Sentinel's sourcing-workbook
+    practice to every customer: "take the best practices for learning from sentinel ... and
+    implement into this and the state of ca agencies and vice versa".
+  - **`rfq_workbook.py` is on the `bbs-fill` allow list (the ruling R3 requires):** "yes open
+    the pr and add it to the allow list". It writes one internal workbook at the path given,
+    refuses to overwrite, and cannot send, quote or sign.
+  - **Pursuit notes are the one exception to desk-remember — RULED 2026-11-24, COMPANY MEMORY
+    NOT YET RE-PASTED.** Parker asked for "notes for longer term prjects or solicitaitons" and
+    placed a floor file at `MASTER/Customers/CLAUDE.md` whose text lets Claude append a dated
+    entry to a pursuit folder's `PURSUIT.md`, in the rep's words, when the rep says yes. That
+    conflicted with the managed company memory ("goes through desk-remember into LEARNED.md,
+    never hand-written") and with R6 (one memory mechanism). Put to him as three choices (1
+    accept the exception and draft a company-memory change; 2 route pursuit notes through
+    `desk-remember`; 3 remove the paragraph for now), he ruled: "1, accept the exception and
+    draft the change".
+    - What the exception is: a dated note on a pursuit (a call, a site visit, an answer to a
+      question, a debrief) is a log of that pursuit, not a remembered rule. It goes in that
+      pursuit folder's `PURSUIT.md`, in the rep's words with their name, only when the rep says
+      yes, and an earlier entry is never rewritten.
+    - What it is not: how to work a customer, a buyer's preference, or anything else a rep
+      asks Claude to remember. Those still go through `desk-remember` into `LEARNED.md` (R6
+      stands for everything but `PURSUIT.md`).
+    - Where it is written: the `claudeMd` string in
+      `plugins/bbs-foundations/docs/bbs-managed-settings.json` (the drafted change), the
+      customer-folder hook's `present.md`, and `workspace/CUSTOMERS-CLAUDE-template.md`.
+    - **Open action for Parker:** re-paste `claudeMd` from `bbs-managed-settings.json` after
+      this merges. Until then the deployed company memory still carries the old sentence, and
+      this entry is the authority for the exception.
+  - **SharePoint: copy, never delete.** Parker: "do not delete things, you can copy but do not
+    delete". Applies to every agent working the document store.
 ---
 
-Owner: Parker Marshall. Last verified 2026-10-02; rulings register updated 2026-11-12.
+Owner: Parker Marshall. Last verified 2026-10-02; rulings register updated 2026-11-24.

@@ -2,7 +2,7 @@
   <img src="https://img.shields.io/badge/company-Black%20Box%20Safety%2C%20Inc.-051c2c" alt="Black Box Safety, Inc.">
   <img src="https://img.shields.io/badge/certs-channel%20split%20%C2%B7%20see%20canonical--facts-b19800" alt="Certification language follows the channel; the numbers live in canonical-facts">
   <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%C2%B7%20Cursor%20%C2%B7%20VS%20Code%20%C2%B7%20Desktop-6E56CF" alt="Runs in Claude Code CLI, Cursor, VS Code, and Desktop">
-  <img src="https://img.shields.io/badge/plugins-8%20BBS%20%2B%206%20pinned-2dd4bf" alt="Eight BBS plugins plus six pinned external">
+  <img src="https://img.shields.io/badge/plugins-9%20BBS%20%2B%206%20pinned-2dd4bf" alt="Nine BBS plugins plus six pinned external">
 </p>
 
 # Black Box Safety — Claude Marketplace
@@ -207,6 +207,7 @@ This does not install the tools in step 1.
 /plugin install bbs-back-office@bbs-claude-marketplace
 /plugin install bbs-website@bbs-claude-marketplace
 /plugin install bbs-tools@bbs-claude-marketplace
+/plugin install bbs-desk@bbs-claude-marketplace
 /plugin install agent-team@bbs-claude-marketplace
 ```
 
@@ -250,6 +251,7 @@ bbs-claude-marketplace/
     ├── bbs-back-office/                # Business Central after the win, read-only
     ├── bbs-website/                    # price list to product page
     ├── bbs-tools/                      # bbs-fill: the one way Claude runs the vetted form scripts
+    ├── bbs-desk/                       # forced output style: sessions start as a BBS operations teammate, not an engineer
     └── agent-team/                     # roster-builder + project-steward: run a program with named agents
 ```
 
