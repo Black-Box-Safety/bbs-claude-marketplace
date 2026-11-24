@@ -338,6 +338,11 @@ Nothing reaches any machine until Parker re-pastes this file in the admin consol
 
 ## Desk memory notes: no Allow click to save one (2026-11-10, R7 A3)
 
+Ruling (Parker, in session, 2026-11-24): `rfq_workbook.py` (`bbs-sales` / `rfq-workbook`) is **on** the
+`bbs-fill` `ALLOWED` list, so `create`, `set` and `show` run without an Allow click. It writes
+one internal Excel workbook at the path it is given, refuses to overwrite one, refuses a cost
+with no source and a price with no pricing note, and cannot send, quote or sign.
+
 Ruling (Parker, in session, 2026-11-10, R7, A3 as recommended): `desk_memory.py`
 (`bbs-sales` / `desk-remember`) is **on** the `bbs-fill` `ALLOWED` list, so `where`, `add`,
 `show`, `retire` and `merge` run under `Bash(bbs-fill *)` without an Allow prompt. Before

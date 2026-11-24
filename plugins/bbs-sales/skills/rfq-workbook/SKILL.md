@@ -37,16 +37,21 @@ copy with a date on the end.
 
 ## The script
 
-`${CLAUDE_PLUGIN_ROOT}/skills/rfq-workbook/scripts/rfq_workbook.py`, run with `python3`
-(on a Windows machine set up by the BBS script, `python`). Three commands:
+Run it through the plugin's launcher, which needs no Allow click (Parker, 2026-11-24):
+
+```
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/rfq-workbook/scripts/rfq_workbook.py" create --out "<deal folder>/INTERNAL - <deal folder name> - working.xlsx" --lines-json "<lines file>" --header "Customer=<name>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/rfq-workbook/scripts/rfq_workbook.py" set --file "<workbook>" --line <n> --field "cost=<number>" --field "source_ref=<where it came from>"
+"${CLAUDE_PLUGIN_ROOT}/scripts/bbs-fill" "${CLAUDE_PLUGIN_ROOT}/skills/rfq-workbook/scripts/rfq_workbook.py" show --file "<workbook>"
+```
 
 | Command | Does |
 |---|---|
-| `create --out <file> [--lines-json <file>] [--header "Field=value" …]` | Writes the workbook. Refuses if the file exists |
-| `set --file <file> --line <n> --field key=value …` | Sets fields on one line; adds the line if it is new |
-| `show --file <file>` | Prints every line as JSON with extended cost, extended price and margin computed, a `gaps` list per line, and totals |
+| `create` | Writes the workbook. Refuses if the file exists |
+| `set` | Sets fields on one line; adds the line if it is new |
+| `show` | Prints every line as JSON with extended cost, extended price and margin computed, a `gaps` list per line, and totals |
 
-Run `create --help` and `set --help` for the header fields and the line field keys; they are
+Add `--help` after `create` or `set` for the header fields and the line field keys; they are
 defined once, in the script. If the script says the file is open in Excel or locked, ask the
 rep to close it and run it again. Do not write the workbook any other way: a hand-built
 sheet drifts from the columns every other request uses.

@@ -1336,6 +1336,26 @@ Write it up with evidence and move to the next slice. Do not idle.
     tracked-email path is "a starting point, but not where we want to be reliant"; "the
     document automation from that we do not use".
 
+- **`/rfq`, the working workbook and pursuit notes — RULED 2026-11-24.** Parker, in session.
+  - `/rfq` for customers outside the California desk, and the Customers floor file: "yes" to
+    both, then "i added it to the folder" (the floor file is live at `MASTER/Customers/CLAUDE.md`,
+    placed by Parker).
+  - The working workbook is a step of `/rfq` and `/ca-rfq`: "i want to hvae a step of the rfq
+    and ca rfq to be to create a working excel document that can be referened with line item,
+    sku, mfg, source, alternative source if need, cost, price, pricing notes (how we determined
+    sales price), and others that would be beneficial". It carries Sentinel's sourcing-workbook
+    practice to every customer: "take the best practices for learning from sentinel ... and
+    implement into this and the state of ca agencies and vice versa".
+  - **`rfq_workbook.py` is on the `bbs-fill` allow list (the ruling R3 requires):** "yes open
+    the pr and add it to the allow list". It writes one internal workbook at the path given,
+    refuses to overwrite, and cannot send, quote or sign.
+  - **Pursuit notes are an exception to "a remembered note is never hand-written":** Claude
+    may append a dated entry to a pursuit folder's `PURSUIT.md`, in the rep's words and with
+    the rep's name, only when the rep says yes. Parker asked for "notes for longer term
+    prjects or solicitaitons" and placed the floor file that carries the rule. `LEARNED.md`
+    and `desk-remember` are unchanged.
+  - **SharePoint: copy, never delete.** Parker: "do not delete things, you can copy but do not
+    delete". Applies to every agent working the document store.
 ---
 
 Owner: Parker Marshall. Last verified 2026-10-02; rulings register updated 2026-11-24.
