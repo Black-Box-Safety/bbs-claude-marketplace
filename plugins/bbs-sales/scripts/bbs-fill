@@ -47,9 +47,10 @@ set -f   # no globbing: a path segment like '*' must stay literal
 # is the gate, no Allow click on top. The sales quote: R3, Parker, 2026-11-10, allowed only
 # because its check stops a NASPO line priced above cost; if that gate goes, this entry goes in
 # the same PR (MANAGED-SETTINGS.md, "Business Central writes"). rfq_workbook.py writes one
-# internal Excel workbook at the path it is given and reads it back; it refuses to overwrite an
-# existing workbook, refuses a cost with no source and a price with no pricing note, and cannot
-# send, quote or sign: Parker, in session, 2026-11-24 ("add it to the allow list"). Keep
+# internal .xlsx workbook at the path it is given and reads it back. `create` refuses to
+# overwrite a file; `set` and `show` refuse any workbook the script did not make (its banner and
+# exact headers are checked first); both refuse a cost or alternative cost with no source and a
+# price with no pricing note (test_rfq_workbook.py). It cannot send, quote or sign: Parker, in session, 2026-11-24 ("add it to the allow list"). Keep
 # comments out of the array: the tests read it one entry per line.
 ALLOWED=(
   "ca-form-filler/scripts/fill_obs_packet.py"

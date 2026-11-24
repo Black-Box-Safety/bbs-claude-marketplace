@@ -3,7 +3,8 @@
 offered, where the cost came from, the sell price and how it was set.
 
   create  write a new workbook (refuses to overwrite one that exists)
-  set     set named fields on one line of an existing workbook (adds the line if it is new)
+  set     set named fields on one line of a workbook THIS SCRIPT made (adds the line if new);
+          any other spreadsheet is refused and left unchanged
   show    print the lines as JSON, with the extended and margin figures computed here
 
 The workbook is INTERNAL. It holds cost and margin and is never sent to a customer.
@@ -107,6 +108,8 @@ def _coerce(key, value):
             raise Refused("%s must be a number, got %r" % (key, value))
         if n < 0:
             raise Refused("%s cannot be negative" % key)
+        if key == "line" and (n < 1 or n != int(n)):
+            raise Refused("line must be a whole number, 1 or more, got %r" % value)
         return int(n) if key == "line" or (key == "qty" and n == int(n)) else n
     if key == "match" and value not in MATCHES:
         raise Refused("match must be one of: %s" % ", ".join(MATCHES))
@@ -118,11 +121,37 @@ def _check_line(fields):
     if unknown:
         raise Refused("unknown or computed field(s): %s. Fields: %s"
                       % (", ".join(sorted(unknown)), ", ".join(INPUT_KEYS)))
-    out = {k: _coerce(k, v) for k, v in fields.items()}
-    for cost_key, ref_key, label in (("cost", "source_ref", "cost"), ("alt_cost", "alt_ref", "alt_cost")):
-        if out.get(cost_key) is not None and cost_key in fields and ref_key in fields and not out.get(ref_key):
-            raise Refused("%s given with an empty %s: a cost needs its source" % (label, ref_key))
-    return out
+    return {k: _coerce(k, v) for k, v in fields.items()}
+
+
+# A number is only as good as what it rests on: (the number, what must accompany it, the words)
+PAIRS = (
+    ("cost", "source_ref", "a cost needs its source (source_ref)"),
+    ("alt_cost", "alt_ref", "an alternative cost needs its source (alt_ref)"),
+    ("price", "pricing_notes", "a price needs a pricing note saying how it was set (pricing_notes)"),
+)
+
+
+def _require_pairs(line, values):
+    """values is the COMPLETE line as it will be written. Refuse a number without its basis."""
+    for num_key, basis_key, words in PAIRS:
+        if values.get(num_key) not in (None, "") and not str(values.get(basis_key) or "").strip():
+            raise Refused("line %s: %s" % (line, words))
+
+
+def _require_xlsx(path):
+    if not str(path).lower().endswith(".xlsx"):
+        raise Refused("the workbook must be an .xlsx file, got %r" % os.path.basename(str(path)))
+
+
+def _require_ours(wb, path):
+    """Only a workbook this script made is ever rewritten: the banner and the exact headers."""
+    ok = ("RFQ" in wb.sheetnames and "Lines" in wb.sheetnames
+          and wb["RFQ"]["A1"].value == BANNER
+          and all(wb["Lines"].cell(row=1, column=COL[k]).value == title for k, title, _w, _kind in COLUMNS))
+    if not ok:
+        raise Refused("%s was not made by this script (banner or Lines headers differ); "
+                      "it is not changed. Use `create` for a new workbook." % path)
 
 
 def _write_line(ws, row, fields):
@@ -153,6 +182,7 @@ def _style_header(ws, ncols):
 
 
 def create(out, header, lines):
+    _require_xlsx(out)
     if os.path.exists(out):
         raise Refused("%s already exists. It is edited in place; use `set` to change a line." % out)
     folder = os.path.dirname(os.path.abspath(out))
@@ -165,6 +195,7 @@ def create(out, header, lines):
         if l["line"] in seen:
             raise Refused("line %s appears twice" % l["line"])
         seen.add(l["line"])
+        _require_pairs(l["line"], l)
 
     wb = Workbook()
     info = wb.active
@@ -213,6 +244,9 @@ def create(out, header, lines):
 
 
 def set_line(path, line, fields):
+    _require_xlsx(path)
+    if line < 1:
+        raise Refused("line must be 1 or more, got %s" % line)
     if not os.path.isfile(path):
         raise Refused("no workbook at %s. Use `create` first." % path)
     if not fields:
@@ -220,8 +254,7 @@ def set_line(path, line, fields):
     checked = _check_line(dict(fields))
     checked.pop("line", None)
     wb = load_workbook(path)
-    if "Lines" not in wb.sheetnames:
-        raise Refused("%s has no Lines sheet; it was not made by this script" % path)
+    _require_ours(wb, path)
     ws = wb["Lines"]
     rows = _line_rows(ws)
     if line in rows:
@@ -232,10 +265,9 @@ def set_line(path, line, fields):
             raise Refused("more than %d lines; split the request" % FORMULA_ROWS)
         ws.cell(row=row, column=COL["line"], value=line)
         added = True
-    if checked.get("cost") is not None and not (checked.get("source_ref") or ws.cell(row=row, column=COL["source_ref"]).value):
-        raise Refused("line %s: a cost needs its source (set source_ref)" % line)
-    if checked.get("price") is not None and not (checked.get("pricing_notes") or ws.cell(row=row, column=COL["pricing_notes"]).value):
-        raise Refused("line %s: a price needs a pricing note saying how it was set" % line)
+    merged = {k: ws.cell(row=row, column=COL[k]).value for k in INPUT_KEYS}
+    merged.update(checked)
+    _require_pairs(line, merged)
     _write_line(ws, row, checked)
     try:
         wb.save(path)
@@ -245,9 +277,11 @@ def set_line(path, line, fields):
 
 
 def show(path):
+    _require_xlsx(path)
     if not os.path.isfile(path):
         raise Refused("no workbook at %s" % path)
     wb = load_workbook(path)
+    _require_ours(wb, path)
     ws = wb["Lines"]
     out = []
     for line, row in sorted(_line_rows(ws).items()):
@@ -264,6 +298,8 @@ def show(path):
         gaps = []
         if num(cost) and not rec.get("source_ref"):
             gaps.append("cost has no source")
+        if num(rec.get("alt_cost")) and not rec.get("alt_ref"):
+            gaps.append("alternative cost has no source")
         if num(price) and not rec.get("pricing_notes"):
             gaps.append("price has no pricing note")
         if not num(price) and rec.get("match") != "No bid":

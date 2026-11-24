@@ -5,8 +5,8 @@ description: Run a quote request for any customer that is not a California state
 # /rfq
 
 One request, one running order, for a customer outside the California state desk. It is the
-same practice `/ca-rfq` runs, without the California-only parts: no state form packet, no
-NASPO at-cost rule, no DVBE wording.
+same practice `/ca-rfq` runs, without the California state form packet and its
+certification wording.
 
 **This file carries order and gates.** Each step names the skill that owns it; invoke that
 skill and follow its body. It restates no price rule, certification, signer or form. Those
@@ -25,6 +25,9 @@ live in the customer's own `CLAUDE.md`, the channel file above it, and the skill
   the pursuit folder's `PURSUIT.md`. Price only the part that is a priced request.
 - **A request under a contract BBS already holds** (a BPA call, a task order) → continue, and
   read that contract folder's `CONTRACT.md` first.
+- **A folder inside another quote desk** (Bechtel Sentinel today, or any folder whose own
+  `CLAUDE.md` describes its record, quote log or workbook) → that desk's file governs. Follow
+  its record and ledger rules at every gate below; where it and this command differ, it wins.
 
 ## Gate 1 — The customer, the channel, the folder
 
@@ -66,6 +69,10 @@ set, the outcome and the lesson), then Business Central (`bc_customer_snapshot`,
 | Competitive, or Grainger does not carry it | `bbs-sourcing` |
 | One vendor, one ask | `vendor-quote-email` |
 
+`bbs-sourcing` was written for California state bids. Here, use it to find suppliers and
+draft the asks only. Its California procurement methods and DVBE wording do not apply to
+this request; certification wording comes from the channel file, never from that skill.
+
 **Gates.**
 
 - Every unit price has a source and a date beside it. No source, no price: `[FLAG: why]`.
@@ -73,9 +80,14 @@ set, the outcome and the lesson), then Business Central (`bc_customer_snapshot`,
   stop that line and ask the rep; the wrong account returns a wrong price that looks valid.
 - **Every cost and every price is in the workbook as it is found,** the cost with its source
   and the price with a note saying how it was set. `rfq-workbook` refuses either without it.
-- **The California at-cost rule does not apply here.** The sell price is the rep's call
-  within what the customer's file and the channel file say. Show cost, sell and margin to
-  the rep; none of the three goes on anything the customer sees except the sell price.
+- **Whether a Grainger line may carry markup is decided in one place:** the "Grainger sell
+  rule, by channel" table in bbs-foundations' `canonical-facts.md`. Read the row for this
+  request's channel and vehicle and apply it as written. Where that table says a channel is
+  open, the line is `[FLAG: sell rule for <channel> is open for Parker]` and goes to the rep;
+  no rule is inferred from another row. An order on a California schedule is that table's
+  California row whoever the buyer is.
+- Show cost, sell and margin to the rep; none of the three goes on anything the customer
+  sees except the sell price.
 
 ## Gate 5 — Build the quote in Business Central
 

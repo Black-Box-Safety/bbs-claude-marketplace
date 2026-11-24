@@ -240,6 +240,11 @@ app registration, the expected output of each step and what each error means are
 
 ## Commands
 
+**New on 2026-11-24, for reps:** `/ca-rfq` now keeps one internal Excel workbook per request in the
+deal folder (`rfq-workbook`). It is an added step. On a NASPO request the prices are still
+set by `naspo-quote`; the workbook is a second, internal copy of them with the source and a
+pricing note beside each. It never goes to a buyer.
+
 | Command | Does |
 |---|---|
 | `/ca-rfq` | The whole desk order under one contract: intake gate, recognition, extraction, eligibility, pricing, quote, packet and signature, visual verification, delivery. It carries order and gates only — every step runs the skill that owns it, so the command cannot drift away from the skills it invokes. |

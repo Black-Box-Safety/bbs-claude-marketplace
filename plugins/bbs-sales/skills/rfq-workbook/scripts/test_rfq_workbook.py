@@ -66,3 +66,51 @@ def test_cli_roundtrip(tmp_path, capsys):
     assert w.main(["create", "--out", out]) == 2
     assert w.main(["show", "--file", out]) == 0
     assert '"lines": 2' in capsys.readouterr().out
+
+
+def test_create_refuses_a_number_without_its_basis(tmp_path):
+    for bad in ({"qty": 1, "cost": 5},
+                {"qty": 1, "price": 9},
+                {"qty": 1, "alt_cost": 4},
+                {"qty": 1, "cost": 5, "source_ref": "  "}):
+        with pytest.raises(w.Refused):
+            w.create(str(tmp_path / "x.xlsx"), {}, [bad])
+        assert not (tmp_path / "x.xlsx").exists()
+
+
+def test_set_refuses_alt_cost_without_alt_ref(tmp_path):
+    out = str(tmp_path / "WORKING.xlsx")
+    w.create(out, {}, LINES)
+    with pytest.raises(w.Refused):
+        w.set_line(out, 2, {"alt_cost": "3.10"})
+    w.set_line(out, 2, {"alt_cost": "3.10", "alt_ref": "vendor B quote 77, 2026-11-24"})
+    assert w.show(out)["lines"][1]["alt_cost"] == 3.1
+
+
+def test_set_and_show_refuse_a_workbook_this_script_did_not_make(tmp_path):
+    from openpyxl import Workbook, load_workbook
+    other = str(tmp_path / "someone-elses.xlsx")
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Lines"
+    ws["A1"], ws["A2"], ws["M2"] = "Ln", 1, 99
+    wb.save(other)
+    with pytest.raises(w.Refused):
+        w.set_line(other, 1, {"cost": "5", "source_ref": "x"})
+    with pytest.raises(w.Refused):
+        w.show(other)
+    assert load_workbook(other)["Lines"]["M2"].value == 99      # untouched
+
+
+def test_only_xlsx_and_only_positive_line_numbers(tmp_path):
+    with pytest.raises(w.Refused):
+        w.create(str(tmp_path / "notes.txt"), {}, [])
+    assert not (tmp_path / "notes.txt").exists()
+    out = str(tmp_path / "WORKING.xlsx")
+    w.create(out, {}, LINES)
+    for n in (0, -3):
+        with pytest.raises(w.Refused):
+            w.set_line(out, n, {"requested": "x"})
+    with pytest.raises(w.Refused):
+        w.create(str(tmp_path / "y.xlsx"), {}, [{"line": 0, "qty": 1}])
+    assert w.main(["set", "--file", out, "--line", "0", "--field", "requested=x"]) == 2

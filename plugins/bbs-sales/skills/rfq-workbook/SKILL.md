@@ -2,13 +2,12 @@
 name: rfq-workbook
 description: >-
   Create and keep the internal working Excel workbook for one quote request at Black Box
-  Safety: one row per line with what the buyer asked for, the offered manufacturer and SKU,
-  the source, an alternative source, unit cost with where the cost came from, unit price,
-  margin, and a pricing note saying how the sell price was set, plus supplier and
-  price-comparison sheets. Use it when /rfq or /ca-rfq reaches the workbook step, or when a
-  rep says "start the working sheet", "make the sourcing workbook", "put these lines in a
-  spreadsheet", "add the vendor's cost to the workbook", "what is still unpriced" or "show me
-  the margin on this RFQ". Do NOT use it to build the customer's quote (bc-quote-entry; the
+  Safety: one row per line with the offered manufacturer and SKU, the source and an
+  alternative, unit cost with where it came from, unit price, margin, and a note saying how
+  the sell price was set. Use it when /rfq or /ca-rfq reaches the workbook step, or when a
+  rep says "start the working workbook", "open the working sheet for this RFQ", "add the
+  vendor's cost to the workbook", "what is still unpriced in the workbook" or "show me the
+  margin on this RFQ". Do NOT use it to find suppliers or ask vendors for prices (bbs-sourcing). Do NOT use it to build the customer's quote (bc-quote-entry; the
   Business Central print is the customer document), to look up a price (grainger-pricing,
   bbs-sourcing), or to make anything a customer will see: the workbook holds cost and margin
   and never leaves the building.
@@ -53,8 +52,9 @@ Run it through the plugin's launcher, which needs no Allow click (Parker, 2026-1
 
 Add `--help` after `create` or `set` for the header fields and the line field keys; they are
 defined once, in the script. If the script says the file is open in Excel or locked, ask the
-rep to close it and run it again. Do not write the workbook any other way: a hand-built
-sheet drifts from the columns every other request uses.
+rep to close it and run it again. `set` and `show` work only on a workbook this script
+made; any other spreadsheet is refused and left unchanged. Do not write the workbook any
+other way: a hand-built sheet drifts from the columns every other request uses.
 
 ## The steps
 
@@ -63,7 +63,9 @@ sheet drifts from the columns every other request uses.
    from the request and the customer's `CLAUDE.md`; leave unknown fields empty.
 2. **Record each cost as it arrives,** with `set`. A cost is refused without `source_ref`:
    the Grainger account and the read date, the vendor's quote number and date, or a listing
-   URL and date. Where there is a second source, record it in the `alt_` fields.
+   URL and date. Where there is a second source, record it in the `alt_` fields; an
+   alternative cost is refused without `alt_ref`. `create` applies the same refusals to the
+   lines it is given.
 3. **Name what is offered.** `match` is one of Exact, Equal, Substitute, No bid. A
    substitute carries the offered manufacturer and part number and the difference in `notes`.
 4. **Record the price with its reason.** A price is refused without `pricing_notes`. Write

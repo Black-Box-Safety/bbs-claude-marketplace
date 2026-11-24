@@ -338,11 +338,6 @@ Nothing reaches any machine until Parker re-pastes this file in the admin consol
 
 ## Desk memory notes: no Allow click to save one (2026-11-10, R7 A3)
 
-Ruling (Parker, in session, 2026-11-24): `rfq_workbook.py` (`bbs-sales` / `rfq-workbook`) is **on** the
-`bbs-fill` `ALLOWED` list, so `create`, `set` and `show` run without an Allow click. It writes
-one internal Excel workbook at the path it is given, refuses to overwrite one, refuses a cost
-with no source and a price with no pricing note, and cannot send, quote or sign.
-
 Ruling (Parker, in session, 2026-11-10, R7, A3 as recommended): `desk_memory.py`
 (`bbs-sales` / `desk-remember`) is **on** the `bbs-fill` `ALLOWED` list, so `where`, `add`,
 `show`, `retire` and `merge` run under `Bash(bbs-fill *)` without an Allow prompt. Before
@@ -357,6 +352,22 @@ apply on read; it refuses agency- and desk-level notes, which are Parker's (R7, 
 cannot send, price, sign or write to a system of record. Running it through `bbs-fill` also
 picks `python` on Windows and `python3` on a Mac, which the skill's bare `python3` line did not.
 Taking the script back off the list is a reversal and needs Parker, in a reviewed PR.
+
+## The RFQ working workbook: no Allow click (2026-11-24)
+
+Ruling (Parker, in session, 2026-11-24: "add it to the allow list"): `rfq_workbook.py`
+(`bbs-sales` / `rfq-workbook`) is **on** the `bbs-fill` `ALLOWED` list, so `create`, `set` and
+`show` run without an Allow click. What the script can do, each point covered by a test in
+`test_rfq_workbook.py`:
+
+- `create` writes one new `.xlsx` at the path given and refuses if a file is already there.
+- `set` and `show` act only on a workbook the script made (the banner and the exact column
+  headers are checked first); any other spreadsheet is refused and left unchanged.
+- A cost or alternative cost with no source, and a price with no pricing note, are refused
+  in `create` and in `set`.
+- It cannot send, quote, sign or reach a system of record.
+
+If any of those stops being true, this entry leaves the list in the same pull request.
 
 ## Form scripts: a hook, not a rule (2026-11-11)
 
